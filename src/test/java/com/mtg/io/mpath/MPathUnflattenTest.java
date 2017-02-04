@@ -9,12 +9,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Before;
 
 /**
  *
  * @author anishhirlekar
  */
 public class MPathUnflattenTest {
+    
+    String json1;
+    
+    @Before
+    public void init(){
+        json1 = "{\"a\":{\"b\":{\"c\":\"123\"}}}";
+    }
     
     @Test
     public void TestCase1(){
@@ -23,6 +31,20 @@ public class MPathUnflattenTest {
         try{
             JSONObject json = MPathUtil.getJsonFromMPath(mPath, value);
             System.out.println(json);
+        }catch(JSONException jx){
+            Assert.fail(jx.toString());
+        }
+    }
+    
+    @Test
+    public void TestCase2(){
+        try{
+            JSONObject initJson = new JSONObject(json1);
+            String mPath1 = "a.b.d", value1 = "456";
+            JSONObject unflatJson1 = MPathUtil.appendJsonFromMPath(initJson, mPath1, value1);
+            String mPath2 = "a.e.f", value2 = "8910";
+            JSONObject unflatJson2 = MPathUtil.appendJsonFromMPath(unflatJson1, mPath2, value2);
+            System.out.println(unflatJson2);
         }catch(JSONException jx){
             Assert.fail(jx.toString());
         }
