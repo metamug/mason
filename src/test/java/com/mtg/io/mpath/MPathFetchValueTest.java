@@ -67,7 +67,7 @@ import org.xml.sax.SAXException;
  *
  * @author anishhirlekar
  */
-public class MPathTest {
+public class MPathFetchValueTest {
 
     @Test
     public void TestCase1() throws XPathExpressionException, IOException,

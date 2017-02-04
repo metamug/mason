@@ -54,6 +54,7 @@
 package com.mtg.io.mpath;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
+import com.github.wnameless.json.unflattener.JsonUnflattener;
 import java.io.IOException;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
@@ -88,5 +89,11 @@ public class MPathUtil {
         }
 
         return value;
+    }
+    
+    public static JSONObject getJsonFromMPath(String mPath, String value){
+        String flatJson = "{\""+mPath+"\":\""+value+"\"}";
+        String unFlatJson = new JsonUnflattener(flatJson).unflatten();
+        return new JSONObject(unFlatJson);
     }
 }
