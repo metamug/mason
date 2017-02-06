@@ -70,7 +70,7 @@ public class ObjectReturnTest {
     private final String TYPE_JSON = "application/json";
     private final String TYPE_XML = "application/xml";
     private Customer customer1, customer2, customer3;
-    private List<Customer> list = new ArrayList<>();
+    private final List<Customer> list = new ArrayList<>();
 
     @Before
     public void init() {
