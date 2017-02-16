@@ -88,7 +88,7 @@ public class TestData {
             + "       }\n"
             + "   }\n"
             + "}";
-    
+
     public static final String TEST_JSON2 = "[\n"
             + "   {\n"
             + "       \"Port\":\n"
@@ -115,18 +115,18 @@ public class TestData {
             + "       }\n"
             + "   }\n"
             + "]";
-            
-    public static final String TEST_JSON3 = "{\n" +
-            "    \"data\": {\n" +
-            "        \"a\": {\n" +
-            "            \"value\":\"17\",\n" +
-            "            \"b\": {\n" +
-            "                \"value\":18,\n" +
-            "                \"c\": \"19\"\n" +
-            "            }\n" +
-            "        }\n" +
-            "    }\n" +
-            "}";
+
+    public static final String TEST_JSON3 = "{\n"
+            + "    \"data\": {\n"
+            + "        \"a\": {\n"
+            + "            \"value\":\"17\",\n"
+            + "            \"b\": {\n"
+            + "                \"value\":18,\n"
+            + "                \"c\": \"19\"\n"
+            + "            }\n"
+            + "        }\n"
+            + "    }\n"
+            + "}";
 
     public static final String TEST_XML = "<Resource version=\"1.1\" >\n"
             + "\n"
@@ -177,5 +177,5 @@ public class TestData {
             + "	</Request>\n"
             + "	       \n"
             + "	</Resource>";
-    
+
 }
