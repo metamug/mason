@@ -31,5 +31,10 @@
             <artifactId>json-flattener</artifactId>
             <version>0.2.4</version>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>6.0.5</version>
+        </dependency>
     </dependencies>
 </project>

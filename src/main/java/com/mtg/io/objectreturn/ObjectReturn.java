@@ -70,8 +70,12 @@ public class ObjectReturn {
     private static final String TYPE_JSON = "application/json";
     private static final String TYPE_XML = "application/xml";
 
-    //resultType can be "application/json" or "application/xml as specified by the accept header"
-    //if object is of type String, the object will be returned as it is and accept header will be ignored
+    /*
+    * @param returnObject The object to be converted. if object is of type String,
+    *        the object will be returned as it is and acceptHeader will be ignored
+    * @param acceptHeader Used to determine whether to convert into json or xml
+    * @return Json object or xml converted form of the returnObject as String
+    */
     public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
         if (returnObject instanceof String) {
             return (String) returnObject;
@@ -87,6 +91,11 @@ public class ObjectReturn {
         return marshalledResult.toString();
     }
     
+    /*
+    * @param objectList List of returned objects
+    * @param acceptHeader Used to determine whether to convert into json or xml
+    * @return Json array or xml converted form of the objectList as String
+    */
     public static String convert(List<?> objectList, String accHeader) throws JAXBException{
         String prefix = null, suffix = null, separator = null;
         if(accHeader.equals(TYPE_JSON)){

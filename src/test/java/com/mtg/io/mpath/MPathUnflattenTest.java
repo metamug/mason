@@ -5,6 +5,10 @@
  */
 package com.mtg.io.mpath;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -17,11 +21,19 @@ import org.junit.Before;
  */
 public class MPathUnflattenTest {
     
+    String TBL_MOVIE = "movie";
     String json1;
+    Connection connection;
     
     @Before
-    public void init(){
+    public void init() {
         json1 = "{\"a\":{\"b\":{\"c\":\"123\"}}}";
+        
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mtgdb","root", "");
+        } catch (SQLException ex) {
+            Assert.fail(ex.toString());
+        }
     }
     
     @Test
@@ -47,6 +59,25 @@ public class MPathUnflattenTest {
             System.out.println(unflatJson2);
         }catch(JSONException jx){
             Assert.fail(jx.toString());
+        }
+    }
+    
+    @Test
+    public void MysqlTest1(){
+        try {
+            String sql = "select id as 'a.b.c', name as 'a.b.d', rating from movie;";
+            ResultSet rs = connection.createStatement().executeQuery(sql);
+            int c = 1;
+            while(rs.next()){
+                System.out.println("Row "+c+":");
+                System.out.println(rs.getString("a.b.c"));
+                System.out.println(rs.getString("a.b.d"));
+                System.out.println(rs.getString("rating"));
+                System.out.println();
+                c++;
+            }
+        } catch (SQLException ex) {
+            Assert.fail(ex.toString());
         }
     }
     
