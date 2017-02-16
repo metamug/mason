@@ -15,6 +15,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -30,11 +31,6 @@
             <groupId>com.github.wnameless</groupId>
             <artifactId>json-flattener</artifactId>
             <version>0.2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>6.0.5</version>
         </dependency>
     </dependencies>
 </project>
