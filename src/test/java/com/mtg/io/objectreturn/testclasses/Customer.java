@@ -53,7 +53,6 @@
  */
 package com.mtg.io.objectreturn.testclasses;
 
-import com.mtg.io.objectreturn.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -72,7 +71,7 @@ public class Customer {
 
     private String lastName;
 
-    private List<PhoneNumber> phoneNumbers = new ArrayList<>();
+    private final List<PhoneNumber> phoneNumbers = new ArrayList<>();
 
     //must have zero argument constructor
     public Customer() {

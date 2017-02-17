@@ -66,23 +66,23 @@ import org.eclipse.persistence.jaxb.MarshallerProperties;
  * @author anishhirlekar
  */
 public class ObjectReturn {
-    
+
     private static final String TYPE_JSON = "application/json";
     private static final String TYPE_XML = "application/xml";
 
-    /*
-    * @param returnObject The object to be converted. if object is of type String,
-    *        the object will be returned as it is and acceptHeader will be ignored
-    * @param acceptHeader Used to determine whether to convert into json or xml
-    * @return Json object or xml converted form of the returnObject as String
-    */
+    /**
+     * @param returnObject The object to be converted. if object is of type String, the object will be returned as it is and acceptHeader will be ignored
+     * @param acceptHeader Used to determine whether to convert into JSON or XML
+     * @return Json object or XML converted form of the returnObject as String
+     * @throws javax.xml.bind.JAXBException
+     */
     public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
         if (returnObject instanceof String) {
             return (String) returnObject;
         }
         StringWriter marshalledResult = new StringWriter();
-        JAXBContext jc = JAXBContextFactory.createContext(new Class[] {returnObject.getClass()}, null);
-        
+        JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
+
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, acceptHeader);
@@ -90,31 +90,32 @@ public class ObjectReturn {
         marshaller.marshal(returnObject, marshalledResult);
         return marshalledResult.toString();
     }
-    
-    /*
-    * @param objectList List of returned objects
-    * @param acceptHeader Used to determine whether to convert into json or xml
-    * @return Json array or xml converted form of the objectList as String
-    */
-    public static String convert(List<?> objectList, String accHeader) throws JAXBException{
+
+    /**
+     * @param objectList List of returned objects
+     * @param acceptHeader Used to determine whether to convert into JSON or XML
+     * @return Json array or XML converted form of the objectList as String
+     * @throws javax.xml.bind.JAXBException
+     */
+    public static String convert(List<?> objectList, String acceptHeader) throws JAXBException {
         String prefix = null, suffix = null, separator = null;
-        if(accHeader.equals(TYPE_JSON)){
+        if (acceptHeader.equals(TYPE_JSON)) {
             prefix = "[\n";
             suffix = "]";
             separator = ",\n";
-        }else if(accHeader.equals(TYPE_XML)){
+        } else if (acceptHeader.equals(TYPE_XML)) {
             prefix = "<data>\n";
             suffix = "</data>";
             separator = "\n";
         }
         StringBuilder sb = new StringBuilder();
         sb.append(prefix);
-        for(Object obj : objectList){
-            sb.append(convert(obj, accHeader));
+        for (Object obj : objectList) {
+            sb.append(convert(obj, acceptHeader));
             sb.append(separator);
         }
         sb.append(suffix);
-        
+
         return sb.toString();
     }
 }

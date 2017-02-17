@@ -64,12 +64,12 @@ public class PhoneNumber {
     @XmlValue
     private String number;
 
-    public void setType(String t) {
-        type = t;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public void setNum(String n) {
-        number = n;
+    public void setNum(String number) {
+        this.number = number;
     }
 
 }

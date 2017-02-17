@@ -69,21 +69,26 @@ import org.xml.sax.SAXException;
  */
 public class MPathUtil {
 
-    /*
-    * @param mPath the m-path notation pointing to the value
-    * @param inputJson the json body containing data
-    * @return value from json as per mpath as a general Object
+    /**
+     *
+     * @param inputJson the json body containing data
+     * @param mPath the m-path notation pointing to the value
+     * @return value from json as per mpath as a general Object
      */
     public static Object getValueFromJson(String inputJson, String mPath) {
         Map<String, Object> flatMap = JsonFlattener.flattenAsMap(inputJson);
-        System.out.println("flatMap: \n"+flatMap);
+        System.out.println("flatMap: \n" + flatMap);
         return flatMap.get(mPath);
     }
 
-    /*
-    * @param mPath the m-path notation pointing to the value
-    * @param xmlInput the xml body containing data. Xml without root element is not allowed
-    * @return value from json as per mpath as a general Object
+    /**
+     * @param mPath the m-path notation pointing to the value
+     * @param xmlInput the XML body containing data. XML without root element is not allowed
+     * @return value from json as per mpath as a general Object
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     * @throws javax.xml.xpath.XPathExpressionException
+     * @throws javax.xml.parsers.ParserConfigurationException
      */
     public static Object getValueFromXml(String xmlInput, String mPath) throws IOException,
             SAXException, XPathExpressionException, ParserConfigurationException {
@@ -98,12 +103,12 @@ public class MPathUtil {
         return value;
     }
 
-    /*
-    * This method will create an unflattened json object according to an input m-path
-    * notation and its value
-    * @param mPath the input m-path notation
-    * @param value the value of the key denoted by the mPath
-    * @return unflattened json object
+    /**
+     * This method will create an unflattened json object according to an input m-path notation and its value
+     *
+     * @param mPath the input m-path notation
+     * @param value the value of the key denoted by the mPath
+     * @return unflattened json object
      */
     public static JSONObject getJsonFromMPath(String mPath, String value) {
         String flatJson = "{\"" + mPath + "\":\"" + value + "\"}";
@@ -111,12 +116,13 @@ public class MPathUtil {
         return new JSONObject(unFlatJson);
     }
 
-    /*
-    * This method takes an input json and appends the input value to the json according
-    * to the given mPath
-    * @param mPath the input m-path notation
-    * @param value the value of the mPath key
-    * @return unflattened json object
+    /**
+     * This method takes an input json and appends the input value to the json according to the given mPath
+     *
+     * @param initialJsonObject JSONObject in which the new value will be added.
+     * @param mPath the input m-path notation
+     * @param value the value of the mPath key
+     * @return unflattened json object
      */
     public static JSONObject appendJsonFromMPath(JSONObject initialJsonObject, String mPath, String value) {
         String flatString = JsonFlattener.flatten(initialJsonObject.toString());
