@@ -69,7 +69,7 @@ public class MPathUnflattenTest {
 
     @Before
     public void init() {
-        json1 = "{\"a\":{\"b\":{\"c\":\"123\"}}}";
+        json1 = "{\"a\":{\"b\":{\"c\":123}}}";
     }
 
     @Test
@@ -88,7 +88,8 @@ public class MPathUnflattenTest {
     public void TestCase2() {
         try {
             JSONObject initJson = new JSONObject(json1);
-            String mPath1 = "a.b.d", value1 = "456";
+            String mPath1 = "a.b.d";
+            int value1 = 456;
             JSONObject unflatJson1 = MPathUtil.appendJsonFromMPath(initJson, mPath1, value1);
             String mPath2 = "a.e.f", value2 = "8910";
             JSONObject unflatJson2 = MPathUtil.appendJsonFromMPath(unflatJson1, mPath2, value2);

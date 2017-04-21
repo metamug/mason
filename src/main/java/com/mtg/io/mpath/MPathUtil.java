@@ -124,7 +124,7 @@ public class MPathUtil {
      * @param value the value of the mPath key
      * @return unflattened json object
      */
-    public static JSONObject appendJsonFromMPath(JSONObject initialJsonObject, String mPath, String value) {
+    public static JSONObject appendJsonFromMPath(JSONObject initialJsonObject, String mPath, Object value) {
         String flatString = JsonFlattener.flatten(initialJsonObject.toString());
         JSONObject flatJson = new JSONObject(flatString);
         //System.out.println(flatJson.toString());
