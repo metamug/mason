@@ -96,16 +96,100 @@
                             }
                         </option>
                         <option>-keep public class com.metamug.api.taghandlers.CodeTagHandler {
-                                
+                                public int doEndTag();
+                                public void setClassName(java.lang.String);
+                                public void setParam(java.lang.Object);
+                                public void doCatch(java.lang.Throwable);
+                                public void doFinally();
+                                public void addParameter(java.lang.Object);
                             }
                         </option>
-                        <option>-keep public class com.metamug.api.taghandlers.ExceptionTagHandler</option>
-                        <option>-keep public class com.metamug.api.taghandlers.GroupTagHandler</option>
-                        <option>-keep public class com.metamug.api.taghandlers.HeaderTagHandler</option>
-                        <option>-keep public class com.metamug.api.taghandlers.OutputTagHandler</option>
-                        <option>-keep public class com.metamug.api.taghandlers.ParamTagHandler</option>
-                        <option>-keep public class com.metamug.api.taghandlers.ParentTagHandler</option>
-                        <option>-keep public class com.metamug.api.taghandlers.StatusTagHandler</option>
+                        <option>-keep public class com.metamug.api.taghandlers.ExceptionTagHandler {
+                                public int doEndTag();
+                                public void setValue(java.lang.Object);
+                                public void doCatch(java.lang.Throwable);
+                                public void doFinally();
+                            }
+                        </option>
+                        <option>-keep public class com.metamug.api.taghandlers.GroupTagHandler {
+                                public int doEndTag();
+                                public void setValue(java.lang.String);
+                                public void doCatch(java.lang.Throwable);
+                                public void doFinally();
+                            }
+                        </option>
+                        <option>-keep public class com.metamug.api.taghandlers.HeaderTagHandler {
+                                public int doEndTag();
+                                public void setValue(java.lang.String);
+                                public void doCatch(java.lang.Throwable);
+                                public void doFinally();
+                            }
+                        </option>
+                        <option>-keep public class com.metamug.api.taghandlers.OutputTagHandler {
+                                public int doEndTag();
+                                public void setValue(java.util.LinkedHashMap);
+                                public void setType(java.lang.String);
+                                public void setTableName(java.lang.String);
+                            }
+                        </option>
+                        <option>-keep public class com.metamug.api.taghandlers.ParamTagHandler {
+                                public int doEndTag();
+                                public void setName(java.lang.String);
+                                public void setType(java.lang.String);
+                                public void setIsRequired(boolean);
+                                public void setMax(java.lang.String);
+                                public void setMin(java.lang.String);
+                                public void setMaxLen(java.lang.String);
+                                public void setMinLen(java.lang.String);
+                                public void setPattern(java.lang.String);
+                                public void setExists(java.lang.String);
+                                public void setValue(java.lang.String);
+                                public void setDefaultValue(java.lang.String);
+                                public void doCatch(java.lang.Throwable);
+                                public void doFinally();
+                            }
+                        </option>
+                        <option>-keep public class com.metamug.api.taghandlers.ParentTagHandler {
+                                public int doEndTag();
+                                public void setValue(java.lang.String);
+                            }
+                        </option>
+                        <option>-keep public class com.metamug.api.taghandlers.StatusTagHandler {
+                                public int doEndTag();
+                                public void setValue(java.lang.String);
+                                public void setMessage(java.lang.String);
+                                public void doCatch(java.lang.Throwable);
+                                public void doFinally();
+                            }                      
+                        </option>
+                        <option>-keep public class com.metamug.api.common.MtgRequest {
+                                public java.lang.String getUri();
+                                public void setUri(java.lang.String);
+                                public java.lang.String getId();
+                                public void setId(java.lang.String);
+                                public java.lang.String getPid();
+                                public void setPid(java.lang.String);
+                                public java.lang.String getUid();
+                                public void setUid(java.lang.String);
+                                public java.lang.String getMethod();
+                                public void setMethod(java.lang.String);
+                                public java.util.Map getParams();
+                                public void setParams(java.util.Map);
+                                public int getStatusCode();
+                                public void setStatusCode(int);
+                                public java.lang.String getParent();
+                                public void setParent(java.lang.String);
+                            }
+                        </option>
+                        <option>-keep public class com.metamug.api.common.MtgResultSet {
+                                public void setResult(org.apache.taglibs.standard.tag.common.sql.ResultImpl);
+                                public org.apache.taglibs.standard.tag.common.sql.ResultImpl getResult();
+                                public java.util.List getResultList();
+                                public java.lang.String getId();
+                                public java.util.List getIdList();
+                                public void setId(java.lang.String);
+                            }
+                        </option>
                     </options>
                     <libs>
                         <lib>${java.home}/lib/rt.jar</lib>
