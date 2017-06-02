@@ -138,11 +138,11 @@ public class UploadController extends HttpServlet {
     }// </editor-fold>
 
     private void callUploadEvent(File uploadedFile, String appName, HttpServletRequest req) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        File projectLibs = new File(System.getProperty("catalina.base") + File.separator + "api" + "/" + appName + "/WEB-INF/lib/");
+        File projectLibs = new File(System.getProperty("catalina.base") + File.separator + "api" + "/" + appName + "/WEB-INF/lib");
         File[] jars = projectLibs.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.contains("-MTG");
+                return name.endsWith("-MTG.jar");
             }
         });
         String listenerClass = null;
