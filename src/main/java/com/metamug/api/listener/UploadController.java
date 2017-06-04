@@ -52,10 +52,10 @@
  */
 package com.metamug.api.listener;
 
-
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -66,6 +66,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -92,7 +93,7 @@ import org.json.JSONObject;
         maxFileSize = 1024 * 1024 * 5,
         maxRequestSize = 1024 * 1024 * 25)
 public class UploadController extends HttpServlet {
-    
+
     @Resource(name = "jdbc/mtgMySQL")
     private DataSource ds;
 
@@ -137,7 +138,7 @@ public class UploadController extends HttpServlet {
                     fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
                     File uploadedFile = new File(uploadFilePath + File.separator + fileName);
                     try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
-                        int read = 0;
+                        int read;
                         byte[] bytes = new byte[1024];
                         while ((read = fileContent.read(bytes)) != -1) {
                             fos.write(bytes, 0, read);
@@ -185,31 +186,11 @@ public class UploadController extends HttpServlet {
     }// </editor-fold>
 
     private void callUploadEvent(File uploadedFile, String appName, HttpServletRequest req) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        File projectLibs = new File(System.getProperty("catalina.base") + File.separator + "api" + "/" + appName + "/WEB-INF/lib");
-        File[] jars = projectLibs.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith("-MTG.jar");
-            }
-        });
-        String listenerClass = null;
-        for (File jar : jars) {
-            JarFile jarFile = new JarFile(jar);
-            Enumeration allEntries = jarFile.entries();
-            while (allEntries.hasMoreElements()) {
-                JarEntry je = (JarEntry) allEntries.nextElement();
-                if (!je.isDirectory() && je.getName().endsWith(".class")) {
-                    String className = je.getName().substring(0, je.getName().length() - ".class".length());
-                    className = className.replace('/', '.');
-                    Class clazz = Class.forName(className);
-                    Class[] interfaces = clazz.getInterfaces();
-                    for (Class aInterface : interfaces) {
-                        if (aInterface.getName().contains("UploadListener")) {
-                            listenerClass = className;
-                        }
-                    }
-                }
-            }
+        String listenerClass;
+        Properties prop = new Properties();
+        try (FileInputStream fis = new FileInputStream(new File(System.getProperty("catalina.base") + File.separator + "api" + "/" + appName + "/WEB-INF/config.properties"))) {
+            prop.load(fis);
+            listenerClass = prop.getProperty("UploadListener");
         }
         if (listenerClass != null) {
             Class cls = Class.forName((String) listenerClass);
@@ -239,5 +220,5 @@ public class UploadController extends HttpServlet {
             throw new ClassNotFoundException();
         }
     }
-    
+
 }
