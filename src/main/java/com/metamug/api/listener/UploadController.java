@@ -156,10 +156,6 @@ public class UploadController extends HttpServlet {
                 obj.put("message", "No implementation of UploadListener was found.");
                 obj.put("status", 428);
                 response.setStatus(428);
-            } catch (RuntimeException ex) {
-                obj.put("message", "Error occured while executing UploadListener");
-                obj.put("status", 500);
-                response.setStatus(500);
             } catch (IOException | ServletException | InstantiationException | IllegalAccessException ex) {
                 obj.put("message", "Error occured in UploadListener implementation");
                 obj.put("status", 500);
