@@ -21,7 +21,7 @@
  *
  * You may freely distribute exact copies of the Software to anyone.
  *
- * The inclusion of the Software in any shareware, freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
+ * The inclusion of the Software in any Shareware, Freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
  *
  * The selling of the Software is strictly prohibited.
  * 2. Restrictions
@@ -57,7 +57,6 @@ import com.metamug.event.UploadListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -67,8 +66,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -151,15 +148,28 @@ public class UploadController extends HttpServlet {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {
                     response.setStatus(413);
                 }
+            } catch (NullPointerException ex) {
+                obj.put("message", "Null value occured during UploadListener execution.");
+                obj.put("status", 428);
+                response.setStatus(428);
             } catch (ClassNotFoundException ex) {
                 obj.put("message", "No implementation of UploadListener was found.");
                 obj.put("status", 428);
                 response.setStatus(428);
+            } catch (RuntimeException ex) {
+                obj.put("message", "Error occured while executing UploadListener");
+                obj.put("status", 500);
+                response.setStatus(500);
             } catch (IOException | ServletException | InstantiationException | IllegalAccessException ex) {
                 obj.put("message", "Error occured in UploadListener implementation");
                 obj.put("status", 500);
                 response.setStatus(500);
                 Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            } catch (Exception ex) {
+                obj.put("message", "Error occured in UploadListener implementation");
+                obj.put("status", 500);
+                response.setStatus(500);
+                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             response.setStatus(415);
@@ -185,7 +195,7 @@ public class UploadController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private void callUploadEvent(File uploadedFile, String appName, HttpServletRequest req) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private void callUploadEvent(File uploadedFile, String appName, HttpServletRequest req) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, Exception {
         String listenerClass;
         Properties prop = new Properties();
         try (FileInputStream fis = new FileInputStream(new File(System.getProperty("catalina.base") + File.separator + "api" + "/" + appName + "/WEB-INF/config.properties"))) {
