@@ -22,16 +22,15 @@
         </dependency>
         <dependency>
             <groupId>com.metamug</groupId>
-            <artifactId>mtg-api</artifactId>
-            <version>1.1.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.metamug</groupId>
             <artifactId>mtg-io</artifactId>
             <version>1.1</version>
             <type>jar</type>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.metamug</groupId>
+            <artifactId>mtg-api</artifactId>
+            <version>1.1.2</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>
@@ -41,7 +40,7 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <build>
+    <!--<build>
         <plugins>
             <plugin>
                 <groupId>com.github.wvengen</groupId>
@@ -198,7 +197,7 @@
                 </configuration>
             </plugin>
         </plugins>
-    </build>
+    </build>-->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>

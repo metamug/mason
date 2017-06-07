@@ -104,6 +104,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         JSONObject obj = new JSONObject();
         JspWriter out = null;
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String acceptHeader = request.getHeader("Accept");
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         try {
             out = pageContext.getOut();
