@@ -55,6 +55,7 @@ package com.metamug.api.taghandlers;
 import com.metamug.api.common.MtgRequest;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
+import com.mtg.io.objectreturn.ObjectReturn;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -72,6 +73,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
+import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -104,10 +106,11 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         JSONObject obj = new JSONObject();
         JspWriter out = null;
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String acceptHeader = request.getHeader("Accept");
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         try {
             out = pageContext.getOut();
-            Object result = null;
+            Object result;
             Class cls = Class.forName((String) className);
             Object newInstance = cls.newInstance();
             ResultProcessable resProcessable;
@@ -118,11 +121,14 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     if (param instanceof ResultImpl) {
                         ResultImpl ri = (ResultImpl) param;
                         result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                        obj.put("result", result);
+                        
+                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                        
+                        obj.put("result", processedResult);
                         out.print(obj);
                         pageContext.setAttribute("Content-Length", ((String) result).length(), PageContext.REQUEST_SCOPE);
                     }
-                } catch (IOException ex) {
+                } catch (IOException | JAXBException ex) {
                     if (ex.getCause() != null) {
                         String cause = ex.getCause().toString();
                         obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
@@ -145,11 +151,14 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             requestHeaders.put(header, request.getHeader(header));
                         }
                         result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
-                        obj.put("result", result);
+                       
+                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                        
+                        obj.put("result", processedResult);
                         out.print(obj);
                         pageContext.setAttribute("Content-Length", ((String) result).length(), PageContext.REQUEST_SCOPE);
                     }
-                } catch (IOException | JSONException ex) {
+                } catch (IOException | JAXBException ex) {
                     if (ex.getCause() != null) {
                         String cause = ex.getCause().toString();
                         obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
@@ -165,7 +174,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 response.setStatus(422);
                 out.print(obj);
             }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | IOException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                                        | SecurityException | IllegalArgumentException | IOException ex) {
             if (ex.getClass().toString().contains("AccessControlException")) {
                 obj.put("message", "Access denied, can't access system information.");
                 obj.put("status", 403);

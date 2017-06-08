@@ -90,45 +90,84 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String header = request.getHeader("Accept");
+        String header = request.getHeader("Accept");////this
+        System.out.println("Accept: " + header);
         try {
             System.out.println("Exception:" + ex);
 //            ex.printStackTrace();
-            if (ex.getCause() != null) {
-                String cause = ex.getCause().toString();
-                System.out.println("Cause:" + cause);
-                if (cause.contains("InputValidationException")) {
-                    response.setStatus(412);
-                    out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 412 + "}");
-                } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("SQLException")) {
-                    response.setStatus(500);
-                    out.println("{\"message\": \"Incorrect query or constraint violation\",\"status\":" + 500 + "}");
-//                    out.println("{\"message\": \"" + cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 422 + "}");
-                } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
-                    response.setStatus(422);
-                    out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
-                } else if (cause.contains("ResourceNotFoundException")) {
-                    response.setStatus(404);
-                    out.println("{\"message\": \"Parent resouce not found\",\"status\":" + 404 + "}");
-                } else if (cause.contains("InvalidStatusException")) {
-                    response.setStatus(406);
-                    out.println("{\"message\": \"Invalid Status code set\",\"status\":" + 406 + "}");
-                } else if (cause.contains("RoleAuthorizationException")) {
-                    response.setStatus(401);
-                    response.setHeader("WWW-Authenticate", "Basic");
-                    out.println("{\"message\": \"Access Denied to resource due to unauthorization\",\"status\":" + 401 + "}");
-                } else if (cause.contains("RoleAccessDeniedException")) {
-                    response.setStatus(403);
-                    out.println("{\"message\": \"Forbidden Access to resource\",\"status\":" + 403 + "}");
+            if(header.equals("application/xml")) {
+                out.println("<response>\n");
+                if (ex.getCause() != null) {
+                    String cause = ex.getCause().toString();
+                    System.out.println("Cause:" + cause);
+                    if (cause.contains("InputValidationException")) {
+                        response.setStatus(412);
+                        out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 412 + "</status>");
+                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("SQLException")) {
+                        response.setStatus(500);
+                        out.println("<message>Incorrect query or constraint violation</message>\n<status>" + 500 + "</status>");
+                    } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
+                        response.setStatus(422);
+                        out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
+                    } else if (cause.contains("ResourceNotFoundException")) {
+                        response.setStatus(404);
+                        out.println("<message>Parent resouce not found</message>\n<status>" + 404 + "</status>");
+                    } else if (cause.contains("InvalidStatusException")) {
+                        response.setStatus(406);
+                        out.println("<message>Invalid Status code set</message>\n<status>" + 406 + "</status>");
+                    } else if (cause.contains("RoleAuthorizationException")) {
+                        response.setStatus(401);
+                        response.setHeader("WWW-Authenticate", "Basic");
+                        out.println("<message>Access Denied to resource due to unauthorization</message>\n<status>" + 401 + "</status>");
+                    } else if (cause.contains("RoleAccessDeniedException")) {
+                        response.setStatus(403);
+                        out.println("<message>Forbidden Access to resource</message>\n<status>" + 403 + "</status>");
+                    } else {
+                        response.setStatus(409);
+                        out.println("<message>Conflict in resource file</message>\n<status>" + 409 + "</status>");
+                    }          
                 } else {
-                    response.setStatus(409);
-                    out.println("{\"message\": \"Conflict in resource file\",\"status\":" + 409 + "}");
-//                    out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 422 + "}");
+                    response.setStatus(500);
+                    out.println("<message>Server Error</message>\n<status>" + 500 + "</status>");
                 }
+                out.println("\n</response>");          
             } else {
-                response.setStatus(500);
-                out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
-//                out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 409 + "}");
+                if (ex.getCause() != null) {
+                    String cause = ex.getCause().toString();
+                    System.out.println("Cause:" + cause);
+                    if (cause.contains("InputValidationException")) {
+                        response.setStatus(412);
+                        out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 412 + "}");
+                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("SQLException")) {
+                        response.setStatus(500);
+                        out.println("{\"message\": \"Incorrect query or constraint violation\",\"status\":" + 500 + "}");
+    //                    out.println("{\"message\": \"" + cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 422 + "}");
+                    } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
+                        response.setStatus(422);
+                        out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
+                    } else if (cause.contains("ResourceNotFoundException")) {
+                        response.setStatus(404);
+                        out.println("{\"message\": \"Parent resouce not found\",\"status\":" + 404 + "}");
+                    } else if (cause.contains("InvalidStatusException")) {
+                        response.setStatus(406);
+                        out.println("{\"message\": \"Invalid Status code set\",\"status\":" + 406 + "}");
+                    } else if (cause.contains("RoleAuthorizationException")) {
+                        response.setStatus(401);
+                        response.setHeader("WWW-Authenticate", "Basic");
+                        out.println("{\"message\": \"Access Denied to resource due to unauthorization\",\"status\":" + 401 + "}");
+                    } else if (cause.contains("RoleAccessDeniedException")) {
+                        response.setStatus(403);
+                        out.println("{\"message\": \"Forbidden Access to resource\",\"status\":" + 403 + "}");
+                    } else {
+                        response.setStatus(409);
+                        out.println("{\"message\": \"Conflict in resource file\",\"status\":" + 409 + "}");
+    //                    out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 422 + "}");
+                    }
+                } else {
+                    response.setStatus(500);
+                    out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
+    //                out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 409 + "}");
+                }
             }
             Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, "ExceptionTaglib:{0}", ex.getMessage());
         } catch (IOException ex1) {
