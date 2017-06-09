@@ -75,7 +75,6 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
