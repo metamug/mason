@@ -21,7 +21,7 @@
  *
  * You may freely distribute exact copies of the Software to anyone.
  *
- * The inclusion of the Software in any shareware, freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
+ * The inclusion of the Software in any Shareware, Freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
  *
  * The selling of the Software is strictly prohibited.
  * 2. Restrictions
@@ -120,9 +120,9 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     if (param instanceof ResultImpl) {
                         ResultImpl ri = (ResultImpl) param;
                         result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                        
+
                         Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        
+
                         obj.put("result", processedResult);
                         out.print(obj);
                         pageContext.setAttribute("Content-Length", ((String) result).length(), PageContext.REQUEST_SCOPE);
@@ -150,9 +150,9 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             requestHeaders.put(header, request.getHeader(header));
                         }
                         result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
-                       
+
                         Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        
+
                         obj.put("result", processedResult);
                         out.print(obj);
                         pageContext.setAttribute("Content-Length", ((String) result).length(), PageContext.REQUEST_SCOPE);
@@ -174,7 +174,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 out.print(obj);
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                                        | SecurityException | IllegalArgumentException | IOException ex) {
+                | SecurityException | IllegalArgumentException | IOException ex) {
             if (ex.getClass().toString().contains("AccessControlException")) {
                 obj.put("message", "Access denied, can't access system information.");
                 obj.put("status", 403);
@@ -189,11 +189,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 obj.put("status", 422);
                 response.setStatus(422);
             }
-            try {
-                out.print(obj);
-            } catch (IOException ex1) {
-                Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex1.getMessage());
-            }
+            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
         return EVAL_PAGE;
     }
