@@ -189,7 +189,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 obj.put("status", 422);
                 response.setStatus(422);
             }
-            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage());
+            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, "{0}{1}", new Object[]{ex.getMessage(), ex.getClass()});
         }
         return EVAL_PAGE;
     }
