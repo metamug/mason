@@ -21,7 +21,7 @@
  *
  * You may freely distribute exact copies of the Software to anyone.
  *
- * The inclusion of the Software in any shareware, freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
+ * The inclusion of the Software in any Shareware, Freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
  *
  * The selling of the Software is strictly prohibited.
  * 2. Restrictions
@@ -42,7 +42,7 @@
  *
  * IMPORTANT NOTE: Nothing in this Agreement is intended or shall be construed as excluding or modifying any statutory rights, warranties or conditions which by virtue of any national or state Fair Trading, Trade Practices or other such consumer legislation may not be modified or excluded. If permitted by such legislation, however, METAMUG's liability for any breach of any such warranty or condition shall be and is hereby limited to the supply of the Software licensed hereunder again as METAMUG at its sole discretion may determine to be necessary to correct the said breach.
  *
- * IN NO EVENT SHALL METAMUG BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, AND THE LOSS OF BUSINESS INFORMATION OR COMPUTER PROGRAMS), EVEN IF METAMUG OR ANY METAMUG REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN ADDITION, IN NO EVENT DOES METAMUG AUTHORISE YOU TO USE THE SOFTWARE IN SITUATIONS WHERE FAILURE OF THE SOFTWARE TO PERFORM CAN REASONABLY BE EXPECTED TO RESULT IN A PHYSICAL INJURY, OR IN LOSS OF LIFE. ANY SUCH USE BY YOU IS ENTIRELY AT YOUR OWN RISK, AND YOU AGREE TO HOLD METAMUG HARMLESS FROM ANY CLAIMS OR LOSSES RELATING TO SUCH UNAUTHORISED USE.
+ * IN NO EVENT SHALL METAMUG BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, AND THE LOSS OF BUSINESS INFORMATION OR COMPUTER PROGRAMS), EVEN IF METAMUG OR ANY METAMUG REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN ADDITION, IN NO EVENT DOES METAMUG AUTHORIZE YOU TO USE THE SOFTWARE IN SITUATIONS WHERE FAILURE OF THE SOFTWARE TO PERFORM CAN REASONABLY BE EXPECTED TO RESULT IN A PHYSICAL INJURY, OR IN LOSS OF LIFE. ANY SUCH USE BY YOU IS ENTIRELY AT YOUR OWN RISK, AND YOU AGREE TO HOLD METAMUG HARMLESS FROM ANY CLAIMS OR LOSSES RELATING TO SUCH UNAUTHORIZED USE.
  *
  * 5. General
  *
@@ -92,6 +92,7 @@ public class OutputTagHandler extends BodyTagSupport {
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         String header = (String) type;//Accept type
         int mapSize = mtgResultMap.size();
+        int resultCounter = 0;
         boolean emptyContent = true;
         int contentLength = 0;
         if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
@@ -129,49 +130,92 @@ public class OutputTagHandler extends BodyTagSupport {
             response.setContentType("application/json");
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
-                try {
-                    ResultImpl resultImpl = (ResultImpl) entry.getValue();
-                    SortedMap[] rows = resultImpl.getRows();
-                    String[] columnNames = resultImpl.getColumnNames();
-                    if (rows.length > 0 && emptyContent) {
-                        emptyContent = false;
+                if (entry.getValue() instanceof ResultImpl) {
+                    try {
+                        ResultImpl resultImpl = (ResultImpl) entry.getValue();
+                        SortedMap[] rows = resultImpl.getRows();
+                        String[] columnNames = resultImpl.getColumnNames();
+                        if (rows.length > 0 && emptyContent) {
+                            emptyContent = false;
+                        }
+                        if (mapSize == 1) {
+                            try {
+                                if (emptyContent) {
+                                    response.setStatus(204);
+                                } else {
+                                    JSONArray array = new JSONArray();
+                                    for (SortedMap<String, Object> row : rows) {
+                                        JSONObject rowJson = new JSONObject();
+                                        for (String columnName : columnNames) {
+                                            rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
+                                        }
+                                        array.put(rowJson);
+                                    }
+                                    pageContext.setAttribute("Content-Length", array.toString().length(), PageContext.REQUEST_SCOPE);
+                                    out.print(array.toString());
+                                }
+                            } catch (IOException ex) {
+                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        } else {
+                            JSONArray array = new JSONArray();
+                            for (SortedMap row : rows) {
+                                JSONObject rowJson = new JSONObject(new LinkedHashMap<>());
+                                for (String columnName : columnNames) {
+                                    rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
+                                }
+                                array.put(row);
+                            }
+                            contentLength += array.toString().length();
+                            System.out.println(array.toString());
+                            responseJson.append("response", array);
+                        }
+                    } catch (ClassCastException ex) {
+                        int resultUpdated = (int) entry.getValue();
+                        responseJson.append("response", resultUpdated + " results updated");
                     }
-                    if (mapSize == 1) {
-                        try {
+                } else if (entry.getValue() instanceof String) {
+                    try {
+                        String result = (String) entry.getValue();
+                        // Print result of Code execution
+                        if (!result.isEmpty() && emptyContent) {
+                            emptyContent = false;
+                        }
+                        if (mapSize == 1) {
                             if (emptyContent) {
                                 response.setStatus(204);
                             } else {
-                                JSONArray array = new JSONArray();
-                                for (SortedMap<String, Object> row : rows) {
-                                    JSONObject rowJson = new JSONObject();
-                                    for (String columnName : columnNames) {
-
-                                        rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
+                                try {
+                                    JSONObject codeResult = new JSONObject();
+                                    if (entry.getKey().contains("error")) {
+                                        codeResult.put("error" + (++resultCounter), result);
+                                    } else {
+                                        codeResult.put("result" + (++resultCounter), result);
                                     }
-                                    array.put(rowJson);
+                                    pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
+                                    out.print(codeResult.toString());
+                                } catch (IOException ex) {
+                                    Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                                pageContext.setAttribute("Content-Length", array.toString().length(), PageContext.REQUEST_SCOPE);
-                                out.print(array.toString());
                             }
-                        } catch (IOException ex) {
-                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } else {
-                        JSONArray array = new JSONArray();
-                        for (SortedMap row : rows) {
-                            JSONObject rowJson = new JSONObject(new LinkedHashMap<>());
-                            for (String columnName : columnNames) {
-                                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
+                        } else {
+                            JSONArray array = new JSONArray();
+                            JSONObject codeResult = new JSONObject();
+                            if (entry.getKey().contains("error")) {
+                                codeResult.put("error" + (++resultCounter), result);
+                            } else {
+                                codeResult.put("result" + (++resultCounter), result);
                             }
-                            array.put(row);
+
+                            array.put(codeResult);
+                            contentLength += array.toString().length();
+                            System.out.println(array.toString());
+                            responseJson.append("response", array);
                         }
-                        contentLength += array.toString().length();
-//                        System.out.println(array.toString());
-                        responseJson.append("response", array);
+                    } catch (ClassCastException ex) {
+                        int resultUpdated = (int) entry.getValue();
+                        responseJson.append("response", resultUpdated + " results updated");
                     }
-                } catch (ClassCastException ex) {
-                    int resultUpdated = (int) entry.getValue();
-                    responseJson.append("response", resultUpdated + " results updated");
                 }
             }
             try {

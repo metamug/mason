@@ -42,7 +42,7 @@
  *
  * IMPORTANT NOTE: Nothing in this Agreement is intended or shall be construed as excluding or modifying any statutory rights, warranties or conditions which by virtue of any national or state Fair Trading, Trade Practices or other such consumer legislation may not be modified or excluded. If permitted by such legislation, however, METAMUG's liability for any breach of any such warranty or condition shall be and is hereby limited to the supply of the Software licensed hereunder again as METAMUG at its sole discretion may determine to be necessary to correct the said breach.
  *
- * IN NO EVENT SHALL METAMUG BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, AND THE LOSS OF BUSINESS INFORMATION OR COMPUTER PROGRAMS), EVEN IF METAMUG OR ANY METAMUG REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN ADDITION, IN NO EVENT DOES METAMUG AUTHORISE YOU TO USE THE SOFTWARE IN SITUATIONS WHERE FAILURE OF THE SOFTWARE TO PERFORM CAN REASONABLY BE EXPECTED TO RESULT IN A PHYSICAL INJURY, OR IN LOSS OF LIFE. ANY SUCH USE BY YOU IS ENTIRELY AT YOUR OWN RISK, AND YOU AGREE TO HOLD METAMUG HARMLESS FROM ANY CLAIMS OR LOSSES RELATING TO SUCH UNAUTHORISED USE.
+ * IN NO EVENT SHALL METAMUG BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, AND THE LOSS OF BUSINESS INFORMATION OR COMPUTER PROGRAMS), EVEN IF METAMUG OR ANY METAMUG REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN ADDITION, IN NO EVENT DOES METAMUG AUTHORIZE YOU TO USE THE SOFTWARE IN SITUATIONS WHERE FAILURE OF THE SOFTWARE TO PERFORM CAN REASONABLY BE EXPECTED TO RESULT IN A PHYSICAL INJURY, OR IN LOSS OF LIFE. ANY SUCH USE BY YOU IS ENTIRELY AT YOUR OWN RISK, AND YOU AGREE TO HOLD METAMUG HARMLESS FROM ANY CLAIMS OR LOSSES RELATING TO SUCH UNAUTHORIZED USE.
  *
  * 5. General
  *
@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -71,10 +72,12 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -102,41 +105,22 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     @Override
     public int doEndTag() throws JspException {
-        JSONObject obj = new JSONObject();
-        JspWriter out = null;
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeader = request.getHeader("Accept");
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
+        LinkedHashMap map = (LinkedHashMap) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+        int mapSize = map.size();
+        Object result = null;
         try {
-            out = pageContext.getOut();
-            Object result;
             Class cls = Class.forName((String) className);
             Object newInstance = cls.newInstance();
             ResultProcessable resProcessable;
             RequestProcessable reqProcessable;
             if (ResultProcessable.class.isAssignableFrom(cls)) {
                 resProcessable = (ResultProcessable) newInstance;
-                try {
-                    if (param instanceof ResultImpl) {
-                        ResultImpl ri = (ResultImpl) param;
-                        result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-
-                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
-
-                        obj.put("result", processedResult);
-                        out.print(obj);
-                        pageContext.setAttribute("Content-Length", ((String) result).length(), PageContext.REQUEST_SCOPE);
-                    }
-                } catch (IOException | JAXBException ex) {
-                    if (ex.getCause() != null) {
-                        String cause = ex.getCause().toString();
-                        obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                    } else {
-                        obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                    }
-                    obj.put("status", 422);
-                    response.setStatus(422);
-                    out.print(obj);
+                if (param instanceof ResultImpl) {
+                    ResultImpl ri = (ResultImpl) param;
+                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                    map.put("execute" + (mapSize + 1), result);
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
@@ -150,46 +134,38 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             requestHeaders.put(header, request.getHeader(header));
                         }
                         result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
-
-                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
-
-                        obj.put("result", processedResult);
-                        out.print(obj);
-                        pageContext.setAttribute("Content-Length", ((String) result).length(), PageContext.REQUEST_SCOPE);
+                        map.put("execute" + (mapSize + 1), result);
                     }
-                } catch (IOException | JAXBException ex) {
+                } catch (JSONException ex) {
+                    String message;
                     if (ex.getCause() != null) {
                         String cause = ex.getCause().toString();
-                        obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                        message = cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
                     } else {
-                        obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                        message = ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
                     }
-                    obj.put("status", 422);
+                    map.put("error" + (mapSize + 1), message);
                     response.setStatus(422);
                 }
             } else {
-                obj.put("message", "Class isn't processable");
-                obj.put("status", 422);
                 response.setStatus(422);
-                out.print(obj);
+                map.put("error" + (mapSize + 1), "Class isn't processable");
             }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | SecurityException | IllegalArgumentException | IOException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException ex) {
+            String message;
             if (ex.getClass().toString().contains("AccessControlException")) {
-                obj.put("message", "Access denied, can't access system information.");
-                obj.put("status", 403);
+                message = "Access denied, can't access system information.";
                 response.setStatus(403);
             } else {
                 if (ex.getCause() != null) {
                     String cause = ex.getCause().toString();
-                    obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                    message = cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
                 } else {
-                    obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                    message = ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
                 }
-                obj.put("status", 422);
                 response.setStatus(422);
             }
-            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, "{0}{1}", new Object[]{ex.getMessage(), ex.getClass()});
+            map.put("error" + (mapSize + 1), message);
         }
         return EVAL_PAGE;
     }
