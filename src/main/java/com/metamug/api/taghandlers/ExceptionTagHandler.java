@@ -42,7 +42,7 @@
  *
  * IMPORTANT NOTE: Nothing in this Agreement is intended or shall be construed as excluding or modifying any statutory rights, warranties or conditions which by virtue of any national or state Fair Trading, Trade Practices or other such consumer legislation may not be modified or excluded. If permitted by such legislation, however, METAMUG's liability for any breach of any such warranty or condition shall be and is hereby limited to the supply of the Software licensed hereunder again as METAMUG at its sole discretion may determine to be necessary to correct the said breach.
  *
- * IN NO EVENT SHALL METAMUG BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, AND THE LOSS OF BUSINESS INFORMATION OR COMPUTER PROGRAMS), EVEN IF METAMUG OR ANY METAMUG REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN ADDITION, IN NO EVENT DOES METAMUG AUTHORISE YOU TO USE THE SOFTWARE IN SITUATIONS WHERE FAILURE OF THE SOFTWARE TO PERFORM CAN REASONABLY BE EXPECTED TO RESULT IN A PHYSICAL INJURY, OR IN LOSS OF LIFE. ANY SUCH USE BY YOU IS ENTIRELY AT YOUR OWN RISK, AND YOU AGREE TO HOLD METAMUG HARMLESS FROM ANY CLAIMS OR LOSSES RELATING TO SUCH UNAUTHORISED USE.
+ * IN NO EVENT SHALL METAMUG BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, AND THE LOSS OF BUSINESS INFORMATION OR COMPUTER PROGRAMS), EVEN IF METAMUG OR ANY METAMUG REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN ADDITION, IN NO EVENT DOES METAMUG AUTHORIZE YOU TO USE THE SOFTWARE IN SITUATIONS WHERE FAILURE OF THE SOFTWARE TO PERFORM CAN REASONABLY BE EXPECTED TO RESULT IN A PHYSICAL INJURY, OR IN LOSS OF LIFE. ANY SUCH USE BY YOU IS ENTIRELY AT YOUR OWN RISK, AND YOU AGREE TO HOLD METAMUG HARMLESS FROM ANY CLAIMS OR LOSSES RELATING TO SUCH UNAUTHORIZED USE.
  *
  * 5. General
  *
@@ -53,6 +53,7 @@
 package com.metamug.api.taghandlers;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
@@ -90,16 +91,13 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String header = request.getHeader("Accept");////this
-        System.out.println("Accept: " + header);
+        String header = request.getHeader("Accept");
         try {
-            System.out.println("Exception:" + ex);
-//            ex.printStackTrace();
-            if(header.equals("application/xml")) {
+            if(Arrays.asList(header.split("/")).contains("xml")) {
+                response.setContentType("application/xml");
                 out.println("<response>\n");
                 if (ex.getCause() != null) {
                     String cause = ex.getCause().toString();
-                    System.out.println("Cause:" + cause);
                     if (cause.contains("InputValidationException")) {
                         response.setStatus(412);
                         out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 412 + "</status>");
@@ -132,16 +130,15 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 }
                 out.println("\n</response>");          
             } else {
+                response.setContentType("application/json");
                 if (ex.getCause() != null) {
                     String cause = ex.getCause().toString();
-                    System.out.println("Cause:" + cause);
                     if (cause.contains("InputValidationException")) {
                         response.setStatus(412);
                         out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 412 + "}");
                     } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("SQLException")) {
                         response.setStatus(500);
                         out.println("{\"message\": \"Incorrect query or constraint violation\",\"status\":" + 500 + "}");
-    //                    out.println("{\"message\": \"" + cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 422 + "}");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
@@ -161,12 +158,10 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     } else {
                         response.setStatus(409);
                         out.println("{\"message\": \"Conflict in resource file\",\"status\":" + 409 + "}");
-    //                    out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 422 + "}");
                     }
                 } else {
                     response.setStatus(500);
                     out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
-    //                out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 409 + "}");
                 }
             }
             Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, "ExceptionTaglib:{0}", ex.getMessage());

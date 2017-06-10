@@ -166,7 +166,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             array.put(row);
                         }
                         contentLength += array.toString().length();
-                        System.out.println(array.toString());
+//                        System.out.println(array.toString());
                         responseJson.append("response", array);
                     }
                 } catch (ClassCastException ex) {
@@ -200,15 +200,4 @@ public class OutputTagHandler extends BodyTagSupport {
         this.tableName = value;
     }
 
-//    @Override
-//    public void doCatch(Throwable throwable) throws Throwable {
-//        throw throwable;
-//    }
-//
-//    @Override
-//    public void doFinally() {
-////        value = null;
-////        type = null;
-//        tableName = null;
-//    }
 }
