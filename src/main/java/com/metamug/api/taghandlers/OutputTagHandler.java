@@ -65,6 +65,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -90,7 +91,7 @@ public class OutputTagHandler extends BodyTagSupport {
         JspWriter out = pageContext.getOut();
         LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap) value;
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        String header = (String) type;//Accept type
+        String header = (String) type;
         int mapSize = mtgResultMap.size();
         int resultCounter = 0;
         boolean emptyContent = true;
@@ -100,7 +101,8 @@ public class OutputTagHandler extends BodyTagSupport {
             StringBuilder xmlBuilder = new StringBuilder();
             xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><response>");
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
-                ResultImpl resultImpl = (ResultImpl) entry.getValue();
+                Object mapValue = entry.getValue();
+                ResultImpl resultImpl = (ResultImpl) mapValue;
                 SortedMap[] rows = resultImpl.getRows();
                 String[] columnNames = resultImpl.getColumnNames();
                 if (rows.length > 0 && emptyContent) {
@@ -124,97 +126,114 @@ public class OutputTagHandler extends BodyTagSupport {
                     out.print(xmlBuilder.toString());
                 }
             } catch (IOException ex) {
-                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         } else {
             response.setContentType("application/json");
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
-                if (entry.getValue() instanceof ResultImpl) {
-                    try {
-                        ResultImpl resultImpl = (ResultImpl) entry.getValue();
-                        SortedMap[] rows = resultImpl.getRows();
-                        String[] columnNames = resultImpl.getColumnNames();
-                        if (rows.length > 0 && emptyContent) {
-                            emptyContent = false;
-                        }
-                        if (mapSize == 1) {
-                            try {
-                                if (emptyContent) {
-                                    response.setStatus(204);
-                                } else {
-                                    JSONArray array = new JSONArray();
-                                    for (SortedMap<String, Object> row : rows) {
-                                        JSONObject rowJson = new JSONObject();
-                                        for (String columnName : columnNames) {
-                                            rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
-                                        }
-                                        array.put(rowJson);
-                                    }
-                                    pageContext.setAttribute("Content-Length", array.toString().length(), PageContext.REQUEST_SCOPE);
-                                    out.print(array.toString());
-                                }
-                            } catch (IOException ex) {
-                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        } else {
-                            JSONArray array = new JSONArray();
-                            for (SortedMap row : rows) {
-                                JSONObject rowJson = new JSONObject(new LinkedHashMap<>());
-                                for (String columnName : columnNames) {
-                                    rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
-                                }
-                                array.put(row);
-                            }
-                            contentLength += array.toString().length();
-                            System.out.println(array.toString());
-                            responseJson.append("response", array);
-                        }
-                    } catch (ClassCastException ex) {
-                        int resultUpdated = (int) entry.getValue();
-                        responseJson.append("response", resultUpdated + " results updated");
+                Object mapValue = entry.getValue();
+                if (mapValue instanceof ResultImpl) {
+                    ResultImpl resultImpl = (ResultImpl) mapValue;
+                    SortedMap[] rows = resultImpl.getRows();
+                    String[] columnNames = resultImpl.getColumnNames();
+                    if (rows.length > 0 && emptyContent) {
+                        emptyContent = false;
                     }
-                } else if (entry.getValue() instanceof String) {
-                    try {
-                        String result = (String) entry.getValue();
-                        // Print result of Code execution
-                        if (!result.isEmpty() && emptyContent) {
-                            emptyContent = false;
-                        }
-                        if (mapSize == 1) {
+                    if (mapSize == 1) {
+                        try {
                             if (emptyContent) {
                                 response.setStatus(204);
                             } else {
-                                try {
-                                    JSONObject codeResult = new JSONObject();
-                                    if (entry.getKey().contains("error")) {
-                                        codeResult.put("error" + (++resultCounter), result);
-                                    } else {
-                                        codeResult.put("result" + (++resultCounter), result);
+                                JSONArray array = new JSONArray();
+                                for (SortedMap<String, Object> row : rows) {
+                                    JSONObject rowJson = new JSONObject();
+                                    for (String columnName : columnNames) {
+                                        rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
                                     }
-                                    pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
-                                    out.print(codeResult.toString());
-                                } catch (IOException ex) {
-                                    Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                    array.put(rowJson);
                                 }
+                                pageContext.setAttribute("Content-Length", array.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(array.toString());
                             }
+                        } catch (IOException ex) {
+                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        }
+                    } else {
+                        JSONArray array = new JSONArray();
+                        for (SortedMap row : rows) {
+                            JSONObject rowJson = new JSONObject(new LinkedHashMap<>());
+                            for (String columnName : columnNames) {
+                                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
+                            }
+                            array.put(row);
+                        }
+                        contentLength += array.toString().length();
+                        responseJson.append("response", array);
+                    }
+                } else if (mapValue instanceof String) {
+                    String result = (String) mapValue;
+                    // Print result of Code execution
+                    if (!result.isEmpty() && emptyContent) {
+                        emptyContent = false;
+                    }
+                    if (mapSize == 1) {
+                        if (emptyContent) {
+                            response.setStatus(204);
                         } else {
-                            JSONArray array = new JSONArray();
+                            try {
+                                JSONObject codeResult = new JSONObject();
+                                if (entry.getKey().contains("error")) {
+                                    codeResult.put("error" + (++resultCounter), result);
+                                } else {
+                                    codeResult.put("result" + (++resultCounter), result);
+                                }
+                                pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(codeResult.toString());
+                            } catch (IOException ex) {
+                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            }
+                        }
+                    } else {
+                        JSONArray array = new JSONArray();
+                        JSONObject codeResult = new JSONObject();
+                        if (entry.getKey().contains("error")) {
+                            codeResult.put("error" + (++resultCounter), result);
+                        } else {
+                            codeResult.put("result" + (++resultCounter), result);
+                        }
+                        array.put(codeResult);
+                        contentLength += array.toString().length();
+                        responseJson.append("response", array);
+                    }
+                } else if (mapValue.getClass().getName().contains("Integer")) {
+                    emptyContent = false;
+                    Integer result = (Integer) mapValue;
+                    // Print result of Code execution
+                    if (mapSize == 1) {
+                        try {
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
                                 codeResult.put("error" + (++resultCounter), result);
                             } else {
                                 codeResult.put("result" + (++resultCounter), result);
                             }
-
-                            array.put(codeResult);
-                            contentLength += array.toString().length();
-                            System.out.println(array.toString());
-                            responseJson.append("response", array);
+                            pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
+                            out.print(codeResult.toString());
+                        } catch (IOException ex) {
+                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
-                    } catch (ClassCastException ex) {
-                        int resultUpdated = (int) entry.getValue();
-                        responseJson.append("response", resultUpdated + " results updated");
+                    } else {
+                        JSONArray array = new JSONArray();
+                        JSONObject codeResult = new JSONObject();
+                        if (entry.getKey().contains("error")) {
+                            codeResult.put("error" + (++resultCounter), result);
+                        } else {
+                            codeResult.put("result" + (++resultCounter), result);
+                        }
+                        array.put(codeResult);
+                        contentLength += array.toString().length();
+                        responseJson.append("response", array);
                     }
                 }
             }
@@ -226,7 +245,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     out.write(responseJson.get("response").toString());
                 }
             } catch (IOException ex) {
-                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
         return EVAL_PAGE;
@@ -243,5 +262,4 @@ public class OutputTagHandler extends BodyTagSupport {
     public void setTableName(String value) {
         this.tableName = value;
     }
-
 }
