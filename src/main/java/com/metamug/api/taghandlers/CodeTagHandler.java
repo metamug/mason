@@ -172,7 +172,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     }
 
     /**
-     * Just rethrows the Throwable.
+     * Just re-throws the Throwable.
      *
      * @param throwable
      * @throws java.lang.Throwable
