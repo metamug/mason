@@ -55,12 +55,16 @@ package com.metamug.api.taghandlers;
 import com.metamug.api.common.MtgRequest;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
+import com.mtg.io.objectreturn.ObjectReturn;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,6 +74,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
+import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONException;
 
@@ -96,13 +101,14 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         parameters = null;
     }
 
-    @Override
+     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String acceptHeader = Arrays.asList(request.getHeader("Accept").split("/")).contains("xml") ? "application/xml":"application:json";
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         LinkedHashMap map = (LinkedHashMap) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
-        Object result = null;
+        Object result;
         try {
             Class cls = Class.forName((String) className);
             Object newInstance = cls.newInstance();
@@ -110,10 +116,15 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
             RequestProcessable reqProcessable;
             if (ResultProcessable.class.isAssignableFrom(cls)) {
                 resProcessable = (ResultProcessable) newInstance;
-                if (param instanceof ResultImpl) {
-                    ResultImpl ri = (ResultImpl) param;
-                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                    map.put("execute" + (mapSize + 1), result);
+                try {
+                    if (param instanceof ResultImpl) {
+                        ResultImpl ri = (ResultImpl) param;
+                        result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                        map.put("execute" + (mapSize + 1), processedResult);
+                    }
+                } catch (JAXBException ex) {
+                    Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
@@ -127,7 +138,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             requestHeaders.put(header, request.getHeader(header));
                         }
                         result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
-                        map.put("execute" + (mapSize + 1), result);
+                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                        map.put("execute" + (mapSize + 1), processedResult);
                     }
                 } catch (JSONException ex) {
                     String message;
@@ -139,16 +151,19 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     }
                     map.put("error" + (mapSize + 1), message);
                     response.setStatus(422);
+                } catch (JAXBException ex) {
+                    Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             } else {
-                response.setStatus(422);
                 map.put("error" + (mapSize + 1), "Class isn't processable");
+                response.setStatus(422);
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException ex) {
             String message;
             if (ex.getClass().toString().contains("AccessControlException")) {
                 message = "Access denied, can't access system information.";
                 response.setStatus(403);
+                Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             } else {
                 if (ex.getCause() != null) {
                     String cause = ex.getCause().toString();

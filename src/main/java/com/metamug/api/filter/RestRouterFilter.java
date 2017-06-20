@@ -53,6 +53,7 @@
 package com.metamug.api.filter;
 
 import com.metamug.api.common.MtgRequest;
+import com.sun.istack.internal.logging.Logger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +62,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -103,7 +105,6 @@ public class RestRouterFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         String path = req.getServletPath();
         String[] tokens = path.split("/");
-        System.out.println(tokens.length);
         if (tokens.length > 2) {
             if (req.getServletPath().contains("index") || req.getServletPath().contains("docs") || req.getServletPath().contains("code")) {
                 chain.doFilter(request, response);
@@ -113,10 +114,8 @@ public class RestRouterFilter implements Filter {
                 if (req.getServerPort() != 80 && req.getServerPort() != 443) {
                     domain.append(":").append(req.getServerPort());
                 }
-//                System.out.println("local domain:" + domain.toString());
                 response.setContentType("application/json");
                 String contentType = req.getContentType() == null ? "" : req.getContentType();
-                System.out.println(contentType);
                 if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (contentType.equalsIgnoreCase("application/json") || contentType.equalsIgnoreCase("application/xml") || contentType.contains("html") || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("multipart/form-data")))) {
                     try {
                         MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
@@ -162,7 +161,6 @@ public class RestRouterFilter implements Filter {
                             obj.put("status", 422);
                             if (ex.getCause() != null) {
                                 String cause = ex.getCause().toString();
-                                System.out.println("router cause:" + cause);
                                 obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                             }
                             if (ex.getMessage().contains("ELException")) {
@@ -170,10 +168,9 @@ public class RestRouterFilter implements Filter {
                                 obj.put("status", 500);
                                 res.setStatus(500);
                             } else {
-                                System.out.println("router exception:" + ex.getMessage());
                                 obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                             }
-//                            System.out.println("router trace:" + Arrays.toString(ex.getStackTrace()));
+                            Logger.getLogger(RestRouterFilter.class).log(Level.SEVERE, ex.getMessage(), ex);
                             writer.print(obj.toString());
                             writer.flush();
                         }
@@ -200,9 +197,7 @@ public class RestRouterFilter implements Filter {
         MtgRequest mtgRequest = new MtgRequest();
         //Set parent value and pid
         if (tokens.length == 5 || tokens.length == 6) {
-            System.out.println("setting parent:" + tokens[2]);
             mtgRequest.setParent(tokens[2]);
-            System.out.println("setting parentID:" + tokens[3]);
             mtgRequest.setPid(tokens[3]);
             mtgRequest.setId((tokens.length > 5) ? tokens[5] : null);
         } else {
