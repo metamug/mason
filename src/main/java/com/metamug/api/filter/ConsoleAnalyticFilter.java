@@ -199,7 +199,7 @@ public class ConsoleAnalyticFilter implements Filter {
                     statement.execute();
                 }
             } catch (ClassNotFoundException | SQLException ex) {
-                Logger.getLogger(ConsoleAnalyticFilter.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

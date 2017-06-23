@@ -167,7 +167,7 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GroupTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage());
         }
         return status;
     }
