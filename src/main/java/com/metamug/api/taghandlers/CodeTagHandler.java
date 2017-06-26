@@ -61,6 +61,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -159,6 +161,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 response.setStatus(422);
             }
             map.put("error" + (mapSize + 1), message);
+            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, "Message: {0}, Class: {1}", new Object[]{ex.getMessage(), ex.getClass()});
         }
         return EVAL_PAGE;
     }
