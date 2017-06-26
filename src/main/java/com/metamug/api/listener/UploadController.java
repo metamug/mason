@@ -117,8 +117,7 @@ public class UploadController extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String appName = request.getContextPath().split("/")[1];
         String contentType = request.getHeader("Content-Type");
         JSONObject obj = new JSONObject();
@@ -134,16 +133,35 @@ public class UploadController extends HttpServlet {
                 for (Part filePart : fileParts) {
                     fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
                     File uploadedFile = new File(uploadFilePath + File.separator + fileName);
-                    try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
-                        int read;
-                        byte[] bytes = new byte[1024];
-                        while ((read = fileContent.read(bytes)) != -1) {
-                            fos.write(bytes, 0, read);
+                    if (!uploadedFile.isDirectory()) {
+                        try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
+                            int read;
+                            byte[] bytes = new byte[1024];
+                            while ((read = fileContent.read(bytes)) != -1) {
+                                fos.write(bytes, 0, read);
+                            }
                         }
                     }
                 }
-                callUploadEvent(new File(uploadFilePath + File.separator + fileName), appName, request);
-                response.setStatus(201);
+                Object result;
+                if (fileName != null && !fileName.isEmpty()) {
+                    result = callUploadEvent(new File(uploadFilePath + File.separator + fileName), appName, request);
+                    response.setStatus(201);
+                } else {
+                    result = callUploadEvent(null, appName, request);
+                    response.setStatus(200);
+                }
+                if (result != null) {
+                    if (result instanceof String) {
+                        if (!((String) result).isEmpty()) {
+                            obj.put("response", (String) result);
+                        }
+                    } else {
+                        response.setStatus(204);
+                    }
+                } else {
+                    response.setStatus(204);
+                }
             } catch (IllegalStateException ex) {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {
                     response.setStatus(413);
@@ -160,12 +178,12 @@ public class UploadController extends HttpServlet {
                 obj.put("message", "Error occured in UploadListener implementation");
                 obj.put("status", 500);
                 response.setStatus(500);
-                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             } catch (Exception ex) {
-                obj.put("message", "Error occured in UploadListener implementation");
+                obj.put("message", "Error occured while executing UploadListener");
                 obj.put("status", 500);
                 response.setStatus(500);
-                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         } else {
             response.setStatus(415);
@@ -176,22 +194,12 @@ public class UploadController extends HttpServlet {
                 out.print(obj.toString());
                 out.flush();
             } catch (IOException ex) {
-                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+//                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
             }
         }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
-    private void callUploadEvent(File uploadedFile, String appName, HttpServletRequest req) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, Exception {
+    private Object callUploadEvent(File uploadedFile, String appName, HttpServletRequest req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
         String listenerClass;
         Properties prop = new Properties();
         try (FileInputStream fis = new FileInputStream(new File(System.getProperty("catalina.base") + File.separator + "api" + "/" + appName + "/WEB-INF/config.properties"))) {
@@ -204,27 +212,34 @@ public class UploadController extends HttpServlet {
             UploadListener listener;
             if (UploadListener.class.isAssignableFrom(cls)) {
                 listener = (UploadListener) newInstance;
-                Enumeration<String> headerNames = req.getHeaderNames();
+                //Add Request Header values
                 Map<String, String> reqHeaders = new HashMap<>();
-                Map<String, String> reqParams = new HashMap<>();
+                Enumeration<String> headerNames = req.getHeaderNames();
                 while (headerNames.hasMoreElements()) {
                     String header = headerNames.nextElement();
                     if (req.getHeader(header) != null) {
                         reqHeaders.put(header, req.getHeader(header));
                     }
                 }
+                //Add Request Parameter values
+                Map<String, String> reqParams = new HashMap<>();
                 Enumeration<String> parameterNames = req.getParameterNames();
-                while (headerNames.hasMoreElements()) {
+                while (parameterNames.hasMoreElements()) {
                     String param = parameterNames.nextElement();
                     if (req.getParameter(param) != null) {
                         reqParams.put(param, req.getParameter(param));
                     }
                 }
-                listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), reqParams, reqHeaders), ds);
+                if (uploadedFile != null) {
+                    return listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), reqParams, reqHeaders), ds);
+                } else {
+                    return listener.uploadPerformed(new UploadEvent(null, null, reqParams, reqHeaders), ds);
+                }
             }
         } else {
             throw new ClassNotFoundException();
         }
+        return null;
     }
 
 }

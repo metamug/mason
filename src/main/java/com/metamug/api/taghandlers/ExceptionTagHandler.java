@@ -93,7 +93,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String header = request.getHeader("Accept");
         try {
-            if(Arrays.asList(header.split("/")).contains("xml")) {
+            if (Arrays.asList(header.split("/")).contains("xml")) {
                 response.setContentType("application/xml");
                 out.println("<response>\n");
                 if (ex.getCause() != null) {
@@ -120,15 +120,18 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     } else if (cause.contains("RoleAccessDeniedException")) {
                         response.setStatus(403);
                         out.println("<message>Forbidden Access to resource</message>\n<status>" + 403 + "</status>");
+                    } else if (cause.contains("MysqlDataTruncation")) {
+                        response.setStatus(422);
+                        out.println("<message>Incorrect format of parameter values\n<status>" + 422 + "</status>");
                     } else {
-                        response.setStatus(409);
-                        out.println("<message>Conflict in resource file</message>\n<status>" + 409 + "</status>");
-                    }          
+                        response.setStatus(500);
+                        out.println("<message>Server Error</message>\n<status>" + 500 + "</status>");
+                    }
                 } else {
                     response.setStatus(500);
                     out.println("<message>Server Error</message>\n<status>" + 500 + "</status>");
                 }
-                out.println("\n</response>");          
+                out.println("\n</response>");
             } else {
                 response.setContentType("application/json");
                 if (ex.getCause() != null) {
@@ -155,18 +158,21 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     } else if (cause.contains("RoleAccessDeniedException")) {
                         response.setStatus(403);
                         out.println("{\"message\": \"Forbidden Access to resource\",\"status\":" + 403 + "}");
+                    } else if (cause.contains("MysqlDataTruncation")) {
+                        response.setStatus(422);
+                        out.println("{\"message\": \"Incorrect format of parameter values\",\"status\":" + 422 + "}");
                     } else {
-                        response.setStatus(409);
-                        out.println("{\"message\": \"Conflict in resource file\",\"status\":" + 409 + "}");
+                        response.setStatus(500);
+                        out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
                     }
                 } else {
                     response.setStatus(500);
                     out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
                 }
             }
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, "ExceptionTaglib:{0}", ex.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "ExceptionTaglib:{0}", ex.getMessage());
         } catch (IOException ex1) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex1.getMessage(), ex1);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex1.getMessage(), ex1);
         }
         return SKIP_PAGE;
     }

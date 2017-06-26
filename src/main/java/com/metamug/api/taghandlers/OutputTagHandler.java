@@ -99,34 +99,121 @@ public class OutputTagHandler extends BodyTagSupport {
         if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
             response.setContentType("application/xml");
             StringBuilder xmlBuilder = new StringBuilder();
-            xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><response>");
+            xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+            xmlBuilder.append("<response>");
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
                 Object mapValue = entry.getValue();
-                ResultImpl resultImpl = (ResultImpl) mapValue;
-                SortedMap[] rows = resultImpl.getRows();
-                String[] columnNames = resultImpl.getColumnNames();
-                if (rows.length > 0 && emptyContent) {
-                    emptyContent = false;
-                }
-                for (SortedMap row : rows) {
-                    xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
-                    for (String columnName : columnNames) {
-                        xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) == null) ? "null" : row.get(columnName))).append("</").append(columnName.replaceAll(" ", "_")).append(">");
+                if (mapValue instanceof ResultImpl) {
+                    ResultImpl resultImpl = (ResultImpl) mapValue;
+                    SortedMap[] rows = resultImpl.getRows();
+                    String[] columnNames = resultImpl.getColumnNames();
+                    if (rows.length > 0 && emptyContent) {
+                        emptyContent = false;
                     }
-                    xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
+                    if (mapSize == 1) {
+                        try {
+                            if (emptyContent) {
+                                response.setStatus(204);
+                            } else {
+                                for (SortedMap row : rows) {
+                                    xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
+                                    for (String columnName : columnNames) {
+                                        xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) == null) ? "null" : row.get(columnName))).append("</").append(columnName.replaceAll(" ", "_")).append(">");
+                                    }
+                                    xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
+                                }
+                                xmlBuilder.append("</response>");
+                            }
+                            contentLength = xmlBuilder.toString().length();
+                            pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
+                            out.print(xmlBuilder.toString());
+                        } catch (IOException ex) {
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        }
+                    } else {
+                        for (SortedMap row : rows) {
+                            xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
+                            for (String columnName : columnNames) {
+                                xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) == null) ? "null" : row.get(columnName))).append("</").append(columnName.replaceAll(" ", "_")).append(">");
+                            }
+                            xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
+                        }
+                    }
+                    contentLength += xmlBuilder.toString().length();
+                } else if (mapValue instanceof String) {
+                    String result = (String) mapValue;
+                    // Print result of Code execution
+                    if (!result.isEmpty() && emptyContent) {
+                        emptyContent = false;
+                    }
+                    if (mapSize == 1) {
+                        if (emptyContent) {
+                            response.setStatus(204);
+                        } else {
+                            try {
+                                int temp = (++resultCounter);
+                                if (entry.getKey().contains("error")) {
+                                    xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                                } else {
+                                    xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                }
+                                pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(xmlBuilder.toString());
+                            } catch (IOException ex) {
+                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            }
+                        }
+                    } else {
+                        int temp = (++resultCounter);
+                        if (entry.getKey().contains("error")) {
+                            xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                        } else {
+                            xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                        }
+                        contentLength += xmlBuilder.toString().length();
+                    }
+                } else {
+                    emptyContent = false;
+                    Object result = mapValue;
+                    // Print result of Code execution
+                    if (mapSize == 1) {
+                        if (emptyContent) {
+                            response.setStatus(204);
+                        } else {
+                            try {
+                                int temp = (++resultCounter);
+                                if (entry.getKey().contains("error")) {
+                                    xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                                } else {
+                                    xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                }
+                                pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(xmlBuilder.toString());
+                            } catch (IOException ex) {
+                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            }
+                        }
+                    } else {
+                        int temp = (++resultCounter);
+                        if (entry.getKey().contains("error")) {
+                            xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                        } else {
+                            xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                        }
+                        contentLength += xmlBuilder.toString().length();
+                    }
                 }
             }
-            xmlBuilder.append("</response>");
-            contentLength = xmlBuilder.toString().length();
             try {
                 if (emptyContent) {
                     response.setStatus(204);
                 } else {
+                    xmlBuilder.append("</response>");
                     pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
                     out.print(xmlBuilder.toString());
                 }
             } catch (IOException ex) {
-                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         } else {
             response.setContentType("application/json");
@@ -157,7 +244,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                 out.print(array.toString());
                             }
                         } catch (IOException ex) {
-                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
                         JSONArray array = new JSONArray();
@@ -191,7 +278,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                 pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
                                 out.print(codeResult.toString());
                             } catch (IOException ex) {
-                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                             }
                         }
                     } else {
@@ -206,9 +293,9 @@ public class OutputTagHandler extends BodyTagSupport {
                         contentLength += array.toString().length();
                         responseJson.append("response", array);
                     }
-                } else if (mapValue.getClass().getName().contains("Integer")) {
+                } else {
+                    Object result = mapValue;
                     emptyContent = false;
-                    Integer result = (Integer) mapValue;
                     // Print result of Code execution
                     if (mapSize == 1) {
                         try {
@@ -221,7 +308,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
                             out.print(codeResult.toString());
                         } catch (IOException ex) {
-                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
                         JSONArray array = new JSONArray();
@@ -242,10 +329,10 @@ public class OutputTagHandler extends BodyTagSupport {
                     response.setStatus(204);
                 } else if (mapSize > 1) {
                     pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
-                    out.write(responseJson.get("response").toString());
+                    out.print(responseJson.get("response").toString());
                 }
             } catch (IOException ex) {
-                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
         return EVAL_PAGE;

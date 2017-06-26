@@ -97,7 +97,7 @@ public class StatusTagHandler extends BodyTagSupport implements TryCatchFinally 
         } catch (NumberFormatException ex) {
             throw new JspException("Invalid status code", new InvalidStatusException(""));
         } catch (IOException ex) {
-            Logger.getLogger(StatusTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage());
         }
         return EVAL_PAGE;
     }

@@ -144,7 +144,6 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         try {
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             sdf.setLenient(false);
-                            System.out.println("value:" + value);
                             sdf.parse(value);
                         } catch (ParseException ex) {
                             throw new JspException("Incorrect datetime pattern of " + name + " parameter", ex);
