@@ -170,7 +170,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
                 }
             }
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "ExceptionTaglib:{0}", ex.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE,  ex.getMessage(),ex);
         } catch (IOException ex1) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex1.getMessage(), ex1);
         }

@@ -52,8 +52,8 @@
  */
 package com.metamug.api.taghandlers;
 
-import com.sun.istack.internal.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
@@ -91,7 +91,7 @@ public class HeaderTagHandler extends BodyTagSupport implements TryCatchFinally 
                 response.setContentType("application/json;charset=UTF-8");
             }
         } catch (Exception ex) {
-            Logger.getLogger(HeaderTagHandler.class).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return EVAL_PAGE;
     }
