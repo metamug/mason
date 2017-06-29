@@ -192,7 +192,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         double maxLength = maxLen;
                         try {
                             if (value.length() > maxLength) {
-                                throw new JspException("Input ((String)value) can be " + maxLength + " character long for " + name + " parameter", new InputValidationException(""));
+                                throw new JspException("Input " + ((String) value) + " can be " + maxLength + " character long for " + name + " parameter", new InputValidationException(""));
                             }
                         } catch (NullPointerException ex) {
                             throw new JspException(name + " parameter can't be null", new InputValidationException(""));

@@ -101,10 +101,10 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         parameters = null;
     }
 
-     @Override
+    @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeader = Arrays.asList(request.getHeader("Accept").split("/")).contains("xml") ? "application/xml":"application:json";
+        String acceptHeader = Arrays.asList(request.getHeader("Accept").split("/")).contains("xml") ? "application/xml" : "application:json";
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         LinkedHashMap map = (LinkedHashMap) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
@@ -206,7 +206,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         className = null;
         param = null;
         parameters = null;
-        ds = null;
+//      Don't set ds to null because in subsequent call to code execution it causes NPE
+//      ds = null;
     }
 
     public void addParameter(Object obj) {

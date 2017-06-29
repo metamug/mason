@@ -53,7 +53,6 @@
 package com.metamug.api.filter;
 
 import com.metamug.api.common.MtgRequest;
-import com.sun.istack.internal.logging.Logger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +62,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -170,7 +170,7 @@ public class RestRouterFilter implements Filter {
                             } else {
                                 obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                             }
-                            Logger.getLogger(RestRouterFilter.class).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                             writer.print(obj.toString());
                             writer.flush();
                         }
@@ -266,8 +266,8 @@ public class RestRouterFilter implements Filter {
             JSONObject jsonParams = new JSONObject(data.toString());
             Iterator jsonIterator = jsonParams.keys(); //gets all the keys
             while (jsonIterator.hasNext()) {
-                String key = (String) jsonIterator.next(); // get key
-                String value = (String) jsonParams.get(key); // get value
+                String key = String.valueOf(jsonIterator.next()); // get key
+                String value = String.valueOf(jsonParams.get(key)); // get value
                 if (key.equalsIgnoreCase("id")) {
                     mtgRequest.setId(value);
                 } else if (key.equalsIgnoreCase("pid")) {
