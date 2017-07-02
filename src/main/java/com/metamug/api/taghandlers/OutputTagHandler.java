@@ -103,6 +103,7 @@ public class OutputTagHandler extends BodyTagSupport {
         int resultCounter = 0;
         boolean emptyContent = true;
         int contentLength = 0;
+        //Accept: application/xml
         if (header != null && Arrays.asList(header.split("/")).contains(ACCEPT_XML)) {
             response.setContentType("application/" + ACCEPT_XML);
             StringBuilder xmlBuilder = new StringBuilder();
@@ -222,7 +223,9 @@ public class OutputTagHandler extends BodyTagSupport {
             } catch (IOException ex) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
-        } else if(header != null && Arrays.asList(header.split("/")).contains(ACCEPT_JSON_DATASET)) {
+        } 
+        //Accept: application/json+dataset
+        else if(header != null && Arrays.asList(header.split("/")).contains(ACCEPT_JSON_DATASET)) {
             response.setContentType("application/" + ACCEPT_JSON_DATASET);
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
@@ -234,12 +237,12 @@ public class OutputTagHandler extends BodyTagSupport {
                     String[] columnNames = resultImpl.getColumnNames();
                     if (rows.length > 0 && emptyContent) {
                         emptyContent = false;
-                    }
+                    }   
                     if (mapSize == 1) {
                         try {
                             if (emptyContent) {
                                 response.setStatus(204);
-                            } else {
+                            } else {           
                                 JSONObject object = new JSONObject();
                                 JSONArray columnArray = new JSONArray();
                                 for (String columnName : columnNames) {
@@ -262,20 +265,28 @@ public class OutputTagHandler extends BodyTagSupport {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
-                        JSONArray array = new JSONArray();
-                        for (SortedMap row : rows) {
-                            JSONObject rowJson = new JSONObject(new LinkedHashMap<>());
-                            for (String columnName : columnNames) {
-                                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
-                            }
-                            array.put(row);
+                        JSONObject object = new JSONObject();
+                        JSONArray columnArray = new JSONArray();
+                        for (String columnName : columnNames) {
+                            columnArray.put(columnName);
                         }
-                        contentLength += array.toString().length();
-                        responseJson.append("response", array);
+                        object.put(KEY_COLUMN, columnArray);
+                        JSONArray dataSetArray = new JSONArray();
+                        for (SortedMap row : rows) {
+                            JSONArray rowArray = new JSONArray();
+                            for (String columnName : columnNames) {
+                                rowArray.put((row.get(columnName) != null) ? row.get(columnName) : "null");
+                            }
+                            dataSetArray.put(rowArray);
+                        }
+                        contentLength += object.toString().length();
+                        responseJson.append("response", object);
                     }                    
                 }
             }
-        } else {
+        } 
+        //Accept: application/json OR default
+        else {
             response.setContentType("application/" + ACCEPT_JSON);
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
@@ -288,6 +299,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     if (rows.length > 0 && emptyContent) {
                         emptyContent = false;
                     }
+                    //Single Sql Tag
                     if (mapSize == 1) {
                         try {
                             if (emptyContent) {
@@ -307,14 +319,16 @@ public class OutputTagHandler extends BodyTagSupport {
                         } catch (IOException ex) {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
-                    } else {
+                    }
+                    //Multiple tags
+                    else {
                         JSONArray array = new JSONArray();
                         for (SortedMap row : rows) {
                             JSONObject rowJson = new JSONObject(new LinkedHashMap<>());
                             for (String columnName : columnNames) {
                                 rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
                             }
-                            array.put(row);
+                            array.put(rowJson);
                         }
                         contentLength += array.toString().length();
                         responseJson.append("response", array);
