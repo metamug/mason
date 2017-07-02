@@ -237,7 +237,8 @@ public class OutputTagHandler extends BodyTagSupport {
                     String[] columnNames = resultImpl.getColumnNames();
                     if (rows.length > 0 && emptyContent) {
                         emptyContent = false;
-                    }   
+                    }  
+                    //Single Sql Tag
                     if (mapSize == 1) {
                         try {
                             if (emptyContent) {
@@ -264,7 +265,9 @@ public class OutputTagHandler extends BodyTagSupport {
                         } catch (IOException ex) {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
-                    } else {
+                    } 
+                    //Multiple tags
+                    else {
                         JSONObject object = new JSONObject();
                         JSONArray columnArray = new JSONArray();
                         for (String columnName : columnNames) {
@@ -282,6 +285,70 @@ public class OutputTagHandler extends BodyTagSupport {
                         contentLength += object.toString().length();
                         responseJson.append("response", object);
                     }                    
+                } else if(mapValue instanceof String) {
+                    String result = (String) mapValue;
+                    // Print result of Code execution
+                    if (!result.isEmpty() && emptyContent) {
+                        emptyContent = false;
+                    }
+                    if (mapSize == 1) {
+                        if (emptyContent) {
+                            response.setStatus(204);
+                        } else {
+                            try {
+                                JSONObject codeResult = new JSONObject();
+                                if (entry.getKey().contains("error")) {
+                                    codeResult.put("error" + (++resultCounter), result);
+                                } else {
+                                    codeResult.put("result" + (++resultCounter), result);
+                                }
+                                pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(codeResult.toString());
+                            } catch (IOException ex) {
+                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            }
+                        }
+                    } else {
+                        JSONArray array = new JSONArray();
+                        JSONObject codeResult = new JSONObject();
+                        if (entry.getKey().contains("error")) {
+                            codeResult.put("error" + (++resultCounter), result);
+                        } else {
+                            codeResult.put("result" + (++resultCounter), result);
+                        }
+                        array.put(codeResult);
+                        contentLength += array.toString().length();
+                        responseJson.append("response", array);
+                    }
+                } else {
+                    Object result = mapValue;
+                    emptyContent = false;
+                    // Print result of Code execution
+                    if (mapSize == 1) {
+                        try {
+                            JSONObject codeResult = new JSONObject();
+                            if (entry.getKey().contains("error")) {
+                                codeResult.put("error" + (++resultCounter), result);
+                            } else {
+                                codeResult.put("result" + (++resultCounter), result);
+                            }
+                            pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
+                            out.print(codeResult.toString());
+                        } catch (IOException ex) {
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        }
+                    } else {
+                        JSONArray array = new JSONArray();
+                        JSONObject codeResult = new JSONObject();
+                        if (entry.getKey().contains("error")) {
+                            codeResult.put("error" + (++resultCounter), result);
+                        } else {
+                            codeResult.put("result" + (++resultCounter), result);
+                        }
+                        array.put(codeResult);
+                        contentLength += array.toString().length();
+                        responseJson.append("response", array);
+                    }
                 }
             }
         } 
