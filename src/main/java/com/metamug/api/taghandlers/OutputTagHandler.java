@@ -101,7 +101,7 @@ public class OutputTagHandler extends BodyTagSupport {
         int contentLength = 0;
         //Accept: application/xml
         if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
-            System.out.println(mapSize);
+            //System.out.println(mapSize);
             response.setContentType("application/xml");
             StringBuilder xmlBuilder = new StringBuilder();
             xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
@@ -224,7 +224,6 @@ public class OutputTagHandler extends BodyTagSupport {
         //Accept: application/json+dataset
         else if(header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
             response.setContentType("application/json+dataset");
-            System.out.println(mapSize);
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
                 Object mapValue = entry.getValue();
@@ -280,6 +279,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             }
                             dataSetArray.put(rowArray);
                         }
+                        object.put(KEY_DATASET, dataSetArray);
                         contentLength += object.toString().length();
                         responseJson.append("response", object);
                     }                    
@@ -348,6 +348,16 @@ public class OutputTagHandler extends BodyTagSupport {
                         responseJson.append("response", array);
                     }
                 }
+            }
+            try {
+                if (emptyContent) {
+                    response.setStatus(204);
+                } else if (mapSize > 1) {
+                    pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
+                    out.print(responseJson.get("response").toString());
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         } 
         //Accept: application/json OR default
