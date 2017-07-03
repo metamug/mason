@@ -76,7 +76,7 @@ import org.json.JSONObject;
  */
 public class OutputTagHandler extends BodyTagSupport {
     
-    public static String KEY_COLUMN = "column";
+    public static String KEY_COLUMN = "columns";
     public static String KEY_DATASET = "dataset";
 
     private LinkedHashMap value;
@@ -101,6 +101,7 @@ public class OutputTagHandler extends BodyTagSupport {
         int contentLength = 0;
         //Accept: application/xml
         if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
+            System.out.println(mapSize);
             response.setContentType("application/xml");
             StringBuilder xmlBuilder = new StringBuilder();
             xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
@@ -223,6 +224,7 @@ public class OutputTagHandler extends BodyTagSupport {
         //Accept: application/json+dataset
         else if(header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
             response.setContentType("application/json+dataset");
+            System.out.println(mapSize);
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
                 Object mapValue = entry.getValue();
