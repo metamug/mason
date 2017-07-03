@@ -76,10 +76,6 @@ import org.json.JSONObject;
  */
 public class OutputTagHandler extends BodyTagSupport {
     
-    public static String ACCEPT_JSON = "json"; 
-    public static String ACCEPT_JSON_DATASET = "json+dataset";
-    public static String ACCEPT_XML = "xml";
-    
     public static String KEY_COLUMN = "column";
     public static String KEY_DATASET = "dataset";
 
@@ -104,8 +100,8 @@ public class OutputTagHandler extends BodyTagSupport {
         boolean emptyContent = true;
         int contentLength = 0;
         //Accept: application/xml
-        if (header != null && Arrays.asList(header.split("/")).contains(ACCEPT_XML)) {
-            response.setContentType("application/" + ACCEPT_XML);
+        if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
+            response.setContentType("application/xml");
             StringBuilder xmlBuilder = new StringBuilder();
             xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
             xmlBuilder.append("<response>");
@@ -225,8 +221,8 @@ public class OutputTagHandler extends BodyTagSupport {
             }
         } 
         //Accept: application/json+dataset
-        else if(header != null && Arrays.asList(header.split("/")).contains(ACCEPT_JSON_DATASET)) {
-            response.setContentType("application/" + ACCEPT_JSON_DATASET);
+        else if(header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
+            response.setContentType("application/json+dataset");
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
                 Object mapValue = entry.getValue();
@@ -311,7 +307,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     } else {
                         JSONArray array = new JSONArray();
                         JSONObject codeResult = new JSONObject();
-                        if (entry.getKey().contains("error")) {
+                        if(entry.getKey().contains("error")) {
                             codeResult.put("error" + (++resultCounter), result);
                         } else {
                             codeResult.put("result" + (++resultCounter), result);
@@ -354,7 +350,7 @@ public class OutputTagHandler extends BodyTagSupport {
         } 
         //Accept: application/json OR default
         else {
-            response.setContentType("application/" + ACCEPT_JSON);
+            response.setContentType("application/json");
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
                 Object mapValue = entry.getValue();
