@@ -104,7 +104,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeader = Arrays.asList(request.getHeader("Accept").split("/")).contains("xml") ? "application/xml" : "application:json";
+        String acceptHeader = Arrays.asList(request.getHeader("Accept").split("/")).contains("xml") ? "application/xml" : "application/json";
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         LinkedHashMap map = (LinkedHashMap) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
