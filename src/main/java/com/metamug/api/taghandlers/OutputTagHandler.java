@@ -101,7 +101,7 @@ public class OutputTagHandler extends BodyTagSupport {
         int contentLength = 0;
         //Accept: application/xml
         if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
-            //System.out.println(mapSize);
+            //System.out.println("Mapsize: "+mapSize);
             response.setContentType("application/xml");
             StringBuilder xmlBuilder = new StringBuilder();
             xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
@@ -447,14 +447,18 @@ public class OutputTagHandler extends BodyTagSupport {
                     Object result = mapValue;
                     emptyContent = false;
                     // Print result of Code execution
+                    System.out.println("Mapsize: "+mapSize);
                     if (mapSize == 1) {
                         try {
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
                                 codeResult.put("error" + (++resultCounter), result);
                             } else {
-                                codeResult.put("result" + (++resultCounter), result);
+                                //codeResult.put("result" + (++resultCounter), result);
+                                codeResult = new JSONObject(result);
                             }
+                            System.out.println("result: "+result);                            
+                            System.out.println("code_result: "+codeResult);
                             pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
                             out.print(codeResult.toString());
                         } catch (IOException ex) {
