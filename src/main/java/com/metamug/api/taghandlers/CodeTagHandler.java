@@ -77,6 +77,7 @@ import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -120,8 +121,18 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     if (param instanceof ResultImpl) {
                         ResultImpl ri = (ResultImpl) param;
                         result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        map.put("execute" + (mapSize + 1), processedResult);
+                        String processedResult = ObjectReturn.convert(result, acceptHeader);
+                        
+                        if(acceptHeader.equals("application/json")){
+                            try{
+                                JSONObject jsonOutput = new JSONObject(processedResult);
+                                map.put("execute" + (mapSize + 1), jsonOutput);
+                            } catch(JSONException jx){
+                                map.put("execute" + (mapSize + 1), processedResult);
+                            }
+                        } else{                        
+                            map.put("execute" + (mapSize + 1), processedResult);
+                        }
                     }
                 } catch (JAXBException ex) {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -138,8 +149,18 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             requestHeaders.put(header, request.getHeader(header));
                         }
                         result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
-                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        map.put("execute" + (mapSize + 1), processedResult);
+                        String processedResult = ObjectReturn.convert(result, acceptHeader);
+                        
+                        if(acceptHeader.equals("application/json")){
+                            try{
+                                JSONObject jsonOutput = new JSONObject(processedResult);
+                                map.put("execute" + (mapSize + 1), jsonOutput);
+                            } catch(JSONException jx){
+                                map.put("execute" + (mapSize + 1), processedResult);
+                            }
+                        } else{                        
+                            map.put("execute" + (mapSize + 1), processedResult);
+                        }
                     }
                 } catch (JSONException ex) {
                     String message;
