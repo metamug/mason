@@ -75,6 +75,9 @@ import org.json.JSONObject;
  * @author deepak
  */
 public class OutputTagHandler extends BodyTagSupport {
+    
+    public static String KEY_COLUMN = "columns";
+    public static String KEY_DATASET = "dataset";
 
     private LinkedHashMap value;
     private String type;
@@ -96,7 +99,9 @@ public class OutputTagHandler extends BodyTagSupport {
         int resultCounter = 0;
         boolean emptyContent = true;
         int contentLength = 0;
+        //Accept: application/xml
         if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
+            //System.out.println("Mapsize: "+mapSize);
             response.setContentType("application/xml");
             StringBuilder xmlBuilder = new StringBuilder();
             xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
@@ -215,18 +220,161 @@ public class OutputTagHandler extends BodyTagSupport {
             } catch (IOException ex) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
-        } else {
+        } 
+        //Accept: application/json+dataset
+        else if(header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
+            response.setContentType("application/json+dataset");
+            JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
+            for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
+                Object mapValue = entry.getValue();
+                if (mapValue instanceof ResultImpl) {
+                    //SQL Resultset
+                    ResultImpl resultImpl = (ResultImpl) mapValue;
+                    SortedMap[] rows = resultImpl.getRows();
+                    String[] columnNames = resultImpl.getColumnNames();
+                    if (rows.length > 0 && emptyContent) {
+                        emptyContent = false;
+                    }  
+                    //Single Sql Tag
+                    if (mapSize == 1) {
+                        try {
+                            if (emptyContent) {
+                                response.setStatus(204);
+                            } else {           
+                                JSONObject object = new JSONObject();
+                                JSONArray columnArray = new JSONArray();
+                                for (String columnName : columnNames) {
+                                    columnArray.put(columnName);
+                                }
+                                object.put(KEY_COLUMN, columnArray);
+                                JSONArray dataSetArray = new JSONArray();                                
+                                for (SortedMap<String, Object> row : rows) {
+                                    JSONArray rowArray = new JSONArray();
+                                    for (String columnName : columnNames) {
+                                        rowArray.put((row.get(columnName) != null) ? row.get(columnName) : "null");
+                                    }
+                                    dataSetArray.put(rowArray);
+                                }
+                                object.put(KEY_DATASET, dataSetArray);
+                                pageContext.setAttribute("Content-Length", object.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(object.toString());
+                            }
+                        } catch (IOException ex) {
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        }
+                    } 
+                    //Multiple tags
+                    else {
+                        JSONObject object = new JSONObject();
+                        JSONArray columnArray = new JSONArray();
+                        for (String columnName : columnNames) {
+                            columnArray.put(columnName);
+                        }
+                        object.put(KEY_COLUMN, columnArray);
+                        JSONArray dataSetArray = new JSONArray();
+                        for (SortedMap row : rows) {
+                            JSONArray rowArray = new JSONArray();
+                            for (String columnName : columnNames) {
+                                rowArray.put((row.get(columnName) != null) ? row.get(columnName) : "null");
+                            }
+                            dataSetArray.put(rowArray);
+                        }
+                        object.put(KEY_DATASET, dataSetArray);
+                        contentLength += object.toString().length();
+                        responseJson.append("response", object);
+                    }                    
+                } else if(mapValue instanceof String) {
+                    String result = (String) mapValue;
+                    // Print result of Code execution
+                    if (!result.isEmpty() && emptyContent) {
+                        emptyContent = false;
+                    }
+                    if (mapSize == 1) {
+                        if (emptyContent) {
+                            response.setStatus(204);
+                        } else {
+                            try {
+                                JSONObject codeResult = new JSONObject();
+                                if (entry.getKey().contains("error")) {
+                                    codeResult.put("error" + (++resultCounter), result);
+                                } else {
+                                    codeResult.put("result" + (++resultCounter), result);
+                                }
+                                pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(codeResult.toString());
+                            } catch (IOException ex) {
+                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            }
+                        }
+                    } else {
+                        JSONArray array = new JSONArray();
+                        JSONObject codeResult = new JSONObject();
+                        if(entry.getKey().contains("error")) {
+                            codeResult.put("error" + (++resultCounter), result);
+                        } else {
+                            codeResult.put("result" + (++resultCounter), result);
+                        }
+                        array.put(codeResult);
+                        contentLength += array.toString().length();
+                        responseJson.append("response", array);
+                    }
+                } else {
+                    Object result = mapValue;
+                    emptyContent = false;
+                    // Print result of Code execution
+                    if (mapSize == 1) {
+                        try {
+                            JSONObject codeResult = new JSONObject();
+                            if (entry.getKey().contains("error")) {
+                                codeResult.put("error" + (++resultCounter), result);
+                            } else {
+                                codeResult.put("result" + (++resultCounter), result);
+                            }
+                            pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
+                            out.print(codeResult.toString());
+                        } catch (IOException ex) {
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        }
+                    } else {
+                        JSONArray array = new JSONArray();
+                        JSONObject codeResult = new JSONObject();
+                        if (entry.getKey().contains("error")) {
+                            codeResult.put("error" + (++resultCounter), result);
+                        } else {
+                            codeResult.put("result" + (++resultCounter), result);
+                        }
+                        array.put(codeResult);
+                        contentLength += array.toString().length();
+                        responseJson.append("response", array);
+                    }
+                }
+            }
+            try {
+                if (emptyContent) {
+                    response.setStatus(204);
+                } else if (mapSize > 1) {
+                    pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
+                    out.print(responseJson.get("response").toString());
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            }
+        } 
+        //Accept: application/json OR default
+        else {
             response.setContentType("application/json");
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
                 Object mapValue = entry.getValue();
                 if (mapValue instanceof ResultImpl) {
+                    //SQL Resultset
                     ResultImpl resultImpl = (ResultImpl) mapValue;
                     SortedMap[] rows = resultImpl.getRows();
                     String[] columnNames = resultImpl.getColumnNames();
                     if (rows.length > 0 && emptyContent) {
                         emptyContent = false;
                     }
+                    //Single Sql Tag
                     if (mapSize == 1) {
                         try {
                             if (emptyContent) {
@@ -246,14 +394,16 @@ public class OutputTagHandler extends BodyTagSupport {
                         } catch (IOException ex) {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
-                    } else {
+                    }
+                    //Multiple tags
+                    else {
                         JSONArray array = new JSONArray();
                         for (SortedMap row : rows) {
                             JSONObject rowJson = new JSONObject(new LinkedHashMap<>());
                             for (String columnName : columnNames) {
                                 rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
                             }
-                            array.put(row);
+                            array.put(rowJson);
                         }
                         contentLength += array.toString().length();
                         responseJson.append("response", array);
@@ -297,14 +447,18 @@ public class OutputTagHandler extends BodyTagSupport {
                     Object result = mapValue;
                     emptyContent = false;
                     // Print result of Code execution
+                    System.out.println("Mapsize: "+mapSize);
                     if (mapSize == 1) {
                         try {
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
                                 codeResult.put("error" + (++resultCounter), result);
                             } else {
-                                codeResult.put("result" + (++resultCounter), result);
+                                //codeResult.put("result" + (++resultCounter), result);
+                                codeResult = new JSONObject(result);
                             }
+                            System.out.println("result: "+result);                            
+                            System.out.println("code_result: "+codeResult);
                             pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
                             out.print(codeResult.toString());
                         } catch (IOException ex) {
