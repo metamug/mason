@@ -136,6 +136,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
+                        xmlBuilder.append("<result>");
                         for (SortedMap row : rows) {
                             xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
                             for (String columnName : columnNames) {
@@ -143,6 +144,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             }
                             xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
                         }
+                        xmlBuilder.append("</result>");
                     }
                     contentLength += xmlBuilder.toString().length();
                 } else if (mapValue instanceof String) {
@@ -447,7 +449,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     Object result = mapValue;
                     emptyContent = false;
                     // Print result of Code execution
-                    System.out.println("Mapsize: "+mapSize);
+                    //System.out.println("Mapsize: "+mapSize);
                     if (mapSize == 1) {
                         try {
                             JSONObject codeResult = new JSONObject();
@@ -457,8 +459,8 @@ public class OutputTagHandler extends BodyTagSupport {
                                 //codeResult.put("result" + (++resultCounter), result);
                                 codeResult = new JSONObject(result);
                             }
-                            System.out.println("result: "+result);                            
-                            System.out.println("code_result: "+codeResult);
+                            //System.out.println("result: "+result);                            
+                            //System.out.println("code_result: "+codeResult);
                             pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
                             out.print(codeResult.toString());
                         } catch (IOException ex) {
