@@ -101,7 +101,7 @@ public class OutputTagHandler extends BodyTagSupport {
         int contentLength = 0;
         //Accept: application/xml
         if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
-            //System.out.println("Mapsize: "+mapSize);
+            //System.ou1t.println("Mapsize: "+mapSize);
             response.setContentType("application/xml");
             StringBuilder xmlBuilder = new StringBuilder();
             xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
@@ -160,10 +160,13 @@ public class OutputTagHandler extends BodyTagSupport {
                             try {
                                 int temp = (++resultCounter);
                                 if (entry.getKey().contains("error")) {
+                                    //xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                                     xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                                 } else {
-                                    xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                    //xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                    xmlBuilder.append(result);
                                 }
+                                xmlBuilder.append("</response>");
                                 pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
                                 out.print(xmlBuilder.toString());
                             } catch (IOException ex) {
@@ -175,7 +178,7 @@ public class OutputTagHandler extends BodyTagSupport {
                         if (entry.getKey().contains("error")) {
                             xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                         } else {
-                            xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                            xmlBuilder.append("<result").append(">").append(result).append("</result").append(">");
                         }
                         contentLength += xmlBuilder.toString().length();
                     }
@@ -192,8 +195,9 @@ public class OutputTagHandler extends BodyTagSupport {
                                 if (entry.getKey().contains("error")) {
                                     xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                                 } else {
-                                    xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                    xmlBuilder.append("<result").append(">").append(result).append("</result").append(">");
                                 }
+                                xmlBuilder.append("</response>");
                                 pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
                                 out.print(xmlBuilder.toString());
                             } catch (IOException ex) {
@@ -205,7 +209,7 @@ public class OutputTagHandler extends BodyTagSupport {
                         if (entry.getKey().contains("error")) {
                             xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                         } else {
-                            xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                            xmlBuilder.append("<result").append(">").append(result).append("</result").append(">");
                         }
                         contentLength += xmlBuilder.toString().length();
                     }
@@ -214,7 +218,7 @@ public class OutputTagHandler extends BodyTagSupport {
             try {
                 if (emptyContent) {
                     response.setStatus(204);
-                } else {
+                } else if(mapSize > 1) {
                     xmlBuilder.append("</response>");
                     pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
                     out.print(xmlBuilder.toString());
@@ -459,8 +463,8 @@ public class OutputTagHandler extends BodyTagSupport {
                                 //codeResult.put("result" + (++resultCounter), result);
                                 codeResult = new JSONObject(result);
                             }
-                            //System.out.println("result: "+result);                            
-                            //System.out.println("code_result: "+codeResult);
+                            System.out.println("result: "+result);                            
+                            System.out.println("code_result: "+codeResult);
                             pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
                             out.print(codeResult.toString());
                         } catch (IOException ex) {
