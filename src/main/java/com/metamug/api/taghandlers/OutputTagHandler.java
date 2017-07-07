@@ -135,6 +135,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
+                        xmlBuilder.append("<result>");
                         for (SortedMap row : rows) {
                             xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
                             for (String columnName : columnNames) {
@@ -142,6 +143,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             }
                             xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
                         }
+                        xmlBuilder.append("</result>");
                     }
                     contentLength += xmlBuilder.toString().length();
                 } else if (mapValue instanceof String) {
@@ -157,10 +159,13 @@ public class OutputTagHandler extends BodyTagSupport {
                             try {
                                 int temp = (++resultCounter);
                                 if (entry.getKey().contains("error")) {
+                                    //xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                                     xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                                 } else {
-                                    xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                    //xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                    xmlBuilder.append(result);
                                 }
+                                xmlBuilder.append("</response>");
                                 pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
                                 out.print(xmlBuilder.toString());
                             } catch (IOException ex) {
@@ -172,37 +177,7 @@ public class OutputTagHandler extends BodyTagSupport {
                         if (entry.getKey().contains("error")) {
                             xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                         } else {
-                            xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
-                        }
-                        contentLength += xmlBuilder.toString().length();
-                    }
-                } else {
-                    emptyContent = false;
-                    Object result = mapValue;
-                    // Print result of Code execution
-                    if (mapSize == 1) {
-                        if (emptyContent) {
-                            response.setStatus(204);
-                        } else {
-                            try {
-                                int temp = (++resultCounter);
-                                if (entry.getKey().contains("error")) {
-                                    xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
-                                } else {
-                                    xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
-                                }
-                                pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
-                                out.print(xmlBuilder.toString());
-                            } catch (IOException ex) {
-                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                            }
-                        }
-                    } else {
-                        int temp = (++resultCounter);
-                        if (entry.getKey().contains("error")) {
-                            xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
-                        } else {
-                            xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                            xmlBuilder.append("<result").append(">").append(result).append("</result").append(">");
                         }
                         contentLength += xmlBuilder.toString().length();
                     }
@@ -211,7 +186,7 @@ public class OutputTagHandler extends BodyTagSupport {
             try {
                 if (emptyContent) {
                     response.setStatus(204);
-                } else {
+                } else if(mapSize > 1) {
                     xmlBuilder.append("</response>");
                     pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
                     out.print(xmlBuilder.toString());
@@ -323,14 +298,17 @@ public class OutputTagHandler extends BodyTagSupport {
                     // Print result of Code execution
                     if (mapSize == 1) {
                         try {
+                            String output;
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
                                 codeResult.put("error" + (++resultCounter), result);
+                                output = codeResult.toString();
                             } else {
-                                codeResult.put("result" + (++resultCounter), result);
+                                //codeResult.put("result" + (++resultCounter), result);
+                                output = result.toString();
                             }
-                            pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
-                            out.print(codeResult.toString());
+                            pageContext.setAttribute("Content-Length", output.length(), PageContext.REQUEST_SCOPE);
+                            out.print(output);
                         } catch (IOException ex) {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
@@ -446,20 +424,20 @@ public class OutputTagHandler extends BodyTagSupport {
                     Object result = mapValue;
                     emptyContent = false;
                     // Print result of Code execution
-                    System.out.println("Mapsize: "+mapSize);
+                    //System.out.println("Mapsize: "+mapSize);
                     if (mapSize == 1) {
                         try {
+                            String output;
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
                                 codeResult.put("error" + (++resultCounter), result);
+                                output = codeResult.toString();
                             } else {
                                 //codeResult.put("result" + (++resultCounter), result);
-                                codeResult = new JSONObject(result);
+                                output = result.toString();
                             }
-                            System.out.println("result: "+result);                            
-                            System.out.println("code_result: "+codeResult);
-                            pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
-                            out.print(codeResult.toString());
+                            pageContext.setAttribute("Content-Length", output.length(), PageContext.REQUEST_SCOPE);
+                            out.print(output);
                         } catch (IOException ex) {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }

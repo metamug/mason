@@ -76,7 +76,9 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -120,8 +122,37 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     if (param instanceof ResultImpl) {
                         ResultImpl ri = (ResultImpl) param;
                         result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        map.put("execute" + (mapSize + 1), processedResult);
+                        
+                        if(result instanceof List) {
+                            if(acceptHeader.equals("application/json")) {
+                                JSONArray outputArray = new JSONArray();
+                                for(Object object : (List)result) {
+                                    outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
+                                }
+                                map.put("execute" + (mapSize + 1), outputArray);
+                            } else {
+                                StringBuilder outputXml = new StringBuilder();
+                                for(Object object : (List)result) {
+                                    outputXml.append(ObjectReturn.convert(object, acceptHeader));
+                                }
+                                map.put("execute" + (mapSize + 1), outputXml.toString());
+                            }
+                        } else {  
+                            Object processedResult = ObjectReturn.convert(result, acceptHeader);                        
+                            if(acceptHeader.equals("application/json")){
+                                try{
+                                    JSONObject jsonOutput = new JSONObject((String)processedResult);
+                                    map.put("execute" + (mapSize + 1), jsonOutput);
+                                } catch(JSONException jx){
+                                    //System.out.println("ResultImpl: Not a JSONObject");
+                                    map.put("execute" + (mapSize + 1), processedResult);
+                                }                                
+                            }                        
+                            //application/xml
+                            else{                        
+                                map.put("execute" + (mapSize + 1), processedResult);
+                            }
+                        }
                     }
                 } catch (JAXBException ex) {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -138,8 +169,37 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             requestHeaders.put(header, request.getHeader(header));
                         }
                         result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
-                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        map.put("execute" + (mapSize + 1), processedResult);
+                        
+                        if(result instanceof List) {
+                            if(acceptHeader.equals("application/json")) {
+                                JSONArray outputArray = new JSONArray();
+                                for(Object object : (List)result) {
+                                    outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
+                                }
+                                map.put("execute" + (mapSize + 1), outputArray);
+                            } else {
+                                StringBuilder outputXml = new StringBuilder();
+                                for(Object object : (List)result) {
+                                    outputXml.append(ObjectReturn.convert(object, acceptHeader));
+                                }
+                                map.put("execute" + (mapSize + 1), outputXml.toString());
+                            }
+                        } else {                        
+                            Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                            if(acceptHeader.equals("application/json")) {
+                                try{
+                                    JSONObject jsonOutput = new JSONObject((String)processedResult);
+                                    map.put("execute" + (mapSize + 1), jsonOutput);
+                                } catch(JSONException jx){
+                                    //System.out.println("MtgRequest: Not a JSONObject");
+                                    map.put("execute" + (mapSize + 1), processedResult);
+                                }
+                            }
+                            //application/xml
+                            else{                        
+                                map.put("execute" + (mapSize + 1), processedResult);
+                            }
+                        }
                     }
                 } catch (JSONException ex) {
                     String message;
