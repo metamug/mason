@@ -90,32 +90,4 @@ public class ObjectReturn {
         marshaller.marshal(returnObject, marshalledResult);
         return marshalledResult.toString();
     }
-
-    /**
-     * @param objectList List of returned objects
-     * @param acceptHeader Used to determine whether to convert into JSON or XML
-     * @return Json array or XML converted form of the objectList as String
-     * @throws javax.xml.bind.JAXBException
-     */
-    public static String convert(List<?> objectList, String acceptHeader) throws JAXBException {
-        String prefix = null, suffix = null, separator = null;
-        if (acceptHeader.equals(TYPE_JSON)) {
-            prefix = "[\n";
-            suffix = "]";
-            separator = ",\n";
-        } else if (acceptHeader.equals(TYPE_XML)) {
-            prefix = "<result>\n";
-            suffix = "</result>";
-            separator = "\n";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(prefix);
-        for (Object obj : objectList) {
-            sb.append(convert(obj, acceptHeader));
-            sb.append(separator);
-        }
-        sb.append(suffix);
-
-        return sb.toString();
-    }
 }
