@@ -79,7 +79,7 @@ public class OutputTagHandler extends BodyTagSupport {
     public static String KEY_COLUMN = "columns";
     public static String KEY_DATASET = "dataset";
 
-    private LinkedHashMap value;
+    private LinkedHashMap<String,Object> value;
     private String type;
     private String tableName;
 
@@ -92,7 +92,7 @@ public class OutputTagHandler extends BodyTagSupport {
     @Override
     public int doEndTag() throws JspException {
         JspWriter out = pageContext.getOut();
-        LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap) value;
+        LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String,Object>) value;
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         String header = (String) type;
         int mapSize = mtgResultMap.size();
@@ -101,7 +101,6 @@ public class OutputTagHandler extends BodyTagSupport {
         int contentLength = 0;
         //Accept: application/xml
         if (header != null && Arrays.asList(header.split("/")).contains("xml")) {
-            //System.out.println("Mapsize: "+mapSize);
             response.setContentType("application/xml");
             StringBuilder xmlBuilder = new StringBuilder();
             xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
