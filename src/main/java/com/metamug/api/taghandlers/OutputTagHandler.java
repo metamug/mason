@@ -75,11 +75,11 @@ import org.json.JSONObject;
  * @author deepak
  */
 public class OutputTagHandler extends BodyTagSupport {
-    
+
     public static String KEY_COLUMN = "columns";
     public static String KEY_DATASET = "dataset";
 
-    private LinkedHashMap<String,Object> value;
+    private LinkedHashMap<String, Object> value;
     private String type;
     private String tableName;
 
@@ -92,7 +92,7 @@ public class OutputTagHandler extends BodyTagSupport {
     @Override
     public int doEndTag() throws JspException {
         JspWriter out = pageContext.getOut();
-        LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String,Object>) value;
+        LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String, Object>) value;
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         String header = (String) type;
         int mapSize = mtgResultMap.size();
@@ -186,7 +186,7 @@ public class OutputTagHandler extends BodyTagSupport {
             try {
                 if (emptyContent) {
                     response.setStatus(204);
-                } else if(mapSize > 1) {
+                } else if (mapSize > 1) {
                     xmlBuilder.append("</response>");
                     pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
                     out.print(xmlBuilder.toString());
@@ -194,9 +194,8 @@ public class OutputTagHandler extends BodyTagSupport {
             } catch (IOException ex) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
-        } 
-        //Accept: application/json+dataset
-        else if(header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
+        } //Accept: application/json+dataset
+        else if (header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
             response.setContentType("application/json+dataset");
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
@@ -208,21 +207,21 @@ public class OutputTagHandler extends BodyTagSupport {
                     String[] columnNames = resultImpl.getColumnNames();
                     if (rows.length > 0 && emptyContent) {
                         emptyContent = false;
-                    }  
+                    }
                     //Single Sql Tag
                     if (mapSize == 1) {
                         try {
                             if (emptyContent) {
                                 response.setStatus(204);
-                            } else {           
+                            } else {
                                 JSONObject object = new JSONObject();
                                 JSONArray columnArray = new JSONArray();
                                 for (String columnName : columnNames) {
                                     columnArray.put(columnName);
                                 }
                                 object.put(KEY_COLUMN, columnArray);
-                                JSONArray dataSetArray = new JSONArray();                                
-                                for (SortedMap<String, Object> row : rows) {
+                                JSONArray dataSetArray = new JSONArray();
+                                for (SortedMap row : rows) {
                                     JSONArray rowArray = new JSONArray();
                                     for (String columnName : columnNames) {
                                         rowArray.put((row.get(columnName) != null) ? row.get(columnName) : "null");
@@ -236,8 +235,7 @@ public class OutputTagHandler extends BodyTagSupport {
                         } catch (IOException ex) {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
-                    } 
-                    //Multiple tags
+                    } //Multiple tags
                     else {
                         JSONObject object = new JSONObject();
                         JSONArray columnArray = new JSONArray();
@@ -256,8 +254,8 @@ public class OutputTagHandler extends BodyTagSupport {
                         object.put(KEY_DATASET, dataSetArray);
                         contentLength += object.toString().length();
                         responseJson.append("response", object);
-                    }                    
-                } else if(mapValue instanceof String) {
+                    }
+                } else if (mapValue instanceof String) {
                     String result = (String) mapValue;
                     // Print result of Code execution
                     if (!result.isEmpty() && emptyContent) {
@@ -283,7 +281,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     } else {
                         JSONArray array = new JSONArray();
                         JSONObject codeResult = new JSONObject();
-                        if(entry.getKey().contains("error")) {
+                        if (entry.getKey().contains("error")) {
                             codeResult.put("error" + (++resultCounter), result);
                         } else {
                             codeResult.put("result" + (++resultCounter), result);
@@ -336,8 +334,7 @@ public class OutputTagHandler extends BodyTagSupport {
             } catch (IOException ex) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
-        } 
-        //Accept: application/json OR default
+        } //Accept: application/json OR default
         else {
             response.setContentType("application/json");
             JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
@@ -358,7 +355,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                 response.setStatus(204);
                             } else {
                                 JSONArray array = new JSONArray();
-                                for (SortedMap<String, Object> row : rows) {
+                                for (SortedMap row : rows) {
                                     JSONObject rowJson = new JSONObject();
                                     for (String columnName : columnNames) {
                                         rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
@@ -371,8 +368,7 @@ public class OutputTagHandler extends BodyTagSupport {
                         } catch (IOException ex) {
                             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
-                    }
-                    //Multiple tags
+                    } //Multiple tags
                     else {
                         JSONArray array = new JSONArray();
                         for (SortedMap row : rows) {

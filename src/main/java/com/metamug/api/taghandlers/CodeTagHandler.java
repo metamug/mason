@@ -108,7 +108,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeader = Arrays.asList(request.getHeader("Accept").split("/")).contains("xml") ? "application/xml" : "application/json";
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        LinkedHashMap map = (LinkedHashMap) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
         Object result;
         try {
@@ -122,34 +122,33 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     if (param instanceof ResultImpl) {
                         ResultImpl ri = (ResultImpl) param;
                         result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                        
-                        if(result instanceof List) {
-                            if(acceptHeader.equals("application/json")) {
+
+                        if (result instanceof List) {
+                            if (acceptHeader.equals("application/json")) {
                                 JSONArray outputArray = new JSONArray();
-                                for(Object object : (List)result) {
+                                for (Object object : (List) result) {
                                     outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                                 }
                                 map.put("execute" + (mapSize + 1), outputArray);
                             } else {
                                 StringBuilder outputXml = new StringBuilder();
-                                for(Object object : (List)result) {
+                                for (Object object : (List) result) {
                                     outputXml.append(ObjectReturn.convert(object, acceptHeader));
                                 }
                                 map.put("execute" + (mapSize + 1), outputXml.toString());
                             }
-                        } else {  
-                            Object processedResult = ObjectReturn.convert(result, acceptHeader);                        
-                            if(acceptHeader.equals("application/json")){
-                                try{
-                                    JSONObject jsonOutput = new JSONObject((String)processedResult);
+                        } else {
+                            Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                            if (acceptHeader.equals("application/json")) {
+                                try {
+                                    JSONObject jsonOutput = new JSONObject((String) processedResult);
                                     map.put("execute" + (mapSize + 1), jsonOutput);
-                                } catch(JSONException jx){
+                                } catch (JSONException jx) {
                                     //System.out.println("ResultImpl: Not a JSONObject");
                                     map.put("execute" + (mapSize + 1), processedResult);
-                                }                                
-                            }                        
-                            //application/xml
-                            else{                        
+                                }
+                            } //application/xml
+                            else {
                                 map.put("execute" + (mapSize + 1), processedResult);
                             }
                         }
@@ -169,34 +168,33 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             requestHeaders.put(header, request.getHeader(header));
                         }
                         result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
-                        
-                        if(result instanceof List) {
-                            if(acceptHeader.equals("application/json")) {
+
+                        if (result instanceof List) {
+                            if (acceptHeader.equals("application/json")) {
                                 JSONArray outputArray = new JSONArray();
-                                for(Object object : (List)result) {
+                                for (Object object : (List) result) {
                                     outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                                 }
                                 map.put("execute" + (mapSize + 1), outputArray);
                             } else {
                                 StringBuilder outputXml = new StringBuilder();
-                                for(Object object : (List)result) {
+                                for (Object object : (List) result) {
                                     outputXml.append(ObjectReturn.convert(object, acceptHeader));
                                 }
                                 map.put("execute" + (mapSize + 1), outputXml.toString());
                             }
-                        } else {                        
+                        } else {
                             Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                            if(acceptHeader.equals("application/json")) {
-                                try{
-                                    JSONObject jsonOutput = new JSONObject((String)processedResult);
+                            if (acceptHeader.equals("application/json")) {
+                                try {
+                                    JSONObject jsonOutput = new JSONObject((String) processedResult);
                                     map.put("execute" + (mapSize + 1), jsonOutput);
-                                } catch(JSONException jx){
+                                } catch (JSONException jx) {
                                     //System.out.println("MtgRequest: Not a JSONObject");
                                     map.put("execute" + (mapSize + 1), processedResult);
                                 }
-                            }
-                            //application/xml
-                            else{                        
+                            } //application/xml
+                            else {
                                 map.put("execute" + (mapSize + 1), processedResult);
                             }
                         }
