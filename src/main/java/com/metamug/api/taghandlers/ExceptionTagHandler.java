@@ -91,7 +91,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String header = request.getHeader("Accept");
+        String header = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
         try {
             if (Arrays.asList(header.split("/")).contains("xml")) {
                 response.setContentType("application/xml");
