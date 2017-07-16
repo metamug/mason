@@ -94,7 +94,7 @@ public class OutputTagHandler extends BodyTagSupport {
         JspWriter out = pageContext.getOut();
         LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String, Object>) value;
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        String header = (String) type;
+        String header = (String) type == null ? "application/json" : (String) type;
         int mapSize = mtgResultMap.size();
         int resultCounter = 0;
         boolean emptyContent = true;

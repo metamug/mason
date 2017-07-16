@@ -232,7 +232,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 response.setStatus(422);
             }
             map.put("error" + (mapSize + 1), message);
-            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, "Message: {0}, Class: {1}", new Object[]{ex.getMessage(), ex.getClass()});
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return EVAL_PAGE;
     }
