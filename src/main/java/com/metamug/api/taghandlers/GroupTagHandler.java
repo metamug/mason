@@ -139,7 +139,6 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     @Override
     public void doFinally() {
-        value = null;
     }
 
     private JSONObject validateUser(String userName, String password) {

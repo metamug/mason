@@ -188,6 +188,5 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
 
     @Override
     public void doFinally() {
-        value = null;
     }
 }

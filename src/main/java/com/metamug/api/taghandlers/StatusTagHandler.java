@@ -117,7 +117,6 @@ public class StatusTagHandler extends BodyTagSupport implements TryCatchFinally 
 
     @Override
     public void doFinally() {
-        value = message = null;
     }
 
     private static class InvalidStatusException extends Exception {

@@ -302,17 +302,6 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     @Override
     public void doFinally() {
-        name = null;
-        type = null;
-        isRequired = null;
-        max = null;
-        min = null;
-        maxLen = null;
-        minLen = null;
-        pattern = null;
-        exists = null;
-        defaultValue = null;
-        value = null;
     }
 
     private static class InputValidationException extends Throwable {

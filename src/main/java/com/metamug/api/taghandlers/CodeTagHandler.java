@@ -261,9 +261,6 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
      */
     @Override
     public void doFinally() {
-        className = null;
-        param = null;
-        parameters = null;
 //      Don't set ds to null because in subsequent call to code execution it causes NPE
 //      ds = null;
     }

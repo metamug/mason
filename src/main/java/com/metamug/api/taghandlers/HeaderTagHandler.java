@@ -107,6 +107,5 @@ public class HeaderTagHandler extends BodyTagSupport implements TryCatchFinally 
 
     @Override
     public void doFinally() {
-        value = null;
     }
 }
