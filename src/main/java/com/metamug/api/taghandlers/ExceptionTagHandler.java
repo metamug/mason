@@ -61,6 +61,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.SKIP_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
@@ -104,15 +105,23 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("SQLException")) {
                         response.setStatus(500);
                         out.println("<message>Incorrect query or constraint violation</message>\n<status>" + 500 + "</status>");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } else if (cause.contains("MysqlDataTruncation")) {
+                        response.setStatus(500);
+                        out.println("<message>Inserting data of incorrect Data-type</message>\n<status>" + 500 + "</status>");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("ResourceNotFoundException")) {
                         response.setStatus(404);
                         out.println("<message>Parent resouce not found</message>\n<status>" + 404 + "</status>");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("InvalidStatusException")) {
                         response.setStatus(406);
                         out.println("<message>Invalid Status code set</message>\n<status>" + 406 + "</status>");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("RoleAuthorizationException")) {
                         response.setStatus(401);
                         response.setHeader("WWW-Authenticate", "Basic");
@@ -120,16 +129,15 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     } else if (cause.contains("RoleAccessDeniedException")) {
                         response.setStatus(403);
                         out.println("<message>Forbidden Access to resource</message>\n<status>" + 403 + "</status>");
-                    } else if (cause.contains("MysqlDataTruncation")) {
-                        response.setStatus(422);
-                        out.println("<message>Incorrect format of parameter values\n<status>" + 422 + "</status>");
                     } else {
                         response.setStatus(500);
                         out.println("<message>Server Error</message>\n<status>" + 500 + "</status>");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     }
                 } else {
                     response.setStatus(500);
                     out.println("<message>Server Error</message>\n<status>" + 500 + "</status>");
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
                 out.println("\n</response>");
             } else {
@@ -142,15 +150,23 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("SQLException")) {
                         response.setStatus(500);
                         out.println("{\"message\": \"Incorrect query or constraint violation\",\"status\":" + 500 + "}");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } else if (cause.contains("MysqlDataTruncation")) {
+                        response.setStatus(500);
+                        out.println("{\"message\": \"Inserting data of incorrect Data-type\",\"status\":" + 500 + "}");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("ResourceNotFoundException")) {
                         response.setStatus(404);
                         out.println("{\"message\": \"Parent resouce not found\",\"status\":" + 404 + "}");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("InvalidStatusException")) {
                         response.setStatus(406);
                         out.println("{\"message\": \"Invalid Status code set\",\"status\":" + 406 + "}");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("RoleAuthorizationException")) {
                         response.setStatus(401);
                         response.setHeader("WWW-Authenticate", "Basic");
@@ -158,19 +174,18 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     } else if (cause.contains("RoleAccessDeniedException")) {
                         response.setStatus(403);
                         out.println("{\"message\": \"Forbidden Access to resource\",\"status\":" + 403 + "}");
-                    } else if (cause.contains("MysqlDataTruncation")) {
-                        response.setStatus(422);
-                        out.println("{\"message\": \"Incorrect format of parameter values\",\"status\":" + 422 + "}");
                     } else {
                         response.setStatus(500);
                         out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     }
                 } else {
                     response.setStatus(500);
                     out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             }
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE,  ex.getMessage(),ex);
+
         } catch (IOException ex1) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex1.getMessage(), ex1);
         }
