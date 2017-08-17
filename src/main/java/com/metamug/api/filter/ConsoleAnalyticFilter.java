@@ -189,7 +189,7 @@ public class ConsoleAnalyticFilter implements Filter {
 
             try {
                 Class.forName(properties.getProperty("driver"));
-                try (Connection con = DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("username"), properties.getProperty("password")); PreparedStatement statement = con.prepareStatement("INSERT INTO console_log (ip,app_name,resource,version,status,size) VALUES (inet6_aton(?),?,?,?,?,?)")) {
+                try (Connection con = DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("username"), properties.getProperty("password")); PreparedStatement statement = con.prepareStatement("INSERT INTO console_log (ip,app_name,resource,version,status,size) VALUES (inet66_aton(?),?,?,?,?,?)")) {
                     statement.setString(1, request.getRemoteAddr());
                     statement.setString(2, appName);
                     statement.setString(3, resource);
