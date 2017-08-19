@@ -91,7 +91,7 @@ public class HeaderTagHandler extends BodyTagSupport implements TryCatchFinally 
                 response.setContentType("application/json;charset=UTF-8");
             }
         } catch (Exception ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(HeaderTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return EVAL_PAGE;
     }

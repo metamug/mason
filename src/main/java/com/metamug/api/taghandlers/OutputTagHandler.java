@@ -132,7 +132,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             pageContext.setAttribute("Content-Length", contentLength, PageContext.REQUEST_SCOPE);
                             out.print(xmlBuilder.toString());
                         } catch (IOException ex) {
-                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
                         xmlBuilder.append("<result>");
@@ -169,7 +169,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                 pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
                                 out.print(xmlBuilder.toString());
                             } catch (IOException ex) {
-                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                             }
                         }
                     } else {
@@ -192,7 +192,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     out.print(xmlBuilder.toString());
                 }
             } catch (IOException ex) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         } //Accept: application/json+dataset
         else if (header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
@@ -233,7 +233,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                 out.print(object.toString());
                             }
                         } catch (IOException ex) {
-                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } //Multiple tags
                     else {
@@ -275,7 +275,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                 pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
                                 out.print(codeResult.toString());
                             } catch (IOException ex) {
-                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                             }
                         }
                     } else {
@@ -308,7 +308,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             pageContext.setAttribute("Content-Length", output.length(), PageContext.REQUEST_SCOPE);
                             out.print(output);
                         } catch (IOException ex) {
-                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
                         JSONArray array = new JSONArray();
@@ -332,7 +332,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     out.print(responseJson.get("response").toString());
                 }
             } catch (IOException ex) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         } //Accept: application/json OR default
         else {
@@ -366,7 +366,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                 out.print(array.toString());
                             }
                         } catch (IOException ex) {
-                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } //Multiple tags
                     else {
@@ -401,7 +401,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                 pageContext.setAttribute("Content-Length", codeResult.toString().length(), PageContext.REQUEST_SCOPE);
                                 out.print(codeResult.toString());
                             } catch (IOException ex) {
-                                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                             }
                         }
                     } else {
@@ -435,7 +435,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             pageContext.setAttribute("Content-Length", output.length(), PageContext.REQUEST_SCOPE);
                             out.print(output);
                         } catch (IOException ex) {
-                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
                         JSONArray array = new JSONArray();
@@ -459,7 +459,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     out.print(responseJson.get("response").toString());
                 }
             } catch (IOException ex) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
         return EVAL_PAGE;

@@ -154,7 +154,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                         }
                     }
                 } catch (JAXBException ex) {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
@@ -210,7 +210,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     map.put("error" + (mapSize + 1), message);
                     response.setStatus(422);
                 } catch (JAXBException ex) {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             } else {
                 map.put("error" + (mapSize + 1), "Class isn't processable");
@@ -221,7 +221,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
             if (ex.getClass().toString().contains("AccessControlException")) {
                 message = "Access denied, can't access system information.";
                 response.setStatus(403);
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             } else {
                 if (ex.getCause() != null) {
                     String cause = ex.getCause().toString();
@@ -232,7 +232,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 response.setStatus(422);
             }
             map.put("error" + (mapSize + 1), message);
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return EVAL_PAGE;
     }

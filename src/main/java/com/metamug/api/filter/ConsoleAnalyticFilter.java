@@ -189,7 +189,7 @@ public class ConsoleAnalyticFilter implements Filter {
 
             try {
                 Class.forName(properties.getProperty("driver"));
-                try (Connection con = DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("username"), properties.getProperty("password")); PreparedStatement statement = con.prepareStatement("INSERT INTO console_log (ip,app_name,resource,version,status,size) VALUES (inet66_aton(?),?,?,?,?,?)")) {
+                try (Connection con = DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("username"), properties.getProperty("password")); PreparedStatement statement = con.prepareStatement("INSERT INTO console_log (ip,app_name,resource,version,status,size) VALUES (inet6_aton(?),?,?,?,?,?)")) {
                     statement.setString(1, request.getRemoteAddr());
                     statement.setString(2, appName);
                     statement.setString(3, resource);
@@ -199,7 +199,7 @@ public class ConsoleAnalyticFilter implements Filter {
                     statement.execute();
                 }
             } catch (ClassNotFoundException | SQLException ex) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(ConsoleAnalyticFilter.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
     }

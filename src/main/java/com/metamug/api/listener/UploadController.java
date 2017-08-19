@@ -178,12 +178,12 @@ public class UploadController extends HttpServlet {
                 obj.put("message", "Error occured in UploadListener implementation");
                 obj.put("status", 500);
                 response.setStatus(500);
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             } catch (Exception ex) {
                 obj.put("message", "Error occured while executing UploadListener");
                 obj.put("status", 500);
                 response.setStatus(500);
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         } else {
             response.setStatus(415);
@@ -194,7 +194,7 @@ public class UploadController extends HttpServlet {
                 out.print(obj.toString());
                 out.flush();
             } catch (IOException ex) {
-//                Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+//                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
             }
         }
     }

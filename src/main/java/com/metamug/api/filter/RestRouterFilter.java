@@ -170,7 +170,7 @@ public class RestRouterFilter implements Filter {
                             } else {
                                 obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                             }
-                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                             writer.print(obj.toString());
                             writer.flush();
                         }
