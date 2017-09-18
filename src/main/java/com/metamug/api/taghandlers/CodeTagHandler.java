@@ -56,6 +56,10 @@ import com.metamug.api.common.MtgRequest;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.mtg.io.objectreturn.ObjectReturn;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -63,18 +67,15 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.UUID;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -92,7 +93,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Resource(name = "jdbc/mtgMySQL")
     private DataSource ds;
 
-    public CodeTagHandler() {
+    public CodeTagHandler() throws NoSuchAlgorithmException {
         super();
         init();
     }
@@ -106,8 +107,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeader = Arrays.asList(request.getHeader("Accept").split("/")).contains("xml") ? "application/xml" : "application/json";
-        HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
+        String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
+        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
         Object result;
@@ -118,123 +119,124 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
             RequestProcessable reqProcessable;
             if (ResultProcessable.class.isAssignableFrom(cls)) {
                 resProcessable = (ResultProcessable) newInstance;
-                try {
-                    if (param instanceof ResultImpl) {
-                        ResultImpl ri = (ResultImpl) param;
-                        result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                if (param instanceof ResultImpl) {
+                    ResultImpl ri = (ResultImpl) param;
+                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
 
-                        if (result instanceof List) {
-                            if (acceptHeader.equals("application/json")) {
-                                JSONArray outputArray = new JSONArray();
-                                for (Object object : (List) result) {
-                                    outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
-                                }
-                                map.put("execute" + (mapSize + 1), outputArray);
-                            } else {
-                                StringBuilder outputXml = new StringBuilder();
-                                for (Object object : (List) result) {
-                                    outputXml.append(ObjectReturn.convert(object, acceptHeader));
-                                }
-                                map.put("execute" + (mapSize + 1), outputXml.toString());
+                    if (result instanceof List) {
+                        if (acceptHeader.equals("application/json")) {
+                            JSONArray outputArray = new JSONArray();
+                            for (Object object : (List) result) {
+                                outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
+                            map.put("execute" + (mapSize + 1), outputArray);
                         } else {
-                            Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                            if (acceptHeader.equals("application/json")) {
-                                try {
-                                    JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                    map.put("execute" + (mapSize + 1), jsonOutput);
-                                } catch (JSONException jx) {
-                                    //System.out.println("ResultImpl: Not a JSONObject");
-                                    map.put("execute" + (mapSize + 1), processedResult);
-                                }
-                            } //application/xml
-                            else {
+                            StringBuilder outputXml = new StringBuilder();
+                            for (Object object : (List) result) {
+                                outputXml.append(ObjectReturn.convert(object, acceptHeader));
+                            }
+                            map.put("execute" + (mapSize + 1), outputXml.toString());
+                        }
+                    } else {
+                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                        if (acceptHeader.equals("application/json")) {
+                            try {
+                                JSONObject jsonOutput = new JSONObject((String) processedResult);
+                                map.put("execute" + (mapSize + 1), jsonOutput);
+                            } catch (JSONException jx) {
+                                //System.out.println("ResultImpl: Not a JSONObject");
                                 map.put("execute" + (mapSize + 1), processedResult);
                             }
+                        } //application/xml
+                        else {
+                            map.put("execute" + (mapSize + 1), processedResult);
                         }
                     }
-                } catch (JAXBException ex) {
-                    Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
-                try {
-                    if (param instanceof MtgRequest) {
-                        MtgRequest mtg = (MtgRequest) param;
-                        Enumeration<String> headerNames = request.getHeaderNames();
-                        Map<String, String> requestHeaders = new HashMap<>();
-                        while (headerNames.hasMoreElements()) {
-                            String header = headerNames.nextElement();
-                            requestHeaders.put(header, request.getHeader(header));
-                        }
-                        result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
+                if (param instanceof MtgRequest) {
+                    MtgRequest mtg = (MtgRequest) param;
+                    Enumeration<String> headerNames = request.getHeaderNames();
+                    Map<String, String> requestHeaders = new HashMap<>();
+                    while (headerNames.hasMoreElements()) {
+                        String header = headerNames.nextElement();
+                        requestHeaders.put(header, request.getHeader(header));
+                    }
+                    result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
 
-                        if (result instanceof List) {
-                            if (acceptHeader.equals("application/json")) {
-                                JSONArray outputArray = new JSONArray();
-                                for (Object object : (List) result) {
-                                    outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
-                                }
-                                map.put("execute" + (mapSize + 1), outputArray);
-                            } else {
-                                StringBuilder outputXml = new StringBuilder();
-                                for (Object object : (List) result) {
-                                    outputXml.append(ObjectReturn.convert(object, acceptHeader));
-                                }
-                                map.put("execute" + (mapSize + 1), outputXml.toString());
+                    if (result instanceof List) {
+                        if (acceptHeader.equals("application/json")) {
+                            JSONArray outputArray = new JSONArray();
+                            for (Object object : (List) result) {
+                                outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
+                            map.put("execute" + (mapSize + 1), outputArray);
                         } else {
-                            Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                            if (acceptHeader.equals("application/json")) {
-                                try {
-                                    JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                    map.put("execute" + (mapSize + 1), jsonOutput);
-                                } catch (JSONException jx) {
-                                    //System.out.println("MtgRequest: Not a JSONObject");
-                                    map.put("execute" + (mapSize + 1), processedResult);
-                                }
-                            } //application/xml
-                            else {
+                            StringBuilder outputXml = new StringBuilder();
+                            for (Object object : (List) result) {
+                                outputXml.append(ObjectReturn.convert(object, acceptHeader));
+                            }
+                            map.put("execute" + (mapSize + 1), outputXml.toString());
+                        }
+                    } else {
+                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                        if (acceptHeader.equals("application/json")) {
+                            try {
+                                JSONObject jsonOutput = new JSONObject((String) processedResult);
+                                map.put("execute" + (mapSize + 1), jsonOutput);
+                            } catch (JSONException jx) {
+                                //System.out.println("MtgRequest: Not a JSONObject");
                                 map.put("execute" + (mapSize + 1), processedResult);
                             }
+                        } //application/xml
+                        else {
+                            map.put("execute" + (mapSize + 1), processedResult);
                         }
                     }
-                } catch (JSONException ex) {
-                    String message;
-                    if (ex.getCause() != null) {
-                        String cause = ex.getCause().toString();
-                        message = cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-                    } else {
-                        message = ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-                    }
-                    map.put("error" + (mapSize + 1), message);
-                    response.setStatus(422);
-                } catch (JAXBException ex) {
-                    Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             } else {
-                map.put("error" + (mapSize + 1), "Class isn't processable");
-                response.setStatus(422);
+                logError(map, request, new Exception("Class " + cls + " isn't processable"));
             }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException ex) {
-            String message;
-            if (ex.getClass().toString().contains("AccessControlException")) {
-                message = "Access denied, can't access system information.";
-                response.setStatus(403);
-                Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            } else {
-                if (ex.getCause() != null) {
-                    String cause = ex.getCause().toString();
-                    message = cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-                } else {
-                    message = ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-                }
-                response.setStatus(422);
-            }
-            map.put("error" + (mapSize + 1), message);
-            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        } catch (Exception ex) {
+            logError(map, request, ex);
         }
         return EVAL_PAGE;
+    }
+
+    private void logError(LinkedHashMap<String, Object> map, HttpServletRequest request, Exception ex) {
+        int mapSize = map.size();
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        long errorId = Math.abs(UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits());
+        String method = request.getMethod();
+        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        String exceptionMessage;
+        if (ex.getMessage() != null) {
+            exceptionMessage = ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        } else {
+            exceptionMessage = ex.toString();
+        }
+        StringBuilder errorTraceBuilder = new StringBuilder();
+        StackTraceElement[] stackTrace = ex.getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            if (stackTraceElement.getClassName().contains("CodeTagHandler")) {
+                break;
+            }
+            errorTraceBuilder.append(stackTraceElement).append("\n");
+        }
+        String message = "ErrorID:" + errorId+".Please contact your API administrator.";
+        try (Connection con = ds.getConnection()) {
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,resource) VALUES(?,?,?,?,?)");
+            stmnt.setString(1, String.valueOf(errorId));
+            stmnt.setString(2, method);
+            stmnt.setString(3, exceptionMessage);
+            stmnt.setString(4, errorTraceBuilder.toString());
+            stmnt.setString(5, resourceURI);
+            stmnt.execute();
+        } catch (SQLException ex1) {
+//            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, null, ex1);
+        }
+        map.put("error" + (mapSize + 1), message);
     }
 
     public void setClassName(String className) {

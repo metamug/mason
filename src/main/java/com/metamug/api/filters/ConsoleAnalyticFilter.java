@@ -51,7 +51,7 @@
  *
  * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
-package com.metamug.api.filter;
+package com.metamug.api.filters;
 
 import java.io.File;
 import java.io.FileReader;
@@ -172,35 +172,56 @@ public class ConsoleAnalyticFilter implements Filter {
             String appName = path[1];
             String version = path[2];
             String resource = path[path.length - 1];
-            Pattern pattern = Pattern.compile("[0-9]");
-            if (resource.contains("?")) {
-                resource = resource.substring(0, resource.indexOf("?"));
-                Matcher matcher = pattern.matcher(resource);
-                if (matcher.find()) {
+            String userAgent = request.getHeader("User-Agent") == null ? "" : request.getHeader("User-Agent");
+            String deviceType = getDeviceType(userAgent);
+            if (!version.equalsIgnoreCase("docs") && !resource.contains(".html")) {
+                Pattern pattern = Pattern.compile("[0-9]");
+                if (resource.contains("?")) {
+                    resource = resource.substring(0, resource.indexOf("?"));
+                    Matcher matcher = pattern.matcher(resource);
+                    if (matcher.find()) {
+                        resource = path[path.length - 2];
+                    }
+                } else if (pattern.matcher(resource).find()) {
                     resource = path[path.length - 2];
                 }
-            } else if (pattern.matcher(resource).find()) {
-                resource = path[path.length - 2];
-            }
-            int contentLength = 0;
-            if (request.getAttribute("Content-Length") != null) {
-                contentLength = (int) request.getAttribute("Content-Length");
-            }
-
-            try {
-                Class.forName(properties.getProperty("driver"));
-                try (Connection con = DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("username"), properties.getProperty("password")); PreparedStatement statement = con.prepareStatement("INSERT INTO console_log (ip,app_name,resource,version,status,size) VALUES (inet6_aton(?),?,?,?,?,?)")) {
-                    statement.setString(1, request.getRemoteAddr());
-                    statement.setString(2, appName);
-                    statement.setString(3, resource);
-                    statement.setString(4, version);
-                    statement.setInt(5, response.getStatus());
-                    statement.setInt(6, contentLength);
-                    statement.execute();
+                int contentLength = 0;
+                if (request.getAttribute("Content-Length") != null) {
+                    contentLength = (int) request.getAttribute("Content-Length");
                 }
-            } catch (ClassNotFoundException | SQLException ex) {
-                Logger.getLogger(ConsoleAnalyticFilter.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+
+                try {
+                    Class.forName(properties.getProperty("driver"));
+                    String host = properties.getProperty("host");
+                    String protocol = properties.getProperty("protocol");
+                    String dbName = properties.getProperty("dbname");
+                    String dbUrl = protocol + "://" + host + "/" + dbName + "?useOldAliasMetadataBehavior=true&useEncoding=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&characterSetResults=UTF-8&allowMultiQueries=true";
+                    try (Connection con = DriverManager.getConnection(dbUrl, properties.getProperty("username"), properties.getProperty("password")); PreparedStatement statement = con.prepareStatement("INSERT INTO console_log (ip,app_name,resource,version,device_type,status,size) VALUES (inet6_aton(?),?,?,?,?,?,?)")) {
+                        statement.setString(1, request.getRemoteAddr());
+                        statement.setString(2, appName);
+                        statement.setString(3, resource);
+                        statement.setString(4, version);
+                        statement.setString(5, deviceType);
+                        statement.setInt(6, response.getStatus());
+                        statement.setInt(7, contentLength);
+                        statement.execute();
+                    }
+                } catch (ClassNotFoundException | SQLException ex) {
+                    Logger.getLogger(ConsoleAnalyticFilter.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                }
             }
         }
+    }
+
+    public static String getDeviceType(String userAgent) {
+        String deviceType = "Desktop";
+        if (userAgent.toLowerCase().contains("tablet")) {
+            deviceType = "Tablet";
+        } else if (userAgent.toLowerCase().contains("tv")) {
+            deviceType = "TV";
+        } else if (userAgent.toLowerCase().contains("mobi")) {
+            deviceType = "Mobile";
+        }
+        return deviceType;
     }
 }

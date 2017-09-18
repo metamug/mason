@@ -94,7 +94,7 @@ public class OutputTagHandler extends BodyTagSupport {
         JspWriter out = pageContext.getOut();
         LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String, Object>) value;
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        String header = (String) type == null ? "application/json" : (String) type;
+        String header = (String) type;
         int mapSize = mtgResultMap.size();
         int resultCounter = 0;
         boolean emptyContent = true;
@@ -159,10 +159,9 @@ public class OutputTagHandler extends BodyTagSupport {
                             try {
                                 int temp = (++resultCounter);
                                 if (entry.getKey().contains("error")) {
-                                    //xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                                    response.setStatus(512);
                                     xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                                 } else {
-                                    //xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
                                     xmlBuilder.append(result);
                                 }
                                 xmlBuilder.append("</response>");
@@ -268,6 +267,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             try {
                                 JSONObject codeResult = new JSONObject();
                                 if (entry.getKey().contains("error")) {
+                                    response.setStatus(512);
                                     codeResult.put("error" + (++resultCounter), result);
                                 } else {
                                     codeResult.put("result" + (++resultCounter), result);
@@ -299,6 +299,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             String output;
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
+                                response.setStatus(512);
                                 codeResult.put("error" + (++resultCounter), result);
                                 output = codeResult.toString();
                             } else {
@@ -394,6 +395,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             try {
                                 JSONObject codeResult = new JSONObject();
                                 if (entry.getKey().contains("error")) {
+                                    response.setStatus(512);
                                     codeResult.put("error" + (++resultCounter), result);
                                 } else {
                                     codeResult.put("result" + (++resultCounter), result);
@@ -426,6 +428,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             String output;
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
+                                response.setStatus(512);
                                 codeResult.put("error" + (++resultCounter), result);
                                 output = codeResult.toString();
                             } else {
@@ -465,7 +468,7 @@ public class OutputTagHandler extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
-    public void setValue(LinkedHashMap resultMap) {
+    public void setValue(LinkedHashMap<String, Object> resultMap) {
         this.value = resultMap;
     }
 

@@ -53,9 +53,15 @@
 package com.metamug.api.taghandlers;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -63,6 +69,7 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.SKIP_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
+import javax.sql.DataSource;
 
 /**
  *
@@ -71,11 +78,15 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private Object value;
+    @Resource(name = "jdbc/mtgMySQL")
+    private DataSource ds;
 
     /**
      * Creates new instance of tag handler
+     *
+     * @throws java.security.NoSuchAlgorithmException
      */
-    public ExceptionTagHandler() {
+    public ExceptionTagHandler() throws NoSuchAlgorithmException {
         super();
     }
 
@@ -89,6 +100,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     @Override
     public int doEndTag() throws JspException {
         Exception ex = (Exception) value;
+
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
@@ -102,14 +114,13 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     if (cause.contains("InputValidationException")) {
                         response.setStatus(412);
                         out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 412 + "</status>");
-                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("SQLException")) {
-                        response.setStatus(500);
-                        out.println("<message>Incorrect query or constraint violation</message>\n<status>" + 500 + "</status>");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("MysqlDataTruncation")) {
-                        response.setStatus(500);
-                        out.println("<message>Inserting data of incorrect Data-type</message>\n<status>" + 500 + "</status>");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException")) {
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("<errorid>" + errorId + "</errorid>\n<message>API Error. Please contact your API administrator.</message>\n<status>" + 512 + "</status>");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
@@ -130,14 +141,20 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         response.setStatus(403);
                         out.println("<message>Forbidden Access to resource</message>\n<status>" + 403 + "</status>");
                     } else {
-                        response.setStatus(500);
-                        out.println("<message>Server Error</message>\n<status>" + 500 + "</status>");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("<errorid>" + errorId + "</errorid>\n<message>API Error. Please contact your API administrator.</message>\n<status>" + 512 + "</status>");
                     }
                 } else {
-                    response.setStatus(500);
-                    out.println("<message>Server Error</message>\n<status>" + 500 + "</status>");
-                    Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    response.setStatus(512);
+                    String timestamp = String.valueOf(System.currentTimeMillis());
+                    long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                    String errorId = String.valueOf(Math.abs(hash));
+                    logError(errorId, request, ex);
+                    out.println("<errorid>" + errorId + "</errorid>\n<message>API Error. Please contact your API administrator.</message>\n<status>" + 512 + "</status>");
                 }
                 out.println("\n</response>");
             } else {
@@ -147,14 +164,13 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     if (cause.contains("InputValidationException")) {
                         response.setStatus(412);
                         out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 412 + "}");
-                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("SQLException")) {
-                        response.setStatus(500);
-                        out.println("{\"message\": \"Incorrect query or constraint violation\",\"status\":" + 500 + "}");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("MysqlDataTruncation")) {
-                        response.setStatus(500);
-                        out.println("{\"message\": \"Inserting data of incorrect Data-type\",\"status\":" + 500 + "}");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException")) {
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("{\"errorId\":" + errorId + ",\"message\": \"API Error. Please contact your API administrator.\",\"status\":" + 512 + "}");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
@@ -175,14 +191,20 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         response.setStatus(403);
                         out.println("{\"message\": \"Forbidden Access to resource\",\"status\":" + 403 + "}");
                     } else {
-                        response.setStatus(500);
-                        out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(ex.getMessage(), request, ex);
+                        out.println("{\"errorId\":" + errorId + ",\"message\": \"API Error. Please contact your API administrator.\",\"status\":" + 512 + "}");
                     }
                 } else {
-                    response.setStatus(500);
-                    out.println("{\"message\": \"Server Error\",\"status\":" + 500 + "}");
-                    Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    response.setStatus(512);
+                    String timestamp = String.valueOf(System.currentTimeMillis());
+                    long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                    String errorId = String.valueOf(Math.abs(hash));
+                    logError(errorId, request, ex);
+                    out.println("{\"errorId\":" + errorId + ",\"message\": \"API Error. Please contact your API administrator.\",\"status\":" + 512 + "}");
                 }
             }
 
@@ -190,6 +212,28 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex1.getMessage(), ex1);
         }
         return SKIP_PAGE;
+    }
+
+    private void logError(String errorId, HttpServletRequest request, Exception ex) {
+        String method = request.getMethod();
+        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        String exceptionMessage;
+        if (ex.getMessage() != null) {
+            exceptionMessage = ex.getMessage().replaceAll("(\\w+)_DB\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        } else {
+            exceptionMessage = ex.toString();
+        }
+        try (Connection con = ds.getConnection()) {
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,resource) VALUES(?,?,?,?)");
+            stmnt.setString(1, String.valueOf(errorId));
+            stmnt.setString(2, method);
+            stmnt.setString(3, exceptionMessage);
+            stmnt.setString(4, resourceURI);
+            stmnt.execute();
+        } catch (SQLException ex1) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, null, ex1);
+        }
+//        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
     }
 
     public void setValue(Object value) {
