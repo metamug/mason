@@ -53,7 +53,6 @@
 package com.metamug.api.taghandlers;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -84,9 +83,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     /**
      * Creates new instance of tag handler
      *
-     * @throws java.security.NoSuchAlgorithmException
      */
-    public ExceptionTagHandler() throws NoSuchAlgorithmException {
+    public ExceptionTagHandler() {
         super();
     }
 
@@ -219,7 +217,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         String exceptionMessage;
         if (ex.getMessage() != null) {
-            exceptionMessage = ex.getMessage().replaceAll("(\\w+)_DB\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+            exceptionMessage = ex.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
         } else {
             exceptionMessage = ex.toString();
         }
