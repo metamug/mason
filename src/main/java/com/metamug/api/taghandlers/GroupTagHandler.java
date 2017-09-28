@@ -1,4 +1,5 @@
-/** ***********************************************************************
+/**
+ * ***********************************************************************
  * Freeware Licence Agreement
  *
  * This licence agreement only applies to the free version of this software.
@@ -52,7 +53,7 @@
  */
 package com.metamug.api.taghandlers;
 
-import com.metamug.api.common.MtgRequest;
+import com.metamug.api.commons.MtgRequest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -1,4 +1,5 @@
-/** ***********************************************************************
+/**
+ * ***********************************************************************
  * Freeware Licence Agreement
  *
  * This licence agreement only applies to the free version of this software.
@@ -52,7 +53,7 @@
  */
 package com.metamug.api.filters;
 
-import com.metamug.api.common.MtgRequest;
+import com.metamug.api.commons.MtgRequest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -106,14 +107,9 @@ public class RestRouterFilter implements Filter {
         String path = req.getServletPath();
         String[] tokens = path.split("/");
         if (tokens.length > 2) {
-            if (req.getServletPath().contains("index") || req.getServletPath().contains("docs") || req.getServletPath().contains("code")) {
+            if (req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
                 chain.doFilter(request, response);
             } else {
-                StringBuilder domain = new StringBuilder();
-                domain.append(req.getScheme()).append("://").append(req.getServerName());
-                if (req.getServerPort() != 80 && req.getServerPort() != 443) {
-                    domain.append(":").append(req.getServerPort());
-                }
                 response.setContentType("application/json");
                 String contentType = req.getContentType() == null ? "" : req.getContentType();
                 if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (contentType.equalsIgnoreCase("application/json") || contentType.equalsIgnoreCase("application/xml") || contentType.contains("html") || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("multipart/form-data")))) {
@@ -159,18 +155,18 @@ public class RestRouterFilter implements Filter {
                             res.setStatus(422);
                             JSONObject obj = new JSONObject();
                             obj.put("status", 422);
-                            if (ex.getCause() != null) {
-                                String cause = ex.getCause().toString();
-                                obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                            }
-                            if (ex.getMessage().contains("ELException")) {
+                            if (ex.getMessage().contains("JsonException")) {
+                                obj.put("message", "Incorrect json data format");
+                            } else if (ex.getMessage().contains("ELException")) {
                                 obj.put("message", "Incorrect test condition in '" + tokens[2] + "' resource");
-                                obj.put("status", 500);
-                                res.setStatus(500);
+                                obj.put("status", 409);
+                                res.setStatus(409);
                             } else {
-                                obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                                obj.put("message", "Confilt in '" + tokens[2] + "' resource");
+                                obj.put("status", 409);
+                                res.setStatus(409);
                             }
-                            Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, "Router " + tokens[2] + ":{0}", ex.getMessage());
                             writer.print(obj.toString());
                             writer.flush();
                         }
@@ -207,7 +203,7 @@ public class RestRouterFilter implements Filter {
         mtgRequest.setUri(tokens[2]);
         Map<String, String> params = new HashMap<>();
         String contentType = request.getHeader("Content-Type") == null ? "" : request.getHeader("Content-Type");
-        if (method.equalsIgnoreCase("get") || method.equalsIgnoreCase("delete") || contentType.contains("application/html") || contentType.contains("application/x-www-form-urlencoded")) {
+        if (method.equalsIgnoreCase("get") || contentType.contains("application/html") || contentType.contains("application/x-www-form-urlencoded")) {
             if (!method.equalsIgnoreCase("PUT")) {
                 Enumeration<String> parameters = request.getParameterNames();
                 while (parameters.hasMoreElements()) {
@@ -219,7 +215,11 @@ public class RestRouterFilter implements Filter {
                     } else if (paramName.trim().equalsIgnoreCase("uid")) {
                         mtgRequest.setUid(request.getParameter(paramName).trim());
                     } else {
-                        params.put(paramName.trim(), request.getParameter(paramName).trim());
+                        if (request.getParameterValues(paramName).length > 1) {
+                            params.put(paramName.trim(), String.join(",", request.getParameterValues(paramName)).trim());
+                        } else {
+                            params.put(paramName.trim(), request.getParameter(paramName).trim().isEmpty() ? null : request.getParameter(paramName).trim());
+                        }
                     }
                 }
                 mtgRequest.setParams(params);
@@ -255,7 +255,7 @@ public class RestRouterFilter implements Filter {
                 }
                 mtgRequest.setParams(params);
             }
-        } else if (contentType.contains("application/json")) {
+        } else if (contentType.contains("json")) {
             String line = "";
             StringBuilder data = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
@@ -298,11 +298,6 @@ public class RestRouterFilter implements Filter {
         return mtgRequest;
     }
 
-    /**
-     * Return the filter configuration object for this filter.
-     *
-     * @return
-     */
     /**
      * Return the filter configuration object for this filter.
      *

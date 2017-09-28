@@ -1,4 +1,5 @@
-/** ***********************************************************************
+/**
+ * ***********************************************************************
  * Freeware Licence Agreement
  *
  * This licence agreement only applies to the free version of this software.
@@ -52,7 +53,7 @@
  */
 package com.metamug.api.taghandlers;
 
-import com.metamug.api.common.MtgRequest;
+import com.metamug.api.commons.MtgRequest;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.mtg.io.objectreturn.ObjectReturn;
@@ -224,7 +225,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
             }
             errorTraceBuilder.append(stackTraceElement).append("\n");
         }
-        String message = "ErrorID:" + errorId+".Please contact your API administrator.";
+        String message = "ErrorID:" + errorId + ".Please contact your API administrator.";
         try (Connection con = ds.getConnection()) {
             PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,resource) VALUES(?,?,?,?,?)");
             stmnt.setString(1, String.valueOf(errorId));

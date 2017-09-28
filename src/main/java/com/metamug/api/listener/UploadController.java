@@ -1,4 +1,5 @@
-/** ***********************************************************************
+/**
+ * ***********************************************************************
  * Freeware Licence Agreement
  *
  * This licence agreement only applies to the free version of this software.
