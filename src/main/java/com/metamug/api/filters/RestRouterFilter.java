@@ -125,6 +125,7 @@ public class RestRouterFilter implements Filter {
                             resourceName = tokens[2];
                         }
                         if (new File(System.getProperty("catalina.base") + File.separator + "api/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
+                            req.setAttribute("mtgMethod", req.getMethod());
                             req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
                                 @Override
                                 public String getMethod() {

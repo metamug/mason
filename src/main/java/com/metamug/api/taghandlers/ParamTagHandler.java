@@ -61,6 +61,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
@@ -120,7 +121,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
             } catch (PatternSyntaxException ex) {
                 throw new JspException("Incorrect pattern syntax of " + name + " parameter", ex);
             } catch (NullPointerException ex) {
-                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                if (isRequired != null) {
+                    throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                }
             }
         }
         if (type != null) {
@@ -136,7 +139,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         } catch (ParseException ex) {
                             throw new JspException("Incorrect date pattern of " + name + " parameter", new InputValidationException(""));
                         } catch (NullPointerException ex) {
-                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            if (isRequired != null) {
+                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            }
                         }
                     }
                     break;
@@ -149,7 +154,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         } catch (ParseException ex) {
                             throw new JspException("Incorrect datetime pattern of " + name + " parameter", ex);
                         } catch (NullPointerException ex) {
-                            throw new JspException(name + " parameter can't be null", ex);
+                            if (isRequired != null) {
+                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            }
                         }
                     }
                     break;
@@ -164,7 +171,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                             throw new JspException("Invalid email input", new InputValidationException(""));
                         }
                     } catch (NullPointerException ex) {
-                        throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                        if (isRequired != null) {
+                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                        }
                     }
                     break;
                 case "number":
@@ -185,7 +194,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                     } catch (NumberFormatException ex) {
                         throw new JspException("Empty or invalid parameter \'" + name + "\' value", new InputValidationException(""));
                     } catch (NullPointerException ex) {
-                        throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                        if (isRequired != null) {
+                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                        }
                     }
                     break;
                 case "text":
@@ -196,7 +207,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                                 throw new JspException("Input " + ((String) value) + " can be " + maxLength + " character long for " + name + " parameter", new InputValidationException(""));
                             }
                         } catch (NullPointerException ex) {
-                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            if (isRequired != null) {
+                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            }
                         }
                     }
                     if (minLen != null) {
@@ -206,7 +219,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                                 throw new JspException("Input value must be " + minLength + " character long for " + name + " parameter", new InputValidationException(""));
                             }
                         } catch (NullPointerException ex) {
-                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            if (isRequired != null) {
+                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            }
                         }
                     }
                     break;
@@ -219,7 +234,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         } catch (ParseException ex) {
                             throw new JspException("Incorrect time pattern of " + name + " parameter", new InputValidationException(""));
                         } catch (NullPointerException ex) {
-                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            if (isRequired != null) {
+                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            }
                         }
                     }
                     break;
@@ -232,7 +249,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                             throw new JspException("Invalid URL input", new InputValidationException(""));
                         }
                     } catch (NullPointerException ex) {
-                        throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                        if (isRequired != null) {
+                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                        }
                     }
                     break;
                 default:

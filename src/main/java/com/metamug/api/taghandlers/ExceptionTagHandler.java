@@ -214,7 +214,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     }
 
     private void logError(String errorId, HttpServletRequest request, Exception ex) {
-        String method = request.getMethod();
+        String method = (String)request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         String exceptionMessage;
         if (ex.getMessage() != null) {

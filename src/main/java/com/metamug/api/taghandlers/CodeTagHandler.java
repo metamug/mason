@@ -209,7 +209,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         int mapSize = map.size();
         String timestamp = String.valueOf(System.currentTimeMillis());
         long errorId = Math.abs(UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits());
-        String method = request.getMethod();
+        String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         String exceptionMessage;
         if (ex.getMessage() != null) {
