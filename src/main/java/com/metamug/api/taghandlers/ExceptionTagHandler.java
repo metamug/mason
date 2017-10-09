@@ -213,14 +213,14 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         return SKIP_PAGE;
     }
 
-    private void logError(String errorId, HttpServletRequest request, Exception ex) {
-        String method = (String)request.getAttribute("mtgMethod");
+    private void logError(String errorId, HttpServletRequest request, Exception exception) {
+        String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         String exceptionMessage;
-        if (ex.getMessage() != null) {
-            exceptionMessage = ex.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        if (exception.getMessage() != null) {
+            exceptionMessage = exception.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
         } else {
-            exceptionMessage = ex.toString();
+            exceptionMessage = exception.toString();
         }
         try (Connection con = ds.getConnection()) {
             PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,resource) VALUES(?,?,?,?)");
@@ -229,10 +229,10 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             stmnt.setString(3, exceptionMessage);
             stmnt.setString(4, resourceURI);
             stmnt.execute();
-        } catch (SQLException ex1) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, null, ex1);
+        } catch (SQLException ex) {
+//            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-//        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
     public void setValue(Object value) {

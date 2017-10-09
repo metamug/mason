@@ -62,11 +62,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -87,7 +91,7 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 @WebServlet(name = "UploadController", urlPatterns = {"/index"})
-@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 10,
+@MultipartConfig(fileSizeThreshold = 1024 * 1024,
         maxFileSize = 1024 * 1024 * 5,
         maxRequestSize = 1024 * 1024 * 25)
 public class UploadController extends HttpServlet {
@@ -165,28 +169,57 @@ public class UploadController extends HttpServlet {
                 }
             } catch (IllegalStateException ex) {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {
+                    obj.put("message", "File size exceed limit.");
+                    obj.put("status", 413);
                     response.setStatus(413);
                 }
-            } catch (NullPointerException ex) {
-                obj.put("message", "Null value occured during UploadListener execution.");
-                obj.put("status", 428);
-                response.setStatus(428);
             } catch (ClassNotFoundException ex) {
-                obj.put("message", "No implementation of UploadListener was found.");
-                obj.put("status", 428);
-                response.setStatus(428);
-            } catch (IOException | ServletException | InstantiationException | IllegalAccessException ex) {
-                obj.put("message", "Error occured in UploadListener implementation");
-                obj.put("status", 500);
-                response.setStatus(500);
-                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                String timestamp = String.valueOf(System.currentTimeMillis());
+                long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                String errorId = String.valueOf(Math.abs(hash));
+                obj.put("message", "API Error. Please contact your API administrator.");
+                obj.put("errorId", errorId);
+                obj.put("status", 512);
+                response.setStatus(512);
+                logError(errorId, null, request, ex);
+            } catch (NullPointerException | IOException | ServletException | InstantiationException | IllegalAccessException ex) {
+                String timestamp = String.valueOf(System.currentTimeMillis());
+                long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                String errorId = String.valueOf(Math.abs(hash));
+                obj.put("message", "API Error. Please contact your API administrator.");
+                obj.put("errorId", errorId);
+                obj.put("status", 512);
+                response.setStatus(512);
+                StringBuilder errorTraceBuilder = new StringBuilder();
+                StackTraceElement[] stackTrace = ex.getStackTrace();
+                for (StackTraceElement stackTraceElement : stackTrace) {
+                    if (stackTraceElement.getClassName().contains("UploadController")) {
+                        break;
+                    }
+                    errorTraceBuilder.append(stackTraceElement).append("\n");
+                }
+                logError(errorId, errorTraceBuilder.toString(), request, ex);
             } catch (Exception ex) {
-                obj.put("message", "Error occured while executing UploadListener");
-                obj.put("status", 500);
-                response.setStatus(500);
-                Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                String timestamp = String.valueOf(System.currentTimeMillis());
+                long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                String errorId = String.valueOf(Math.abs(hash));
+                obj.put("message", "API Error. Please contact your API administrator.");
+                obj.put("errorId", errorId);
+                obj.put("status", 512);
+                response.setStatus(512);
+                StringBuilder errorTraceBuilder = new StringBuilder();
+                StackTraceElement[] stackTrace = ex.getStackTrace();
+                for (StackTraceElement stackTraceElement : stackTrace) {
+                    if (stackTraceElement.getClassName().contains("UploadController")) {
+                        break;
+                    }
+                    errorTraceBuilder.append(stackTraceElement).append("\n");
+                }
+                logError(errorId, errorTraceBuilder.toString(), request, ex);
             }
         } else {
+            obj.put("message", "Unsupported Media Type");
+            obj.put("status", 415);
             response.setStatus(415);
         }
         if (obj.length() > 0) {
@@ -238,9 +271,31 @@ public class UploadController extends HttpServlet {
                 }
             }
         } else {
-            throw new ClassNotFoundException();
+            throw new ClassNotFoundException("No implementation of UploadListener was found.");
         }
         return null;
     }
 
+    private void logError(String errorId, String trace, HttpServletRequest request, Exception exception) {
+        String method = (String) request.getAttribute("mtgMethod");
+        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        String exceptionMessage;
+        if (exception.getMessage() != null) {
+            exceptionMessage = exception.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        } else {
+            exceptionMessage = exception.toString();
+        }
+        try (Connection con = ds.getConnection()) {
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,resource) VALUES(?,?,?,?)");
+            stmnt.setString(1, String.valueOf(errorId));
+            stmnt.setString(2, method);
+            stmnt.setString(3, exceptionMessage);
+            stmnt.setString(4, trace);
+            stmnt.setString(5, resourceURI);
+            stmnt.execute();
+        } catch (SQLException ex) {
+//            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Logger.getLogger(UploadController.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
+    }
 }

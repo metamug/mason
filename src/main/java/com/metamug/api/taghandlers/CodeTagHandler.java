@@ -205,20 +205,20 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         return EVAL_PAGE;
     }
 
-    private void logError(LinkedHashMap<String, Object> map, HttpServletRequest request, Exception ex) {
+    private void logError(LinkedHashMap<String, Object> map, HttpServletRequest request, Exception exception) {
         int mapSize = map.size();
         String timestamp = String.valueOf(System.currentTimeMillis());
         long errorId = Math.abs(UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits());
         String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         String exceptionMessage;
-        if (ex.getMessage() != null) {
-            exceptionMessage = ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        if (exception.getMessage() != null) {
+            exceptionMessage = exception.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
         } else {
-            exceptionMessage = ex.toString();
+            exceptionMessage = exception.toString();
         }
         StringBuilder errorTraceBuilder = new StringBuilder();
-        StackTraceElement[] stackTrace = ex.getStackTrace();
+        StackTraceElement[] stackTrace = exception.getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace) {
             if (stackTraceElement.getClassName().contains("CodeTagHandler")) {
                 break;
@@ -234,8 +234,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
             stmnt.setString(4, errorTraceBuilder.toString());
             stmnt.setString(5, resourceURI);
             stmnt.execute();
-        } catch (SQLException ex1) {
-//            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, null, ex1);
+        } catch (SQLException ex) {
+//            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         map.put("error" + (mapSize + 1), message);
     }
