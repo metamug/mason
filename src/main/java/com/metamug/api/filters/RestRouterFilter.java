@@ -53,14 +53,15 @@
  */
 package com.metamug.api.filters;
 
-import com.metamug.api.commons.MtgRequest;
+import com.eclipsesource.json.ParseException;
+import com.github.wnameless.json.flattener.JsonFlattener;
+import com.metamug.api.common.MtgRequest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -149,25 +150,27 @@ public class RestRouterFilter implements Filter {
                                 writer.flush();
                             }
                         }
-                    } catch (IOException | ServletException | JSONException ex) {
+                    } catch (IOException | ServletException | JSONException | ParseException ex) {
                         try (ServletOutputStream writer = response.getOutputStream()) {
                             response.setContentType("application/json;charset=UTF-8");
                             response.setCharacterEncoding("UTF-8");
-                            res.setStatus(422);
                             JSONObject obj = new JSONObject();
+                            res.setStatus(422);
                             obj.put("status", 422);
-                            if (ex.getMessage().contains("JsonException")) {
-                                obj.put("message", "Incorrect json data format");
+                            if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
+
+                                obj.put("message", "Could not parse the body of the request according to the provided Content-Type.");
+                            } else if (ex.getCause() != null) {
+                                String cause = ex.getCause().toString();
+                                obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                             } else if (ex.getMessage().contains("ELException")) {
                                 obj.put("message", "Incorrect test condition in '" + tokens[2] + "' resource");
-                                obj.put("status", 409);
-                                res.setStatus(409);
+                                obj.put("status", 512);
+                                res.setStatus(512);
                             } else {
-                                obj.put("message", "Confilt in '" + tokens[2] + "' resource");
-                                obj.put("status", 409);
-                                res.setStatus(409);
+                                obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                                Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, "Router " + tokens[2] + ":{0}", ex.getMessage());
                             }
-                            Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, "Router " + tokens[2] + ":{0}", ex.getMessage());
                             writer.print(obj.toString());
                             writer.flush();
                         }
@@ -190,7 +193,7 @@ public class RestRouterFilter implements Filter {
         }
     }
 
-    private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException {
+    private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {
         MtgRequest mtgRequest = new MtgRequest();
         //Set parent value and pid
         if (tokens.length == 5 || tokens.length == 6) {
@@ -204,7 +207,7 @@ public class RestRouterFilter implements Filter {
         mtgRequest.setUri(tokens[2]);
         Map<String, String> params = new HashMap<>();
         String contentType = request.getHeader("Content-Type") == null ? "" : request.getHeader("Content-Type");
-        if (method.equalsIgnoreCase("get") || contentType.contains("application/html") || contentType.contains("application/x-www-form-urlencoded")) {
+        if (method.equalsIgnoreCase("get") || method.equalsIgnoreCase("delete") || contentType.contains("application/html") || contentType.contains("application/x-www-form-urlencoded")) {
             if (!method.equalsIgnoreCase("PUT")) {
                 Enumeration<String> parameters = request.getParameterNames();
                 while (parameters.hasMoreElements()) {
@@ -225,24 +228,31 @@ public class RestRouterFilter implements Filter {
                 }
                 mtgRequest.setParams(params);
             } else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
-                String data = br.readLine();
-                if (data != null) {
-                    if (data.split("&").length > 1) {
-                        for (String parameter : data.split("&")) {
-                            String[] keyValue = parameter.split("=");
-                            if (keyValue[0].equalsIgnoreCase("id")) {
-                                mtgRequest.setId(keyValue[1]);
-                            } else if (keyValue[0].equalsIgnoreCase("pid")) {
-                                mtgRequest.setPid(keyValue[1]);
-                            } else if (keyValue[0].equalsIgnoreCase("uid")) {
-                                mtgRequest.setUid(keyValue[1]);
-                            } else {
-                                params.put(keyValue[0], keyValue[1]);
-                            }
+                String line = "";
+                StringBuilder data = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
+                    while ((line = br.readLine()) != null) {
+                        data.append(line);
+                    }
+                }
+                if (contentType.contains("application/json")) {
+                    Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(data.toString());
+                    for (Map.Entry<String, Object> entry : flattenAsMap.entrySet()) {
+                        String key = entry.getKey();
+                        String value = String.valueOf(entry.getValue());
+                        if (key.equalsIgnoreCase("id")) {
+                            mtgRequest.setId(value);
+                        } else if (key.equalsIgnoreCase("pid")) {
+                            mtgRequest.setPid(value);
+                        } else if (key.equalsIgnoreCase("uid")) {
+                            mtgRequest.setUid(value);
+                        } else {
+                            params.put(key, value);
                         }
-                    } else {
-                        String[] keyValue = data.split("=");
+                    }
+                } else if (data.toString().split("&").length > 1) {
+                    for (String parameter : data.toString().split("&")) {
+                        String[] keyValue = parameter.split("=");
                         if (keyValue[0].equalsIgnoreCase("id")) {
                             mtgRequest.setId(keyValue[1]);
                         } else if (keyValue[0].equalsIgnoreCase("pid")) {
@@ -253,22 +263,32 @@ public class RestRouterFilter implements Filter {
                             params.put(keyValue[0], keyValue[1]);
                         }
                     }
+                } else {
+                    String[] keyValue = data.toString().split("=");
+                    if (keyValue[0].equalsIgnoreCase("id")) {
+                        mtgRequest.setId(keyValue[1]);
+                    } else if (keyValue[0].equalsIgnoreCase("pid")) {
+                        mtgRequest.setPid(keyValue[1]);
+                    } else if (keyValue[0].equalsIgnoreCase("uid")) {
+                        mtgRequest.setUid(keyValue[1]);
+                    } else {
+                        params.put(keyValue[0], keyValue[1]);
+                    }
                 }
                 mtgRequest.setParams(params);
             }
-        } else if (contentType.contains("json")) {
+        } else if (contentType.contains("application/json")) {
             String line = "";
-            StringBuilder data = new StringBuilder();
+            StringBuilder jsonData = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
                 while ((line = br.readLine()) != null) {
-                    data.append(line);
+                    jsonData.append(line);
                 }
             }
-            JSONObject jsonParams = new JSONObject(data.toString());
-            Iterator jsonIterator = jsonParams.keys(); //gets all the keys
-            while (jsonIterator.hasNext()) {
-                String key = String.valueOf(jsonIterator.next()); // get key
-                String value = String.valueOf(jsonParams.get(key)); // get value
+            Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
+            for (Map.Entry<String, Object> entry : flattenAsMap.entrySet()) {
+                String key = entry.getKey();
+                String value = String.valueOf(entry.getValue());
                 if (key.equalsIgnoreCase("id")) {
                     mtgRequest.setId(value);
                 } else if (key.equalsIgnoreCase("pid")) {

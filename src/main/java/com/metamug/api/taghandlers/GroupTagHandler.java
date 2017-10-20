@@ -53,7 +53,7 @@
  */
 package com.metamug.api.taghandlers;
 
-import com.metamug.api.commons.MtgRequest;
+import com.metamug.api.common.MtgRequest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

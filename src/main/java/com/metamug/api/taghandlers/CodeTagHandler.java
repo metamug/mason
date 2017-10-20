@@ -53,7 +53,7 @@
  */
 package com.metamug.api.taghandlers;
 
-import com.metamug.api.commons.MtgRequest;
+import com.metamug.api.common.MtgRequest;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.mtg.io.objectreturn.ObjectReturn;

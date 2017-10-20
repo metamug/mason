@@ -53,7 +53,7 @@
  */
 package com.metamug.api.taghandlers;
 
-import com.metamug.api.commons.MtgRequest;
+import com.metamug.api.common.MtgRequest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
