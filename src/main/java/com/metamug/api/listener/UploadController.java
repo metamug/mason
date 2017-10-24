@@ -124,7 +124,7 @@ public class UploadController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String appName = request.getContextPath().split("/")[1];
-        String contentType = request.getHeader("Content-Type");
+        String contentType = request.getContentType() == null ? "" : request.getContentType();
         JSONObject obj = new JSONObject();
         response.setCharacterEncoding("UTF-8");
         if (contentType.contains("multipart/form-data")) {
