@@ -51,13 +51,14 @@
  *
  * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
-package com.metamug.api.service;
+package com.metamug.api.services;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
 
 /**
  *
@@ -65,21 +66,21 @@ import java.sql.SQLException;
  */
 public class ConnectionProvider {
 
+    @Resource(name = "jdbc/mtgMySQL")
+    private DataSource ds;
     private final Connection con;
 
-    private ConnectionProvider(String userName, String password, String dbName) throws IOException, SQLException, PropertyVetoException, ClassNotFoundException {
-//        String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-        String dbUrl = "jdbc:mysql://localhost:3306/" + dbName + "?zeroDateTimeBehavior=convertToNull&useEncoding=true&characterEncoding=UTF-8";
-//        Class.forName(JDBC_DRIVER);
-        con = DriverManager.getConnection(dbUrl + "&allowMultiQueries=true", userName, password);
+    private ConnectionProvider() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException {
+        String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+        Class.forName(JDBC_DRIVER);
+        con = ds.getConnection();
     }
 
-    public static ConnectionProvider getInstance(String userName, String password, String dbName) throws IOException, SQLException, PropertyVetoException, ClassNotFoundException {
-        return new ConnectionProvider(userName, password, dbName);
+    public static ConnectionProvider getInstance() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException {
+        return new ConnectionProvider();
     }
 
     public Connection getConnection() throws SQLException {
         return this.con;
     }
-    //@todo change db url
 }

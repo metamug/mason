@@ -57,6 +57,7 @@ import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -173,6 +174,10 @@ public class UploadController extends HttpServlet {
                     obj.put("status", 413);
                     response.setStatus(413);
                 }
+            } catch (FileNotFoundException ex) {
+                obj.put("message", "No implementation of UploadListener was found.");
+                obj.put("status", 512);
+                response.setStatus(512);
             } catch (ClassNotFoundException ex) {
                 String timestamp = String.valueOf(System.currentTimeMillis());
                 long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();

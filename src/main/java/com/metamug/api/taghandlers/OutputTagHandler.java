@@ -77,8 +77,8 @@ import org.json.JSONObject;
  */
 public class OutputTagHandler extends BodyTagSupport {
 
-    public static String KEY_COLUMN = "columns";
-    public static String KEY_DATASET = "dataset";
+    public static final String KEY_COLUMN = "columns";
+    public static final String KEY_DATASET = "dataset";
 
     private LinkedHashMap<String, Object> value;
     private String type;
@@ -95,7 +95,7 @@ public class OutputTagHandler extends BodyTagSupport {
         JspWriter out = pageContext.getOut();
         LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String, Object>) value;
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        String header = (String) type;
+        String header = (String) type == null ? "application/json" : (String) type;
         int mapSize = mtgResultMap.size();
         int resultCounter = 0;
         boolean emptyContent = true;
@@ -122,7 +122,8 @@ public class OutputTagHandler extends BodyTagSupport {
                             } else {
                                 for (SortedMap row : rows) {
                                     xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
-                                    for (String columnName : columnNames) {
+                                    for (int i = 0; i < columnNames.length; i++) {
+                                        String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
                                         xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) == null) ? "null" : row.get(columnName))).append("</").append(columnName.replaceAll(" ", "_")).append(">");
                                     }
                                     xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
@@ -139,7 +140,8 @@ public class OutputTagHandler extends BodyTagSupport {
                         xmlBuilder.append("<result>");
                         for (SortedMap row : rows) {
                             xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
-                            for (String columnName : columnNames) {
+                            for (int i = 0; i < columnNames.length; i++) {
+                                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
                                 xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) == null) ? "null" : row.get(columnName))).append("</").append(columnName.replaceAll(" ", "_")).append(">");
                             }
                             xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
@@ -160,9 +162,10 @@ public class OutputTagHandler extends BodyTagSupport {
                             try {
                                 int temp = (++resultCounter);
                                 if (entry.getKey().contains("error")) {
-                                    response.setStatus(512);
+                                    //xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                                     xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
                                 } else {
+                                    //xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
                                     xmlBuilder.append(result);
                                 }
                                 xmlBuilder.append("</response>");
@@ -216,14 +219,16 @@ public class OutputTagHandler extends BodyTagSupport {
                             } else {
                                 JSONObject object = new JSONObject();
                                 JSONArray columnArray = new JSONArray();
-                                for (String columnName : columnNames) {
+                                for (int i = 0; i < columnNames.length; i++) {
+                                    String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
                                     columnArray.put(columnName);
                                 }
                                 object.put(KEY_COLUMN, columnArray);
                                 JSONArray dataSetArray = new JSONArray();
                                 for (SortedMap row : rows) {
                                     JSONArray rowArray = new JSONArray();
-                                    for (String columnName : columnNames) {
+                                    for (int i = 0; i < columnNames.length; i++) {
+                                        String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
                                         rowArray.put((row.get(columnName) != null) ? row.get(columnName) : "null");
                                     }
                                     dataSetArray.put(rowArray);
@@ -239,7 +244,8 @@ public class OutputTagHandler extends BodyTagSupport {
                     else {
                         JSONObject object = new JSONObject();
                         JSONArray columnArray = new JSONArray();
-                        for (String columnName : columnNames) {
+                        for (int i = 0; i < columnNames.length; i++) {
+                            String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
                             columnArray.put(columnName);
                         }
                         object.put(KEY_COLUMN, columnArray);
@@ -268,7 +274,6 @@ public class OutputTagHandler extends BodyTagSupport {
                             try {
                                 JSONObject codeResult = new JSONObject();
                                 if (entry.getKey().contains("error")) {
-                                    response.setStatus(512);
                                     codeResult.put("error" + (++resultCounter), result);
                                 } else {
                                     codeResult.put("result" + (++resultCounter), result);
@@ -300,7 +305,6 @@ public class OutputTagHandler extends BodyTagSupport {
                             String output;
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
-                                response.setStatus(512);
                                 codeResult.put("error" + (++resultCounter), result);
                                 output = codeResult.toString();
                             } else {
@@ -359,7 +363,8 @@ public class OutputTagHandler extends BodyTagSupport {
                                 JSONArray array = new JSONArray();
                                 for (SortedMap row : rows) {
                                     JSONObject rowJson = new JSONObject();
-                                    for (String columnName : columnNames) {
+                                    for (int i = 0; i < columnNames.length; i++) {
+                                        String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
                                         rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
                                     }
                                     array.put(rowJson);
@@ -375,7 +380,8 @@ public class OutputTagHandler extends BodyTagSupport {
                         JSONArray array = new JSONArray();
                         for (SortedMap row : rows) {
                             JSONObject rowJson = new JSONObject(new LinkedHashMap<>());
-                            for (String columnName : columnNames) {
+                            for (int i = 0; i < columnNames.length; i++) {
+                                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
                                 rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : "null");
                             }
                             array.put(rowJson);
@@ -396,7 +402,6 @@ public class OutputTagHandler extends BodyTagSupport {
                             try {
                                 JSONObject codeResult = new JSONObject();
                                 if (entry.getKey().contains("error")) {
-                                    response.setStatus(512);
                                     codeResult.put("error" + (++resultCounter), result);
                                 } else {
                                     codeResult.put("result" + (++resultCounter), result);
@@ -429,7 +434,6 @@ public class OutputTagHandler extends BodyTagSupport {
                             String output;
                             JSONObject codeResult = new JSONObject();
                             if (entry.getKey().contains("error")) {
-                                response.setStatus(512);
                                 codeResult.put("error" + (++resultCounter), result);
                                 output = codeResult.toString();
                             } else {
@@ -469,7 +473,7 @@ public class OutputTagHandler extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
-    public void setValue(LinkedHashMap<String, Object> resultMap) {
+    public void setValue(LinkedHashMap resultMap) {
         this.value = resultMap;
     }
 
