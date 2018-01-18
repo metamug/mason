@@ -56,9 +56,14 @@ package com.mtg.io.mpath;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 import org.xml.sax.SAXException;
@@ -132,5 +137,48 @@ public class MPathUtil {
         //System.out.println(flatJson.toString());
         String unFlatJson = new JsonUnflattener(flatJson.toString()).unflatten();
         return new JSONObject(unFlatJson);
+    }
+    
+    /**
+     * Method takes array containing repeated elements and returns reduced object
+     * 
+     * @param inputArray 
+     * @return reduced json object
+     */
+    public static JSONObject collect(JSONArray inputArray){
+        int len = inputArray.length();
+        if(len > 0){
+            //get first object
+            JSONObject firstObj = inputArray.getJSONObject(0);
+            if(len == 1){
+                //if length 1, return as is
+                return firstObj;
+            }else{        
+                //if length > 1, loop over remaining array
+                for(int i=1; i<len; i++){
+                    JSONObject object = inputArray.getJSONObject(i);
+                    //loop through key-value pairs of object
+                    for (String key : object.keySet()) {
+                        Object firstObjectValue = firstObj.get(key);
+                        //if value in first obj is already an array
+                        if(firstObjectValue instanceof JSONArray){
+                            JSONArray array = (JSONArray)firstObjectValue;
+                            array.put(object.get(key));
+                            firstObj.put(key, array);
+                        } else {
+                            Object currentObjectValue = object.get(key);
+                            //if values don't match, create array and add current value
+                            if(!firstObjectValue.equals(currentObjectValue)){
+                                JSONArray array = new JSONArray();
+                                array.put(currentObjectValue);
+                                firstObj.put(key, array);
+                            }
+                        }
+                    }
+                }
+                return firstObj;
+            }
+        }
+        return null;
     }
 }
