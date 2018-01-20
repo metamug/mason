@@ -56,10 +56,6 @@ package com.mtg.io.mpath;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -170,6 +166,7 @@ public class MPathUtil {
                             //if values don't match, create array and add current value
                             if(!firstObjectValue.equals(currentObjectValue)){
                                 JSONArray array = new JSONArray();
+                                array.put(firstObjectValue);
                                 array.put(currentObjectValue);
                                 firstObj.put(key, array);
                             }

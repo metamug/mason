@@ -8,6 +8,7 @@ package com.mtg.io.mpath;
 import org.json.JSONArray;
 import org.junit.Assert;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -15,8 +16,15 @@ import org.junit.Test;
  * @author anishhirlekar
  */
 public class CollectTest {
+    
+    private static final String INPUT_JSON_1 = "[\n" +
+"   {\"name\":\"Anish\", \"books\":{\"name\":\"book2\"}}, \n" +
+"   {\"name\":\"Anish\", \"books\":{\"name\":\"book4\"}}, \n" +
+"   {\"name\":\"Anish\", \"books\":{\"name\":\"book5\"}}, \n" +
+"   {\"name\":\"Anish\", \"books\":{\"name\":\"book6\"}}\n" +
+"]";
 
-    private static final String INPUT_JSON = "[\n"
+    private static final String INPUT_JSON_2 = "[\n"
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book1\",\"price\":\"10\"},\"number\":\"8080\"}, \n"
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book2\",\"price\":\"11\"},\"number\":\"8080\"}, \n"
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book3\",\"price\":\"12\"},\"number\":\"8080\"}, \n"
@@ -29,7 +37,8 @@ public class CollectTest {
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book10\",\"price\":\"19\"},\"number\":\"8080\"}\n"
             + "    ]";
 
-    // @Test
+    @Ignore
+    @Test
     public void TestWhetherNotJsonArray() {
         JSONObject obj = new JSONObject();
         obj.put("name", "Anish");
@@ -39,7 +48,8 @@ public class CollectTest {
         Assert.assertFalse(name instanceof JSONArray);
     }
 
-    //@Test
+    @Ignore
+    @Test
     public void TestWhetherJsonArray() {
         JSONObject obj = new JSONObject();
         JSONArray names = new JSONArray();
@@ -54,8 +64,14 @@ public class CollectTest {
     }
 
     @Test
-    public void TestCollect() {
-        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON));
+    public void TestCollect1() {
+        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_1));
+        System.out.println(object);
+    }
+    
+    @Test
+    public void TestCollect2() {
+        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_2));
         System.out.println(object);
     }
 }
