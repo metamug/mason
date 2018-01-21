@@ -16,15 +16,23 @@ import org.junit.Test;
  * @author anishhirlekar
  */
 public class CollectTest {
-    
-    private static final String INPUT_JSON_1 = "[\n" +
-"   {\"name\":\"Anish\", \"books\":{\"name\":\"book2\"}}, \n" +
-"   {\"name\":\"Anish\", \"books\":{\"name\":\"book4\"}}, \n" +
-"   {\"name\":\"Anish\", \"books\":{\"name\":\"book5\"}}, \n" +
-"   {\"name\":\"Anish\", \"books\":{\"name\":\"book6\"}}\n" +
-"]";
 
+    private static final String INPUT_JSON_1 = "[\n"
+            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book1\"}}, \n"
+            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book2\"}}, \n"
+            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book3\"}}, \n"
+            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book4\"}}, \n"
+            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book5\"}}  \n"
+            + "]";
     private static final String INPUT_JSON_2 = "[\n"
+            + "   {\"name\":\"Anish1\", \"books\":{\"name\":\"book1\"}}, \n"
+            + "   {\"name\":\"Anish2\", \"books\":{\"name\":\"book2\"}}, \n"
+            + "   {\"name\":\"Anish3\", \"books\":{\"name\":\"book3\"}}, \n"
+            + "   {\"name\":\"Anish4\", \"books\":{\"name\":\"book4\"}}, \n"
+            + "   {\"name\":\"Anish5\", \"books\":{\"name\":\"book5\"}}, \n"
+            + "]";
+
+    private static final String INPUT_JSON_3 = "[\n"
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book1\",\"price\":\"10\"},\"number\":\"8080\"}, \n"
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book2\",\"price\":\"11\"},\"number\":\"8080\"}, \n"
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book3\",\"price\":\"12\"},\"number\":\"8080\"}, \n"
@@ -34,7 +42,7 @@ public class CollectTest {
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book7\",\"price\":\"16\"},\"number\":\"8080\"}, \n"
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book8\",\"price\":\"17\"},\"number\":\"8080\"}, \n"
             + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book9\",\"price\":\"18\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book10\",\"price\":\"19\"},\"number\":\"8080\"}\n"
+            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book10\",\"price\":\"19\"},\"number\":\"8080\"} \n"
             + "    ]";
 
     @Ignore
@@ -63,15 +71,23 @@ public class CollectTest {
         Assert.assertTrue(name instanceof JSONArray);
     }
 
+    @Ignore
     @Test
     public void TestCollect1() {
         JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_1));
         System.out.println(object);
     }
-    
+
     @Test
     public void TestCollect2() {
         JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_2));
+        System.out.println(object);
+    }
+
+    @Ignore
+    @Test
+    public void TestCollect3() {
+        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_3));
         System.out.println(object);
     }
 }
