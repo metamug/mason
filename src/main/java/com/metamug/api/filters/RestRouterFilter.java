@@ -62,8 +62,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.Filter;
@@ -114,7 +114,7 @@ public class RestRouterFilter implements Filter {
                 chain.doFilter(request, response);
             } else {
                 response.setContentType("application/json");
-                String contentType = req.getContentType() == null ? "" : req.getContentType();
+                String contentType = req.getContentType() == null ? "application/html" : req.getContentType();
                 if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (contentType.equalsIgnoreCase("application/json") || contentType.equalsIgnoreCase("application/xml") || contentType.contains("html") || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("multipart/form-data")))) {
                     try {
                         MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
@@ -207,7 +207,7 @@ public class RestRouterFilter implements Filter {
         }
         mtgRequest.setMethod(method);
         mtgRequest.setUri(tokens[2]);
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         String contentType = request.getHeader("Content-Type") == null ? "application/html" : request.getHeader("Content-Type");
         if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("DELETE")) {
             if (contentType.contains("application/json")) {
@@ -299,9 +299,22 @@ public class RestRouterFilter implements Filter {
                     data.append(line);
                 }
             }
-            if (data.toString().split("&").length > 1) {
-                for (String parameter : data.toString().split("&")) {
-                    String[] keyValue = parameter.split("=");
+            if (!data.toString().isEmpty()) {
+                if (data.toString().split("&").length > 1) {
+                    for (String parameter : data.toString().split("&")) {
+                        String[] keyValue = parameter.split("=");
+                        if (keyValue[0].equalsIgnoreCase("id")) {
+                            mtgRequest.setId(keyValue[1]);
+                        } else if (keyValue[0].equalsIgnoreCase("pid")) {
+                            mtgRequest.setPid(keyValue[1]);
+                        } else if (keyValue[0].equalsIgnoreCase("uid")) {
+                            mtgRequest.setUid(keyValue[1]);
+                        } else {
+                            params.put(keyValue[0], keyValue[1]);
+                        }
+                    }
+                } else {
+                    String[] keyValue = data.toString().split("=");
                     if (keyValue[0].equalsIgnoreCase("id")) {
                         mtgRequest.setId(keyValue[1]);
                     } else if (keyValue[0].equalsIgnoreCase("pid")) {
@@ -311,17 +324,6 @@ public class RestRouterFilter implements Filter {
                     } else {
                         params.put(keyValue[0], keyValue[1]);
                     }
-                }
-            } else {
-                String[] keyValue = data.toString().split("=");
-                if (keyValue[0].equalsIgnoreCase("id")) {
-                    mtgRequest.setId(keyValue[1]);
-                } else if (keyValue[0].equalsIgnoreCase("pid")) {
-                    mtgRequest.setPid(keyValue[1]);
-                } else if (keyValue[0].equalsIgnoreCase("uid")) {
-                    mtgRequest.setUid(keyValue[1]);
-                } else {
-                    params.put(keyValue[0], keyValue[1]);
                 }
             }
         }

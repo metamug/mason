@@ -65,6 +65,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
 import org.json.JSONObject;
@@ -99,11 +100,11 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
         try {
             if (header != null) {
                 if (header.contains("Basic ")) {
-                    String token = header.replaceFirst("Basic ", "");
-                    String userCred = new String(Base64.getDecoder().decode(token.getBytes()));
+                    String authHeader = header.replaceFirst("Basic ", "");
+                    String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
                     String[] split = userCred.split(":");
                     if (split.length > 1 && !split[0].isEmpty() && !split[1].isEmpty()) {
-                        JSONObject status = validateUser(split[0], split[1]);
+                        JSONObject status = validateBasic(split[0].trim(), split[1]);
                         switch (status.getInt("status")) {
                             case -1:
                                 throw new JspException("Forbidden Access to resource.", new RoleAccessDeniedException(""));
@@ -117,14 +118,29 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                     } else {
                         throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException(""));
                     }
+                } else if (header.contains("Bearer ")) {
+                    String authHeader = header.replaceFirst("Bearer ", "");
+                    String bearerToken = new String(Base64.getDecoder().decode(authHeader.getBytes()));
+                    JSONObject status = validateBearer(bearerToken.trim());
+                    switch (status.getInt("status")) {
+                        case -1:
+                            throw new JspException("Forbidden Access to resource.", new RoleAccessDeniedException("Invalid Bearer token"));
+                        case 0:
+                            throw new JspException("Access Denied to resource due to unauthorization.", new RoleAuthorizationException("Invalid Bearer token"));
+                        case 1:
+                            mtg.setUid(String.valueOf(status.getInt("user_id")));
+                            pageContext.getRequest().setAttribute("mtgReq", mtg);
+                            break;
+                    }
+
                 } else {
-                    throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException(""));
+                    throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException("Invalid Bearer token"));
                 }
             } else {
-                throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException(""));
+                throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException("Invalid Bearer token"));
             }
         } catch (IllegalArgumentException ex) {
-            throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException(""));
+            throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException("Invalid Bearer token"));
         }
         return EVAL_PAGE;
     }
@@ -142,32 +158,67 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
     public void doFinally() {
     }
 
-    private JSONObject validateUser(String userName, String password) {
+    private JSONObject validateBasic(String userName, String password) {
         JSONObject status = new JSONObject();
         status.put("status", 0);
-        try (Connection con = ds.getConnection();) {
-            PreparedStatement statement = con.prepareStatement("SELECT user_id FROM user WHERE user_name=? AND password=?");
-            statement.setString(1, userName);
-            statement.setString(2, password);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    PreparedStatement stmnt = con.prepareStatement("SELECT count(id) as total_count FROM user_role WHERE role_name=? AND user_id=?");
-                    stmnt.setString(1, value);
-                    stmnt.setInt(2, resultSet.getInt("user_id"));
-                    try (ResultSet result = stmnt.executeQuery()) {
-                        while (result.next()) {
-                            if (result.getInt("total_count") > 0) {
-                                status.put("status", 1);
-                                status.put("user_id", resultSet.getInt("user_id"));
-                            } else {
-                                status.put("status", -1);
-                            }
+        String authQuery = "";
+        try (Connection con = ds.getConnection()) {
+            try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower('Basic')"); ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
+                if (authQueryResult.next()) {
+                    authQuery = authQueryResult.getString("auth_query");
+                }
+            }
+            if (!authQuery.isEmpty()) {
+                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
+                    basicStmnt.setString(1, userName);
+                    basicStmnt.setString(2, password);
+                    try (ResultSet result = basicStmnt.executeQuery()) {
+                        if (result.next()) {
+                            status.put("user_id", result.getString(1));
+                            status.put("role", result.getString(2));
+                            status.put("status", (String.valueOf(result.getString(2)).equalsIgnoreCase(value) ? 1 : 0));
+                        } else {
+                            status.put("status", -1);
                         }
                     }
                 }
+            } else {
+                status.put("status", -1);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GroupTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage());
+            Logger.getLogger(GroupTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return status;
+    }
+
+    private JSONObject validateBearer(String bearerToken) {
+        JSONObject status = new JSONObject();
+        status.put("status", 0);
+        String authQuery = "";
+        try (Connection con = ds.getConnection()) {
+            try (PreparedStatement bearerAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower('Bearer')"); ResultSet authQueryResult = bearerAuthQueryStmnt.executeQuery()) {
+                if (authQueryResult.next()) {
+                    authQuery = authQueryResult.getString("auth_query");
+                }
+            }
+            if (!authQuery.isEmpty()) {
+                try (PreparedStatement bearerStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
+                    bearerStmnt.setString(1, bearerToken);
+                    try (ResultSet result = bearerStmnt.executeQuery()) {
+                        if (result.next()) {
+                            status.put("user_id", result.getString(1));
+                            status.put("role", result.getString(2));
+                            status.put("status", (String.valueOf(result.getString(2)).equalsIgnoreCase(value) ? 1 : 0));
+                        } else {
+                            status.put("status", -1);
+                        }
+                    }
+                }
+            } else {
+                status.put("status", -1);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GroupTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return status;
     }

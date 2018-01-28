@@ -166,7 +166,7 @@ public class ConsoleAnalyticFilter implements Filter {
         filterConfig.getServletContext().log(msg);
     }
 
-    private void logRequest(HttpServletRequest request, HttpServletResponse response, Properties properties) {
+    private void logRequest(HttpServletRequest request, HttpServletResponse response, Properties dbProperties) {
         String[] path = request.getContextPath().concat(request.getServletPath()).split("/");
         if (path.length >= 4) {
             String appName = path[1];
@@ -191,12 +191,12 @@ public class ConsoleAnalyticFilter implements Filter {
                 }
 
                 try {
-                    Class.forName(properties.getProperty("driver"));
-                    String host = properties.getProperty("host");
-                    String protocol = properties.getProperty("protocol");
-                    String dbName = properties.getProperty("dbname");
-                    String dbUrl = protocol + "://" + host + "/" + dbName + "?useOldAliasMetadataBehavior=true&useEncoding=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&characterSetResults=UTF-8&allowMultiQueries=true";
-                    try (Connection con = DriverManager.getConnection(dbUrl, properties.getProperty("username"), properties.getProperty("password")); PreparedStatement statement = con.prepareStatement("INSERT INTO console_log (ip,app_name,resource,version,device_type,status,size) VALUES (inet6_aton(?),?,?,?,?,?,?)")) {
+                    Class.forName(dbProperties.getProperty("driver"));
+                    String host = dbProperties.getProperty("host");
+                    String protocol = dbProperties.getProperty("protocol");
+                    String dbName = dbProperties.getProperty("dbname");
+                    String dbUrl = protocol + "://" + host + "/" + dbName + (dbProperties.getProperty("options") != null && !dbProperties.getProperty("options").trim().isEmpty() ? "?" + dbProperties.getProperty("options").trim() : "");
+                    try (Connection con = DriverManager.getConnection(dbUrl, dbProperties.getProperty("username"), dbProperties.getProperty("password")); PreparedStatement statement = con.prepareStatement("INSERT INTO console_log (ip,app_name,resource,version,device_type,status,size) VALUES (inet6_aton(?),?,?,?,?,?,?)")) {
                         statement.setString(1, request.getRemoteAddr());
                         statement.setString(2, appName);
                         statement.setString(3, resource);

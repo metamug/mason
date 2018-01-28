@@ -64,10 +64,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -159,7 +159,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 if (param instanceof MtgRequest) {
                     MtgRequest mtg = (MtgRequest) param;
                     Enumeration<String> headerNames = request.getHeaderNames();
-                    Map<String, String> requestHeaders = new HashMap<>();
+                    Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     while (headerNames.hasMoreElements()) {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));

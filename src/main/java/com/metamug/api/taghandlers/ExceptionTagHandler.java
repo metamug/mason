@@ -83,7 +83,6 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
 
     /**
      * Creates new instance of tag handler
-     *
      */
     public ExceptionTagHandler() {
         super();
@@ -113,7 +112,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     if (cause.contains("InputValidationException")) {
                         response.setStatus(412);
                         out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 412 + "</status>");
-                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException")) {
+                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
                         response.setStatus(512);
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
@@ -134,7 +133,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("RoleAuthorizationException")) {
                         response.setStatus(401);
-                        response.setHeader("WWW-Authenticate", "Basic");
+                        if (!ex.getMessage().contains("Invalid Bearer token")) {
+                            response.setHeader("WWW-Authenticate", "Basic");
+                        }
                         out.println("<message>Access Denied to resource due to unauthorization</message>\n<status>" + 401 + "</status>");
                     } else if (cause.contains("RoleAccessDeniedException")) {
                         response.setStatus(403);
@@ -184,7 +185,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("RoleAuthorizationException")) {
                         response.setStatus(401);
-                        response.setHeader("WWW-Authenticate", "Basic");
+                        if (!ex.getMessage().contains("Invalid Bearer token")) {
+                            response.setHeader("WWW-Authenticate", "Basic");
+                        }
                         out.println("{\"message\": \"Access Denied to resource due to unauthorization\",\"status\":" + 401 + "}");
                     } else if (cause.contains("RoleAccessDeniedException")) {
                         response.setStatus(403);

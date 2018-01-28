@@ -51,37 +51,64 @@
  *
  * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
-package com.metamug.api.services;
+package com.metamug.api.taghandlers;
 
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import javax.annotation.Resource;
-import javax.sql.DataSource;
+import com.metamug.api.common.MtgRequest;
+import java.util.SortedMap;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import javax.servlet.jsp.tagext.TryCatchFinally;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 
 /**
  *
- * @author Kainix
+ * @author Kaisteel
  */
-public class ConnectionProvider {
+public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally {
 
-    @Resource(name = "jdbc/mtgMySQL")
-    private DataSource ds;
-    private final Connection con;
+    private Object value;
 
-    private ConnectionProvider() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException {
-        String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-        Class.forName(JDBC_DRIVER);
-        con = ds.getConnection();
+    /**
+     * Creates new instance of tag handler
+     */
+    public PersistTagHandler() {
+        super();
     }
 
-    public static ConnectionProvider getInstance() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException {
-        return new ConnectionProvider();
+    /**
+     * This method is called after the JSP engine finished processing the tag.
+     *
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
+     * methods that this method calls.
+     * @throws javax.servlet.jsp.JspException
+     */
+    @Override
+    public int doEndTag() throws JspException {
+        ResultImpl resultImpl = (ResultImpl) value;
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
+        MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
+        for (SortedMap row : rows) {
+            for (int i = 0; i < columnNames.length; i++) {
+                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                mtg.getParams().put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : "null"));
+            }
+        }
+        pageContext.getRequest().setAttribute("mtgReq", mtg);
+        return EVAL_PAGE;
     }
 
-    public Connection getConnection() throws SQLException {
-        return this.con;
+    public void setValue(Object value) {
+        this.value = value;
     }
 
+    @Override
+    public void doCatch(Throwable throwable) throws Throwable {
+        throw throwable;
+    }
+
+    @Override
+    public void doFinally() {
+    }
 }

@@ -56,6 +56,7 @@ package com.metamug.api.taghandlers;
 import com.metamug.api.common.MtgRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
  *
@@ -68,7 +69,7 @@ public class ParentTagHandler extends BodyTagSupport {
     @Override
     public int doEndTag() throws JspException {
         MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
-        if (mtg.getParent() != null && mtg.getParent().equalsIgnoreCase(value)) {
+        if (mtg.getParent() != null && !mtg.getParent().equalsIgnoreCase(value)) {
             throw new JspException("Parent resource not found", new ResourceNotFoundException(""));
         }
         return EVAL_PAGE;
@@ -85,7 +86,8 @@ public class ParentTagHandler extends BodyTagSupport {
 
     private static class ResourceNotFoundException extends Throwable {
 
-        public ResourceNotFoundException(String string) {
+        public ResourceNotFoundException(String message) {
+            super(message);
         }
     }
 }

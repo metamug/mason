@@ -55,6 +55,7 @@ package com.metamug.api.listener;
 
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
+import com.mtg.io.objectreturn.ObjectReturn;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -66,11 +67,13 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,6 +88,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import javax.sql.DataSource;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -126,6 +130,8 @@ public class UploadController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String appName = request.getContextPath().split("/")[1];
         String contentType = request.getContentType() == null ? "" : request.getContentType();
+        String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
+        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         JSONObject obj = new JSONObject();
         response.setCharacterEncoding("UTF-8");
         if (contentType.contains("multipart/form-data")) {
@@ -158,9 +164,18 @@ public class UploadController extends HttpServlet {
                     response.setStatus(200);
                 }
                 if (result != null) {
-                    if (result instanceof String) {
-                        if (!((String) result).isEmpty()) {
-                            obj.put("response", (String) result);
+                    Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                    if (acceptHeader.equals("application/json")) {
+                        try {
+                            JSONObject resultJson = new JSONObject((String) processedResult);
+                            JSONObject singleData = new JSONObject();
+                            for (Iterator<String> iterator = resultJson.keys(); iterator.hasNext();) {
+                                String key = iterator.next();
+                                singleData.put(key, resultJson.get(key));
+                            }
+                            obj.append("response", singleData);
+                        } catch (JSONException ex) {
+                            obj.append("response", processedResult);
                         }
                     } else {
                         response.setStatus(204);
@@ -186,6 +201,7 @@ public class UploadController extends HttpServlet {
                 obj.put("errorId", errorId);
                 obj.put("status", 512);
                 response.setStatus(512);
+                obj.put("message", "No implementation of UploadListener was found.");
                 logError(errorId, null, request, ex);
             } catch (NullPointerException | IOException | ServletException | InstantiationException | IllegalAccessException ex) {
                 String timestamp = String.valueOf(System.currentTimeMillis());
@@ -238,6 +254,32 @@ public class UploadController extends HttpServlet {
         }
     }
 
+    /**
+     * Handles the HTTP <code>PUT</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setStatus(405);
+    }
+
+    /**
+     * Handles the HTTP <code>DELETE</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setStatus(405);
+    }
+
     private Object callUploadEvent(File uploadedFile, String appName, HttpServletRequest req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
         String listenerClass;
         Properties prop = new Properties();
@@ -252,7 +294,7 @@ public class UploadController extends HttpServlet {
             if (UploadListener.class.isAssignableFrom(cls)) {
                 listener = (UploadListener) newInstance;
                 //Add Request Header values
-                Map<String, String> reqHeaders = new HashMap<>();
+                Map<String, String> reqHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                 Enumeration<String> headerNames = req.getHeaderNames();
                 while (headerNames.hasMoreElements()) {
                     String header = headerNames.nextElement();
@@ -261,7 +303,7 @@ public class UploadController extends HttpServlet {
                     }
                 }
                 //Add Request Parameter values
-                Map<String, String> reqParams = new HashMap<>();
+                Map<String, String> reqParams = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                 Enumeration<String> parameterNames = req.getParameterNames();
                 while (parameterNames.hasMoreElements()) {
                     String param = parameterNames.nextElement();
