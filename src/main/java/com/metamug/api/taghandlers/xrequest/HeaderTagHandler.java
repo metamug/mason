@@ -50,67 +50,51 @@
  *
  *This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
-package com.metamug.api.taghandlers;
+package com.metamug.api.taghandlers.xrequest;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
  *
  * @author anishhirlekar
  */
-public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class HeaderTagHandler extends BodyTagSupport {
     
-    private String url;
-    private String method;
-    private Object param;
-    
-    public XRequestTagHandler() throws NoSuchAlgorithmException {
+    private String name;
+    private String value;
+   
+    public HeaderTagHandler(){
         super();
-        init();
+        name = null;
+        value = null;
     }
-    
-    private void init() {
-        url = null;
-        method = null;
-        param = null;
-    }
-    
+   
     @Override
-    public int doEndTag() throws JspException {
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
-        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+    public int doEndTag() throws JspException{
         
-        
-        
+        RequestTagHandler parent = (RequestTagHandler)findAncestorWithClass(
+                this, RequestTagHandler.class);
+        if (parent == null) {
+	    throw new JspTagException("X Header Tag outside X Request Tag");
+	}
+       
+        if(value == null)
+            value = getBodyContent().getString().trim();
+       
+        if(value.length() > 0){
+            parent.addHeader(name, value);
+        }
+       
         return EVAL_PAGE;
     }
-    
-    /**
-     * Just re-throws the Throwable.
-     *
-     * @param throwable
-     * @throws java.lang.Throwable
-     */
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
+   
+    public void setName(String n){
+        name = n;
     }
-    
-    /**
-     * Close the <code>Connection</code>, unless this action is used as part of a transaction.
-     */
-    @Override
-    public void doFinally() {
-        //Don't set ds to null because in subsequent call to code execution it causes NPE
-        //ds = null;
+   
+    public void setValue(String v){
+        value = v;
     }
 }
