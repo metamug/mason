@@ -22,7 +22,7 @@
  *
  * You may freely distribute exact copies of the Software to anyone.
  *
- * The inclusion of the Software in any shareware, freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
+ * The inclusion of the Software in any Shareware, Freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
  *
  * The selling of the Software is strictly prohibited.
  * 2. Restrictions
@@ -60,6 +60,7 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.xml.sax.SAXException;
@@ -78,7 +79,7 @@ public class MPathUtil {
      */
     public static Object getValueFromJson(String inputJson, String mPath) {
         Map<String, Object> flatMap = JsonFlattener.flattenAsMap(inputJson);
-        System.out.println("flatMap: \n" + flatMap);
+        System.out.println("flatMap:" + flatMap);
         return flatMap.get(mPath);
     }
 
@@ -126,45 +127,57 @@ public class MPathUtil {
      * @return unflattened json object
      */
     public static JSONObject appendJsonFromMPath(JSONObject initialJsonObject, String mPath, Object value) {
+        JSONArray jsonArray;
+        JSONObject jsonObject;
         String flatString = JsonFlattener.flatten(initialJsonObject.toString());
         JSONObject flatJson = new JSONObject(flatString);
         //System.out.println(flatJson.toString());
-        flatJson.put(mPath, value);
+        try {
+            jsonArray = new JSONArray(String.valueOf(value));
+            flatJson.put(mPath, jsonArray);
+        } catch (JSONException ex) {
+            try {
+                jsonObject = new JSONObject(String.valueOf(value));
+                flatJson.put(mPath, jsonObject);
+            } catch (JSONException ex1) {
+                flatJson.put(mPath, value);
+            }
+        }
         //System.out.println(flatJson.toString());
         String unFlatJson = new JsonUnflattener(flatJson.toString()).unflatten();
         return new JSONObject(unFlatJson);
     }
-    
+
     /**
      * Method takes array containing repeated elements and returns reduced object
-     * 
-     * @param inputArray 
+     *
+     * @param inputArray
      * @return reduced json object
      */
-    public static JSONObject collect(JSONArray inputArray){
+    public static JSONObject collect(JSONArray inputArray) {
         int len = inputArray.length();
-        if(len > 0){
+        if (len > 0) {
             //get first object
             JSONObject firstObj = inputArray.getJSONObject(0);
-            if(len == 1){
+            if (len == 1) {
                 //if length 1, return as is
                 return firstObj;
-            }else{        
+            } else {
                 //if length > 1, loop over remaining array
-                for(int i=1; i<len; i++){
+                for (int i = 1; i < len; i++) {
                     JSONObject object = inputArray.getJSONObject(i);
                     //loop through key-value pairs of object
                     for (String key : object.keySet()) {
                         Object firstObjectValue = firstObj.get(key);
                         //if value in first obj is already an array
-                        if(firstObjectValue instanceof JSONArray){
-                            JSONArray array = (JSONArray)firstObjectValue;
+                        if (firstObjectValue instanceof JSONArray) {
+                            JSONArray array = (JSONArray) firstObjectValue;
                             array.put(object.get(key));
                             firstObj.put(key, array);
                         } else {
                             Object currentObjectValue = object.get(key);
                             //if values don't match, create array and add current value
-                            if(!firstObjectValue.equals(currentObjectValue)){
+                            if (!firstObjectValue.equals(currentObjectValue)) {
                                 JSONArray array = new JSONArray();
                                 array.put(firstObjectValue);
                                 array.put(currentObjectValue);

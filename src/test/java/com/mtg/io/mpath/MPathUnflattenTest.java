@@ -22,7 +22,7 @@
  *
  * You may freely distribute exact copies of the Software to anyone.
  *
- * The inclusion of the Software in any shareware, freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
+ * The inclusion of the Software in any Shareware, Freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
  *
  * The selling of the Software is strictly prohibited.
  * 2. Restrictions
@@ -53,10 +53,12 @@
  */
 package com.mtg.io.mpath;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -72,6 +74,7 @@ public class MPathUnflattenTest {
         json1 = "{\"a\":{\"b\":{\"c\":123}}}";
     }
 
+    @Ignore
     @Test
     public void TestCase1() {
         String mPath = "a.b.c";
@@ -84,6 +87,7 @@ public class MPathUnflattenTest {
         }
     }
 
+    @Ignore
     @Test
     public void TestCase2() {
         try {
@@ -97,5 +101,12 @@ public class MPathUnflattenTest {
         } catch (JSONException jx) {
             Assert.fail(jx.toString());
         }
+    }
+
+    @Test
+    public void TestCase3() {
+        JSONObject initJson = new JSONObject();
+        JSONObject result = MPathUtil.appendJsonFromMPath(initJson, "data", TestData.TEST_JSON4);
+        System.out.println(result);
     }
 }

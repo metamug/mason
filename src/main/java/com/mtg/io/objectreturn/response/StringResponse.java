@@ -22,7 +22,7 @@
  *
  * You may freely distribute exact copies of the Software to anyone.
  *
- * The inclusion of the Software in any shareware, freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
+ * The inclusion of the Software in any Shareware, Freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
  *
  * The selling of the Software is strictly prohibited.
  * 2. Restrictions

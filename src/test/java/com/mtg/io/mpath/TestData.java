@@ -21,7 +21,7 @@
  *
  *You may freely distribute exact copies of the Software to anyone.
  *
- *The inclusion of the Software in any shareware, freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
+ *The inclusion of the Software in any Shareware, Freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
  *
  *The selling of the Software is strictly prohibited.
  *2. Restrictions
@@ -127,6 +127,31 @@ public class TestData {
             + "        }\n"
             + "    }\n"
             + "}";
+    public static final String TEST_JSON4 = "[{  \n"
+            + "   \"addresses\":[  \n"
+            + "      {  \n"
+            + "         \"id\":\"178\",\n"
+            + "         \"active\":true,\n"
+            + "         \"city\":\"mumbai\",\n"
+            + "         \"landmark\":\"elroy landmark\",\n"
+            + "         \"lat\":\"19.1999999999999993\",\n"
+            + "         \"line_1\":\"line 11\",\n"
+            + "         \"line_2\":\"line 22\",\n"
+            + "         \"lng\":\"72.7999999999999972\",\n"
+            + "         \"pincode\":\"400001\",\n"
+            + "         \"state_country_id\":1,\n"
+            + "         \"created_on\":null,\n"
+            + "         \"modified_on\":null,\n"
+            + "         \"created_by_id\":null,\n"
+            + "         \"modified_by_id\":null,\n"
+            + "         \"area\":null,\n"
+            + "         \"sub_area\":null,\n"
+            + "         \"locality\":null\n"
+            + "      }\n"
+            + "   ],\n"
+            + "   \"last_name\":\"Dsouza\",\n"
+            + "   \"first_name\":\"Elroy\"\n"
+            + "}]";
 
     public static final String TEST_XML = "<Resource version=\"1.1\" >\n"
             + "\n"
