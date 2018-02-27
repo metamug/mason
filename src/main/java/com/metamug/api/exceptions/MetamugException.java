@@ -50,52 +50,22 @@
  *
  *This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
-package com.metamug.api.taghandlers.xrequest;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
+package com.metamug.api.exceptions;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class HeaderTagHandler extends BodyTagSupport {
+public class MetamugException extends Exception {
 
-    private String name;
-    private String value;
+    private final MetamugError error;
 
-    public HeaderTagHandler() {
-        super();
-        name = null;
-        value = null;
+    public MetamugException(MetamugError error) {
+        super(error.getMsg());
+        this.error = error;
     }
 
-    @Override
-    public int doEndTag() throws JspException {
-
-        RequestTagHandler parent = (RequestTagHandler) findAncestorWithClass(
-                this, RequestTagHandler.class);
-        if (parent == null) {
-            throw new JspTagException("X Header Tag outside X Request Tag");
-        }
-
-        if (value == null) {
-            value = getBodyContent().getString().trim();
-        }
-
-        if (value.length() > 0) {
-            parent.addHeader(name, value);
-        }
-
-        return EVAL_PAGE;
-    }
-
-    public void setName(String n) {
-        name = n;
-    }
-
-    public void setValue(String v) {
-        value = v;
+    public MetamugError getError() {
+        return this.error;
     }
 }

@@ -30,11 +30,11 @@
  *
  *YOU MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN, SELL, ONSELL, REQUEST DONATIONS OR CREATE DERIVATIVE WORKS BASED UPON THE SOFTWARE OR ANY PART THEREOF.
  *
- *The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property cease to be confidential, for any reason not your own fault.
+ *The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property ceases to be confidential, for any reason not your own fault.
  *
  *3. Termination
  *
- *This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
+ *This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination, you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason, you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
  *
  *4. Disclaimer of Warranty, Limitation of Remedies
  *
@@ -48,7 +48,7 @@
  *
  *All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- *This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ *This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers.xrequest;
 
@@ -62,21 +62,21 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  *
  * @author anishhirlekar
  */
-public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally{
-    
-    private Map<String,String> headers;
-    private Map<String,String> parameters;
-    
+public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally {
+
+    private Map<String, String> headers;
+    private Map<String, String> parameters;
+
     private String url;
     private String method;
     private String requestBody;
     private Object param;
-    
-    public RequestTagHandler(){
+
+    public RequestTagHandler() {
         super();
         init();
     }
-    
+
     private void init() {
         url = null;
         method = null;
@@ -84,44 +84,43 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         headers = null;
         parameters = null;
     }
-    
+
     @Override
     public int doEndTag() throws JspException {
-        
-        
+
         return EVAL_PAGE;
     }
-    
-    public void setUrl(String u){
+
+    public void setUrl(String u) {
         url = u;
     }
-    
-    public void setMethod(String m){
+
+    public void setMethod(String m) {
         method = m;
     }
-    
-    public void setParam(String p){
+
+    public void setParam(String p) {
         param = p;
     }
-    
-    public void setRequestBody(String b){
+
+    public void setRequestBody(String b) {
         requestBody = b;
     }
-    
-    public void addHeader(String name, String value){
-        if(headers != null){
+
+    public void addHeader(String name, String value) {
+        if (headers != null) {
             headers = new HashMap<>();
         }
         headers.put(name, value);
     }
-    
-    public void addParameter(String name, String value){
-        if(parameters != null){
+
+    public void addParameter(String name, String value) {
+        if (parameters != null) {
             parameters = new HashMap<>();
         }
         parameters.put(name, value);
     }
-    
+
     @Override
     public void doCatch(Throwable throwable) throws Throwable {
         throw throwable;

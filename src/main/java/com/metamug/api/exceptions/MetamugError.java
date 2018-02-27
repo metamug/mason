@@ -50,52 +50,30 @@
  *
  *This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
-package com.metamug.api.taghandlers.xrequest;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
+package com.metamug.api.exceptions;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class HeaderTagHandler extends BodyTagSupport {
+public enum MetamugError {
+    BEARER_TOKEN_MISSMATCH("Token doesn't belong to specified user."),
+    INCORRECT_ROLE_AUTHENTICATION("Incorrect role credentials"),
+    INCORRECT_STATUS_CODE("Incorrect status code"),
+    INPUT_VALIDATION_ERROR("Param value failed validation"),
+    NO_RESULT_TO_PERSIST("No result to persist"),
+    NO_UPLOAD_LISTENER("No implementation of UploadListener was found."),
+    PARENT_RESOURCE_MISSING("Parent resource missing"),
+    ROLE_ACCESS_DENIED("Forbidden access to resource"),
+    UPLOAD_SIZE_EXCEEDED("File size exceeds limit.");
 
-    private String name;
-    private String value;
+    private final String msg;
 
-    public HeaderTagHandler() {
-        super();
-        name = null;
-        value = null;
+    MetamugError(String msg) {
+        this.msg = msg;
     }
 
-    @Override
-    public int doEndTag() throws JspException {
-
-        RequestTagHandler parent = (RequestTagHandler) findAncestorWithClass(
-                this, RequestTagHandler.class);
-        if (parent == null) {
-            throw new JspTagException("X Header Tag outside X Request Tag");
-        }
-
-        if (value == null) {
-            value = getBodyContent().getString().trim();
-        }
-
-        if (value.length() > 0) {
-            parent.addHeader(name, value);
-        }
-
-        return EVAL_PAGE;
-    }
-
-    public void setName(String n) {
-        name = n;
-    }
-
-    public void setValue(String v) {
-        value = v;
+    public String getMsg() {
+        return this.msg;
     }
 }

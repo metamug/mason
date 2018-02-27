@@ -31,11 +31,11 @@
  *
  * YOU MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN, SELL, ONSELL, REQUEST DONATIONS OR CREATE DERIVATIVE WORKS BASED UPON THE SOFTWARE OR ANY PART THEREOF.
  *
- * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property cease to be confidential, for any reason not your own fault.
+ * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property ceases to be confidential, for any reason not your own fault.
  *
  * 3. Termination
  *
- * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
+ * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination, you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason, you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
  *
  * 4. Disclaimer of Warranty, Limitation of Remedies
  *
@@ -49,11 +49,13 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
 import com.metamug.api.common.MtgRequest;
+import com.metamug.api.exceptions.MetamugError;
+import com.metamug.api.exceptions.MetamugException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -107,16 +109,16 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                         JSONObject status = validateBasic(split[0].trim(), split[1]);
                         switch (status.getInt("status")) {
                             case -1:
-                                throw new JspException("Forbidden Access to resource.", new RoleAccessDeniedException(""));
+                                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
                             case 0:
-                                throw new JspException("Access Denied to resource due to unauthorization.", new RoleAuthorizationException(""));
+                                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
                             case 1:
                                 mtg.setUid(String.valueOf(status.getInt("user_id")));
                                 pageContext.getRequest().setAttribute("mtgReq", mtg);
                                 break;
                         }
                     } else {
-                        throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException(""));
+                        throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
                     }
                 } else if (header.contains("Bearer ")) {
                     String authHeader = header.replaceFirst("Bearer ", "");
@@ -124,9 +126,9 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                     JSONObject status = validateBearer(bearerToken.trim());
                     switch (status.getInt("status")) {
                         case -1:
-                            throw new JspException("Forbidden Access to resource.", new RoleAccessDeniedException("Invalid Bearer token"));
+                            throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
                         case 0:
-                            throw new JspException("Access Denied to resource due to unauthorization.", new RoleAuthorizationException("Invalid Bearer token"));
+                            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
                         case 1:
                             mtg.setUid(String.valueOf(status.getInt("user_id")));
                             pageContext.getRequest().setAttribute("mtgReq", mtg);
@@ -134,13 +136,13 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                     }
 
                 } else {
-                    throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException("Invalid Bearer token"));
+                    throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
                 }
             } else {
-                throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException("Invalid Bearer token"));
+                throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
         } catch (IllegalArgumentException ex) {
-            throw new JspException("Access Denied due to unauthorization.", new RoleAuthorizationException("Invalid Bearer token"));
+            throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
         return EVAL_PAGE;
     }
@@ -172,13 +174,14 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, userName);
                     basicStmnt.setString(2, password);
-                    try (ResultSet result = basicStmnt.executeQuery()) {
-                        if (result.next()) {
-                            status.put("user_id", result.getString(1));
-                            status.put("role", result.getString(2));
-                            status.put("status", (String.valueOf(result.getString(2)).equalsIgnoreCase(value) ? 1 : 0));
-                        } else {
-                            status.put("status", -1);
+                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
+                        while (basicResult.next()) {
+                            status.put("user_id", basicResult.getString(1));
+                            status.put("role", basicResult.getString(2));
+                            if (basicResult.getString(2).equalsIgnoreCase(value)) {
+                                status.put("status", 1);
+                                break;
+                            }
                         }
                     }
                 }
@@ -204,13 +207,14 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement bearerStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     bearerStmnt.setString(1, bearerToken);
-                    try (ResultSet result = bearerStmnt.executeQuery()) {
-                        if (result.next()) {
-                            status.put("user_id", result.getString(1));
-                            status.put("role", result.getString(2));
-                            status.put("status", (String.valueOf(result.getString(2)).equalsIgnoreCase(value) ? 1 : 0));
-                        } else {
-                            status.put("status", -1);
+                    try (ResultSet bearerResult = bearerStmnt.executeQuery()) {
+                        while (bearerResult.next()) {
+                            status.put("user_id", bearerResult.getString(1));
+                            status.put("role", bearerResult.getString(2));
+                            if (bearerResult.getString(2).equalsIgnoreCase(value)) {
+                                status.put("status", 1);
+                                break;
+                            }
                         }
                     }
                 }
@@ -222,19 +226,4 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
         }
         return status;
     }
-
-    private static class RoleAuthorizationException extends Exception {
-
-        public RoleAuthorizationException(String message) {
-            super(message);
-        }
-    }
-
-    private static class RoleAccessDeniedException extends Exception {
-
-        public RoleAccessDeniedException(String message) {
-            super(message);
-        }
-    }
-
 }

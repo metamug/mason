@@ -31,11 +31,11 @@
  *
  * YOU MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN, SELL, ONSELL, REQUEST DONATIONS OR CREATE DERIVATIVE WORKS BASED UPON THE SOFTWARE OR ANY PART THEREOF.
  *
- * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property cease to be confidential, for any reason not your own fault.
+ * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property ceases to be confidential, for any reason not your own fault.
  *
  * 3. Termination
  *
- * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
+ * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination, you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason, you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
  *
  * 4. Disclaimer of Warranty, Limitation of Remedies
  *
@@ -49,10 +49,11 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
+import com.metamug.api.exceptions.MetamugException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -123,23 +124,47 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         response.setStatus(422);
                         out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("ResourceNotFoundException")) {
-                        response.setStatus(404);
-                        out.println("<message>Parent resouce not found</message>\n<status>" + 404 + "</status>");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("InvalidStatusException")) {
-                        response.setStatus(406);
-                        out.println("<message>Invalid Status code set</message>\n<status>" + 406 + "</status>");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("RoleAuthorizationException")) {
-                        response.setStatus(401);
-                        if (!ex.getMessage().contains("Invalid Bearer token")) {
-                            response.setHeader("WWW-Authenticate", "Basic");
+                    } else if (cause.contains("MetamugException")) {
+                        MetamugException mtgCause = (MetamugException) ex.getCause();
+                        switch (mtgCause.getError()) {
+                            case BEARER_TOKEN_MISSMATCH:
+                                response.setStatus(401);
+                                out.println("<message>Access Denied to resource due to unauthorization</message>\n<status>" + 401 + "</status>");
+                                break;
+                            case INCORRECT_ROLE_AUTHENTICATION:
+                                response.setStatus(401);
+                                response.setHeader("WWW-Authenticate", "Basic");
+                                out.println("<message>Access Denied to resource due to unauthorization</message>\n<status>" + 401 + "</status>");
+                                break;
+                            case INCORRECT_STATUS_CODE:
+                                response.setStatus(406);
+                                out.println("<message>Invalid Status code set</message>\n<status>" + 406 + "</status>");
+                                break;
+                            case INPUT_VALIDATION_ERROR:
+                                response.setStatus(412);
+                                out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 412 + "</status>");
+                                break;
+                            case NO_RESULT_TO_PERSIST:
+                                response.setStatus(512);
+                                out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 512 + "</status>");
+                                break;
+                            case NO_UPLOAD_LISTENER:
+                                response.setStatus(424);
+                                out.println("<message>No implementation of UploadListener was found</message>\n<status>" + 424 + "</status>");
+                                break;
+                            case PARENT_RESOURCE_MISSING:
+                                response.setStatus(404);
+                                out.println("<message>Parent resource not found</message>\n<status>" + 404 + "</status>");
+                                break;
+                            case ROLE_ACCESS_DENIED:
+                                response.setStatus(403);
+                                out.println("<message>Forbidden Access to resource</message>\n<status>" + 403 + "</status>");
+                                break;
+                            case UPLOAD_SIZE_EXCEEDED:
+                                response.setStatus(413);
+                                out.println("<message>File size exceeds limit</message>\n<status>" + 413 + "</status>");
+                                break;
                         }
-                        out.println("<message>Access Denied to resource due to unauthorization</message>\n<status>" + 401 + "</status>");
-                    } else if (cause.contains("RoleAccessDeniedException")) {
-                        response.setStatus(403);
-                        out.println("<message>Forbidden Access to resource</message>\n<status>" + 403 + "</status>");
                     } else {
                         response.setStatus(512);
                         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -161,10 +186,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 response.setContentType("application/json");
                 if (ex.getCause() != null) {
                     String cause = ex.getCause().toString();
-                    if (cause.contains("InputValidationException")) {
-                        response.setStatus(412);
-                        out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 412 + "}");
-                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException")) {
+                    if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
                         response.setStatus(512);
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
@@ -175,23 +197,47 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         response.setStatus(422);
                         out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("ResourceNotFoundException")) {
-                        response.setStatus(404);
-                        out.println("{\"message\": \"Parent resouce not found\",\"status\":" + 404 + "}");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("InvalidStatusException")) {
-                        response.setStatus(406);
-                        out.println("{\"message\": \"Invalid Status code set\",\"status\":" + 406 + "}");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("RoleAuthorizationException")) {
-                        response.setStatus(401);
-                        if (!ex.getMessage().contains("Invalid Bearer token")) {
-                            response.setHeader("WWW-Authenticate", "Basic");
+                    } else if (cause.contains("MetamugException")) {
+                        MetamugException mtgCause = (MetamugException) ex.getCause();
+                        switch (mtgCause.getError()) {
+                            case BEARER_TOKEN_MISSMATCH:
+                                response.setStatus(401);
+                                out.println("{\"message\": \"Access Denied to resource due to unauthorization\",\"status\":" + 401 + "}");
+                                break;
+                            case INCORRECT_ROLE_AUTHENTICATION:
+                                response.setStatus(401);
+                                response.setHeader("WWW-Authenticate", "Basic");
+                                out.println("{\"message\": \"Access Denied to resource due to unauthorization\",\"status\":" + 401 + "}");
+                                break;
+                            case INCORRECT_STATUS_CODE:
+                                response.setStatus(406);
+                                out.println("{\"message\": \"Invalid Status code set\",\"status\":" + 406 + "}");
+                                break;
+                            case INPUT_VALIDATION_ERROR:
+                                response.setStatus(412);
+                                out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 412 + "}");
+                                break;
+                            case NO_RESULT_TO_PERSIST:
+                                out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 512 + "}");
+                                break;
+                            case NO_UPLOAD_LISTENER:
+                                response.setStatus(424);
+                                out.println("{\"message\": \"No implementation of UploadListener was found\","
+                                        + "\"status\":" + 424 + "}");
+                                break;
+                            case PARENT_RESOURCE_MISSING:
+                                response.setStatus(404);
+                                out.println("{\"message\": \"Error occured on the server.\",\"status\":" + 404 + "}");
+                                break;
+                            case ROLE_ACCESS_DENIED:
+                                response.setStatus(403);
+                                out.println("{\"message\": \"Forbidden Access to resource\",\"status\":" + 403 + "}");
+                                break;
+                            case UPLOAD_SIZE_EXCEEDED:
+                                response.setStatus(413);
+                                out.println("{\"message\": \"File size exceeds limit\",\"status\":" + 413 + "}");
+                                break;
                         }
-                        out.println("{\"message\": \"Access Denied to resource due to unauthorization\",\"status\":" + 401 + "}");
-                    } else if (cause.contains("RoleAccessDeniedException")) {
-                        response.setStatus(403);
-                        out.println("{\"message\": \"Forbidden Access to resource\",\"status\":" + 403 + "}");
                     } else {
                         response.setStatus(512);
                         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -233,7 +279,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             stmnt.setString(4, resourceURI);
             stmnt.execute();
         } catch (SQLException ex) {
-//            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }

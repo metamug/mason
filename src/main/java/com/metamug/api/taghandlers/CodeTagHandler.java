@@ -31,11 +31,11 @@
  *
  * YOU MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN, SELL, ONSELL, REQUEST DONATIONS OR CREATE DERIVATIVE WORKS BASED UPON THE SOFTWARE OR ANY PART THEREOF.
  *
- * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property cease to be confidential, for any reason not your own fault.
+ * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property ceases to be confidential, for any reason not your own fault.
  *
  * 3. Termination
  *
- * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
+ * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination, you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason, you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
  *
  * 4. Disclaimer of Warranty, Limitation of Remedies
  *
@@ -49,13 +49,14 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
 import com.metamug.api.common.MtgRequest;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
+import com.mtg.io.mpath.MPathUtil;
 import com.mtg.io.objectreturn.ObjectReturn;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -69,6 +70,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
@@ -90,6 +93,9 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private String className;
     private Object param;
+    private Boolean isVerbose;
+    private Boolean isPersist;
+    private Boolean isCollect;
     private List<Object> parameters;
     @Resource(name = "jdbc/mtgMySQL")
     private DataSource ds;
@@ -108,6 +114,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
@@ -123,7 +130,6 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
                     result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-
                     if (result instanceof List) {
                         if (acceptHeader.equals("application/json")) {
                             JSONArray outputArray = new JSONArray();
@@ -158,13 +164,19 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 reqProcessable = (RequestProcessable) newInstance;
                 if (param instanceof MtgRequest) {
                     MtgRequest mtg = (MtgRequest) param;
+                    Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                    mtg.getParams().entrySet().forEach((entry) -> {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        requestParameters.put(key, value);
+                    });
                     Enumeration<String> headerNames = request.getHeaderNames();
                     Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     while (headerNames.hasMoreElements()) {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));
                     }
-                    result = reqProcessable.process(mtg.getParams(), ds, requestHeaders);
+                    result = reqProcessable.process(requestParameters, ds, requestHeaders);
 
                     if (result instanceof List) {
                         if (acceptHeader.equals("application/json")) {
@@ -172,27 +184,55 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             for (Object object : (List) result) {
                                 outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
-                            map.put("execute" + (mapSize + 1), outputArray);
+                            if (isVerbose != null && isVerbose) {
+                                if (isCollect != null && isCollect) {
+                                    map.put("execute" + (mapSize + 1), MPathUtil.collect(outputArray));
+                                } else {
+                                    map.put("execute" + (mapSize + 1), outputArray);
+                                }
+                            }
                         } else {
                             StringBuilder outputXml = new StringBuilder();
                             for (Object object : (List) result) {
                                 outputXml.append(ObjectReturn.convert(object, acceptHeader));
                             }
-                            map.put("execute" + (mapSize + 1), outputXml.toString());
+                            if (isVerbose != null && isVerbose) {
+                                map.put("execute" + (mapSize + 1), outputXml.toString());
+                            }
                         }
                     } else {
                         Object processedResult = ObjectReturn.convert(result, acceptHeader);
                         if (acceptHeader.equals("application/json")) {
                             try {
                                 JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                map.put("execute" + (mapSize + 1), jsonOutput);
+                                if (isVerbose != null && isVerbose) {
+                                    if (isCollect != null && isCollect) {
+                                        map.put("execute" + (mapSize + 1), MPathUtil.collect(new JSONArray(jsonOutput)));
+                                    } else {
+                                        map.put("execute" + (mapSize + 1), jsonOutput);
+                                    }
+                                }
+                                if (isPersist != null && isPersist) {
+                                    Map<String, Object> jsonMap = jsonOutput.toMap();
+                                    jsonMap.entrySet().forEach((entry) -> {
+                                        String key = entry.getKey();
+                                        Object value = entry.getValue();
+                                        mtgReq.getParams().put(key, String.valueOf(value));
+                                    });
+                                    mtgReq.getParams().putAll(requestParameters);
+                                    pageContext.getRequest().setAttribute("mtgReq", mtgReq);
+                                }
                             } catch (JSONException jx) {
                                 //System.out.println("MtgRequest: Not a JSONObject");
-                                map.put("execute" + (mapSize + 1), processedResult);
+                                if (isVerbose != null && isVerbose) {
+                                    map.put("execute" + (mapSize + 1), processedResult);
+                                }
                             }
                         } //application/xml
                         else {
-                            map.put("execute" + (mapSize + 1), processedResult);
+                            if (isVerbose != null && isVerbose) {
+                                map.put("execute" + (mapSize + 1), processedResult);
+                            }
                         }
                     }
                 }
@@ -206,7 +246,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     }
 
     private void logError(LinkedHashMap<String, Object> map, HttpServletRequest request, Exception exception) {
-        int mapSize = map.size();
+
         String timestamp = String.valueOf(System.currentTimeMillis());
         long errorId = Math.abs(UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits());
         String method = (String) request.getAttribute("mtgMethod");
@@ -227,7 +267,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         }
         String message = "ErrorID:" + errorId + ".Please contact your API administrator.";
         try (Connection con = ds.getConnection()) {
-            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,resource) VALUES(?,?,?,?,?)");
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
+                    + " resource) VALUES(?,?,?,?,?)");
             stmnt.setString(1, String.valueOf(errorId));
             stmnt.setString(2, method);
             stmnt.setString(3, exceptionMessage);
@@ -235,8 +276,9 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
             stmnt.setString(5, resourceURI);
             stmnt.execute();
         } catch (SQLException ex) {
-//            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
+        int mapSize = map.size();
         map.put("error" + (mapSize + 1), message);
     }
 
@@ -244,8 +286,20 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         this.className = className;
     }
 
-    public void setParam(Object Parameter) {
-        this.param = Parameter;
+    public void setParam(Object param) {
+        this.param = param;
+    }
+
+    public void setIsVerbose(Boolean isVerbose) {
+        this.isVerbose = isVerbose;
+    }
+
+    public void setIsPersist(Boolean isPersist) {
+        this.isPersist = isPersist;
+    }
+
+    public void setIsCollect(Boolean isCollect) {
+        this.isCollect = isCollect;
     }
 
     /**

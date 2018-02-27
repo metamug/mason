@@ -31,11 +31,11 @@
  *
  * YOU MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN, SELL, ONSELL, REQUEST DONATIONS OR CREATE DERIVATIVE WORKS BASED UPON THE SOFTWARE OR ANY PART THEREOF.
  *
- * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property cease to be confidential, for any reason not your own fault.
+ * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property ceases to be confidential, for any reason not your own fault.
  *
  * 3. Termination
  *
- * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
+ * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination, you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason, you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
  *
  * 4. Disclaimer of Warranty, Limitation of Remedies
  *
@@ -49,7 +49,7 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.filters;
 
@@ -85,7 +85,9 @@ import org.json.JSONObject;
  *
  * @author Kaisteel
  */
-@MultipartConfig
+@MultipartConfig(fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 5,
+        maxRequestSize = 1024 * 1024 * 25)
 public class RestRouterFilter implements Filter {
 
     private static final boolean DEBUG = false;
@@ -117,17 +119,17 @@ public class RestRouterFilter implements Filter {
                 String contentType = req.getContentType() == null ? "application/html" : req.getContentType();
                 if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (contentType.equalsIgnoreCase("application/json") || contentType.equalsIgnoreCase("application/xml") || contentType.contains("html") || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("multipart/form-data")))) {
                     try {
-                        MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
-                        req.setAttribute("mtgReq", mtgReq);
                         String appName = req.getServletContext().getContextPath();
                         String version = tokens[1];
-                        String resourceName = "";
+                        String resourceName;
                         if (tokens.length == 5 || tokens.length == 6) {
                             resourceName = tokens[4];
                         } else {
                             resourceName = tokens[2];
                         }
                         if (new File(System.getProperty("catalina.base") + File.separator + "api/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
+                            MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
+                            req.setAttribute("mtgReq", mtgReq);
                             req.setAttribute("mtgMethod", req.getMethod());
                             req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
                                 @Override
@@ -211,15 +213,15 @@ public class RestRouterFilter implements Filter {
         String contentType = request.getHeader("Content-Type") == null ? "application/html" : request.getHeader("Content-Type");
         if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("DELETE")) {
             if (contentType.contains("application/json")) {
-                String line = "";
-                StringBuilder data = new StringBuilder();
+                String line;
+                StringBuilder jsonData = new StringBuilder();
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
                     while ((line = br.readLine()) != null) {
-                        data.append(line);
+                        jsonData.append(line);
                     }
                 }
-                Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(data.toString());
-                for (Map.Entry<String, Object> entry : flattenAsMap.entrySet()) {
+                Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
+                flattenAsMap.entrySet().forEach((entry) -> {
                     String key = entry.getKey();
                     String value = String.valueOf(entry.getValue());
                     if (key.equalsIgnoreCase("id")) {
@@ -231,11 +233,13 @@ public class RestRouterFilter implements Filter {
                     } else {
                         params.put(key, value);
                     }
-                }
+                });
+                //Add jsonData as String
+                params.put("mtgRawJson", jsonData.toString());
             } else if (contentType.contains("application/xml")) {
                 //@todo handle xml input
             } else {
-                //Works for both Content-Types multipart/form-data and application/x-www-form-urlencoded
+                //Content-Types  application/x-www-form-urlencoded and multipart/form-data
                 Enumeration<String> parameters = request.getParameterNames();
                 while (parameters.hasMoreElements()) {
                     String paramName = parameters.nextElement();
@@ -257,7 +261,7 @@ public class RestRouterFilter implements Filter {
             mtgRequest.setParams(params);
         } //For hanlding PUT request
         else if (contentType.contains("application/json")) {
-            String line = "";
+            String line;
             StringBuilder jsonData = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
                 while ((line = br.readLine()) != null) {
@@ -265,7 +269,7 @@ public class RestRouterFilter implements Filter {
                 }
             }
             Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-            for (Map.Entry<String, Object> entry : flattenAsMap.entrySet()) {
+            flattenAsMap.entrySet().forEach((entry) -> {
                 String key = entry.getKey();
                 String value = String.valueOf(entry.getValue());
                 if (key.equalsIgnoreCase("id")) {
@@ -277,12 +281,14 @@ public class RestRouterFilter implements Filter {
                 } else {
                     params.put(key, value);
                 }
-            }
+            });
+            //Add jsonData as String
+            params.put("mtgRawJson", jsonData.toString());
             mtgRequest.setParams(params);
         } else if (contentType.contains("multipart/form-data")) {
             Collection<Part> parts = request.getParts();
             for (Part part : parts) {
-                String line = "";
+                String line;
                 StringBuilder data = new StringBuilder();
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
                     while ((line = br.readLine()) != null) {
@@ -292,7 +298,7 @@ public class RestRouterFilter implements Filter {
                 params.put(part.getName(), data.toString());
             }
         } else if (contentType.contains("application/html")) {
-            String line = "";
+            String line;
             StringBuilder data = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
                 while ((line = br.readLine()) != null) {

@@ -31,11 +31,11 @@
  *
  * YOU MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN, SELL, ONSELL, REQUEST DONATIONS OR CREATE DERIVATIVE WORKS BASED UPON THE SOFTWARE OR ANY PART THEREOF.
  *
- * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property cease to be confidential, for any reason not your own fault.
+ * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property ceases to be confidential, for any reason not your own fault.
  *
  * 3. Termination
  *
- * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
+ * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination, you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason, you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
  *
  * 4. Disclaimer of Warranty, Limitation of Remedies
  *
@@ -49,11 +49,13 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
 import com.metamug.api.common.MtgRequest;
+import com.metamug.api.exceptions.MetamugError;
+import com.metamug.api.exceptions.MetamugException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
@@ -105,7 +107,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 value = defaultValue;
                 mtg.getParams().put(name, value);
             } else if (value == null && defaultValue == null) {
-                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
             }
         } else {
             if (value == null && defaultValue != null) {
@@ -116,13 +118,13 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
         if (pattern != null) {
             try {
                 if (!((String) value).matches(pattern)) {
-                    throw new JspException("Input value doesn't match with specified pattern of " + name + " parameter", new InputValidationException(""));
+                    throw new JspException("Input value doesn't match with specified pattern of " + name + " parameter", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                 }
             } catch (PatternSyntaxException ex) {
                 throw new JspException("Incorrect pattern syntax of " + name + " parameter", ex);
             } catch (NullPointerException ex) {
                 if (isRequired != null) {
-                    throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                    throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                 }
             }
         }
@@ -137,10 +139,10 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                             sdf.setLenient(false);
                             sdf.parse(value);
                         } catch (ParseException ex) {
-                            throw new JspException("Incorrect date pattern of " + name + " parameter", new InputValidationException(""));
+                            throw new JspException("Incorrect date pattern of " + name + " parameter", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                         } catch (NullPointerException ex) {
                             if (isRequired != null) {
-                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                                throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         }
                     }
@@ -155,7 +157,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                             throw new JspException("Incorrect datetime pattern of " + name + " parameter", ex);
                         } catch (NullPointerException ex) {
                             if (isRequired != null) {
-                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                                throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         }
                     }
@@ -168,11 +170,11 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                     try {
                         matcher = regexPattern.matcher(value);
                         if (!matcher.matches()) {
-                            throw new JspException("Invalid email input", new InputValidationException(""));
+                            throw new JspException("Invalid email input", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                         }
                     } catch (NullPointerException ex) {
                         if (isRequired != null) {
-                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                         }
                     }
                     break;
@@ -182,20 +184,20 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         if (max != null) {
                             double maxVal = max;
                             if (val > maxVal) {
-                                throw new JspException("Max value allowed for " + name + " is " + maxVal, new InputValidationException(""));
+                                throw new JspException("Max value allowed for " + name + " is " + maxVal, new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         }
                         if (min != null) {
                             double minVal = min;
                             if (val < minVal) {
-                                throw new JspException("Min value allowed for " + name + " is " + minVal, new InputValidationException(""));
+                                throw new JspException("Min value allowed for " + name + " is " + minVal, new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         }
                     } catch (NumberFormatException ex) {
-                        throw new JspException("Empty or invalid parameter \'" + name + "\' value", new InputValidationException(""));
+                        throw new JspException("Empty or invalid parameter \'" + name + "\' value", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                     } catch (NullPointerException ex) {
                         if (isRequired != null) {
-                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                         }
                     }
                     break;
@@ -204,11 +206,11 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         double maxLength = maxLen;
                         try {
                             if (value.length() > maxLength) {
-                                throw new JspException("Input " + ((String) value) + " can be " + maxLength + " character long for " + name + " parameter", new InputValidationException(""));
+                                throw new JspException("Input " + ((String) value) + " can be " + maxLength + " character long for " + name + " parameter", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         } catch (NullPointerException ex) {
                             if (isRequired != null) {
-                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                                throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         }
                     }
@@ -216,11 +218,11 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         double minLength = minLen;
                         try {
                             if (value.length() < minLength) {
-                                throw new JspException("Input value must be " + minLength + " character long for " + name + " parameter", new InputValidationException(""));
+                                throw new JspException("Input value must be " + minLength + " character long for " + name + " parameter", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         } catch (NullPointerException ex) {
                             if (isRequired != null) {
-                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                                throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         }
                     }
@@ -232,10 +234,10 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                             sdf.setLenient(false);
                             sdf.parse(value);
                         } catch (ParseException ex) {
-                            throw new JspException("Incorrect time pattern of " + name + " parameter", new InputValidationException(""));
+                            throw new JspException("Incorrect time pattern of " + name + " parameter", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                         } catch (NullPointerException ex) {
                             if (isRequired != null) {
-                                throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                                throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                             }
                         }
                     }
@@ -246,18 +248,17 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                     try {
                         matcher = regexPattern.matcher(value);
                         if (!matcher.matches()) {
-                            throw new JspException("Invalid URL input", new InputValidationException(""));
+                            throw new JspException("Invalid URL input", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                         }
                     } catch (NullPointerException ex) {
                         if (isRequired != null) {
-                            throw new JspException(name + " parameter can't be null", new InputValidationException(""));
+                            throw new JspException(name + " parameter can't be null", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR));
                         }
                     }
                     break;
                 default:
             }
         }
-
         pageContext.getRequest().setAttribute("mtgReq", mtg);
         release();
         return EVAL_PAGE;
@@ -322,12 +323,5 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     @Override
     public void doFinally() {
-    }
-
-    private static class InputValidationException extends Throwable {
-
-        public InputValidationException(String message) {
-            super(message);
-        }
     }
 }

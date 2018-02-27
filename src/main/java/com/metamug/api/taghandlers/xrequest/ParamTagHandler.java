@@ -30,11 +30,11 @@
  *
  *YOU MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN, SELL, ONSELL, REQUEST DONATIONS OR CREATE DERIVATIVE WORKS BASED UPON THE SOFTWARE OR ANY PART THEREOF.
  *
- *The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property cease to be confidential, for any reason not your own fault.
+ *The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property ceases to be confidential, for any reason not your own fault.
  *
  *3. Termination
  *
- *This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
+ *This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination, you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason, you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
  *
  *4. Disclaimer of Warranty, Limitation of Remedies
  *
@@ -48,7 +48,7 @@
  *
  *All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- *This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ *This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers.xrequest;
 
@@ -62,41 +62,42 @@ import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
  *
  * @author anishhirlekar
  */
-public class ParamTagHandler extends BodyTagSupport  {
-    
+public class ParamTagHandler extends BodyTagSupport {
+
     private String name;
     private String value;
-   
-    public ParamTagHandler(){
+
+    public ParamTagHandler() {
         super();
         name = null;
         value = null;
     }
-   
+
     @Override
-    public int doEndTag() throws JspException{
-        
-        RequestTagHandler parent = (RequestTagHandler)findAncestorWithClass(
+    public int doEndTag() throws JspException {
+
+        RequestTagHandler parent = (RequestTagHandler) findAncestorWithClass(
                 this, RequestTagHandler.class);
         if (parent == null) {
-	    throw new JspTagException("X Param Tag outside X Request Tag");
-	}
-       
-        if(value == null)
+            throw new JspTagException("X Param Tag outside X Request Tag");
+        }
+
+        if (value == null) {
             value = getBodyContent().getString().trim();
-       
-        if(value.length() > 0){
+        }
+
+        if (value.length() > 0) {
             parent.addParameter(name, value);
         }
-       
+
         return EVAL_PAGE;
     }
-   
-    public void setName(String n){
+
+    public void setName(String n) {
         name = n;
     }
-   
-    public void setValue(String v){
+
+    public void setValue(String v) {
         value = v;
     }
 }
