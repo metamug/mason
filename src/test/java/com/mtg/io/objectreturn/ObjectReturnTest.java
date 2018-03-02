@@ -49,7 +49,7 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.mtg.io.objectreturn;
 
@@ -80,14 +80,14 @@ public class ObjectReturnTest {
         pn.setType("mobile");
         customer1.addPhoneNumber(pn);
         list.add(customer1);
-        
+
         customer2 = new Customer(2, "Deepak", "Ritchie");
         pn = new PhoneNumber();
         pn.setNum("1204597612");
         pn.setType("work");
         customer2.addPhoneNumber(pn);
         list.add(customer2);
-        
+
         customer3 = new Customer(3, "Suraj", "MacMaharaja");
         pn = new PhoneNumber();
         pn.setNum("164295318");
@@ -98,12 +98,12 @@ public class ObjectReturnTest {
 
     @Test
     public void ObjectToJsonTest() {
-        try{
+        try {
             String resultJson = ObjectReturn.convert(customer1, TYPE_JSON);
             //System.out.println(resultJson);
             JSONObject jsonObject = new JSONObject(resultJson);
             Assert.assertNotNull(jsonObject);
-        }catch(JSONException | JAXBException e){
+        } catch (JSONException | JAXBException e) {
             Assert.fail(e.toString());
         }
     }
@@ -128,20 +128,20 @@ public class ObjectReturnTest {
         } catch (JAXBException ex) {
             Assert.fail(ex.toString());
         }
-    }    
+    }
 
     @Test
     public void ObjectListToJsonTest() {
-        try{
+        try {
             String result = ObjectReturn.convert(list, TYPE_JSON);
             System.out.println(result);
             JSONArray jsonArray = new JSONArray(result);
             Assert.assertNotNull(jsonArray);
-        }catch(JSONException | JAXBException e){
+        } catch (JSONException | JAXBException e) {
             Assert.fail(e.toString());
         }
     }
-    
+
     @Test
     public void ObjectListToXml() {
         try {
