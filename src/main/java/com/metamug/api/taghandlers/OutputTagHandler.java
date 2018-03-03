@@ -49,7 +49,7 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
@@ -126,7 +126,7 @@ public class OutputTagHandler extends BodyTagSupport {
                                     xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
                                     for (int i = 0; i < columnNames.length; i++) {
                                         String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                                        xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) != null) ? row.get(columnName) : "")).append("</").append(columnName.replaceAll(" ", "_")).append(">");
+                                        xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) == null) ? "null" : row.get(columnName))).append("</").append(columnName.replaceAll(" ", "_")).append(">");
                                     }
                                     xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
                                 }
@@ -143,7 +143,7 @@ public class OutputTagHandler extends BodyTagSupport {
                             xmlBuilder.append("<").append(tableName.replaceAll(" ", "_")).append(">");
                             for (int i = 0; i < columnNames.length; i++) {
                                 String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                                xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) != null) ? row.get(columnName) : "")).append("</").append(columnName.replaceAll(" ", "_")).append(">");
+                                xmlBuilder.append("<").append(columnName.replaceAll(" ", "_")).append(">").append(((row.get(columnName) == null) ? "null" : row.get(columnName))).append("</").append(columnName.replaceAll(" ", "_")).append(">");
                             }
                             xmlBuilder.append("</").append(tableName.replaceAll(" ", "_")).append(">");
                         }
@@ -252,7 +252,7 @@ public class OutputTagHandler extends BodyTagSupport {
                         for (SortedMap row : rows) {
                             JSONArray rowArray = new JSONArray();
                             for (String columnName : columnNames) {
-                                rowArray.put((row.get(columnName) != null) ? row.get(columnName) : null);
+                                rowArray.put((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
                             }
                             dataSetArray.put(rowArray);
                         }
@@ -453,14 +453,12 @@ public class OutputTagHandler extends BodyTagSupport {
                             Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                         }
                     } else {
-                        JSONArray array = new JSONArray();
                         JSONObject singleData = new JSONObject();
                         for (Iterator<String> iterator = result.keys(); iterator.hasNext();) {
                             String key = iterator.next();
                             singleData.put(key, result.get(key));
                         }
-                        array.put(singleData);
-                        responseJson.append("response", array);
+                        responseJson.append("response", singleData);
                     }
                 } else if (mapValue instanceof JSONArray) {
                     JSONArray resultArray = (JSONArray) mapValue;

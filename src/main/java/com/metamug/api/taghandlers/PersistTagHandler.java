@@ -49,7 +49,7 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
@@ -59,9 +59,10 @@ import com.metamug.api.exceptions.MetamugException;
 import java.util.SortedMap;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import org.json.JSONObject;
 
 /**
  *
@@ -70,6 +71,7 @@ import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private Object value;
+    private String onBlank;
 
     /**
      * Creates new instance of tag handler
@@ -87,20 +89,20 @@ public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally
      */
     @Override
     public int doEndTag() throws JspException {
+        ResultImpl resultImpl = (ResultImpl) value;
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
         MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
-        if (value instanceof ResultImpl) {
-            ResultImpl resultImpl = (ResultImpl) value;
-            SortedMap[] rows = resultImpl.getRows();
-            String[] columnNames = resultImpl.getColumnNames();
-            if (rows.length > 0) {
-                for (SortedMap row : rows) {
-                    for (int i = 0; i < columnNames.length; i++) {
-                        String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                        mtg.getParams().put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : null));
-                    }
+        if (rows.length > 0) {
+            for (SortedMap row : rows) {
+                for (int i = 0; i < columnNames.length; i++) {
+                    String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                    mtg.getParams().put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
                 }
-            } else {
-                throw new JspException("No Result to persist", new MetamugException(MetamugError.NO_RESULT_TO_PERSIST));
+            }
+        } else {
+            if (onBlank != null && onBlank.length() > 0) {
+                throw new JspException("", new MetamugException(MetamugError.EMPTY_PERSIST_ERROR, onBlank));
             }
         }
         pageContext.getRequest().setAttribute("mtgReq", mtg);
@@ -109,6 +111,10 @@ public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally
 
     public void setValue(Object value) {
         this.value = value;
+    }
+
+    public void setOnBlank(String onBlank) {
+        this.onBlank = onBlank;
     }
 
     @Override

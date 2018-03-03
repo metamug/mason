@@ -49,7 +49,7 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
@@ -110,132 +110,81 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 out.println("<response>\n");
                 if (ex.getCause() != null) {
                     String cause = ex.getCause().toString();
-                    if (cause.contains("InputValidationException")) {
-                        response.setStatus(412);
-                        out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 412 + "</status>");
-                    } else if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
-                        response.setStatus(512);
-                        String timestamp = String.valueOf(System.currentTimeMillis());
-                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
-                        String errorId = String.valueOf(Math.abs(hash));
-                        logError(errorId, request, ex);
-                        out.println("<errorid>" + errorId + "</errorid>\n<message>API Error. Please contact your API administrator.</message>\n<status>" + 512 + "</status>");
-                    } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
-                        response.setStatus(422);
-                        out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } else if (cause.contains("MetamugException")) {
-                        MetamugException mtgCause = (MetamugException) ex.getCause();
-                        switch (mtgCause.getError()) {
-                            case BEARER_TOKEN_MISSMATCH:
-                                response.setStatus(401);
-                                out.println("<message>Access Denied to resource due to unauthorization</message>\n<status>" + 401 + "</status>");
-                                break;
-                            case INCORRECT_ROLE_AUTHENTICATION:
-                                response.setStatus(401);
-                                response.setHeader("WWW-Authenticate", "Basic");
-                                out.println("<message>Access Denied to resource due to unauthorization</message>\n<status>" + 401 + "</status>");
-                                break;
-                            case INCORRECT_STATUS_CODE:
-                                response.setStatus(406);
-                                out.println("<message>Invalid Status code set</message>\n<status>" + 406 + "</status>");
-                                break;
-                            case INPUT_VALIDATION_ERROR:
-                                response.setStatus(412);
-                                out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 412 + "</status>");
-                                break;
-                            case NO_RESULT_TO_PERSIST:
-                                response.setStatus(512);
-                                out.println("<message>" + ex.getMessage() + "</message>\n<status>" + 512 + "</status>");
-                                break;
-                            case NO_UPLOAD_LISTENER:
-                                response.setStatus(424);
-                                out.println("<message>No implementation of UploadListener was found</message>\n<status>" + 424 + "</status>");
-                                break;
-                            case PARENT_RESOURCE_MISSING:
-                                response.setStatus(404);
-                                out.println("<message>Parent resource not found</message>\n<status>" + 404 + "</status>");
-                                break;
-                            case ROLE_ACCESS_DENIED:
-                                response.setStatus(403);
-                                out.println("<message>Forbidden Access to resource</message>\n<status>" + 403 + "</status>");
-                                break;
-                            case UPLOAD_SIZE_EXCEEDED:
-                                response.setStatus(413);
-                                out.println("<message>File size exceeds limit</message>\n<status>" + 413 + "</status>");
-                                break;
-                        }
-                    } else {
-                        response.setStatus(512);
-                        String timestamp = String.valueOf(System.currentTimeMillis());
-                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
-                        String errorId = String.valueOf(Math.abs(hash));
-                        logError(errorId, request, ex);
-                        out.println("<errorid>" + errorId + "</errorid>\n<message>API Error. Please contact your API administrator.</message>\n<status>" + 512 + "</status>");
-                    }
-                } else {
-                    response.setStatus(512);
-                    String timestamp = String.valueOf(System.currentTimeMillis());
-                    long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
-                    String errorId = String.valueOf(Math.abs(hash));
-                    logError(errorId, request, ex);
-                    out.println("<errorid>" + errorId + "</errorid>\n<message>API Error. Please contact your API administrator.</message>\n<status>" + 512 + "</status>");
-                }
-                out.println("\n</response>");
-            } else {
-                response.setContentType("application/json");
-                if (ex.getCause() != null) {
-                    String cause = ex.getCause().toString();
                     if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
                         response.setStatus(512);
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
                         logError(errorId, request, ex);
-                        out.println("{\"errorId\":" + errorId + ",\"message\": \"API Error. Please contact your API administrator.\",\"status\":" + 512 + "}");
+                        out.println("<errorid>" + errorId + "</errorid>"
+                                + "\n<message>API Error. Please contact your API administrator.</message>"
+                                + "\n<status>" + 512 + "</status>");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
-                        out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
+                        out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } else if (cause.contains("MetamugException")) {
                         MetamugException mtgCause = (MetamugException) ex.getCause();
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
                         switch (mtgCause.getError()) {
                             case BEARER_TOKEN_MISSMATCH:
                                 response.setStatus(401);
-                                out.println("{\"message\": \"Access Denied to resource due to unauthorization\",\"status\":" + 401 + "}");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 401 + "</status>");
                                 break;
                             case INCORRECT_ROLE_AUTHENTICATION:
                                 response.setStatus(401);
                                 response.setHeader("WWW-Authenticate", "Basic");
-                                out.println("{\"message\": \"Access Denied to resource due to unauthorization\",\"status\":" + 401 + "}");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 401 + "</status>");
                                 break;
                             case INCORRECT_STATUS_CODE:
                                 response.setStatus(406);
-                                out.println("{\"message\": \"Invalid Status code set\",\"status\":" + 406 + "}");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 406 + "</status>");
                                 break;
                             case INPUT_VALIDATION_ERROR:
                                 response.setStatus(412);
-                                out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 412 + "}");
-                                break;
-                            case NO_RESULT_TO_PERSIST:
-                                out.println("{\"message\": \"" + ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") + "\",\"status\":" + 512 + "}");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 412 + "</status>");
                                 break;
                             case NO_UPLOAD_LISTENER:
                                 response.setStatus(424);
-                                out.println("{\"message\": \"No implementation of UploadListener was found\","
-                                        + "\"status\":" + 424 + "}");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 424 + "</status>");
                                 break;
                             case PARENT_RESOURCE_MISSING:
                                 response.setStatus(404);
-                                out.println("{\"message\": \"Error occured on the server.\",\"status\":" + 404 + "}");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 424 + "</status>");
                                 break;
                             case ROLE_ACCESS_DENIED:
                                 response.setStatus(403);
-                                out.println("{\"message\": \"Forbidden Access to resource\",\"status\":" + 403 + "}");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 403 + "</status>");
+                                break;
+                            case SQL_ERROR:
+                                response.setStatus(512);
+                                logError(errorId, request, ex);
+                                out.println("<errorid>" + errorId + "</errorid>"
+                                        + "\n<error>" + mtgCause.getMessage() + "</error>"
+                                        + "\n<message>API Error. Please contact your API administrator.</message>"
+                                        + "\n<status>" + 512 + "</status>");
+                                break;
+                            case UPLOAD_CODE_ERROR:
+                                response.setStatus(512);
+                                logUploadCodeError(errorId, request, mtgCause.getRootException());
+                                out.println("<errorid>" + errorId + "</errorid>"
+                                        + "\n<error>" + mtgCause.getMessage() + "</error>"
+                                        + "\n<message>API Error. Please contact your API administrator.</message>"
+                                        + "\n<status>" + 512 + "</status>");
                                 break;
                             case UPLOAD_SIZE_EXCEEDED:
                                 response.setStatus(413);
-                                out.println("{\"message\": \"File size exceeds limit\",\"status\":" + 413 + "}");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 413 + "</status>");
                                 break;
                         }
                     } else {
@@ -243,8 +192,10 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
-                        logError(ex.getMessage(), request, ex);
-                        out.println("{\"errorId\":" + errorId + ",\"message\": \"API Error. Please contact your API administrator.\",\"status\":" + 512 + "}");
+                        logError(errorId, request, ex);
+                        out.println("<errorid>" + errorId + "</errorid>"
+                                + "\n<message>API Error. Please contact your API administrator.</message>"
+                                + "\n<status>" + 512 + "</status>");
                     }
                 } else {
                     response.setStatus(512);
@@ -252,10 +203,121 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                     String errorId = String.valueOf(Math.abs(hash));
                     logError(errorId, request, ex);
-                    out.println("{\"errorId\":" + errorId + ",\"message\": \"API Error. Please contact your API administrator.\",\"status\":" + 512 + "}");
+                    out.println("<errorid>" + errorId + "</errorid>"
+                            + "\n<message>API Error. Please contact your API administrator.</message>"
+                            + "\n<status>" + 512 + "</status>");
+                }
+                out.println("\n</response>");
+            } else {
+                response.setContentType("application/json");
+                if (ex.getCause() != null) {
+                    String cause = ex.getCause().toString();
+                    if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException")) {
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("{\"errorId\":" + errorId + ","
+                                + "\"message\": \"API Error. Please contact your API administrator.\","
+                                + "\"status\":" + 512 + "}");
+                    } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
+                        response.setStatus(422);
+                        out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
+                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } else if (cause.contains("MetamugException")) {
+                        MetamugException mtgCause = (MetamugException) ex.getCause();
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        switch (mtgCause.getError()) {
+                            case BEARER_TOKEN_MISSMATCH:
+                                response.setStatus(401);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 401 + "}");
+                                break;
+                            case CLASS_NOT_IMPLEMENTED:
+                                response.setStatus(422);
+                                logCodeError(errorId, request, mtgCause);
+                                out.println("{\"errorId\":" + errorId + ",\"error\":\"" + mtgCause.getMessage() + "\","
+                                        + "\"message\": \"API Error. Please contact your API administrator.\","
+                                        + "\"status\":" + 422 + "}");
+                                break;
+                            case CODE_ERROR:
+                                response.setStatus(512);
+                                logCodeError(errorId, request, mtgCause.getRootException());
+                                out.println("{\"errorId\":" + errorId + ",\"error\":\"" + mtgCause.getMessage() + "\","
+                                        + "\"message\": \"API Error. Please contact your API administrator.\","
+                                        + "\"status\":" + 512 + "}");
+                                break;
+                            case EMPTY_PERSIST_ERROR:
+                                response.setStatus(410);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 410 + "}");
+                                break;
+                            case INCORRECT_ROLE_AUTHENTICATION:
+                                response.setStatus(401);
+                                response.setHeader("WWW-Authenticate", "Basic");
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 401 + "}");
+                                break;
+                            case INCORRECT_STATUS_CODE:
+                                response.setStatus(406);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 406 + "}");
+                                break;
+                            case INPUT_VALIDATION_ERROR:
+                                response.setStatus(412);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 412 + "}");
+                                break;
+                            case NO_UPLOAD_LISTENER:
+                                response.setStatus(424);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 424 + "}");
+                                break;
+                            case PARENT_RESOURCE_MISSING:
+                                response.setStatus(404);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 404 + "}");
+                                break;
+                            case ROLE_ACCESS_DENIED:
+                                response.setStatus(403);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 403 + "}");
+                                break;
+                            case SQL_ERROR:
+                                response.setStatus(512);
+                                logError(errorId, request, mtgCause);
+                                out.println("{\"errorId\":" + errorId + ",\"error\":\"" + mtgCause.getMessage() + "\","
+                                        + "\"message\": \"API Error. Please contact your API administrator.\","
+                                        + "\"status\":" + 512 + "}");
+                                break;
+                            case UPLOAD_CODE_ERROR:
+                                response.setStatus(512);
+                                logUploadCodeError(errorId, request, mtgCause.getRootException());
+                                out.println("{\"errorId\":" + errorId + ",\"error\":\"" + mtgCause.getMessage() + "\","
+                                        + "\"message\": \"API Error. Please contact your API administrator.\","
+                                        + "\"status\":" + 512 + "}");
+                                break;
+                            case UPLOAD_SIZE_EXCEEDED:
+                                response.setStatus(413);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 413 + "}");
+                                break;
+                        }
+                    } else {
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("{\"errorId\":" + errorId + ","
+                                + "\"message\": \"API Error. Please contact your API administrator.\","
+                                + "\"status\":" + 512 + "}");
+                    }
+                } else {
+                    response.setStatus(512);
+                    String timestamp = String.valueOf(System.currentTimeMillis());
+                    long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                    String errorId = String.valueOf(Math.abs(hash));
+                    logError(errorId, request, ex);
+                    out.println("{\"errorId\":" + errorId + ","
+                            + "\"message\": \"API Error. Please contact your API administrator.\","
+                            + "\"status\":" + 512 + "}");
                 }
             }
-
         } catch (IOException ex1) {
             Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex1.getMessage(), ex1);
         }
@@ -272,11 +334,78 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             exceptionMessage = exception.toString();
         }
         try (Connection con = ds.getConnection()) {
-            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,resource) VALUES(?,?,?,?)");
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,resource)"
+                    + " VALUES(?,?,?,?)");
             stmnt.setString(1, String.valueOf(errorId));
             stmnt.setString(2, method);
             stmnt.setString(3, exceptionMessage);
             stmnt.setString(4, resourceURI);
+            stmnt.execute();
+        } catch (SQLException ex) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
+    }
+
+    private void logCodeError(String errorId, HttpServletRequest request, Exception exception) {
+        String method = (String) request.getAttribute("mtgMethod");
+        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        String exceptionMessage;
+        if (exception.getMessage() != null) {
+            exceptionMessage = exception.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        } else {
+            exceptionMessage = exception.toString();
+        }
+        StringBuilder errorTraceBuilder = new StringBuilder();
+        StackTraceElement[] stackTrace = exception.getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            errorTraceBuilder.append(stackTraceElement);
+            if (stackTraceElement.getClassName().contains("CodeTagHandler")) {
+                break;
+            }
+            errorTraceBuilder.append("\n");
+        }
+        try (Connection con = ds.getConnection()) {
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
+                    + " resource) VALUES(?,?,?,?,?)");
+            stmnt.setString(1, String.valueOf(errorId));
+            stmnt.setString(2, method);
+            stmnt.setString(3, exceptionMessage);
+            stmnt.setString(4, errorTraceBuilder.toString());
+            stmnt.setString(5, resourceURI);
+            stmnt.execute();
+        } catch (SQLException ex) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
+    }
+
+    private void logUploadCodeError(String errorId, HttpServletRequest request, Exception exception) {
+        String method = (String) request.getAttribute("mtgMethod");
+        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        String exceptionMessage;
+        StringBuilder errorTraceBuilder = new StringBuilder();
+        StackTraceElement[] stackTrace = exception.getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            if (stackTraceElement.getClassName().contains("UploadEventTagHandler")) {
+                errorTraceBuilder.append(stackTraceElement);
+                break;
+            }
+            errorTraceBuilder.append(stackTraceElement).append("\n");
+        }
+        if (exception.getMessage() != null) {
+            exceptionMessage = exception.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        } else {
+            exceptionMessage = exception.toString();
+        }
+        try (Connection con = ds.getConnection()) {
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
+                    + " resource) VALUES(?,?,?,?,?)");
+            stmnt.setString(1, String.valueOf(errorId));
+            stmnt.setString(2, method);
+            stmnt.setString(3, exceptionMessage);
+            stmnt.setString(4, errorTraceBuilder.toString());
+            stmnt.setString(5, resourceURI);
             stmnt.execute();
         } catch (SQLException ex) {
             Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);

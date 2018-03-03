@@ -51,36 +51,55 @@
  *
  * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
-package com.metamug.api.taghandlers.xrequest;
+package com.metamug.api.taghandlers;
 
+import com.metamug.api.exceptions.MetamugError;
+import com.metamug.api.exceptions.MetamugException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
+import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class BodyTagHandler extends BodyTagSupport {
+public class ValidateQueryTagHandler extends BodyTagSupport implements TryCatchFinally {
 
-    public BodyTagHandler() {
+    private String onError;
+
+    /**
+     * Creates new instance of tag handler
+     */
+    public ValidateQueryTagHandler() {
         super();
     }
 
+    /**
+     * This method is called after the JSP engine finished processing the tag.
+     *
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
+     * methods that this method calls.
+     * @throws javax.servlet.jsp.JspException
+     */
     @Override
     public int doEndTag() throws JspException {
-        RequestTagHandler parent = (RequestTagHandler) findAncestorWithClass(
-                this, RequestTagHandler.class);
-        if (parent == null) {
-            throw new JspTagException("X Body Tag outside X Request Tag");
-        }
-
-        String reqBodyContent = getBodyContent().getString().trim();
-        if (reqBodyContent.length() > 0) {
-            parent.setRequestBody(reqBodyContent);
-        }
-
         return EVAL_PAGE;
     }
+
+    public void setOnError(String onError) {
+        this.onError = onError;
+    }
+
+    @Override
+    public void doCatch(Throwable t) throws Throwable {
+        Logger.getLogger(ValidateQueryTagHandler.class.getName()).log(Level.SEVERE, onError, t);
+        throw new JspException(t.getMessage(), new MetamugException(MetamugError.SQL_ERROR, onError));
+    }
+
+    @Override
+    public void doFinally() {
+    }
+
 }

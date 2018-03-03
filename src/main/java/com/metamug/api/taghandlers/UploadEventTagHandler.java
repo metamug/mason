@@ -49,17 +49,17 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
+import com.metamug.api.common.MtgRequest;
+import com.metamug.api.exceptions.MetamugError;
+import com.metamug.api.exceptions.MetamugException;
 import com.metamug.entity.Request;
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
 import com.mtg.io.objectreturn.ObjectReturn;
-import com.metamug.api.common.MtgRequest;
-import com.metamug.api.exceptions.MetamugError;
-import com.metamug.api.exceptions.MetamugException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -67,9 +67,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -77,15 +74,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
@@ -127,7 +120,6 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         String contentType = request.getContentType() == null ? "" : request.getContentType();
@@ -167,8 +159,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                     Object result;
                     if (fileName != null && !fileName.isEmpty()) {
                         File file = new File(uploadFilePath + File.separator + fileName);
-                        result = null;
-                        callUploadEvent(new File(uploadFilePath + File.separator + fileName), listenerClass, request);
+                        result = callUploadEvent(new File(uploadFilePath + File.separator + fileName), listenerClass, request);
                         if (result != null) {
                             if (result instanceof List) {
                                 if (acceptHeader.equals("application/json")) {
@@ -199,7 +190,6 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                                     map.put("upload" + (mapSize + 1), processedResult);
                                 }
                             }
-
                         }
                         mtg.getParams().put("filename", file.getName());
                         mtg.getParams().put("filesize", String.valueOf(file.length()));
@@ -208,21 +198,16 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                 }
             } catch (IllegalStateException ex) {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {
-                    throw new JspException("File size exceeds limit.", new MetamugException(MetamugError.UPLOAD_SIZE_EXCEEDED));
+                    throw new JspException("", new MetamugException(MetamugError.UPLOAD_SIZE_EXCEEDED));
                 }
             } catch (ClassNotFoundException ex) {
-                throw new JspException("UploadListener class not found", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
+                throw new JspException("", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
             } catch (NullPointerException | IOException | ServletException | InstantiationException | IllegalAccessException ex) {
-                response.setStatus(512);
-                logError(request, ex);
+                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
             } catch (RuntimeException ex) {
-                response.setStatus(512);
-                logError(request, ex);
-                Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
             } catch (Exception ex) {
-                response.setStatus(512);
-                logError(request, ex);
-                Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
             }
         }
         return EVAL_PAGE;
@@ -233,7 +218,6 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
             Class cls = Class.forName((String) listenerClass);
             Object newInstance = cls.newInstance();
             UploadListener listener;
-            MtgRequest mtg = (MtgRequest) req.getAttribute("mtgReq");
             if (UploadListener.class.isAssignableFrom(cls)) {
                 listener = (UploadListener) newInstance;
                 //Add Request Header values
@@ -274,58 +258,15 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                         name = tokens[5];
                     }
                     Request uploadRequest = new Request(reqParams, reqHeaders, "POST", new com.metamug.entity.Resource(name, version, resourceURI, parent));
-                    Object result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), uploadRequest), ds);
-                    //Sync params to HttpRequest params
-                    reqParams.entrySet().forEach((entry) -> {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        mtg.getParams().put(key, value);
-                    });
-                    return result;
+                    return listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), uploadRequest), ds);
                 }
             } else {
-                Logger.getLogger(UploadEventTagHandler.class.getName()).log(Level.SEVERE, "Can't be assigned");
+                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));
             }
         } else {
             throw new JspTagException("No implementation of UploadListener was found.", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
         }
         return null;
-    }
-
-    private void logError(HttpServletRequest request, Exception exception) {
-        String method = (String) request.getAttribute("mtgMethod");
-        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
-        String exceptionMessage;
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
-        String errorId = String.valueOf(Math.abs(hash));
-
-        StringBuilder errorTraceBuilder = new StringBuilder();
-        StackTraceElement[] stackTrace = exception.getStackTrace();
-        for (StackTraceElement stackTraceElement : stackTrace) {
-            if (stackTraceElement.getClassName().contains("UploadEventTagHandler")) {
-                errorTraceBuilder.append(stackTraceElement);
-                break;
-            }
-            errorTraceBuilder.append(stackTraceElement).append("\n");
-        }
-        if (exception.getMessage() != null) {
-            exceptionMessage = exception.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-        } else {
-            exceptionMessage = exception.toString();
-        }
-        try (Connection con = ds.getConnection()) {
-            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,resource) VALUES(?,?,?,?,?)");
-            stmnt.setString(1, String.valueOf(errorId));
-            stmnt.setString(2, method);
-            stmnt.setString(3, exceptionMessage);
-            stmnt.setString(4, errorTraceBuilder.toString());
-            stmnt.setString(5, resourceURI);
-            stmnt.execute();
-        } catch (SQLException ex) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        Logger.getLogger(UploadEventTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
     @Override

@@ -49,19 +49,18 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
 package com.metamug.api.taghandlers;
 
 import com.metamug.api.common.MtgRequest;
+import com.metamug.api.exceptions.MetamugError;
+import com.metamug.api.exceptions.MetamugException;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.mtg.io.mpath.MPathUtil;
 import com.mtg.io.objectreturn.ObjectReturn;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -69,9 +68,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
@@ -92,6 +88,7 @@ import org.json.JSONObject;
 public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private String className;
+    private String onError;
     private Object param;
     private Boolean isVerbose;
     private Boolean isPersist;
@@ -237,53 +234,20 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     }
                 }
             } else {
-                logError(map, request, new Exception("Class " + cls + " isn't processable"));
+                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't processable"));
             }
         } catch (Exception ex) {
-            logError(map, request, ex);
+            throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onError));
         }
         return EVAL_PAGE;
     }
 
-    private void logError(LinkedHashMap<String, Object> map, HttpServletRequest request, Exception exception) {
-
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        long errorId = Math.abs(UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits());
-        String method = (String) request.getAttribute("mtgMethod");
-        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
-        String exceptionMessage;
-        if (exception.getMessage() != null) {
-            exceptionMessage = exception.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-        } else {
-            exceptionMessage = exception.toString();
-        }
-        StringBuilder errorTraceBuilder = new StringBuilder();
-        StackTraceElement[] stackTrace = exception.getStackTrace();
-        for (StackTraceElement stackTraceElement : stackTrace) {
-            if (stackTraceElement.getClassName().contains("CodeTagHandler")) {
-                break;
-            }
-            errorTraceBuilder.append(stackTraceElement).append("\n");
-        }
-        String message = "ErrorID:" + errorId + ".Please contact your API administrator.";
-        try (Connection con = ds.getConnection()) {
-            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
-                    + " resource) VALUES(?,?,?,?,?)");
-            stmnt.setString(1, String.valueOf(errorId));
-            stmnt.setString(2, method);
-            stmnt.setString(3, exceptionMessage);
-            stmnt.setString(4, errorTraceBuilder.toString());
-            stmnt.setString(5, resourceURI);
-            stmnt.execute();
-        } catch (SQLException ex) {
-            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        int mapSize = map.size();
-        map.put("error" + (mapSize + 1), message);
-    }
-
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    public void setOnError(String onError) {
+        this.onError = onError;
     }
 
     public void setParam(Object param) {
