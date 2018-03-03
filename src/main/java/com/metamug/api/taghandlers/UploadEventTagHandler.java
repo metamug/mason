@@ -218,6 +218,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
             Class cls = Class.forName((String) listenerClass);
             Object newInstance = cls.newInstance();
             UploadListener listener;
+            MtgRequest mtg = (MtgRequest) req.getAttribute("mtgReq");
             if (UploadListener.class.isAssignableFrom(cls)) {
                 listener = (UploadListener) newInstance;
                 //Add Request Header values
@@ -258,7 +259,14 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                         name = tokens[5];
                     }
                     Request uploadRequest = new Request(reqParams, reqHeaders, "POST", new com.metamug.entity.Resource(name, version, resourceURI, parent));
-                    return listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), uploadRequest), ds);
+                    Object result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), uploadRequest), ds);
+                    //Sync params to HttpRequest params
+                    reqParams.entrySet().forEach((entry) -> {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        mtg.getParams().put(key, value);
+                    });
+                    return result;
                 }
             } else {
                 throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));

@@ -116,9 +116,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
                         logError(errorId, request, ex);
-                        out.println("<errorid>" + errorId + "</errorid>"
-                                + "\n<message>API Error. Please contact your API administrator.</message>"
-                                + "\n<status>" + 512 + "</status>");
+                        out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
+                                + "\n<message>API Error. Please contact your API administrator.</message>");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
@@ -168,18 +167,16 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                             case SQL_ERROR:
                                 response.setStatus(512);
                                 logError(errorId, request, ex);
-                                out.println("<errorid>" + errorId + "</errorid>"
+                                out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
                                         + "\n<error>" + mtgCause.getMessage() + "</error>"
-                                        + "\n<message>API Error. Please contact your API administrator.</message>"
-                                        + "\n<status>" + 512 + "</status>");
+                                        + "\n<message>API Error. Please contact your API administrator.</message>");
                                 break;
                             case UPLOAD_CODE_ERROR:
                                 response.setStatus(512);
                                 logUploadCodeError(errorId, request, mtgCause.getRootException());
-                                out.println("<errorid>" + errorId + "</errorid>"
+                                out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
                                         + "\n<error>" + mtgCause.getMessage() + "</error>"
-                                        + "\n<message>API Error. Please contact your API administrator.</message>"
-                                        + "\n<status>" + 512 + "</status>");
+                                        + "\n<message>API Error. Please contact your API administrator.</message>");
                                 break;
                             case UPLOAD_SIZE_EXCEEDED:
                                 response.setStatus(413);
@@ -193,9 +190,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
                         logError(errorId, request, ex);
-                        out.println("<errorid>" + errorId + "</errorid>"
-                                + "\n<message>API Error. Please contact your API administrator.</message>"
-                                + "\n<status>" + 512 + "</status>");
+                        out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
+                                + "\n<message>API Error. Please contact your API administrator.</message>");
                     }
                 } else {
                     response.setStatus(512);
@@ -203,9 +199,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                     String errorId = String.valueOf(Math.abs(hash));
                     logError(errorId, request, ex);
-                    out.println("<errorid>" + errorId + "</errorid>"
-                            + "\n<message>API Error. Please contact your API administrator.</message>"
-                            + "\n<status>" + 512 + "</status>");
+                    out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
+                            + "\n<message>API Error. Please contact your API administrator.</message>");
                 }
                 out.println("\n</response>");
             } else {
@@ -218,9 +213,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
                         logError(errorId, request, ex);
-                        out.println("{\"errorId\":" + errorId + ","
-                                + "\"message\": \"API Error. Please contact your API administrator.\","
-                                + "\"status\":" + 512 + "}");
+                        out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ""
+                                + "\"message\": \"API Error. Please contact your API administrator.\"}");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
@@ -303,9 +297,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
                         logError(errorId, request, ex);
-                        out.println("{\"errorId\":" + errorId + ","
-                                + "\"message\": \"API Error. Please contact your API administrator.\","
-                                + "\"status\":" + 512 + "}");
+                        out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ","
+                                + "\"message\": \"API Error. Please contact your API administrator.\"}");
                     }
                 } else {
                     response.setStatus(512);
@@ -313,9 +306,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                     String errorId = String.valueOf(Math.abs(hash));
                     logError(errorId, request, ex);
-                    out.println("{\"errorId\":" + errorId + ","
-                            + "\"message\": \"API Error. Please contact your API administrator.\","
-                            + "\"status\":" + 512 + "}");
+                    out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ","
+                            + "\"message\": \"API Error. Please contact your API administrator.\"}");
                 }
             }
         } catch (IOException ex1) {
