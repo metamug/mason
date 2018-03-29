@@ -134,13 +134,13 @@ public class MPathUtil {
         //System.out.println(flatJson.toString());
         try {
             jsonArray = new JSONArray(String.valueOf(value));
-            flatJson.put(mPath, jsonArray);
+            flatJson.accumulate(mPath, jsonArray);
         } catch (JSONException ex) {
             try {
                 jsonObject = new JSONObject(String.valueOf(value));
-                flatJson.put(mPath, jsonObject);
+                flatJson.accumulate(mPath, jsonObject);
             } catch (JSONException ex1) {
-                flatJson.put(mPath, value);
+                flatJson.accumulate(mPath, value);
             }
         }
         //System.out.println(flatJson.toString());
