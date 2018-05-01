@@ -244,8 +244,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                                         + "\"status\":" + 512 + "}");
                                 break;
                             case EMPTY_PERSIST_ERROR:
-                                response.setStatus(410);
-                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 410 + "}");
+                                response.setStatus(409);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 409 + "}");
                                 break;
                             case INCORRECT_ROLE_AUTHENTICATION:
                                 response.setStatus(401);

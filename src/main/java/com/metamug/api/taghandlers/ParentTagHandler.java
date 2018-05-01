@@ -75,7 +75,6 @@ public class ParentTagHandler extends BodyTagSupport {
             throw new JspException("Parent resource not found", new MetamugException(MetamugError.PARENT_RESOURCE_MISSING));
         }
         return EVAL_PAGE;
-
     }
 
     public void setValue(String value) {

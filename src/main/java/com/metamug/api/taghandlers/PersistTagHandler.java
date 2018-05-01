@@ -97,7 +97,10 @@ public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally
             for (SortedMap row : rows) {
                 for (int i = 0; i < columnNames.length; i++) {
                     String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                    mtg.getParams().put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
+                    String rowValue = String.valueOf(row.get(columnName));
+                    if (rowValue != null && !rowValue.trim().isEmpty() && !rowValue.trim().equalsIgnoreCase("null")) {
+                        mtg.getParams().put(columnName, String.valueOf((row.get(columnName))));
+                    }
                 }
             }
         } else {

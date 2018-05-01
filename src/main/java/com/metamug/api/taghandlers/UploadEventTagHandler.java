@@ -70,6 +70,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,27 +168,34 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                                     for (Object object : (List) result) {
                                         outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                                     }
-                                    map.put("upload" + (mapSize + 1), outputArray);
+                                    map.put("dupload" + (mapSize + 1), outputArray);
                                 } else {
                                     StringBuilder outputXml = new StringBuilder();
                                     for (Object object : (List) result) {
                                         outputXml.append(ObjectReturn.convert(object, acceptHeader));
                                     }
-                                    map.put("upload" + (mapSize + 1), outputXml.toString());
+                                    map.put("dupload" + (mapSize + 1), outputXml.toString());
                                 }
                             } else {
                                 Object processedResult = ObjectReturn.convert(result, acceptHeader);
                                 if (acceptHeader.equals("application/json")) {
                                     try {
                                         JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                        map.put("upload" + (mapSize + 1), jsonOutput);
+                                        JSONObject jsonResult = new JSONObject();
+                                        for (Iterator<String> iterator = jsonOutput.keys(); iterator.hasNext();) {
+                                            String next = iterator.next();
+                                            jsonResult.put(next, jsonOutput.get(next));
+                                        }
+                                        if (jsonResult.length() > 0) {
+                                            map.put("dupload" + (mapSize + 1), jsonOutput);
+                                        }
                                     } catch (JSONException jx) {
                                         //System.out.println("MtgRequest: Not a JSONObject");
-                                        map.put("upload" + (mapSize + 1), processedResult);
+                                        map.put("dupload" + (mapSize + 1), processedResult);
                                     }
                                 } //application/xml
                                 else {
-                                    map.put("upload" + (mapSize + 1), processedResult);
+                                    map.put("dupload" + (mapSize + 1), processedResult);
                                 }
                             }
                         }
