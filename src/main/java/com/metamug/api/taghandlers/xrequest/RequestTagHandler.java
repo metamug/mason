@@ -102,9 +102,13 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
                 throw new JspException(ex.getMessage());
             }
         } else if(method.equals("POST")) {
-            
+            try {
+                xresponse = XRequestClient.post(url, headers, parameters, requestBody);
+            } catch (IOException ex) {
+                throw new JspException(ex.getMessage());
+            }
         } else {
-            throw new JspTagException("Invalid method \""+method+"\".");
+            throw new JspTagException("Unsupported method \""+method+"\".");
         }
 
         return EVAL_PAGE;

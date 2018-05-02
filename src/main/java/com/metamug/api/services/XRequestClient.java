@@ -61,8 +61,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -72,6 +75,8 @@ import org.json.JSONObject;
  * @author anishhirlekar
  */
 public class XRequestClient {
+    
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     
     public static String get(String url, Map<String,String> headers, Map<String,String> params) throws IOException {
         OkHttpClient client = new OkHttpClient();
@@ -105,6 +110,52 @@ public class XRequestClient {
             if (!response.isSuccessful()) 
                 throw new IOException("Unexpected code " + response);
             
+            return response.body().string();
+        }
+    }
+    
+    public static String post(String url, Map<String,String> headers, Map<String,String> params, String body) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        
+        Request.Builder reqBuilder = null;
+        String contentType = headers.get("Content-Type").toLowerCase();
+        if(contentType.equals("application/x-www-form-urlencoded")) {
+            FormBody.Builder formBuilder = new FormBody.Builder();
+            
+            for (String key : params.keySet()) {
+                formBuilder.add(key, params.get(key));
+            }
+            reqBuilder = new Request.Builder().post(formBuilder.build());
+        } else if(contentType.equals("application/json")) {
+            if((body!=null)&&(!body.equals(""))) {
+                RequestBody reqBody = RequestBody.create(JSON, body);
+                reqBuilder = new Request.Builder().post(reqBody);
+            } else {
+                JSONObject jo = new JSONObject();
+                for (String key : params.keySet()) {
+                    jo.put(key, params.get(key));
+                }
+                RequestBody reqBody = RequestBody.create(JSON, jo.toString());
+                reqBuilder = new Request.Builder().post(reqBody);
+            }
+        }
+        //no params or body given
+        if(null == reqBuilder) {
+            RequestBody reqbody = RequestBody.create(null, new byte[0]);
+            reqBuilder = new Request.Builder().post(reqbody);
+        }
+        
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            reqBuilder.addHeader(key, value);
+        }
+        
+        Request request = reqBuilder.url(url).build();
+        
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
             return response.body().string();
         }
     }
