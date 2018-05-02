@@ -126,6 +126,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 resProcessable = (ResultProcessable) newInstance;
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
+                    //same for xreq
                     result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
                     if (result instanceof List) {
                         if (acceptHeader.equals("application/json")) {
@@ -133,27 +134,27 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             for (Object object : (List) result) {
                                 outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
-                            map.put("execute" + (mapSize + 1), outputArray);
+                            map.put("dexecute" + (mapSize + 1), outputArray);
                         } else {
                             StringBuilder outputXml = new StringBuilder();
                             for (Object object : (List) result) {
                                 outputXml.append(ObjectReturn.convert(object, acceptHeader));
                             }
-                            map.put("execute" + (mapSize + 1), outputXml.toString());
+                            map.put("dexecute" + (mapSize + 1), outputXml.toString());
                         }
                     } else {
                         Object processedResult = ObjectReturn.convert(result, acceptHeader);
                         if (acceptHeader.equals("application/json")) {
                             try {
                                 JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                map.put("execute" + (mapSize + 1), jsonOutput);
+                                map.put("dexecute" + (mapSize + 1), jsonOutput);
                             } catch (JSONException jx) {
                                 //System.out.println("ResultImpl: Not a JSONObject");
-                                map.put("execute" + (mapSize + 1), processedResult);
+                                map.put("dexecute" + (mapSize + 1), processedResult);
                             }
                         } //application/xml
                         else {
-                            map.put("execute" + (mapSize + 1), processedResult);
+                            map.put("dexecute" + (mapSize + 1), processedResult);
                         }
                     }
                 }
@@ -183,9 +184,10 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             }
                             if (isVerbose != null && isVerbose) {
                                 if (isCollect != null && isCollect) {
-                                    map.put("execute" + (mapSize + 1), MPathUtil.collect(outputArray));
+                                    //dxrequest
+                                    map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
                                 } else {
-                                    map.put("execute" + (mapSize + 1), outputArray);
+                                    map.put("dexecute" + (mapSize + 1), outputArray);
                                 }
                             }
                         } else {
@@ -194,7 +196,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                 outputXml.append(ObjectReturn.convert(object, acceptHeader));
                             }
                             if (isVerbose != null && isVerbose) {
-                                map.put("execute" + (mapSize + 1), outputXml.toString());
+                                map.put("dexecute" + (mapSize + 1), outputXml.toString());
                             }
                         }
                     } else {
@@ -204,11 +206,12 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                 JSONObject jsonOutput = new JSONObject((String) processedResult);
                                 if (isVerbose != null && isVerbose) {
                                     if (isCollect != null && isCollect) {
-                                        map.put("execute" + (mapSize + 1), MPathUtil.collect(new JSONArray(jsonOutput)));
+                                        map.put("dexecute" + (mapSize + 1), MPathUtil.collect(new JSONArray(jsonOutput)));
                                     } else {
-                                        map.put("execute" + (mapSize + 1), jsonOutput);
+                                        map.put("dexecute" + (mapSize + 1), jsonOutput);
                                     }
                                 }
+                                //xrequest
                                 if (isPersist != null && isPersist) {
                                     Map<String, Object> jsonMap = jsonOutput.toMap();
                                     jsonMap.entrySet().forEach((entry) -> {
@@ -222,13 +225,13 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             } catch (JSONException jx) {
                                 //System.out.println("MtgRequest: Not a JSONObject");
                                 if (isVerbose != null && isVerbose) {
-                                    map.put("execute" + (mapSize + 1), processedResult);
+                                    map.put("dexecute" + (mapSize + 1), processedResult);
                                 }
                             }
                         } //application/xml
                         else {
                             if (isVerbose != null && isVerbose) {
-                                map.put("execute" + (mapSize + 1), processedResult);
+                                map.put("dexecute" + (mapSize + 1), processedResult);
                             }
                         }
                     }

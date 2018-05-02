@@ -123,6 +123,8 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                 } else if (header.contains("Bearer ")) {
                     String authHeader = header.replaceFirst("Bearer ", "");
                     String bearerToken = new String(Base64.getDecoder().decode(authHeader.getBytes()));
+                    //check jwt format
+                    //validateJwt - check aud against val, exp
                     JSONObject status = validateBearer(bearerToken.trim());
                     switch (status.getInt("status")) {
                         case -1:

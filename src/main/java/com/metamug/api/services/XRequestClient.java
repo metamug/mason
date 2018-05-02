@@ -49,103 +49,63 @@
  *
  * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
  *
- * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ * This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
  */
-package com.metamug.api.taghandlers.xrequest;
+package com.metamug.api.services;
 
-import com.metamug.api.services.XRequestClient;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.TryCatchFinally;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  *
  * @author anishhirlekar
  */
-public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally {
-
-    private Map<String, String> headers;
-    private Map<String, String> parameters;
-
-    private String url;
-    private String method;
-    private String requestBody;
-    private Object param;
-
-    public RequestTagHandler() {
-        super();
-        init();
-    }
-
-    private void init() {
-        url = null;
-        method = null;
-        param = null;
-        headers = null;
-        parameters = null;
-        requestBody = null;
-    }
-
-    @Override
-    public int doEndTag() throws JspException {
-        String xresponse;
-        if(method.equals("GET")) {
+public class XRequestClient {
+    
+    public static String get(String url, Map<String,String> headers, Map<String,String> params) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        
+        Request.Builder reqBuilder = new Request.Builder().get();
+        headers.entrySet().forEach((entry) -> {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            reqBuilder.addHeader(key, value);
+        });
+        
+        StringBuilder queryParams = new StringBuilder();
+        for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {
-                xresponse = XRequestClient.get(url, headers, parameters);
-            } catch (IOException ex) {
-                throw new JspException(ex.getMessage());
+                String str = (String) iterator.next();
+                String key = URLEncoder.encode(str, "UTF-8");
+                String value = URLEncoder.encode(params.get(str), "UTF-8");
+                queryParams.append(key).append("=").append(value);
+                if (iterator.hasNext()) {
+                    queryParams.append("&");
+                }
+            } catch (UnsupportedEncodingException ex) {
+                Logger.getLogger(XRequestClient.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } else if(method.equals("POST")) {
+        }
+        url = url + "?" + queryParams.toString();
+        
+        Request request = reqBuilder.url(url).build();
+        
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) 
+                throw new IOException("Unexpected code " + response);
             
-        } else {
-            throw new JspTagException("Invalid method \""+method+"\".");
+            return response.body().string();
         }
-
-        return EVAL_PAGE;
-    }
-
-    public void setUrl(String u) {
-        url = u;
-    }
-
-    public void setMethod(String m) {
-        method = m;
-    }
-
-    public void setParam(String p) {
-        param = p;
-    }
-
-    public void setRequestBody(String b) {
-        requestBody = b;
-    }
-
-    public void addHeader(String name, String value) {
-        if (headers != null) {
-            headers = new HashMap<>();
-        }
-        headers.put(name, value);
-    }
-
-    public void addParameter(String name, String value) {
-        if (parameters != null) {
-            parameters = new HashMap<>();
-        }
-        parameters.put(name, value);
-    }
-
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    @Override
-    public void doFinally() {
     }
 }
