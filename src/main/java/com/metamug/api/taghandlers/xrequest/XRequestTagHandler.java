@@ -56,11 +56,13 @@ package com.metamug.api.taghandlers.xrequest;
 import com.metamug.api.services.XRequestClient;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 
@@ -68,7 +70,7 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  *
  * @author anishhirlekar
  */
-public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private Map<String, String> headers;
     private Map<String, String> parameters;
@@ -77,8 +79,10 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
     private String method;
     private String requestBody;
     private Object param;
+    
+    private Boolean isVerbose;
 
-    public RequestTagHandler() {
+    public XRequestTagHandler() {
         super();
         init();
     }
@@ -93,22 +97,27 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
     }
 
     @Override
-    public int doEndTag() throws JspException {
+    public int doEndTag() throws JspException {        
+        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+        
         String xresponse;
-        if(method.equals("GET")) {
-            try {
-                xresponse = XRequestClient.get(url, headers, parameters);
-            } catch (IOException ex) {
-                throw new JspException(ex.getMessage());
+        try {
+            switch (method) {
+                case "GET":
+                    xresponse = XRequestClient.get(url, headers, parameters);
+                    break;
+                case "POST":
+                    xresponse = XRequestClient.post(url, headers, parameters, requestBody);
+                    break;
+                default:
+                    throw new JspTagException("Unsupported method \""+method+"\".");
             }
-        } else if(method.equals("POST")) {
-            try {
-                xresponse = XRequestClient.post(url, headers, parameters, requestBody);
-            } catch (IOException ex) {
-                throw new JspException(ex.getMessage());
-            }
-        } else {
-            throw new JspTagException("Unsupported method \""+method+"\".");
+        } catch (IOException ex) {
+            throw new JspException(ex.getMessage());
+        } 
+        
+        if (isVerbose != null && isVerbose) {
+            map.put("dxrequest" + (map.size() + 1), xresponse);
         }
 
         return EVAL_PAGE;
@@ -124,6 +133,10 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
 
     public void setParam(String p) {
         param = p;
+    } 
+    
+    public void setIsVerbose(Boolean isVerbose) {
+        this.isVerbose = isVerbose;
     }
 
     public void setRequestBody(String b) {

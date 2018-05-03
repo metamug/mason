@@ -75,8 +75,7 @@ public class HeaderTagHandler extends BodyTagSupport {
     @Override
     public int doEndTag() throws JspException {
 
-        RequestTagHandler parent = (RequestTagHandler) findAncestorWithClass(
-                this, RequestTagHandler.class);
+        XRequestTagHandler parent = (XRequestTagHandler) findAncestorWithClass(this, XRequestTagHandler.class);
         if (parent == null) {
             throw new JspTagException("X Header Tag outside X Request Tag");
         }
