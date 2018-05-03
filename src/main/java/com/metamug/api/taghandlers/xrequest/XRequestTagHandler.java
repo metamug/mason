@@ -53,6 +53,7 @@
  */
 package com.metamug.api.taghandlers.xrequest;
 
+import com.metamug.api.common.MtgRequest;
 import com.metamug.api.services.XRequestClient;
 import java.io.IOException;
 import java.util.HashMap;
@@ -75,12 +76,14 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     private Map<String, String> headers;
     private Map<String, String> parameters;
 
+    private String id;
     private String url;
     private String method;
     private String requestBody;
     private Object param;
     
     private Boolean isVerbose;
+    private Boolean isPersist;
 
     public XRequestTagHandler() {
         super();
@@ -88,6 +91,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     }
 
     private void init() {
+        id = null;
         url = null;
         method = null;
         param = null;
@@ -98,11 +102,13 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
     @Override
     public int doEndTag() throws JspException {        
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+        LinkedHashMap<String,Object> map = (LinkedHashMap<String,Object>) 
+                pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+        MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         
-        String xresponse;
+        String xresponse = null;
         try {
-            switch (method) {
+            switch(method) {
                 case "GET":
                     xresponse = XRequestClient.get(url, headers, parameters);
                     break;
@@ -112,7 +118,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 default:
                     throw new JspTagException("Unsupported method \""+method+"\".");
             }
-        } catch (IOException ex) {
+        } catch(IOException ex) {
             throw new JspException(ex.getMessage());
         } 
         
@@ -120,9 +126,18 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
             map.put("dxrequest" + (map.size() + 1), xresponse);
         }
 
+        if (isPersist != null && isPersist) {                               
+            mtgReq.getParams().put(id, xresponse);
+            pageContext.getRequest().setAttribute("mtgReq", mtgReq);
+        }
+        
         return EVAL_PAGE;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+    
     public void setUrl(String u) {
         url = u;
     }
@@ -137,6 +152,10 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     
     public void setIsVerbose(Boolean isVerbose) {
         this.isVerbose = isVerbose;
+    }
+
+    public void setIsPersist(Boolean isPersist) {
+        this.isPersist = isPersist;
     }
 
     public void setRequestBody(String b) {
