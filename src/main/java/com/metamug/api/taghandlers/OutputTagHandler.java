@@ -191,6 +191,74 @@ public class OutputTagHandler extends BodyTagSupport {
                             xmlBuilder.append("<result").append(">").append(result).append("</result").append(">");
                         }
                     }
+                } else if (mapValue instanceof JSONObject) {
+                    String result = ((JSONObject) mapValue).toString();
+                    
+                    if (!result.isEmpty() && emptyContent) {
+                        emptyContent = false;
+                    }
+                    if (verboseCount == 1) {
+                        if (emptyContent) {
+                            response.setStatus(204);
+                        } else {
+                            try {
+                                int temp = (++resultCounter);
+                                if (entry.getKey().contains("error")) {
+                                    //xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                                    xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                                } else {
+                                    //xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                    xmlBuilder.append(result);
+                                }
+                                xmlBuilder.append("</response>");
+                                pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(xmlBuilder.toString());
+                            } catch (IOException ex) {
+                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            }
+                        }
+                    } else {
+                        int temp = (++resultCounter);
+                        if (entry.getKey().contains("error")) {
+                            xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                        } else {
+                            xmlBuilder.append("<result").append(">").append(result).append("</result").append(">");
+                        }
+                    }
+                } else if (mapValue instanceof JSONArray) {
+                    String result = ((JSONArray) mapValue).toString();
+                    
+                    if (!result.isEmpty() && emptyContent) {
+                        emptyContent = false;
+                    }
+                    if (verboseCount == 1) {
+                        if (emptyContent) {
+                            response.setStatus(204);
+                        } else {
+                            try {
+                                int temp = (++resultCounter);
+                                if (entry.getKey().contains("error")) {
+                                    //xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                                    xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                                } else {
+                                    //xmlBuilder.append("<result").append(temp).append(">").append(result).append("</result").append(temp).append(">");
+                                    xmlBuilder.append(result);
+                                }
+                                xmlBuilder.append("</response>");
+                                pageContext.setAttribute("Content-Length", xmlBuilder.toString().length(), PageContext.REQUEST_SCOPE);
+                                out.print(xmlBuilder.toString());
+                            } catch (IOException ex) {
+                                Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                            }
+                        }
+                    } else {
+                        int temp = (++resultCounter);
+                        if (entry.getKey().contains("error")) {
+                            xmlBuilder.append("<error").append(temp).append(">").append(result).append("</error").append(temp).append(">");
+                        } else {
+                            xmlBuilder.append("<result").append(">").append(result).append("</result").append(">");
+                        }
+                    }
                 }
             }
             try {

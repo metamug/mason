@@ -70,8 +70,9 @@ public enum MetamugError {
     ROLE_ACCESS_DENIED("Forbidden access to resource"),
     SQL_ERROR("SQL error occurred."),
     UPLOAD_CODE_ERROR("Error occured in upload event."),
-    UPLOAD_SIZE_EXCEEDED("File size exceeds limit.");
-
+    UPLOAD_SIZE_EXCEEDED("File size exceeds limit."),
+    XRESPONSE_PARSE_ERROR("Unable to parse XRequest response");
+    
     private final String msg;
 
     MetamugError(String msg) {

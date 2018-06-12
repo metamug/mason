@@ -108,7 +108,7 @@ public class XRequestClient {
             if (!response.isSuccessful()) 
                 throw new IOException("Unexpected code " + response);
             
-            return response.body().string();
+            return response.body().string().trim();
         }
     }
     
@@ -154,7 +154,7 @@ public class XRequestClient {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            return response.body().string();
+            return response.body().string().trim();
         }
     }
 }
