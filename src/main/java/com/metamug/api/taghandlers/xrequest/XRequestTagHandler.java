@@ -152,6 +152,11 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
             if (isVerbose != null && isVerbose) {
                 map.put("dxrequest" + (map.size() + 1), array);
             }
+        
+            if (isPersist != null && isPersist) {                               
+                mtgReq.getParams().put(id, array.toString());
+                pageContext.getRequest().setAttribute("mtgReq", mtgReq);
+            }
 
         }catch(JSONException jx){
             try{
@@ -159,15 +164,15 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 if (isVerbose != null && isVerbose) {
                     map.put("dxrequest" + (map.size() + 1), obj);
                 }
+        
+                if (isPersist != null && isPersist) {                               
+                    mtgReq.getParams().put(id, obj.toString());
+                    pageContext.getRequest().setAttribute("mtgReq", mtgReq);
+                }
             }catch(JSONException jx1){
                 throw new JspException("", new MetamugException(
                         MetamugError.XRESPONSE_PARSE_ERROR, jx1.toString()));
             }
-        }
-        
-        if (isPersist != null && isPersist) {                               
-            mtgReq.getParams().put(id, xresponse);
-            pageContext.getRequest().setAttribute("mtgReq", mtgReq);
         }
 
         return EVAL_PAGE;
