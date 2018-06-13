@@ -54,6 +54,10 @@ package com.metamug.api.common;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 
 /**
  *
@@ -70,6 +74,62 @@ public class XResponse {
         headers = new HashMap<>();
         this.body = body;
         
+    }
+    
+    public JSONObject getJsonForXmlXResponse(){
+        JSONObject obj = new JSONObject();
+        obj.put("statusCode",statusCode);
+        obj.put("headers",new JSONObject(headers));
+        
+        obj.put("body", body);
+        
+        return obj;
+    }
+    
+    public String getXmlForXmlXResponse(){
+        return XML.toString(getJsonForXmlXResponse());
+    }
+    
+    public JSONObject getJsonForJsonXResponse(){
+        JSONObject obj = new JSONObject();
+        obj.put("statusCode",statusCode);
+        obj.put("headers",new JSONObject(headers));
+        
+        try{
+            JSONObject bodyObject = new JSONObject(body);
+            obj.put("body", bodyObject);
+        }catch(JSONException jx){
+            try{
+                JSONArray bodyArray = new JSONArray(body);
+                obj.put("body", bodyArray);
+            }catch(JSONException jx1){
+                obj.put("body", "Could not parse json response.");
+            }
+        }
+        
+        return obj;
+    }
+    
+    public String getXmlForJsonXResponse(){
+        JSONObject obj = new JSONObject();
+        obj.put("statusCode",statusCode);
+        obj.put("headers",new JSONObject(headers));
+        
+        try{
+            JSONObject bodyObject = new JSONObject(body);
+            obj.put("body", bodyObject);
+        }catch(JSONException jx){
+            try{
+                JSONArray bodyArray = new JSONArray(body);
+                JSONObject body = new JSONObject();
+                body.put("row", bodyArray);
+                obj.put("body", body);
+            }catch(JSONException jx1){
+                obj.put("body", "Could not parse json response.");
+            }
+        }
+        
+        return XML.toString(obj);
     }
     
     public int getStatusCode(){

@@ -53,6 +53,8 @@
  */
 package com.metamug.api.services;
 
+import com.metamug.api.common.XResponse;
+import com.metamug.api.common.XResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -61,6 +63,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import okhttp3.FormBody;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -76,7 +79,8 @@ public class XRequestClient {
     
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     
-    public static String get(String url, Map<String,String> headers, Map<String,String> params) throws IOException {
+    public static XResponse get(String url, Map<String,String> headers, 
+                                Map<String,String> params) throws IOException {
         OkHttpClient client = new OkHttpClient();
         
         Request.Builder reqBuilder = new Request.Builder().get();
@@ -108,11 +112,19 @@ public class XRequestClient {
             if (!response.isSuccessful()) 
                 throw new IOException("Unexpected code " + response);
             
-            return response.body().string().trim();
+            //return response.body().string().trim();
+            XResponse xr = new XResponse(response.code(),response.body().string().trim());
+            Headers responseHeaders = response.headers();
+            for (int i = 0; i < responseHeaders.size(); i++) {
+                xr.addHeader(responseHeaders.name(i),responseHeaders.value(i));
+            }
+            
+            return xr;
         }
     }
     
-    public static String post(String url, Map<String,String> headers, Map<String,String> params, String body) throws IOException {
+    public static XResponse post(String url, Map<String,String> headers, 
+                    Map<String,String> params, String body) throws IOException {
         OkHttpClient client = new OkHttpClient();
         
         Request.Builder reqBuilder = null;
@@ -154,7 +166,14 @@ public class XRequestClient {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            return response.body().string().trim();
+            //return response.body().string().trim();
+            XResponse xr = new XResponse(response.code(),response.body().string().trim());
+            Headers responseHeaders = response.headers();
+            for (int i = 0; i < responseHeaders.size(); i++) {
+                xr.addHeader(responseHeaders.name(i),responseHeaders.value(i));
+            }
+            
+            return xr;
         }
     }
 }
