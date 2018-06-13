@@ -55,8 +55,6 @@ package com.metamug.api.taghandlers.xrequest;
 
 import com.metamug.api.common.MtgRequest;
 import com.metamug.api.common.XResponse;
-import com.metamug.api.exceptions.MetamugError;
-import com.metamug.api.exceptions.MetamugException;
 import com.metamug.api.services.XRequestClient;
 import java.io.IOException;
 import java.util.Arrays;
@@ -67,9 +65,8 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -108,7 +105,8 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     }
 
     @Override
-    public int doEndTag() throws JspException {        
+    public int doEndTag() throws JspException {     
+        
         LinkedHashMap<String,Object> map = (LinkedHashMap<String,Object>) 
                 pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
@@ -143,11 +141,10 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
         
         if(Arrays.asList(acceptHeader.split("/")).contains("xml")){
             String xResponseXml = null;
-            if(xAcceptType.equals("xml")){
+            if(xAcceptType.equals("xml"))
                 xResponseXml = xresponse.getXmlForXmlXResponse();
-            }else{
+            else
                 xResponseXml = xresponse.getXmlForJsonXResponse();
-            }
             
             if (isVerbose != null && isVerbose) {
                 map.put("dxrequest" + (map.size() + 1), xResponseXml);
@@ -160,15 +157,14 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
         } else {
             JSONObject xResponseJson = null;
-            if(xAcceptType.equals("xml")){
+            if(xAcceptType.equals("xml"))
                 xResponseJson = xresponse.getJsonForXmlXResponse();
-            }else{
+            else
                 xResponseJson = xresponse.getJsonForJsonXResponse();
-            }
-            if (isVerbose != null && isVerbose) {
+            
+            if (isVerbose != null && isVerbose) 
                 map.put("dxrequest" + (map.size() + 1), xResponseJson);
-            }
-
+            
             if (isPersist != null && isPersist) {                               
                 mtgReq.getParams().put(id, xResponseJson.toString());
                 pageContext.getRequest().setAttribute("mtgReq", mtgReq);
@@ -177,54 +173,6 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                     
         return EVAL_PAGE;
         
-        /*for (Map.Entry<String, String> entry : headers.entrySet()){
-            if(entry.getKey().equals("Accept")) {
-                if(entry.getValue().equals("application/xml")) {
-                    //if Accept header of XRequest is application/xml 
-                    if (isVerbose != null && isVerbose) {
-                        map.put("dxrequest" + (map.size() + 1), xresponse);
-                    }
-
-                    if (isPersist != null && isPersist) {                               
-                        mtgReq.getParams().put(id, xresponse.getBody());
-                        pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-                    }
-
-                    return EVAL_PAGE;
-                }
-            }            
-        }
-        
-        //if Accept header of XRequest is not application/xml or no Accept header present
-        try{
-            JSONArray array = new JSONArray(xresponse);
-            if (isVerbose != null && isVerbose) {
-                map.put("dxrequest" + (map.size() + 1), array);
-            }
-        
-            if (isPersist != null && isPersist) {                               
-                mtgReq.getParams().put(id, array.toString());
-                pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-            }
-
-        }catch(JSONException jx){
-            try{
-                JSONObject obj = new JSONObject(xresponse);
-                if (isVerbose != null && isVerbose) {
-                    map.put("dxrequest" + (map.size() + 1), obj);
-                }
-        
-                if (isPersist != null && isPersist) {                               
-                    mtgReq.getParams().put(id, obj.toString());
-                    pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-                }
-            }catch(JSONException jx1){
-                throw new JspException("", new MetamugException(
-                        MetamugError.XRESPONSE_PARSE_ERROR, jx1.toString()));
-            }
-        }
-
-        return EVAL_PAGE;*/
     }
 
     public void setId(String id) {
@@ -268,16 +216,12 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     }
 
     public void addHeader(String name, String value) {
-        if (headers != null) {
-            headers = new HashMap<>();
-        }
+       
         headers.put(name, value);
     }
 
     public void addParameter(String name, String value) {
-        if (parameters != null) {
-            parameters = new HashMap<>();
-        }
+       
         parameters.put(name, value);
     }
 

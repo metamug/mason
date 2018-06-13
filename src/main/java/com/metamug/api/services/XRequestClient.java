@@ -112,7 +112,6 @@ public class XRequestClient {
             if (!response.isSuccessful()) 
                 throw new IOException("Unexpected code " + response);
             
-            //return response.body().string().trim();
             XResponse xr = new XResponse(response.code(),response.body().string().trim());
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
@@ -166,7 +165,6 @@ public class XRequestClient {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            //return response.body().string().trim();
             XResponse xr = new XResponse(response.code(),response.body().string().trim());
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
