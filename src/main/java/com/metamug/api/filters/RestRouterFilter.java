@@ -60,8 +60,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -89,6 +92,14 @@ import org.json.JSONObject;
         maxFileSize = 1024 * 1024 * 5,
         maxRequestSize = 1024 * 1024 * 25)
 public class RestRouterFilter implements Filter {
+    
+    private static List<String> allowedContentTypes = new ArrayList<>(Arrays.asList(
+            "application/json; charset=utf-8",
+            "application/json",
+            "application/xml",
+            "application/x-www-form-urlencoded",
+            "multipart/form-data"
+    ));
 
     private static final boolean DEBUG = false;
     private FilterConfig filterConfig = null;
@@ -115,9 +126,14 @@ public class RestRouterFilter implements Filter {
             if (req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
                 chain.doFilter(request, response);
             } else {
+                //Logger.getLogger(RestRouterFilter.class.getName()).log(Level.INFO,"Method: "+req.getMethod());
+                
                 response.setContentType("application/json");
                 String contentType = req.getContentType() == null ? "application/html" : req.getContentType();
-                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (contentType.equalsIgnoreCase("application/json") || contentType.equalsIgnoreCase("application/xml") || contentType.contains("html") || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("multipart/form-data")))) {
+                //Logger.getLogger(RestRouterFilter.class.getName()).log(Level.INFO,"ContentType: "+contentType);
+                
+                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete")
+                        || (contentType != null && (allowedContentTypes.contains(contentType.toLowerCase()) || contentType.contains("html") ))) {
                     try {
                         String appName = req.getServletContext().getContextPath();
                         String version = tokens[1];
@@ -220,6 +236,9 @@ public class RestRouterFilter implements Filter {
                         jsonData.append(line);
                     }
                 }
+                
+                Logger.getLogger(RestRouterFilter.class.getName()).log(Level.INFO,
+                        "BBODY: "+jsonData.toString());
                 Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
                 flattenAsMap.entrySet().forEach((entry) -> {
                     String key = entry.getKey();
