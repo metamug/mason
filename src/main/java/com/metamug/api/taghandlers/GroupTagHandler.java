@@ -161,6 +161,15 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public void doFinally() {
     }
+    /*
+    private JSONObject validateJwt(String bearerToken) {
+        JSONObject status = new JSONObject();
+        status.put("status", 0);
+        
+        
+        
+        return status;
+    }*/
 
     private JSONObject validateBasic(String userName, String password) {
         JSONObject status = new JSONObject();
