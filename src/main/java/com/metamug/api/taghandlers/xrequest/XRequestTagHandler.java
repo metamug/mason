@@ -1,55 +1,205 @@
-/**
- * ***********************************************************************
- * Freeware Licence Agreement
+/*
+ *                                  Apache License
+ *                            Version 2.0, January 2004
+ *                         http://www.apache.org/licenses/
  *
- * This licence agreement only applies to the free version of this software.
+ *    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
  *
- * Terms and Conditions
+ *    1. Definitions.
  *
- * BY DOWNLOADING, INSTALLING, USING, TRANSMITTING, DISTRIBUTING OR COPYING THIS SOFTWARE ("THE SOFTWARE"), YOU AGREE TO THE TERMS OF THIS AGREEMENT (INCLUDING THE SOFTWARE LICENCE AND DISCLAIMER OF WARRANTY) WITH METAMUG THE OWNER OF ALL RIGHTS IN RESPECT OF THE SOFTWARE.
+ *       "License" shall mean the terms and conditions for use, reproduction,
+ *       and distribution as defined by Sections 1 through 9 of this document.
  *
- * PLEASE READ THIS DOCUMENT CAREFULLY BEFORE USING THE SOFTWARE.
+ *       "Licensor" shall mean the copyright owner or entity authorized by
+ *       the copyright owner that is granting the License.
  *
- * IF YOU DO NOT AGREE TO ANY OF THE TERMS OF THIS LICENCE THEN DO NOT DOWNLOAD, INSTALL, USE, TRANSMIT, DISTRIBUTE OR COPY THE SOFTWARE.
+ *       "Legal Entity" shall mean the union of the acting entity and all
+ *       other entities that control, are controlled by, or are under common
+ *       control with that entity. For the purposes of this definition,
+ *       "control" means (i) the power, direct or indirect, to cause the
+ *       direction or management of such entity, whether by contract or
+ *       otherwise, or (ii) ownership of fifty percent (50%) or more of the
+ *       outstanding shares, or (iii) beneficial ownership of such entity.
  *
- * THIS DOCUMENT CONSTITUTES A LICENCE TO USE THE SOFTWARE ON THE TERMS AND CONDITIONS APPEARING BELOW.
+ *       "You" (or "Your") shall mean an individual or Legal Entity
+ *       exercising permissions granted by this License.
  *
- * The Software is licensed to you without charge for use only upon the terms of this licence, and METAMUG TECHNOLOGIES LLP (hereafter METAMUG) reserves all rights not expressly granted to you. METAMUG retains ownership of all copies of the Software.
+ *       "Source" form shall mean the preferred form for making modifications,
+ *       including but not limited to software source code, documentation
+ *       source, and configuration files.
  *
- * 1. Licence
+ *       "Object" form shall mean any form resulting from mechanical
+ *       transformation or translation of a Source form, including but
+ *       not limited to compiled object code, generated documentation,
+ *       and conversions to other media types.
  *
- * You may use the Software without charge.
+ *       "Work" shall mean the work of authorship, whether in Source or
+ *       Object form, made available under the License, as indicated by a
+ *       copyright notice that is included in or attached to the work
+ *       (an example is provided in the Appendix below).
  *
- * You may freely distribute exact copies of the Software to anyone.
+ *       "Derivative Works" shall mean any work, whether in Source or Object
+ *       form, that is based on (or derived from) the Work and for which the
+ *       editorial revisions, annotations, elaborations, or other modifications
+ *       represent, as a whole, an original work of authorship. For the purposes
+ *       of this License, Derivative Works shall not include works that remain
+ *       separable from, or merely link (or bind by name) to the interfaces of,
+ *       the Work and Derivative Works thereof.
  *
- * The inclusion of the Software in any Shareware, Freeware or similar media compilation or distribution method whereby it is made available at cost (ie. sold) is strictly prohibited.
+ *       "Contribution" shall mean any work of authorship, including
+ *       the original version of the Work and any modifications or additions
+ *       to that Work or Derivative Works thereof, that is intentionally
+ *       submitted to Licensor for inclusion in the Work by the copyright owner
+ *       or by an individual or Legal Entity authorized to submit on behalf of
+ *       the copyright owner. For the purposes of this definition, "submitted"
+ *       means any form of electronic, verbal, or written communication sent
+ *       to the Licensor or its representatives, including but not limited to
+ *       communication on electronic mailing lists, source code control systems,
+ *       and issue tracking systems that are managed by, or on behalf of, the
+ *       Licensor for the purpose of discussing and improving the Work, but
+ *       excluding communication that is conspicuously marked or otherwise
+ *       designated in writing by the copyright owner as "Not a Contribution."
  *
- * The selling of the Software is strictly prohibited.
- * 2. Restrictions
+ *       "Contributor" shall mean Licensor and any individual or Legal Entity
+ *       on behalf of whom a Contribution has been received by Licensor and
+ *       subsequently incorporated within the Work.
  *
- * METAMUG reserves the right to revoke the above distribution right at any time, for any or no reason.
+ *    2. Grant of Copyright License. Subject to the terms and conditions of
+ *       this License, each Contributor hereby grants to You a perpetual,
+ *       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+ *       copyright license to reproduce, prepare Derivative Works of,
+ *       publicly display, publicly perform, sublicense, and distribute the
+ *       Work and such Derivative Works in Source or Object form.
  *
- * YOU MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN, SELL, ONSELL, REQUEST DONATIONS OR CREATE DERIVATIVE WORKS BASED UPON THE SOFTWARE OR ANY PART THEREOF.
+ *    3. Grant of Patent License. Subject to the terms and conditions of
+ *       this License, each Contributor hereby grants to You a perpetual,
+ *       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+ *       (except as stated in this section) patent license to make, have made,
+ *       use, offer to sell, sell, import, and otherwise transfer the Work,
+ *       where such license applies only to those patent claims licensable
+ *       by such Contributor that are necessarily infringed by their
+ *       Contribution(s) alone or by combination of their Contribution(s)
+ *       with the Work to which such Contribution(s) was submitted. If You
+ *       institute patent litigation against any entity (including a
+ *       cross-claim or counterclaim in a lawsuit) alleging that the Work
+ *       or a Contribution incorporated within the Work constitutes direct
+ *       or contributory patent infringement, then any patent licenses
+ *       granted to You under this License for that Work shall terminate
+ *       as of the date such litigation is filed.
  *
- * The Software contains intellectual property and to protect them you may not decompile, reverse engineer, disassemble or otherwise reduce the Software to a humanly perceivable form. You agree not to divulge, directly or indirectly, until such intellectual property ceases to be confidential, for any reason not your own fault.
+ *    4. Redistribution. You may reproduce and distribute copies of the
+ *       Work or Derivative Works thereof in any medium, with or without
+ *       modifications, and in Source or Object form, provided that You
+ *       meet the following conditions:
  *
- * 3. Termination
+ *       (a) You must give any other recipients of the Work or
+ *           Derivative Works a copy of this License; and
  *
- * This licence is effective until terminated. The Licence will terminate automatically without notice from METAMUG if you fail to comply with any provision of this Licence. Upon termination, you must destroy the Software and all copies thereof. You may terminate this Licence at any time by destroying the Software and all copies thereof. Upon termination of this licence for any reason, you shall continue to be bound by the provisions of Section 2 above. Termination will be without prejudice to any rights METAMUG may have as a result of this agreement.
+ *       (b) You must cause any modified files to carry prominent notices
+ *           stating that You changed the files; and
  *
- * 4. Disclaimer of Warranty, Limitation of Remedies
+ *       (c) You must retain, in the Source form of any Derivative Works
+ *           that You distribute, all copyright, patent, trademark, and
+ *           attribution notices from the Source form of the Work,
+ *           excluding those notices that do not pertain to any part of
+ *           the Derivative Works; and
  *
- * TO THE FULL EXTENT PERMITTED BY LAW, METAMUG HEREBY EXCLUDES ALL CONDITIONS AND WARRANTIES, WHETHER IMPOSED BY STATUTE OR BY OPERATION OF LAW OR OTHERWISE, NOT EXPRESSLY SET OUT HEREIN. THE SOFTWARE, AND ALL ACCOMPANYING FILES, DATA AND MATERIALS ARE DISTRIBUTED "AS IS" AND WITH NO WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED. METAMUG DOES NOT WARRANT, GUARANTEE OR MAKE ANY REPRESENTATIONS REGARDING THE USE, OR THE RESULTS OF THE USE, OF THE SOFTWARE WITH RESPECT TO ITS CORRECTNESS, ACCURACY, RELIABILITY, CURRENTNESS OR OTHERWISE. THE ENTIRE RISK OF USING THE SOFTWARE IS ASSUMED BY YOU. METAMUG MAKES NO EXPRESS OR IMPLIED WARRANTIES OR CONDITIONS INCLUDING, WITHOUT LIMITATION, THE WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE WITH RESPECT TO THE SOFTWARE. NO ORAL OR WRITTEN INFORMATION OR ADVICE GIVEN BY METAMUG, IT'S DISTRIBUTORS, AGENTS OR EMPLOYEES SHALL CREATE A WARRANTY, AND YOU MAY NOT RELY ON ANY SUCH INFORMATION OR ADVICE.
+ *       (d) If the Work includes a "NOTICE" text file as part of its
+ *           distribution, then any Derivative Works that You distribute must
+ *           include a readable copy of the attribution notices contained
+ *           within such NOTICE file, excluding those notices that do not
+ *           pertain to any part of the Derivative Works, in at least one
+ *           of the following places: within a NOTICE text file distributed
+ *           as part of the Derivative Works; within the Source form or
+ *           documentation, if provided along with the Derivative Works; or,
+ *           within a display generated by the Derivative Works, if and
+ *           wherever such third-party notices normally appear. The contents
+ *           of the NOTICE file are for informational purposes only and
+ *           do not modify the License. You may add Your own attribution
+ *           notices within Derivative Works that You distribute, alongside
+ *           or as an addendum to the NOTICE text from the Work, provided
+ *           that such additional attribution notices cannot be construed
+ *           as modifying the License.
  *
- * IMPORTANT NOTE: Nothing in this Agreement is intended or shall be construed as excluding or modifying any statutory rights, warranties or conditions which by virtue of any national or state Fair Trading, Trade Practices or other such consumer legislation may not be modified or excluded. If permitted by such legislation, however, METAMUG's liability for any breach of any such warranty or condition shall be and is hereby limited to the supply of the Software licensed hereunder again as METAMUG at its sole discretion may determine to be necessary to correct the said breach.
+ *       You may add Your own copyright statement to Your modifications and
+ *       may provide additional or different license terms and conditions
+ *       for use, reproduction, or distribution of Your modifications, or
+ *       for any such Derivative Works as a whole, provided Your use,
+ *       reproduction, and distribution of the Work otherwise complies with
+ *       the conditions stated in this License.
  *
- * IN NO EVENT SHALL METAMUG BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, AND THE LOSS OF BUSINESS INFORMATION OR COMPUTER PROGRAMS), EVEN IF METAMUG OR ANY METAMUG REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN ADDITION, IN NO EVENT DOES METAMUG AUTHORIZE YOU TO USE THE SOFTWARE IN SITUATIONS WHERE FAILURE OF THE SOFTWARE TO PERFORM CAN REASONABLY BE EXPECTED TO RESULT IN A PHYSICAL INJURY, OR IN LOSS OF LIFE. ANY SUCH USE BY YOU IS ENTIRELY AT YOUR OWN RISK, AND YOU AGREE TO HOLD METAMUG HARMLESS FROM ANY CLAIMS OR LOSSES RELATING TO SUCH UNAUTHORIZED USE.
+ *    5. Submission of Contributions. Unless You explicitly state otherwise,
+ *       any Contribution intentionally submitted for inclusion in the Work
+ *       by You to the Licensor shall be under the terms and conditions of
+ *       this License, without any additional terms or conditions.
+ *       Notwithstanding the above, nothing herein shall supersede or modify
+ *       the terms of any separate license agreement you may have executed
+ *       with Licensor regarding such Contributions.
  *
- * 5. General
+ *    6. Trademarks. This License does not grant permission to use the trade
+ *       names, trademarks, service marks, or product names of the Licensor,
+ *       except as required for reasonable and customary use in describing the
+ *       origin of the Work and reproducing the content of the NOTICE file.
  *
- * All rights of any kind in the Software which are not expressly granted in this Agreement are entirely and exclusively reserved to and by METAMUG.
+ *    7. Disclaimer of Warranty. Unless required by applicable law or
+ *       agreed to in writing, Licensor provides the Work (and each
+ *       Contributor provides its Contributions) on an "AS IS" BASIS,
+ *       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *       implied, including, without limitation, any warranties or conditions
+ *       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+ *       PARTICULAR PURPOSE. You are solely responsible for determining the
+ *       appropriateness of using or redistributing the Work and assume any
+ *       risks associated with Your exercise of permissions under this License.
  *
- * This Agreement shall be governed by the laws of the State of Maharastra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharastra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
+ *    8. Limitation of Liability. In no event and under no legal theory,
+ *       whether in tort (including negligence), contract, or otherwise,
+ *       unless required by applicable law (such as deliberate and grossly
+ *       negligent acts) or agreed to in writing, shall any Contributor be
+ *       liable to You for damages, including any direct, indirect, special,
+ *       incidental, or consequential damages of any character arising as a
+ *       result of this License or out of the use or inability to use the
+ *       Work (including but not limited to damages for loss of goodwill,
+ *       work stoppage, computer failure or malfunction, or any and all
+ *       other commercial damages or losses), even if such Contributor
+ *       has been advised of the possibility of such damages.
+ *
+ *    9. Accepting Warranty or Additional Liability. While redistributing
+ *       the Work or Derivative Works thereof, You may choose to offer,
+ *       and charge a fee for, acceptance of support, warranty, indemnity,
+ *       or other liability obligations and/or rights consistent with this
+ *       License. However, in accepting such obligations, You may act only
+ *       on Your own behalf and on Your sole responsibility, not on behalf
+ *       of any other Contributor, and only if You agree to indemnify,
+ *       defend, and hold each Contributor harmless for any liability
+ *       incurred by, or claims asserted against, such Contributor by reason
+ *       of your accepting any such warranty or additional liability.
+ *
+ *    END OF TERMS AND CONDITIONS
+ *
+ *    APPENDIX: How to apply the Apache License to your work.
+ *
+ *       To apply the Apache License to your work, attach the following
+ *       boilerplate notice, with the fields enclosed by brackets "[]"
+ *       replaced with your own identifying information. (Don't include
+ *       the brackets!)  The text should be enclosed in the appropriate
+ *       comment syntax for the file format. We also recommend that a
+ *       file or class name and description of purpose be included on the
+ *       same "printed page" as the copyright notice for easier
+ *       identification within third-party archives.
+ *
+ *    Copyright [yyyy] [name of copyright owner]
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package com.metamug.api.taghandlers.xrequest;
 
