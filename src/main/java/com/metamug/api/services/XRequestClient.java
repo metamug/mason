@@ -54,7 +54,6 @@
 package com.metamug.api.services;
 
 import com.metamug.api.common.XResponse;
-import com.metamug.api.common.XResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -161,6 +160,40 @@ public class XRequestClient {
         }
         
         Request request = reqBuilder.url(url).build();
+        
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            XResponse xr = new XResponse(response.code(),response.body().string().trim());
+            Headers responseHeaders = response.headers();
+            for (int i = 0; i < responseHeaders.size(); i++) {
+                xr.addHeader(responseHeaders.name(i),responseHeaders.value(i));
+            }
+            
+            return xr;
+        }
+    }
+    
+    public static XResponse delete(String url, Map<String,String> params) throws IOException{
+        OkHttpClient client = new OkHttpClient();
+        
+        StringBuilder queryParams = new StringBuilder();
+        for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
+            try {
+                String str = (String) iterator.next();
+                String key = URLEncoder.encode(str, "UTF-8");
+                String value = URLEncoder.encode(params.get(str), "UTF-8");
+                queryParams.append(key).append("=").append(value);
+                if (iterator.hasNext()) {
+                    queryParams.append("&");
+                }
+            } catch (UnsupportedEncodingException ex) {
+                Logger.getLogger(XRequestClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        url = url + "?" + queryParams.toString();
+        
+        Request request = new Request.Builder().url(url).delete().build();
         
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
