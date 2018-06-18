@@ -88,6 +88,15 @@
         </execution>
     </executions>
 </plugin>
+			  <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.3.0</version>
+                <configuration>
+                    <repoToken>${env.repoToken}</repoToken>
+                </configuration>
+            </plugin>
+          
         </plugins>
     </build>
     <reporting>
@@ -101,15 +110,6 @@
                     <xmlOutputDirectory>target/findbugs-output</xmlOutputDirectory>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.3.0</version>
-                <configuration>
-                    <repoToken>${env.repoToken}</repoToken>
-                </configuration>
-            </plugin>
-          
         </plugins>
     </reporting>
 </project>
