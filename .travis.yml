@@ -3,15 +3,10 @@ sudo: false
 language: java
 before_script:
   - export MAVEN_SKIP_RC=true
-jdk:
-  - oraclejdk9
-  - oraclejdk8
-  - openjdk8
-  - openjdk7
 # skip installation step entirely
 install: true
 script:
-  - mvn -B -V -Prun-its clean verify jacoco:report
+  - mvn -B -V jacoco:report
 after_success:
   # 'coveralls:report' goal is responsible for updating coverall.io stats once travisCI build completes
   # Look for the article 'Coveralls.io configuration for maven projects' in the wiki (https://github.com/asciidoctor/asciidoctor/wiki) for more details
