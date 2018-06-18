@@ -72,6 +72,13 @@
             <version>2.6.4</version>
             <scope>provided</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin -->
+<dependency>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <version>0.8.1</version>
+</dependency>
+
     </dependencies>
     <reporting>
         <plugins>
@@ -83,11 +90,6 @@
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>target/findbugs-output</xmlOutputDirectory>
                 </configuration>
-            </plugin>
-             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>               
             </plugin>
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
