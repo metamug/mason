@@ -85,7 +85,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- *
+ * Rest Controller. Handles all the incoming requests
  * @author Kaisteel
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024,
