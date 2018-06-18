@@ -75,18 +75,36 @@
     </dependencies>
     <build>
 		<plugins>
-              <plugin>
+            <plugin>
     <groupId>org.jacoco</groupId>
     <artifactId>jacoco-maven-plugin</artifactId>
-    <version>0.7.6.201602180812</version>
+    <version>0.7.9</version>
     <executions>
         <execution>
-            <id>prepare-agent</id>
             <goals>
                 <goal>prepare-agent</goal>
             </goals>
         </execution>
-    </executions>
+        <execution>
+            <id>report</id>
+            <phase>prepare-package</phase>
+            <goals>
+                <goal>report</goal>
+            </goals>
+        </execution>
+        <execution>
+            <id>prepare-integration-test-agent</id>
+            <goals>
+               <goal>prepare-agent-integration</goal>
+            </goals>
+        </execution>
+        <execution>
+           <id>generate-integration-test-report</id>
+           <goals>
+               <goal>report-integration</goal>
+           </goals>
+       </execution>
+   </executions>
 </plugin>
 			  <plugin>
                 <groupId>org.eluder.coveralls</groupId>
