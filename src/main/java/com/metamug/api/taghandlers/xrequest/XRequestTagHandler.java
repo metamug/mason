@@ -282,6 +282,9 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 case "POST":
                     xresponse = XRequestClient.post(url, headers, parameters, requestBody);
                     break;
+                case "PUT":
+                    xresponse = XRequestClient.post(url, headers, parameters, requestBody);
+                    break;
                 case "DELETE":
                     xresponse = XRequestClient.delete(url, parameters);
                     break;
