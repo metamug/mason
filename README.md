@@ -11,14 +11,14 @@ Download or clone the project and build using the mvn command
 mvn clean package
 ```
 
-After that you can find the mtg-mason-1.0.jar inside the target folder. You can use this jar as a dependency in your Java webapp.
+After that you can find *mtg-mason-1.0.jar* inside the target folder. You can use this jar as a dependency in your Java webapp.
 
-You will need to add following line to your jsp for using the mtg prefix
+You will need to add following line to your jsp for using the *mtg* prefix
 ```
 <%@taglib uri="/META-INF/mtg-mason" prefix="mtg" %>
 ```
 
-And also add the following to web.xml
+And also add the following to your *web.xml*
 ```
 <filter>
     <filter-name>RestRouterFilter</filter-name>
