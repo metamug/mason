@@ -15,7 +15,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 
 You will need to add following line to your jsp for using the *mtg* prefix
 ```
-<%@taglib uri="/META-INF/mtg-mason" prefix="mtg" %>
+<% @taglib uri="mtg-mason.tld" prefix="mtg" %>
 ```
 
 And also add the following to your *web.xml*
