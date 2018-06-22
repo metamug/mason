@@ -387,8 +387,8 @@ public class RestRouterFilter implements Filter {
                     }
                 }
                 
-                Logger.getLogger(RestRouterFilter.class.getName()).log(Level.INFO,
-                        "BBODY: "+jsonData.toString());
+                //Logger.getLogger(RestRouterFilter.class.getName()).log(Level.INFO,
+                  //      "BBODY: "+jsonData.toString());
                 Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
                 flattenAsMap.entrySet().forEach((entry) -> {
                     String key = entry.getKey();
