@@ -15,7 +15,7 @@ Mason is the open-source, ultra-lightweight data access layer for API resources 
 
 ### Mason Jar
 
-[Mason Jar](http://www.hamptonart.com/image/cache/data/2015WEBPHOTOS/PS0927_MasonJar_BL-500x500.jpg)
+![Mason Jar](http://www.hamptonart.com/image/cache/data/2015WEBPHOTOS/PS0927_MasonJar_BL-500x500.jpg)
 
 Clone and package the project with <a href="https://maven.apache.org/download.cgi" target="_blank">mvn</a>
 
