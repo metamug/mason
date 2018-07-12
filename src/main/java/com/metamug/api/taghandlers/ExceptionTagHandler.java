@@ -229,7 +229,7 @@ import javax.sql.DataSource;
 public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private Object value;
-    @Resource(name = "jdbc/mtgMySQL")
+    @Resource(name = "jdbc/mtgDataSource")
     private DataSource ds;
 
     /**

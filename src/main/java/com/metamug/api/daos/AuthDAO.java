@@ -201,109 +201,91 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.api.common;
+package com.metamug.api.daos;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.metamug.api.services.ConnectionProvider;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
 import org.json.JSONObject;
-import org.json.XML;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class XResponse {
+public class AuthDAO {
 
-    private int statusCode;
-    private Map<String, String> headers;
-    private String body;
-
-    public XResponse(int statusCode, String body) {
-        this.statusCode = statusCode;
-        headers = new HashMap<>();
-        this.body = body;
-
-    }
-
-    public JSONObject getJsonForXmlXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-
-        obj.put("body", body);
-
-        return obj;
-    }
-
-    public String getXmlForXmlXResponse() {
-        return XML.toString(getJsonForXmlXResponse());
-    }
-
-    public JSONObject getJsonForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                obj.put("body", bodyArray);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+    public JSONObject validateBasic(String userName, String password, String roleName) {
+        JSONObject status = new JSONObject();
+        status.put("status", 0);
+        String authQuery = "";
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower('Basic')"); ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
+                if (authQueryResult.next()) {
+                    authQuery = authQueryResult.getString("auth_query");
+                }
             }
-        }
-        return obj;
-    }
-
-    public String getXmlForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("row", bodyArray);
-                obj.put("body", responseBody);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+            if (!authQuery.isEmpty()) {
+                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
+                    basicStmnt.setString(1, userName);
+                    basicStmnt.setString(2, password);
+                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
+                        while (basicResult.next()) {
+                            status.put("user_id", basicResult.getString(1));
+                            status.put("role", basicResult.getString(2));
+                            if (basicResult.getString(2).equalsIgnoreCase(roleName)) {
+                                status.put("status", 1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                status.put("status", -1);
             }
+        } catch (SQLException | IOException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
-        return XML.toString(obj);
+        return status;
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    public JSONObject validateBearer(String bearerToken, String roleName) {
+        JSONObject status = new JSONObject();
+        status.put("status", 0);
+        String authQuery = "";
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            try (PreparedStatement bearerAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower('Bearer')"); ResultSet authQueryResult = bearerAuthQueryStmnt.executeQuery()) {
+                if (authQueryResult.next()) {
+                    authQuery = authQueryResult.getString("auth_query");
+                }
+            }
+            if (!authQuery.isEmpty()) {
+                try (PreparedStatement bearerStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
+                    bearerStmnt.setString(1, bearerToken);
+                    try (ResultSet bearerResult = bearerStmnt.executeQuery()) {
+                        while (bearerResult.next()) {
+                            status.put("user_id", bearerResult.getString(1));
+                            status.put("role", bearerResult.getString(2));
+                            if (bearerResult.getString(2).equalsIgnoreCase(roleName)) {
+                                status.put("status", 1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                status.put("status", -1);
+            }
+        } catch (SQLException | IOException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return status;
     }
 
-    public void setStatusCode(int sc) {
-        statusCode = sc;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String b) {
-        body = b;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, String> h) {
-        headers = h;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
-    }
 }

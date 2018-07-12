@@ -203,7 +203,15 @@
  */
 package com.metamug.api.filters;
 
+import com.metamug.api.services.AnalyticService;
+import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -215,17 +223,18 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author Kainix
+ * @author Kaisteel
  */
-public class ConsoleAuthFilter implements Filter {
+public class AnalyticFilter implements Filter {
+
+    private static final boolean DEBUG = false;
 
     // The filter configuration object we are associated with.  If
     // this value is null, this filter instance is not currently
     // configured.
     private FilterConfig filterConfig = null;
-    private String encoding;
 
-    public ConsoleAuthFilter() {
+    public AnalyticFilter() {
     }
 
     /**
@@ -239,41 +248,8 @@ public class ConsoleAuthFilter implements Filter {
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-        if (null == request.getCharacterEncoding()) {
-            request.setCharacterEncoding(encoding);
-        }
-//        String token = req.getHeader("Autherization");
-//        PrintWriter writer = response.getWriter();
-//        response.setContentType("application/json;charset=UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//        JSONObject obj = new JSONObject();
-//        log("filter logging" + req.getServletPath());
-//        if (req.getServletPath().contains("accessToken") || req.getServletPath().contains("user") || req.getServletPath().contains("index")||req.getServletPath().contains("docs")) {
-        chain.doFilter(req, res);
-//        } else if (token != null) {
-//            AuthService authService = new AuthService();
-//            int userId = authService.authorizeToken(token);
-//            if (userId != 0) {
-//                request.setAttribute("userId", userId);
-//                chain.doFilter(request, response);
-//            } else {
-//                res.setStatus(401);
-//                obj.put("message", "Unauthorized Request");
-//                obj.put("status", 401);
-//                writer.print(obj);
-//                writer.flush();
-//                writer.close();
-//            }
-//        } else {
-//            res.setStatus(400);
-//            obj.put("message", "Bad Request");
-//            obj.put("status", 400);
-//            writer.print(obj);
-//            writer.flush();
-//            writer.close();
-//        }
+        chain.doFilter(request, response);
+        logRequest((HttpServletRequest) request, (HttpServletResponse) response);
     }
 
     /**
@@ -295,6 +271,13 @@ public class ConsoleAuthFilter implements Filter {
     }
 
     /**
+     * Destroy method for this filter
+     */
+    @Override
+    public void destroy() {
+    }
+
+    /**
      * Init method for this filter
      *
      * @param filterConfig
@@ -302,17 +285,76 @@ public class ConsoleAuthFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
-        encoding = filterConfig.getInitParameter("requestEncoding");
-        if (encoding == null) {
-            encoding = "UTF-8";
+        if (filterConfig != null) {
+            if (DEBUG) {
+                log("ConsoleAnalyticFilter:Initializing filter");
+            }
         }
+    }
+
+    /**
+     * Return a String representation of this object.
+     */
+    @Override
+    public String toString() {
+        if (filterConfig == null) {
+            return ("ConsoleAnalyticFilter()");
+        }
+        StringBuilder sb = new StringBuilder("ConsoleAnalyticFilter(");
+        sb.append(filterConfig);
+        sb.append(")");
+        return (sb.toString());
     }
 
     public void log(String msg) {
         filterConfig.getServletContext().log(msg);
     }
 
-    @Override
-    public void destroy() {
+    private void logRequest(HttpServletRequest request, HttpServletResponse response) {
+        String[] path = request.getContextPath().concat(request.getServletPath()).split("/");
+        if (path.length >= 4) {
+            String appName = path[1];
+            String version = path[2];
+            String resource = path[path.length - 1];
+            String userAgent = request.getHeader("User-Agent") == null ? "" : request.getHeader("User-Agent");
+            String deviceType = getDeviceType(userAgent);
+            if (!version.equalsIgnoreCase("docs") && !version.equalsIgnoreCase("query") && !resource.contains(".html")) {
+                AnalyticService analyticService = new AnalyticService();
+                Pattern pattern = Pattern.compile("[0-9]");
+                if (resource.contains("?")) {
+                    resource = resource.substring(0, resource.indexOf("?"));
+                    Matcher matcher = pattern.matcher(resource);
+                    if (matcher.find()) {
+                        resource = path[path.length - 2];
+                    }
+                } else if (pattern.matcher(resource).find()) {
+                    resource = path[path.length - 2];
+                }
+                int contentLength = 0;
+                if (request.getAttribute("Content-Length") != null) {
+                    contentLength = (int) request.getAttribute("Content-Length");
+                }
+                try {
+                    if (response.getStatus() != 404) {
+                        analyticService.logRequest(request.getRemoteAddr(), appName, resource, version, deviceType, response.getStatus(), contentLength);
+                    }
+
+                } catch (SQLException | IOException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+                    Logger.getLogger(AnalyticFilter.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                }
+            }
+        }
+    }
+
+    public static String getDeviceType(String userAgent) {
+        String deviceType = "Desktop";
+        if (userAgent.toLowerCase().contains("tablet")) {
+            deviceType = "Tablet";
+        } else if (userAgent.toLowerCase().contains("tv")) {
+            deviceType = "TV";
+        } else if (userAgent.toLowerCase().contains("mobi")) {
+            deviceType = "Mobile";
+        }
+        return deviceType;
     }
 }

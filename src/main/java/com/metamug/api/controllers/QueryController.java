@@ -201,109 +201,120 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.api.common;
+package com.metamug.api.controllers;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.metamug.api.services.AnalyticService;
+import com.metamug.api.services.QueryService;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.XML;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class XResponse {
+@WebServlet(name = "QueryController", urlPatterns = {"/query"})
+public class QueryController extends HttpServlet {
 
-    private int statusCode;
-    private Map<String, String> headers;
-    private String body;
-
-    public XResponse(int statusCode, String body) {
-        this.statusCode = statusCode;
-        headers = new HashMap<>();
-        this.body = body;
-
-    }
-
-    public JSONObject getJsonForXmlXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-
-        obj.put("body", body);
-
-        return obj;
-    }
-
-    public String getXmlForXmlXResponse() {
-        return XML.toString(getJsonForXmlXResponse());
-    }
-
-    public JSONObject getJsonForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        AnalyticService analyticService = new AnalyticService();
+        String appName = request.getContextPath().split("/")[1];
+        JSONObject result = new JSONObject();
+        if (request.getRemoteAddr().equals("127.0.0.1")) {
             try {
-                JSONArray bodyArray = new JSONArray(body);
-                obj.put("body", bodyArray);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+                String query = request.getParameter("query") == null ? "" : request.getParameter("query").toLowerCase().trim();
+                switch (query) {
+                    case "errorlog":
+                        result = analyticService.getErrorLogs();
+                        break;
+                    case "querylog":
+                        result = analyticService.getQueryLogs(appName);
+                        break;
+                    case "stats":
+                        result = analyticService.getStats(appName);
+                        break;
+                }
+                try (ServletOutputStream out = response.getOutputStream()) {
+                    out.print(result.toString());
+                    out.flush();
+                }
+            } catch (PropertyVetoException | IOException | ClassNotFoundException | SQLException | NamingException ex) {
+                response.setStatus(500);
+                Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
-        return obj;
     }
 
-    public String getXmlForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        QueryService queryService = new QueryService();
+        AnalyticService analyticService = new AnalyticService();
+        String appName = request.getContextPath().split("/")[1];
+        JSONArray result = new JSONArray();
+        if (request.getRemoteAddr().equals("127.0.0.1")) {
             try {
-                JSONArray bodyArray = new JSONArray(body);
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("row", bodyArray);
-                obj.put("body", responseBody);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+                String action = request.getParameter("action") == null ? "" : request.getParameter("action").toLowerCase().trim();
+                String query = request.getParameter("query") == null ? "" : request.getParameter("query").trim();
+                switch (action) {
+                    case "query":
+                        result = queryService.execute(action, appName, query);
+                        break;
+                    case "plsql":
+                        result = queryService.execute(action, appName, query);
+                        break;
+//                    case "stats":
+////                    analyticService.getStats(appName)
+//                        break;
+                    case "defaulttables":
+                        queryService.createDefaultTables(query);
+                        break;
+                }
+                if (result.length() > 0) {
+                    response.getOutputStream().write(result.toString().getBytes("UTF-8"));
+                    response.getOutputStream().flush();
+                }
+            } catch (Exception ex) {
+                response.setStatus(500);
+                Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
-        return XML.toString(obj);
     }
 
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int sc) {
-        statusCode = sc;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String b) {
-        body = b;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, String> h) {
-        headers = h;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
     }
 }

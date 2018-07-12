@@ -201,109 +201,135 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.api.common;
+package com.metamug.api.daos;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.metamug.api.services.ConnectionProvider;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.XML;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class XResponse {
-
-    private int statusCode;
-    private Map<String, String> headers;
-    private String body;
-
-    public XResponse(int statusCode, String body) {
-        this.statusCode = statusCode;
-        headers = new HashMap<>();
-        this.body = body;
-
-    }
-
-    public JSONObject getJsonForXmlXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-
-        obj.put("body", body);
-
-        return obj;
-    }
-
-    public String getXmlForXmlXResponse() {
-        return XML.toString(getJsonForXmlXResponse());
-    }
-
-    public JSONObject getJsonForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                obj.put("body", bodyArray);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+public class AnalyticDAO {
+    
+    public JSONObject getErrorLogs() throws IOException, ClassNotFoundException, PropertyVetoException, SQLException, NamingException {
+        JSONObject errorRecords = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        JSONArray columnHeader = new JSONArray();
+        columnHeader.put("error_id").put("method").put("message").put("trace").put("uri").put("created_on");
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            try (PreparedStatement statement = con.prepareStatement("SELECT error_id,request_method,message,trace,resource as uri,created_on FROM error_log ORDER BY created_on DESC LIMIT 100")) {
+                try (ResultSet result = statement.executeQuery()) {
+                    while (result.next()) {
+                        JSONObject errorLogRecord = new JSONObject();
+                        errorLogRecord.put("error_id", result.getString("error_id"));
+                        errorLogRecord.put("method", result.getString("request_method"));
+                        errorLogRecord.put("message", result.getString("message"));
+                        errorLogRecord.put("trace", result.getString("trace"));
+                        errorLogRecord.put("uri", result.getString("uri"));
+                        errorLogRecord.put("created_on", result.getTimestamp("created_on"));
+                        jsonArray.put(errorLogRecord);
+                    }
+                }
             }
+        }
+        errorRecords.put("columnHeaders", columnHeader);
+        errorRecords.put("data", jsonArray);
+        return errorRecords;
+    }
+    
+    public JSONObject getQueryLogs(String appName) throws SQLException, PropertyVetoException, ClassNotFoundException, IOException, NamingException {
+        JSONObject queryRecords = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        JSONArray columnHeader = new JSONArray();
+        columnHeader.put("query").put("status").put("executed_on");
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            try (PreparedStatement statement = con.prepareStatement("SELECT query,status,executed_on FROM query_log WHERE app_name=? ORDER BY executed_on DESC LIMIT 100")) {
+                statement.setString(1, appName);
+                try (ResultSet result = statement.executeQuery()) {
+                    while (result.next()) {
+                        JSONObject queryLogRecord = new JSONObject();
+                        queryLogRecord.put("query", result.getString("query"));
+                        queryLogRecord.put("status", result.getBoolean("status") ? "true" : "false");
+                        queryLogRecord.put("executed_on", result.getTimestamp("executed_on"));
+                        jsonArray.put(queryLogRecord);
+                    }
+                }
+            }
+        }
+        queryRecords.put("columnHeaders", columnHeader);
+        queryRecords.put("data", jsonArray);
+        return queryRecords;
+    }
+    
+    public JSONObject getStats(String appName) {
+        JSONObject obj = new JSONObject();
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            JSONArray resourceCountArray = new JSONArray();
+            JSONArray dailyCountArray = new JSONArray();
+            PreparedStatement stmt = con.prepareStatement("SELECT app_name,resource,version,count(log_id) as count FROM request_log GROUP BY app_name,resource,version HAVING app_name=?");
+            stmt.setString(1, appName);
+            ResultSet resourceCountQuery = stmt.executeQuery();
+            while (resourceCountQuery.next()) {
+                JSONObject json = new JSONObject();
+                json.put("resource", resourceCountQuery.getString("resource"));
+                json.put("version", resourceCountQuery.getString("version"));
+                json.put("count", resourceCountQuery.getInt("count"));
+                resourceCountArray.put(json);
+            }
+            PreparedStatement stmnt = con.prepareStatement("SELECT count(log_id) AS count,CAST(logged_on as DATE) AS date FROM (SELECT log_id,app_name,logged_on FROM request_log WHERE app_name=? AND logged_on >= now()-interval 1 month) AS log GROUP BY CAST(logged_on as DATE),app_name ORDER BY CAST(logged_on as DATE) ASC");
+            stmnt.setString(1, appName);
+            ResultSet dailyCountQuery = stmnt.executeQuery();
+            while (dailyCountQuery.next()) {
+                JSONObject json = new JSONObject();
+                json.put("date", dailyCountQuery.getDate("date"));
+                json.put("count", dailyCountQuery.getInt("count"));
+                dailyCountArray.put(json);
+            }
+            obj.put("resourcecount", resourceCountArray);
+            obj.put("dailycount", dailyCountArray);
+        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            obj.put("message", "Query Error");
+            obj.put("Status", 409);
+            Logger.getLogger(AnalyticDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return obj;
     }
-
-    public String getXmlForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("row", bodyArray);
-                obj.put("body", responseBody);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+    
+    public void logRequest(String remoteAddr, String appName, String resource, String version, String deviceType, int statusCode, int contentLength) throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException {
+        try (Connection con = ConnectionProvider.getInstance().getConnection();) {
+            DatabaseMetaData dbMetaData = con.getMetaData();
+            String driverName = dbMetaData.getDriverName().toLowerCase().trim();
+            String query = "";
+            if (driverName.contains("hsqldb")) {
+                query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (?,?,?,?,?,?,?)";
+            } else if (driverName.contains("mysql")) {
+                query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (inet6_aton(?),?,?,?,?,?,?)";
+            } else if (driverName.contains("oracle")) {
+                query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (?,?,?,?,?,?,?)";
+            } else if (driverName.contains("postgres")) {
+                query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (?::inet,?,?,?,?,?,?)";
             }
+            PreparedStatement statement = con.prepareStatement(query);
+            statement.setString(1, remoteAddr);
+            statement.setString(2, appName);
+            statement.setString(3, resource);
+            statement.setString(4, version);
+            statement.setString(5, deviceType);
+            statement.setInt(6, statusCode);
+            statement.setInt(7, contentLength);
+            statement.execute();
         }
-        return XML.toString(obj);
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int sc) {
-        statusCode = sc;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String b) {
-        body = b;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, String> h) {
-        headers = h;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
     }
 }

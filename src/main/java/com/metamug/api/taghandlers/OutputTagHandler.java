@@ -343,7 +343,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     }
                 } else if (mapValue instanceof JSONObject) {
                     String result = ((JSONObject) mapValue).toString();
-                    
+
                     if (!result.isEmpty() && emptyContent) {
                         emptyContent = false;
                     }
@@ -377,7 +377,7 @@ public class OutputTagHandler extends BodyTagSupport {
                     }
                 } else if (mapValue instanceof JSONArray) {
                     String result = ((JSONArray) mapValue).toString();
-                    
+
                     if (!result.isEmpty() && emptyContent) {
                         emptyContent = false;
                     }

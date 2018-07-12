@@ -236,14 +236,13 @@ import org.json.JSONObject;
 
 /**
  * Rest Controller. Handles all the incoming requests
+ *
  * @author Kaisteel
  */
-@MultipartConfig(fileSizeThreshold = 1024 * 1024,
-        maxFileSize = 1024 * 1024 * 5,
-        maxRequestSize = 1024 * 1024 * 25)
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class RestRouterFilter implements Filter {
-    
-    private static List<String> allowedContentTypes = new ArrayList<>(Arrays.asList(
+
+    private static final List<String> ALLOWED_CONTENT_TYPES = new ArrayList<>(Arrays.asList(
             "application/json; charset=utf-8",
             "application/json",
             "application/xml",
@@ -251,8 +250,8 @@ public class RestRouterFilter implements Filter {
             "multipart/form-data"
     ));
 
-    private static final boolean DEBUG = false;
     private FilterConfig filterConfig = null;
+    private String encoding;
 
     public RestRouterFilter() {
     }
@@ -270,20 +269,21 @@ public class RestRouterFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+
+        //Setting character encoding
+        if (null == request.getCharacterEncoding()) {
+            request.setCharacterEncoding(encoding);
+        }
         String path = req.getServletPath();
         String[] tokens = path.split("/");
         if (tokens.length > 2) {
             if (req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
                 chain.doFilter(request, response);
             } else {
-                //Logger.getLogger(RestRouterFilter.class.getName()).log(Level.INFO,"Method: "+req.getMethod());
-                
                 response.setContentType("application/json");
                 String contentType = req.getContentType() == null ? "application/html" : req.getContentType();
-                //Logger.getLogger(RestRouterFilter.class.getName()).log(Level.INFO,"ContentType: "+contentType);
-                
-                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete")
-                        || (contentType != null && (allowedContentTypes.contains(contentType.toLowerCase()) || contentType.contains("html") ))) {
+
+                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase()) || contentType.contains("html")))) {
                     try {
                         String appName = req.getServletContext().getContextPath();
                         String version = tokens[1];
@@ -386,9 +386,6 @@ public class RestRouterFilter implements Filter {
                         jsonData.append(line);
                     }
                 }
-                
-                //Logger.getLogger(RestRouterFilter.class.getName()).log(Level.INFO,
-                  //      "BBODY: "+jsonData.toString());
                 Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
                 flattenAsMap.entrySet().forEach((entry) -> {
                     String key = entry.getKey();
@@ -539,10 +536,9 @@ public class RestRouterFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
-        if (filterConfig != null) {
-            if (DEBUG) {
-                log("RestRouterFilter:Initializing filter");
-            }
+        encoding = filterConfig.getInitParameter("requestEncoding");
+        if (encoding == null) {
+            encoding = "UTF-8";
         }
     }
 

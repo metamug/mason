@@ -206,20 +206,13 @@ package com.metamug.api.taghandlers;
 import com.metamug.api.common.MtgRequest;
 import com.metamug.api.exceptions.MetamugError;
 import com.metamug.api.exceptions.MetamugException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.metamug.api.services.AuthService;
 import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
-import javax.sql.DataSource;
 import org.json.JSONObject;
 
 /**
@@ -229,14 +222,14 @@ import org.json.JSONObject;
 public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private String value;
-    @Resource(name = "jdbc/mtgMySQL")
-    private DataSource ds;
+    private AuthService authService;
 
     /**
      * Creates new instance of tag handler
      */
     public GroupTagHandler() {
         super();
+        this.authService = new AuthService();
     }
 
     /**
@@ -311,80 +304,18 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public void doFinally() {
     }
+
     /*
     private JSONObject validateJwt(String bearerToken) {
         JSONObject status = new JSONObject();
         status.put("status", 0);
-        
-        
-        
         return status;
     }*/
-
     private JSONObject validateBasic(String userName, String password) {
-        JSONObject status = new JSONObject();
-        status.put("status", 0);
-        String authQuery = "";
-        try (Connection con = ds.getConnection()) {
-            try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower('Basic')"); ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
-                if (authQueryResult.next()) {
-                    authQuery = authQueryResult.getString("auth_query");
-                }
-            }
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    basicStmnt.setString(1, userName);
-                    basicStmnt.setString(2, password);
-                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
-                        while (basicResult.next()) {
-                            status.put("user_id", basicResult.getString(1));
-                            status.put("role", basicResult.getString(2));
-                            if (basicResult.getString(2).equalsIgnoreCase(value)) {
-                                status.put("status", 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                status.put("status", -1);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(GroupTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return status;
+        return authService.validateBasic(userName, password, value);
     }
 
     private JSONObject validateBearer(String bearerToken) {
-        JSONObject status = new JSONObject();
-        status.put("status", 0);
-        String authQuery = "";
-        try (Connection con = ds.getConnection()) {
-            try (PreparedStatement bearerAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower('Bearer')"); ResultSet authQueryResult = bearerAuthQueryStmnt.executeQuery()) {
-                if (authQueryResult.next()) {
-                    authQuery = authQueryResult.getString("auth_query");
-                }
-            }
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement bearerStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    bearerStmnt.setString(1, bearerToken);
-                    try (ResultSet bearerResult = bearerStmnt.executeQuery()) {
-                        while (bearerResult.next()) {
-                            status.put("user_id", bearerResult.getString(1));
-                            status.put("role", bearerResult.getString(2));
-                            if (bearerResult.getString(2).equalsIgnoreCase(value)) {
-                                status.put("status", 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                status.put("status", -1);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(GroupTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return status;
+        return authService.validateBearer(bearerToken, value);
     }
 }

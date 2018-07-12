@@ -201,109 +201,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.api.common;
+package com.metamug.api.services;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.metamug.api.daos.AuthDAO;
 import org.json.JSONObject;
-import org.json.XML;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class XResponse {
+public class AuthService {
 
-    private int statusCode;
-    private Map<String, String> headers;
-    private String body;
+    private final AuthDAO dao;
 
-    public XResponse(int statusCode, String body) {
-        this.statusCode = statusCode;
-        headers = new HashMap<>();
-        this.body = body;
-
+    public AuthService() {
+        this.dao = new AuthDAO();
     }
 
-    public JSONObject getJsonForXmlXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-
-        obj.put("body", body);
-
-        return obj;
+    public JSONObject validateBasic(String userName, String password, String roleName) {
+        return dao.validateBasic(userName, password, roleName);
     }
 
-    public String getXmlForXmlXResponse() {
-        return XML.toString(getJsonForXmlXResponse());
-    }
-
-    public JSONObject getJsonForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                obj.put("body", bodyArray);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
-            }
-        }
-        return obj;
-    }
-
-    public String getXmlForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("row", bodyArray);
-                obj.put("body", responseBody);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
-            }
-        }
-        return XML.toString(obj);
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int sc) {
-        statusCode = sc;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String b) {
-        body = b;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, String> h) {
-        headers = h;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
+    public JSONObject validateBearer(String bearerToken, String roleName) {
+       return dao.validateBearer(bearerToken,roleName);
     }
 }

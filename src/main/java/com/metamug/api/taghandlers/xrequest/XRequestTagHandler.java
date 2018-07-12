@@ -234,7 +234,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     private String requestBody;
     private Object param;
     private String type;
-    
+
     private Boolean isVerbose;
     private Boolean isPersist;
 
@@ -255,27 +255,26 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     }
 
     @Override
-    public int doEndTag() throws JspException {     
-        
-        LinkedHashMap<String,Object> map = (LinkedHashMap<String,Object>) 
-                pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+    public int doEndTag() throws JspException {
+
+        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         //Accept header of mtg request
         String acceptHeader = (String) type == null ? "application/json" : (String) type;
         //Accept type of XRequest
         String xAcceptType = "json";
-        for (Map.Entry<String, String> entry : headers.entrySet()){
-            if(entry.getKey().equals("Accept")) {
-                if(entry.getValue().equals("application/xml")) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            if (entry.getKey().equals("Accept")) {
+                if (entry.getValue().equals("application/xml")) {
                     //if Accept header of XRequest is application/xml 
                     xAcceptType = "xml";
                 }
-            }            
+            }
         }
-        
+
         XResponse xresponse = null;
         try {
-            switch(method) {
+            switch (method) {
                 case "GET":
                     xresponse = XRequestClient.get(url, headers, parameters);
                     break;
@@ -289,56 +288,59 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                     xresponse = XRequestClient.delete(url, parameters);
                     break;
                 default:
-                    throw new JspTagException("Unsupported method \""+method+"\".");
+                    throw new JspTagException("Unsupported method \"" + method + "\".");
             }
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             throw new JspException("XRequest IOException: " + ex.getMessage());
-        } 
-        
-        if(Arrays.asList(acceptHeader.split("/")).contains("xml")){
+        }
+
+        if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
             String xResponseXml = null;
-            if(xAcceptType.equals("xml"))
+            if (xAcceptType.equals("xml")) {
                 xResponseXml = xresponse.getXmlForXmlXResponse();
-            else
+            } else {
                 xResponseXml = xresponse.getXmlForJsonXResponse();
-            
+            }
+
             if (isVerbose != null && isVerbose) {
                 map.put("dxrequest" + (map.size() + 1), xResponseXml);
             }
 
-            if (isPersist != null && isPersist) {                               
+            if (isPersist != null && isPersist) {
                 mtgReq.getParams().put(id, xResponseXml);
                 pageContext.getRequest().setAttribute("mtgReq", mtgReq);
             }
 
         } else {
             JSONObject xResponseJson = null;
-            if(xAcceptType.equals("xml"))
+            if (xAcceptType.equals("xml")) {
                 xResponseJson = xresponse.getJsonForXmlXResponse();
-            else
+            } else {
                 xResponseJson = xresponse.getJsonForJsonXResponse();
-            
-            if (isVerbose != null && isVerbose) 
+            }
+
+            if (isVerbose != null && isVerbose) {
                 map.put("dxrequest" + (map.size() + 1), xResponseJson);
-            
-            if (isPersist != null && isPersist) {                               
+            }
+
+            if (isPersist != null && isPersist) {
                 mtgReq.getParams().put(id, xResponseJson.toString());
                 pageContext.getRequest().setAttribute("mtgReq", mtgReq);
             }
         }
-                    
+
         return EVAL_PAGE;
-        
+
     }
 
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public void setType(String value) {
         this.type = value;
     }
-    
+
     public void setUrl(String u) {
         url = u;
     }
@@ -349,8 +351,8 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
     public void setParam(String p) {
         param = p;
-    } 
-    
+    }
+
     public void setIsVerbose(Boolean isVerbose) {
         this.isVerbose = isVerbose;
     }
@@ -362,22 +364,22 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     public void setRequestBody(String b) {
         requestBody = b;
     }
-    
-    public void setHeaders(Map<String,String> headers) {
+
+    public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
-    
-    public void setParameters(Map<String,String> parameters) {
+
+    public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
     }
 
     public void addHeader(String name, String value) {
-       
+
         headers.put(name, value);
     }
 
     public void addParameter(String name, String value) {
-       
+
         parameters.put(name, value);
     }
 

@@ -201,109 +201,85 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.api.common;
+package com.metamug.api.services;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.metamug.api.daos.QueryDAO;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.naming.NamingException;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.XML;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class XResponse {
+public class QueryService {
 
-    private int statusCode;
-    private Map<String, String> headers;
-    private String body;
+    private final QueryDAO dao;
 
-    public XResponse(int statusCode, String body) {
-        this.statusCode = statusCode;
-        headers = new HashMap<>();
-        this.body = body;
-
+    public QueryService() {
+        this.dao = new QueryDAO();
     }
 
-    public JSONObject getJsonForXmlXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-
-        obj.put("body", body);
-
-        return obj;
-    }
-
-    public String getXmlForXmlXResponse() {
-        return XML.toString(getJsonForXmlXResponse());
-    }
-
-    public JSONObject getJsonForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                obj.put("body", bodyArray);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+    public JSONArray execute(String queryType, String appName, String queries) throws ClassNotFoundException, IOException, PropertyVetoException, NamingException {
+        JSONArray tablesArray = new JSONArray();
+        JSONObject tableData = new JSONObject();
+        if (queryType.equalsIgnoreCase("query")) {
+            for (String query : separateBySemiColon(queries)) {
+                if (queries.toLowerCase().contains("create function") || queries.toLowerCase().contains("create or replace function") || queries.toLowerCase().contains("create procedure") || queries.toLowerCase().contains("create or replace procedure")) {
+                    JSONArray dataArray = new JSONArray();
+                    tableData.put("status", 403);
+                    tableData.put("data", dataArray.put("You can't create functions/procedures here"));
+                    tablesArray.put(tableData);
+                } else {
+                    tablesArray.put(dao.executeSql(query, appName));
+                }
+            }
+        } else if (queryType.equalsIgnoreCase("plsql")) {
+            if (queries.toLowerCase().contains("create trigger") || queries.toLowerCase().contains("drop trigger") || queries.toLowerCase().contains("create function") || queries.toLowerCase().contains("create or replace function") || queries.toLowerCase().contains("create procedure") || queries.toLowerCase().contains("create or replace procedure") || queries.toLowerCase().contains("drop procedure") || queries.toLowerCase().contains("drop function")) {
+                tablesArray.put(dao.executeSql(queries, appName));
+            } else {
+                JSONArray dataArray = new JSONArray();
+                tableData.put("status", 403);
+                tableData.put("data", dataArray.put("You can only create functions/procedures here"));
+                tablesArray.put(tableData);
             }
         }
-        return obj;
+        return tablesArray;
     }
 
-    public String getXmlForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
+    public void createDefaultTables(String queries) {
         try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("row", bodyArray);
-                obj.put("body", responseBody);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+            for (String query : separateBySemiColon(queries)) {
+                dao.createDefaultTables(query);
             }
+        } catch (SQLException | PropertyVetoException | ClassNotFoundException | NamingException | IOException ex) {
+            Logger.getLogger(QueryService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
-        return XML.toString(obj);
     }
 
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int sc) {
-        statusCode = sc;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String b) {
-        body = b;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, String> h) {
-        headers = h;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
+    private List<String> separateBySemiColon(String str) {
+        str = str.replace("\"", "'");
+        char last = str.charAt(str.length() - 1);
+        if (!(last == ';')) {
+            str += ';';
+        }
+        Pattern p = Pattern.compile("((?:(?:'[^']*')|[^;])*);");
+        Matcher m = p.matcher(str);
+        //int cnt = 0;
+        List<String> sqlList = new ArrayList<>();
+        while (m.find()) {
+            //  System.out.println(++cnt + ": " + m.group(1));
+            sqlList.add(m.group(1));
+        }
+        return sqlList;
     }
 }

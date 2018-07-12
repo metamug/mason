@@ -222,7 +222,7 @@ public enum MetamugError {
     UPLOAD_CODE_ERROR("Error occured in upload event."),
     UPLOAD_SIZE_EXCEEDED("File size exceeds limit."),
     XRESPONSE_PARSE_ERROR("Unable to parse XRequest response");
-    
+
     private final String msg;
 
     MetamugError(String msg) {

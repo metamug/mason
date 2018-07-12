@@ -203,11 +203,17 @@
  */
 package com.metamug.api.services;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import javax.annotation.Resource;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 /**
@@ -216,19 +222,37 @@ import javax.sql.DataSource;
  */
 public class ConnectionProvider {
 
-    @Resource(name = "jdbc/mtgMySQL")
-    private DataSource ds;
+    DataSource ds;
     private final Connection con;
 
-    private ConnectionProvider() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException {
+    private ConnectionProvider() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException {
+        Context initialContext = new InitialContext();
+        Context envContext = (Context) initialContext.lookup("java:/comp/env");
+        ds = (DataSource) envContext.lookup("jdbc/mtgDataSource");
         con = ds.getConnection();
     }
 
-    public static ConnectionProvider getInstance() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException {
+    public static ConnectionProvider getInstance() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException {
         return new ConnectionProvider();
     }
 
     public Connection getConnection() throws SQLException {
         return this.con;
+    }
+
+    public static void shutdown() {
+        String driver = "";
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            DatabaseMetaData dbMetaData = con.getMetaData();
+            driver = dbMetaData.getDriverName().toLowerCase().trim();
+        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        if (driver.contains("hsqldb")) {
+        } else if (driver.contains("mysql")) {
+            //set this for mysql driver
+            //https://stackoverflow.com/a/19027873/4800126
+            AbandonedConnectionCleanupThread.checkedShutdown();
+        }
     }
 }

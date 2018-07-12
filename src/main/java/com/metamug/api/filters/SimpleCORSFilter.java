@@ -217,7 +217,6 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Kaisteel
  */
-//@WebFilter(filterName = "SimpleCORSFilter", urlPatterns = {"/*"})
 public class SimpleCORSFilter implements Filter {
 
     private FilterConfig filterConfig = null;
@@ -246,7 +245,8 @@ public class SimpleCORSFilter implements Filter {
         res.setHeader("Access-Control-Max-Age", "3600");
         // Just ACCEPT and REPLY OK if OPTIONS
         if (req.getMethod().equals("OPTIONS")) {
-            res.setStatus(HttpServletResponse.SC_OK);
+            res.setStatus(HttpServletResponse.SC_ACCEPTED);
+            return;
         }
         chain.doFilter(request, res);
 

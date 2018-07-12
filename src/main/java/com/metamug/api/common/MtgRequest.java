@@ -288,5 +288,4 @@ public class MtgRequest {
     public void setParent(String parent) {
         this.parent = parent;
     }
-
 }

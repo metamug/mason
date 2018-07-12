@@ -244,7 +244,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     private Boolean isPersist;
     private Boolean isCollect;
     private List<Object> parameters;
-    @Resource(name = "jdbc/mtgMySQL")
+    @Resource(name = "jdbc/mtgDataSource")
     private DataSource ds;
 
     public CodeTagHandler() throws NoSuchAlgorithmException {
@@ -319,19 +319,19 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     });
                     Enumeration<String> headerNames = request.getHeaderNames();
                     Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    while(headerNames.hasMoreElements()) {
+                    while (headerNames.hasMoreElements()) {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));
                     }
                     result = reqProcessable.process(requestParameters, ds, requestHeaders);
 
-                    if(result instanceof List) {
+                    if (result instanceof List) {
                         if (acceptHeader.equals("application/json")) {
                             JSONArray outputArray = new JSONArray();
-                            for(Object object : (List) result) {
+                            for (Object object : (List) result) {
                                 outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
-                            if(isVerbose != null && isVerbose) {
+                            if (isVerbose != null && isVerbose) {
                                 if (isCollect != null && isCollect) {
                                     //dxrequest
                                     map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
@@ -355,9 +355,9 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                 JSONObject jsonOutput = new JSONObject((String) processedResult);
                                 if (isVerbose != null && isVerbose) {
                                     if (isCollect != null && isCollect) {
-                                        map.put("dexecute" + (mapSize+1), MPathUtil.collect(new JSONArray(jsonOutput)));
+                                        map.put("dexecute" + (mapSize + 1), MPathUtil.collect(new JSONArray(jsonOutput)));
                                     } else {
-                                        map.put("dexecute" + (mapSize+1), jsonOutput);
+                                        map.put("dexecute" + (mapSize + 1), jsonOutput);
                                     }
                                 }
                                 //xrequest

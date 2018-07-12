@@ -225,20 +225,20 @@ import org.json.JSONObject;
  * @author anishhirlekar
  */
 public class XRequestClient {
-    
+
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    
-    public static XResponse get(String url, Map<String,String> headers, 
-                                Map<String,String> params) throws IOException {
+
+    public static XResponse get(String url, Map<String, String> headers,
+            Map<String, String> params) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        
+
         Request.Builder reqBuilder = new Request.Builder().get();
         headers.entrySet().forEach((entry) -> {
             String key = entry.getKey();
             String value = entry.getValue();
             reqBuilder.addHeader(key, value);
         });
-        
+
         StringBuilder queryParams = new StringBuilder();
         for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {
@@ -254,38 +254,39 @@ public class XRequestClient {
             }
         }
         url = url + "?" + queryParams.toString();
-        
+
         Request request = reqBuilder.url(url).build();
-        
+
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) 
+            if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response);
-            
-            XResponse xr = new XResponse(response.code(),response.body().string().trim());
+            }
+
+            XResponse xr = new XResponse(response.code(), response.body().string().trim());
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
-                xr.addHeader(responseHeaders.name(i),responseHeaders.value(i));
+                xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
             }
-            
+
             return xr;
         }
     }
-    
-    public static XResponse put(String url, Map<String,String> headers, 
-                    Map<String,String> params, String body) throws IOException {
+
+    public static XResponse put(String url, Map<String, String> headers,
+            Map<String, String> params, String body) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        
+
         Request.Builder reqBuilder = null;
         String contentType = headers.get("Content-Type").toLowerCase();
-        if(contentType.equals("application/x-www-form-urlencoded")) {
+        if (contentType.equals("application/x-www-form-urlencoded")) {
             FormBody.Builder formBuilder = new FormBody.Builder();
-            
+
             for (String key : params.keySet()) {
                 formBuilder.add(key, params.get(key));
             }
             reqBuilder = new Request.Builder().put(formBuilder.build());
-        } else if(contentType.equals("application/json")) {
-            if((body!=null)&&(!body.equals(""))) {
+        } else if (contentType.equals("application/json")) {
+            if ((body != null) && (!body.equals(""))) {
                 RequestBody reqBody = RequestBody.create(JSON, body);
                 reqBuilder = new Request.Builder().put(reqBody);
             } else {
@@ -298,47 +299,49 @@ public class XRequestClient {
             }
         }
         //no params or body given
-        if(null == reqBuilder) {
+        if (null == reqBuilder) {
             RequestBody reqbody = RequestBody.create(null, new byte[0]);
             reqBuilder = new Request.Builder().put(reqbody);
         }
-        
+
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             reqBuilder.addHeader(key, value);
         }
-        
-        Request request = reqBuilder.url(url).build();
-        
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            XResponse xr = new XResponse(response.code(),response.body().string().trim());
+        Request request = reqBuilder.url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+
+            XResponse xr = new XResponse(response.code(), response.body().string().trim());
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
-                xr.addHeader(responseHeaders.name(i),responseHeaders.value(i));
+                xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
             }
-            
+
             return xr;
         }
     }
-    
-    public static XResponse post(String url, Map<String,String> headers, 
-                    Map<String,String> params, String body) throws IOException {
+
+    public static XResponse post(String url, Map<String, String> headers,
+            Map<String, String> params, String body) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        
+
         Request.Builder reqBuilder = null;
         String contentType = headers.get("Content-Type").toLowerCase();
-        if(contentType.equals("application/x-www-form-urlencoded")) {
+        if (contentType.equals("application/x-www-form-urlencoded")) {
             FormBody.Builder formBuilder = new FormBody.Builder();
-            
+
             for (String key : params.keySet()) {
                 formBuilder.add(key, params.get(key));
             }
             reqBuilder = new Request.Builder().post(formBuilder.build());
-        } else if(contentType.equals("application/json")) {
-            if((body!=null)&&(!body.equals(""))) {
+        } else if (contentType.equals("application/json")) {
+            if ((body != null) && (!body.equals(""))) {
                 RequestBody reqBody = RequestBody.create(JSON, body);
                 reqBuilder = new Request.Builder().post(reqBody);
             } else {
@@ -351,35 +354,37 @@ public class XRequestClient {
             }
         }
         //no params or body given
-        if(null == reqBuilder) {
+        if (null == reqBuilder) {
             RequestBody reqbody = RequestBody.create(null, new byte[0]);
             reqBuilder = new Request.Builder().post(reqbody);
         }
-        
+
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             reqBuilder.addHeader(key, value);
         }
-        
-        Request request = reqBuilder.url(url).build();
-        
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            XResponse xr = new XResponse(response.code(),response.body().string().trim());
+        Request request = reqBuilder.url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+
+            XResponse xr = new XResponse(response.code(), response.body().string().trim());
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
-                xr.addHeader(responseHeaders.name(i),responseHeaders.value(i));
+                xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
             }
-            
+
             return xr;
         }
     }
-    
-    public static XResponse delete(String url, Map<String,String> params) throws IOException{
+
+    public static XResponse delete(String url, Map<String, String> params) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        
+
         StringBuilder queryParams = new StringBuilder();
         for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {
@@ -395,18 +400,20 @@ public class XRequestClient {
             }
         }
         url = url + "?" + queryParams.toString();
-        
-        Request request = new Request.Builder().url(url).delete().build();
-        
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            XResponse xr = new XResponse(response.code(),response.body().string().trim());
+        Request request = new Request.Builder().url(url).delete().build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+
+            XResponse xr = new XResponse(response.code(), response.body().string().trim());
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
-                xr.addHeader(responseHeaders.name(i),responseHeaders.value(i));
+                xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
             }
-            
+
             return xr;
         }
     }

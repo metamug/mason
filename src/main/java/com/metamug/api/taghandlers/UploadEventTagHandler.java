@@ -246,12 +246,10 @@ import org.json.JSONObject;
  *
  * @author Kaisteel
  */
-@MultipartConfig(fileSizeThreshold = 1024 * 1024,
-        maxFileSize = 1024 * 1024 * 5,
-        maxRequestSize = 1024 * 1024 * 25)
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFinally {
 
-    @Resource(name = "jdbc/mtgMySQL")
+    @Resource(name = "jdbc/mtgDataSource")
     private DataSource ds;
 
     /**

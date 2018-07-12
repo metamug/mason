@@ -201,109 +201,227 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.api.common;
+package com.metamug.api.daos;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.metamug.api.services.ConnectionProvider;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.naming.NamingException;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.XML;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class XResponse {
+public class QueryDAO {
 
-    private int statusCode;
-    private Map<String, String> headers;
-    private String body;
-
-    public XResponse(int statusCode, String body) {
-        this.statusCode = statusCode;
-        headers = new HashMap<>();
-        this.body = body;
-
+    public QueryDAO() {
     }
 
-    public JSONObject getJsonForXmlXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-
-        obj.put("body", body);
-
-        return obj;
+    /**
+     *
+     * @param query Default Table generation query.
+     * @throws SQLException
+     * @throws PropertyVetoException
+     * @throws ClassNotFoundException
+     * @throws IOException
+     * @throws NamingException
+     */
+    public void createDefaultTables(String query) throws SQLException, PropertyVetoException, ClassNotFoundException, IOException, NamingException {
+        try (Connection con = ConnectionProvider.getInstance().getConnection(); Statement statement = con.createStatement();) {
+            statement.execute(query);
+        }
     }
 
-    public String getXmlForXmlXResponse() {
-        return XML.toString(getJsonForXmlXResponse());
-    }
-
-    public JSONObject getJsonForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
+    /**
+     *
+     * @param query SQL statement to execute
+     * @param appName Name of the backend
+     * @return HTML Table in form of string.
+     * @throws java.lang.ClassNotFoundException
+     * @throws java.beans.PropertyVetoException
+     * @throws java.io.IOException
+     * @throws javax.naming.NamingException
+     */
+    public JSONObject executeSql(String query, String appName) throws ClassNotFoundException, IOException, PropertyVetoException, NamingException {
+        boolean isSuccessfull = true;
+        JSONObject tableData = new JSONObject();
+        JSONArray dataArray = new JSONArray();
+        JSONArray columnHeader = new JSONArray();
+        String driver = "";
         try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                obj.put("body", bodyArray);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+            int recordCount = 0;
+            try (Connection con = ConnectionProvider.getInstance().getConnection(); Statement statement = con.createStatement()) {
+                DatabaseMetaData dbMetaData = con.getMetaData();
+                driver = dbMetaData.getDriverName().toLowerCase().trim();
+                boolean status = statement.execute(query);
+                tableData.put("status", 200);
+                if (status) {
+                    try (ResultSet resultSet = statement.getResultSet()) {
+                        ResultSetMetaData metaData = resultSet.getMetaData();
+                        int columnCount = metaData.getColumnCount();
+                        for (int i = 1; i <= columnCount; i++) {
+                            columnHeader.put(metaData.getColumnLabel(i));
+                        }
+                        tableData.put("columnHeaders", columnHeader);
+                        while (resultSet.next()) {
+                            recordCount++;
+                            tableData.put("recordCount", recordCount);
+                            JSONArray array = new JSONArray();
+                            for (int i = 1; i <= columnCount; i++) {
+                                if (resultSet.getObject(i) == Boolean.TRUE) {
+                                    array.put("true");
+                                } else if (resultSet.getObject(i) == Boolean.FALSE) {
+                                    array.put("false");
+                                } else {
+                                    array.put(resultSet.getObject(i));
+                                }
+                            }
+                            tableData.accumulate("data", array);
+                        }
+                    }
+                    if (recordCount < 1) {
+                        tableData.put("status", 204);
+                    }
+                } else {
+                    int executeUpdate = statement.getUpdateCount();
+                    tableData.put("data", dataArray.put(executeUpdate + " Record(s) Updated."));
+                }
+            }
+        } catch (SQLException ex) {
+            isSuccessfull = false;
+            sanitizeException(driver, tableData, dataArray, ex);
+        }
+        logQuery(query, appName, isSuccessfull);
+        return tableData;
+    }
+
+    public void logQuery(String query, String appName, boolean isSuccessfull) {
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            try (PreparedStatement statement = con.prepareStatement("INSERT INTO query_log (query,app_name,status) VALUES(?,?,?)")) {
+                statement.setString(1, query);
+                statement.setString(2, appName);
+                statement.setBoolean(3, isSuccessfull);
+                statement.execute();
+            }
+        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(QueryDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+    }
+
+    public JSONObject getQueryLogs(String appName) throws SQLException, PropertyVetoException, ClassNotFoundException, IOException, NamingException {
+        JSONObject logQueryRecords = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        JSONArray columnHeader = new JSONArray();
+        columnHeader.put("query").put("status").put("executed_on");
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            try (PreparedStatement statement = con.prepareStatement("SELECT query,status,executed_on FROM query_log WHERE app_name=? ORDER BY executed_on DESC LIMIT 100")) {
+                statement.setString(2, appName);
+                try (ResultSet result = statement.executeQuery()) {
+                    while (result.next()) {
+                        JSONObject queryLogRecord = new JSONObject();
+                        queryLogRecord.put("query", result.getString("query"));
+                        queryLogRecord.put("status", result.getBoolean("status") ? "true" : "false");
+                        queryLogRecord.put("executed_on", result.getTimestamp("executed_on"));
+                        jsonArray.put(queryLogRecord);
+                    }
+                }
             }
         }
-        return obj;
+        logQueryRecords.put("columnHeaders", columnHeader);
+        logQueryRecords.put("data", jsonArray);
+        return logQueryRecords;
     }
 
-    public String getXmlForJsonXResponse() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
-        try {
-            JSONObject bodyObject = new JSONObject(body);
-            obj.put("body", bodyObject);
-        } catch (JSONException jx) {
-            try {
-                JSONArray bodyArray = new JSONArray(body);
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("row", bodyArray);
-                obj.put("body", responseBody);
-            } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
-            }
+    private void sanitizeException(String driver, JSONObject tableData, JSONArray dataArray, SQLException ex) {
+        String message = "Error occured in query";
+        int status = 500;
+//        Logger.getLogger(QueryDAO.class.getName()).log(Level.SEVERE, "SQL error code:{0}", ex.getErrorCode());
+//        Logger.getLogger(QueryDAO.class.getName()).log(Level.SEVERE, "SQL state:{0}", ex.getSQLState());
+        if (driver.contains("hsql")) {
+            //<editor-fold>
+            switch (ex.getErrorCode()) {
+                default:
+                    message = ex.getMessage();
+            }//</editor-fold>
+        } else if (driver.contains("mysql")) {
+            //<editor-fold>
+            switch (ex.getErrorCode()) {
+                case 1044:
+                    message = "Database Access Denied for user";
+                    status = 403;
+                    break;
+                case 1045:
+                    message = "Access Denied for user";
+                    status = 403;
+                    break;
+                case 1142:
+                    message = "Table Access Denied for user";
+                    status = 403;
+                    break;
+                case 1146:
+                    message = " Table doesn't exist.";
+                    Pattern pattern = Pattern.compile("_db\\.(\\w+)");
+                    Matcher matcher = pattern.matcher(ex.getLocalizedMessage());
+                    while (matcher.find()) {
+                        message = matcher.group(1) + message;
+                    }
+                    break;
+                case 1211:
+                    message = "Can't create new users";
+                    status = 403;
+                    break;
+                case 1227:
+                    message = "Access Denied for user special privilege required";
+                    status = 403;
+                    break;
+                case 1370:
+                    message = "Procedure Access Denied for user";
+                    status = 403;
+                    break;
+                case 1403:
+                    message = "No grant defined for procedure";
+                    status = 403;
+                    break;
+                case 1410:
+                    message = "Can't create User with GRANT";
+                    status = 403;
+                    break;
+                case 1448:
+                    message = "Requires SUPER privilege";
+                    status = 403;
+                    break;
+                default:
+                    message = ex.getLocalizedMessage();
+            }//</editor-fold>
+        } else if (driver.contains("oracle")) {
+            //<editor-fold>
+            switch (ex.getErrorCode()) {
+                default:
+                    message = ex.getMessage();
+            }//</editor-fold>
+        } else if (driver.contains("postgresql")) {
+            //<editor-fold>
+            switch (ex.getErrorCode()) {
+                default:
+                    message = ex.getMessage();
+            }//</editor-fold>
         }
-        return XML.toString(obj);
+        tableData.put("status", status);
+        tableData.put("data", dataArray.put(message.trim()));
+//        Logger.getLogger(QueryDAO.class.getName()).log(Level.SEVERE, ex.getMessage());
     }
 
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int sc) {
-        statusCode = sc;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String b) {
-        body = b;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, String> h) {
-        headers = h;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
-    }
 }
