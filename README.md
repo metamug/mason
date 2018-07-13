@@ -43,7 +43,7 @@ All the REST API calls to resources are routed through this filter.
 ### Dependencies
 
 mtg-mason-x.x.jar is shipped along with MTG SERVER and is present in all the backends generated via console.
-Due to this reason most of the dependencies have <scope> as provided.
+Due to this reason most of the dependencies have `<scope>provided</scope>`.
 Since all those dependencies are present in server lib.
 In case if you were to develop your own backend using this library, you'll have to comment out the <scope> tag of nearly all the dependencies.
 
