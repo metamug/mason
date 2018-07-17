@@ -57,3 +57,9 @@ Instructions are given regarding how to do the same in below link(s) (You can re
 https://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/
 					OR
 https://stackoverflow.com/a/1074971/4800126
+
+### Data Format Support
+
+Mason supports `application/xml`, `applicaton/json` and `application/json+dataset` 
+Read More about how it is used here.
+https://metamug.com/docs/api-request.php
