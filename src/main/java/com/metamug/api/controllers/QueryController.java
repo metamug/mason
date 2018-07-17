@@ -262,6 +262,8 @@ public class QueryController extends HttpServlet {
                 response.setStatus(500);
                 Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
+        } else {
+            response.setStatus(403);
         }
     }
 
@@ -276,7 +278,6 @@ public class QueryController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         QueryService queryService = new QueryService();
-        AnalyticService analyticService = new AnalyticService();
         String appName = request.getContextPath().split("/")[1];
         JSONArray result = new JSONArray();
         if (request.getRemoteAddr().equals("127.0.0.1")) {
@@ -290,9 +291,6 @@ public class QueryController extends HttpServlet {
                     case "plsql":
                         result = queryService.execute(action, appName, query);
                         break;
-//                    case "stats":
-////                    analyticService.getStats(appName)
-//                        break;
                     case "defaulttables":
                         queryService.createDefaultTables(query);
                         break;
@@ -305,6 +303,8 @@ public class QueryController extends HttpServlet {
                 response.setStatus(500);
                 Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
+        } else {
+            response.setStatus(403);
         }
     }
 

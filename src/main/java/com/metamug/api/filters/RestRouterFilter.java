@@ -293,7 +293,7 @@ public class RestRouterFilter implements Filter {
                         } else {
                             resourceName = tokens[2];
                         }
-                        if (new File(System.getProperty("catalina.base") + File.separator + "api/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
+                        if (new File(System.getProperty("catalina.base") + File.separator + "webapps/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
                             MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
                             req.setAttribute("mtgReq", mtgReq);
                             req.setAttribute("mtgMethod", req.getMethod());
