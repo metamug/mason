@@ -39,3 +39,21 @@ And also add the following filter to your *web.xml*
 </filter>
 ```
 All the REST API calls to resources are routed through this filter. 
+
+### Dependencies
+
+mtg-mason-x.x.jar is shipped along with MTG SERVER and is present in all the backends generated via console.
+Due to this reason most of the dependencies have `<scope>provided</scope>`.
+Since all those dependencies are present in server lib.
+In case if you were to develop your own backend using this library, you'll have to comment out the <scope> tag of nearly all the dependencies.
+
+### JDBC Drivers
+
+Except for javaee-web-api since that would be present in your application server and any one out of HSQL,MySQL or PostgreSQL dependency.
+We also support Oracle database but due to licensing reason we can't ship oracle jdbc driver along with our MTG SERVER.
+So in case you are using Oracle database you'll have to manually install its driver as dependency and use that in this project.
+Instructions are given regarding how to do the same in below link(s) (You can refer either of them).
+
+https://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/
+					OR
+https://stackoverflow.com/a/1074971/4800126
