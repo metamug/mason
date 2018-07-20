@@ -312,7 +312,7 @@ public class AnalyticDAO {
             DatabaseMetaData dbMetaData = con.getMetaData();
             String driverName = dbMetaData.getDriverName().toLowerCase().trim();
             String query = "";
-            if (driverName.contains("hsqldb")) {
+            if (driverName.contains("hsql")) {
                 query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (?,?,?,?,?,?,?)";
             } else if (driverName.contains("mysql")) {
                 query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (inet6_aton(?),?,?,?,?,?,?)";

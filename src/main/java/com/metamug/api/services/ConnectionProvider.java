@@ -248,7 +248,7 @@ public class ConnectionProvider {
         } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
             Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
-        if (driver.contains("hsqldb")) {
+        if (driver.contains("hsql")) {
         } else if (driver.contains("mysql")) {
             //set this for mysql driver
             //https://stackoverflow.com/a/19027873/4800126
