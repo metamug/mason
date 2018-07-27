@@ -222,7 +222,7 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 public class AnalyticDAO {
-    
+
     public JSONObject getErrorLogs() throws IOException, ClassNotFoundException, PropertyVetoException, SQLException, NamingException {
         JSONObject errorRecords = new JSONObject();
         JSONArray jsonArray = new JSONArray();
@@ -248,7 +248,7 @@ public class AnalyticDAO {
         errorRecords.put("data", jsonArray);
         return errorRecords;
     }
-    
+
     public JSONObject getQueryLogs(String appName) throws SQLException, PropertyVetoException, ClassNotFoundException, IOException, NamingException {
         JSONObject queryRecords = new JSONObject();
         JSONArray jsonArray = new JSONArray();
@@ -272,7 +272,7 @@ public class AnalyticDAO {
         queryRecords.put("data", jsonArray);
         return queryRecords;
     }
-    
+
     public JSONObject getStats(String appName) {
         JSONObject obj = new JSONObject();
         try (Connection con = ConnectionProvider.getInstance().getConnection()) {
@@ -306,7 +306,7 @@ public class AnalyticDAO {
         }
         return obj;
     }
-    
+
     public void logRequest(String remoteAddr, String appName, String resource, String version, String deviceType, int statusCode, int contentLength) throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException {
         try (Connection con = ConnectionProvider.getInstance().getConnection();) {
             DatabaseMetaData dbMetaData = con.getMetaData();

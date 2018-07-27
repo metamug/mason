@@ -223,6 +223,6 @@ public class AuthService {
     }
 
     public JSONObject validateBearer(String bearerToken, String roleName) {
-       return dao.validateBearer(bearerToken,roleName);
+        return dao.validateBearer(bearerToken, roleName);
     }
 }
