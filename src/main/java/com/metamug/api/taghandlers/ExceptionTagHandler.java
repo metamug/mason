@@ -476,7 +476,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             exceptionMessage = exception.toString();
         }
         try (Connection con = ds.getConnection()) {
-            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,resource)"
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,resource)"
                     + " VALUES(?,?,?,?)");
             stmnt.setString(1, String.valueOf(errorId));
             stmnt.setString(2, method);
