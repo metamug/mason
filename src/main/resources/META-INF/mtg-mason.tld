@@ -49,6 +49,11 @@
         </attribute>
     </tag>
     <tag>
+        <name>upload</name>
+        <tag-class>com.metamug.api.taghandlers.UploadEventTagHandler</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+    <tag>
         <name>status</name>
         <tag-class>com.metamug.api.taghandlers.StatusTagHandler</tag-class>
         <body-content>JSP</body-content>
