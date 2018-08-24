@@ -240,12 +240,32 @@ public class QueryService {
                     tableData.put("data", dataArray.put("You can't create functions/procedures here"));
                     tablesArray.put(tableData);
                 } else {
-                    tablesArray.put(dao.executeSql(query, appName));
+                    tablesArray.put(dao.executeSql(query, appName, queryType));
+                }
+            }
+        } else if(queryType.equalsIgnoreCase("querybyuser")) {
+            for (String query : separateBySemiColon(queries)) {
+                if (queries.toLowerCase().contains("create function") || queries.toLowerCase().contains("create or replace function") || queries.toLowerCase().contains("create procedure") || queries.toLowerCase().contains("create or replace procedure")) {
+                    JSONArray dataArray = new JSONArray();
+                    tableData.put("status", 403);
+                    tableData.put("data", dataArray.put("You can't create functions/procedures here"));
+                    tablesArray.put(tableData);
+                } else {
+                    tablesArray.put(dao.executeSql(query, appName, queryType));
                 }
             }
         } else if (queryType.equalsIgnoreCase("plsql")) {
             if (queries.toLowerCase().contains("create trigger") || queries.toLowerCase().contains("drop trigger") || queries.toLowerCase().contains("create function") || queries.toLowerCase().contains("create or replace function") || queries.toLowerCase().contains("create procedure") || queries.toLowerCase().contains("create or replace procedure") || queries.toLowerCase().contains("drop procedure") || queries.toLowerCase().contains("drop function")) {
-                tablesArray.put(dao.executeSql(queries, appName));
+                tablesArray.put(dao.executeSql(queries, appName, queryType));
+            } else {
+                JSONArray dataArray = new JSONArray();
+                tableData.put("status", 403);
+                tableData.put("data", dataArray.put("You can only create functions/procedures here"));
+                tablesArray.put(tableData);
+            }
+        } else if (queryType.equalsIgnoreCase("plsqlbyuser")) {
+            if (queries.toLowerCase().contains("create trigger") || queries.toLowerCase().contains("drop trigger") || queries.toLowerCase().contains("create function") || queries.toLowerCase().contains("create or replace function") || queries.toLowerCase().contains("create procedure") || queries.toLowerCase().contains("create or replace procedure") || queries.toLowerCase().contains("drop procedure") || queries.toLowerCase().contains("drop function")) {
+                tablesArray.put(dao.executeSql(queries, appName, queryType));
             } else {
                 JSONArray dataArray = new JSONArray();
                 tableData.put("status", 403);

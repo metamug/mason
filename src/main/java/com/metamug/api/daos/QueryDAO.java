@@ -255,7 +255,8 @@ public class QueryDAO {
      * @throws java.io.IOException
      * @throws javax.naming.NamingException
      */
-    public JSONObject executeSql(String query, String appName) throws ClassNotFoundException, IOException, PropertyVetoException, NamingException {
+    public JSONObject executeSql(String query, String appName, String queryType) 
+            throws ClassNotFoundException, IOException, PropertyVetoException, NamingException {
         boolean isSuccessfull = true;
         JSONObject tableData = new JSONObject();
         JSONArray dataArray = new JSONArray();
@@ -304,7 +305,9 @@ public class QueryDAO {
             isSuccessfull = false;
             sanitizeException(driver, tableData, dataArray, ex);
         }
-        logQuery(query, appName, isSuccessfull);
+        if(queryType.equals("querybyuser") || queryType.equals("plsqlbyuser"))
+            logQuery(query, appName, isSuccessfull);
+        
         return tableData;
     }
 
