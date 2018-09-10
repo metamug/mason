@@ -229,7 +229,7 @@ public class XRequestClient {
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public static XResponse get(String url, Map<String, String> headers,
-            Map<String, String> params) throws IOException {
+            Map<String, String> params) {
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = new Request.Builder().get();
@@ -257,8 +257,8 @@ public class XRequestClient {
 
         Request request = reqBuilder.url(url).build();
 
+        XResponse xr;
         try (Response response = client.newCall(request).execute()) {
-            XResponse xr;
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: "+response);
@@ -273,11 +273,16 @@ public class XRequestClient {
             }
 
             return xr;
+        } catch (IOException ex) {
+            //Logger.getLogger(XRequestClient.class.getName()).log(Level.SEVERE, null, ex);
+            xr = new XResponse(0, ex.getMessage());
         }
+        
+        return xr;
     }
 
     public static XResponse put(String url, Map<String, String> headers,
-            Map<String, String> params, String body) throws IOException {
+            Map<String, String> params, String body) {
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = null;
@@ -316,8 +321,8 @@ public class XRequestClient {
 
         Request request = reqBuilder.url(url).build();
 
+        XResponse xr;
         try (Response response = client.newCall(request).execute()) {
-            XResponse xr;
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: "+response);
@@ -332,11 +337,14 @@ public class XRequestClient {
             }
 
             return xr;
+        }catch(IOException ex){
+            xr = new XResponse(0, ex.getMessage());
         }
+        return xr;
     }
 
     public static XResponse post(String url, Map<String, String> headers,
-            Map<String, String> params, String body) throws IOException {
+            Map<String, String> params, String body){
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = null;
@@ -375,8 +383,9 @@ public class XRequestClient {
 
         Request request = reqBuilder.url(url).build();
 
+        XResponse xr;
         try (Response response = client.newCall(request).execute()) {
-            XResponse xr;
+        
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: "+response);
@@ -390,11 +399,13 @@ public class XRequestClient {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
             }
 
-            return xr;
+        }catch(IOException ex){
+            xr = new XResponse(0, ex.getMessage());
         }
+        return xr;
     }
 
-    public static XResponse delete(String url, Map<String, String> params) throws IOException {
+    public static XResponse delete(String url, Map<String, String> params) {
         OkHttpClient client = new OkHttpClient();
 
         StringBuilder queryParams = new StringBuilder();
@@ -415,8 +426,9 @@ public class XRequestClient {
 
         Request request = new Request.Builder().url(url).delete().build();
 
+        XResponse xr;
         try (Response response = client.newCall(request).execute()) {
-            XResponse xr;
+            
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: "+response);
@@ -431,6 +443,9 @@ public class XRequestClient {
             }
 
             return xr;
+        } catch (IOException ex) {
+           xr = new XResponse(0,ex.getMessage());
         }
+        return xr;
     }
 }

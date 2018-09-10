@@ -273,7 +273,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
         }
 
         XResponse xresponse = null;
-        try {
+        
             switch (method) {
                 case "GET":
                     xresponse = XRequestClient.get(url, headers, parameters);
@@ -290,9 +290,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 default:
                     throw new JspTagException("Unsupported method \"" + method + "\".");
             }
-        } catch (IOException ex) {
-            throw new JspException("XRequest IOException: " + ex.getMessage());
-        }
+        
 
         if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
             String xResponseXml = null;
