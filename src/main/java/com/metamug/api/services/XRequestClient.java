@@ -258,11 +258,15 @@ public class XRequestClient {
         Request request = reqBuilder.url(url).build();
 
         try (Response response = client.newCall(request).execute()) {
+            XResponse xr;
             if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
+                //throw new IOException("Unexpected code " + response);
+                xr = new XResponse(response.code(), "XRequest error: "+response);
+            } else{
 
-            XResponse xr = new XResponse(response.code(), response.body().string().trim());
+                xr = new XResponse(response.code(), response.body().string().trim());
+            }
+            
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
@@ -313,11 +317,15 @@ public class XRequestClient {
         Request request = reqBuilder.url(url).build();
 
         try (Response response = client.newCall(request).execute()) {
+            XResponse xr;
             if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
+                //throw new IOException("Unexpected code " + response);
+                xr = new XResponse(response.code(), "XRequest error: "+response);
+            }else{
 
-            XResponse xr = new XResponse(response.code(), response.body().string().trim());
+                xr = new XResponse(response.code(), response.body().string().trim());
+            }            
+            
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
@@ -368,11 +376,15 @@ public class XRequestClient {
         Request request = reqBuilder.url(url).build();
 
         try (Response response = client.newCall(request).execute()) {
+            XResponse xr;
             if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
+                //throw new IOException("Unexpected code " + response);
+                xr = new XResponse(response.code(), "XRequest error: "+response);
+            }else{
 
-            XResponse xr = new XResponse(response.code(), response.body().string().trim());
+                xr = new XResponse(response.code(), response.body().string().trim());
+            }
+            
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
@@ -404,11 +416,15 @@ public class XRequestClient {
         Request request = new Request.Builder().url(url).delete().build();
 
         try (Response response = client.newCall(request).execute()) {
+            XResponse xr;
             if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
+                //throw new IOException("Unexpected code " + response);
+                xr = new XResponse(response.code(), "XRequest error: "+response);
+            }else{
 
-            XResponse xr = new XResponse(response.code(), response.body().string().trim());
+                xr = new XResponse(response.code(), response.body().string().trim());
+            }
+                
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
