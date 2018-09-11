@@ -219,15 +219,39 @@ public class XResponse {
     private int statusCode;
     private Map<String, String> headers;
     private String body;
+    private boolean error;
 
+    public XResponse(int statusCode, String body, boolean error) {
+        this.statusCode = statusCode;
+        this.headers = new HashMap<>();
+        this.body = body;
+        this.error = error;
+    }
+        
     public XResponse(int statusCode, String body) {
         this.statusCode = statusCode;
-        headers = new HashMap<>();
+        this.headers = new HashMap<>();
         this.body = body;
+        this.error = false;
+    }
+    
+    private JSONObject getErrorJson() {
+        JSONObject obj = new JSONObject();
+        obj.put("statusCode", statusCode);
+        obj.put("headers", new JSONObject(headers));
+        obj.put("body", body);
 
+        return obj;
+    }
+    
+    private String getErrorXml() {
+        return XML.toString(getErrorJson());
     }
 
     public JSONObject getJsonForXmlXResponse() {
+        if(error)
+            return getErrorJson();
+        
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         obj.put("headers", new JSONObject(headers));
@@ -237,11 +261,10 @@ public class XResponse {
         return obj;
     }
 
-    public String getXmlForXmlXResponse() {
-        return XML.toString(getJsonForXmlXResponse());
-    }
-
     public JSONObject getJsonForJsonXResponse() {
+        if(error)
+            return getErrorJson();
+        
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         obj.put("headers", new JSONObject(headers));
@@ -259,7 +282,17 @@ public class XResponse {
         return obj;
     }
 
+    public String getXmlForXmlXResponse() {
+        if(error)
+            return getErrorXml();
+        
+        return XML.toString(getJsonForXmlXResponse());
+    }
+
     public String getXmlForJsonXResponse() {
+        if(error)
+            return getErrorXml();
+        
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         obj.put("headers", new JSONObject(headers));

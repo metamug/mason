@@ -274,23 +274,22 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
         XResponse xresponse = null;
         
-            switch (method) {
-                case "GET":
-                    xresponse = XRequestClient.get(url, headers, parameters);
-                    break;
-                case "POST":
-                    xresponse = XRequestClient.post(url, headers, parameters, requestBody);
-                    break;
-                case "PUT":
-                    xresponse = XRequestClient.put(url, headers, parameters, requestBody);
-                    break;
-                case "DELETE":
-                    xresponse = XRequestClient.delete(url, parameters);
-                    break;
-                default:
-                    throw new JspTagException("Unsupported method \"" + method + "\".");
-            }
-        
+        switch (method) {
+            case "GET":
+                xresponse = XRequestClient.get(url, headers, parameters);
+                break;
+            case "POST":
+                xresponse = XRequestClient.post(url, headers, parameters, requestBody);
+                break;
+            case "PUT":
+                xresponse = XRequestClient.put(url, headers, parameters, requestBody);
+                break;
+            case "DELETE":
+                xresponse = XRequestClient.delete(url, parameters);
+                break;
+            default:
+                throw new JspTagException("Unsupported method \"" + method + "\".");
+        }        
 
         if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
             String xResponseXml = null;
@@ -328,7 +327,6 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
         }
 
         return EVAL_PAGE;
-
     }
 
     public void setId(String id) {

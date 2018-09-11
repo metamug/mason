@@ -261,7 +261,7 @@ public class XRequestClient {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
-                xr = new XResponse(response.code(), "XRequest error: "+response);
+                xr = new XResponse(response.code(), "XRequest error: "+response, true);
             } else{
 
                 xr = new XResponse(response.code(), response.body().string().trim());
@@ -275,7 +275,7 @@ public class XRequestClient {
             return xr;
         } catch (IOException ex) {
             //Logger.getLogger(XRequestClient.class.getName()).log(Level.SEVERE, null, ex);
-            xr = new XResponse(0, ex.getMessage());
+            xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
         }
         
         return xr;
@@ -338,7 +338,7 @@ public class XRequestClient {
 
             return xr;
         }catch(IOException ex){
-            xr = new XResponse(0, ex.getMessage());
+            xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
         }
         return xr;
     }
@@ -388,7 +388,7 @@ public class XRequestClient {
         
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
-                xr = new XResponse(response.code(), "XRequest error: "+response);
+                xr = new XResponse(response.code(), "XRequest error: "+response,true);
             }else{
 
                 xr = new XResponse(response.code(), response.body().string().trim());
@@ -400,7 +400,7 @@ public class XRequestClient {
             }
 
         }catch(IOException ex){
-            xr = new XResponse(0, ex.getMessage());
+            xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
         }
         return xr;
     }
@@ -431,7 +431,7 @@ public class XRequestClient {
             
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
-                xr = new XResponse(response.code(), "XRequest error: "+response);
+                xr = new XResponse(response.code(), "XRequest error: "+response,true);
             }else{
 
                 xr = new XResponse(response.code(), response.body().string().trim());
@@ -444,7 +444,7 @@ public class XRequestClient {
 
             return xr;
         } catch (IOException ex) {
-           xr = new XResponse(0,ex.getMessage());
+            xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
         }
         return xr;
     }
