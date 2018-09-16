@@ -63,3 +63,8 @@ https://stackoverflow.com/a/1074971/4800126
 Mason supports `application/xml`, `applicaton/json` and `application/json+dataset` 
 Read More about how it is used here.
 https://metamug.com/docs/api-request.php
+
+### Security
+
+When writing JSP/JSTL for writing resources, do consider [OWASP JSP/JSTL guide for security](https://www.owasp.org/index.php/JSP_JSTL).
+
