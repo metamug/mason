@@ -62,4 +62,4 @@ https://stackoverflow.com/a/1074971/4800126
 
 Mason supports `application/xml`, `applicaton/json` and `application/json+dataset` 
 Read More about how it is used here.
-https://metamug.com/docs/api-request.php
+https://metamug.com/docs/api-request
