@@ -204,11 +204,13 @@
 package com.metamug.api.common;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
+import com.github.wnameless.json.flattener.JsonFlattener;
 
 /**
  *
@@ -244,6 +246,20 @@ public class XResponse {
         return obj;
     }
     
+    private Map<String,String> getErrorJsonMap(String xRequestId){
+        Map<String,String> map = new HashMap<>();
+        map.put(xRequestId+".statusCode", Integer.toString(statusCode));
+        JSONObject h = new JSONObject(headers);
+        Iterator<String> hKeys = h.keys();
+        while(hKeys.hasNext()) {
+            String headerName = hKeys.next();
+            String headerVal = h.getString(headerName);
+            map.put(xRequestId+".headers."+headerName, headerVal);
+        }
+        map.put(xRequestId+".body",body);
+        return map;
+    }
+    
     private String getErrorXml() {
         return XML.toString(getErrorJson());
     }
@@ -255,10 +271,41 @@ public class XResponse {
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         obj.put("headers", new JSONObject(headers));
-
         obj.put("body", body);
 
         return obj;
+    }
+    
+    public Map<String,String> getMapForJsonXResponse(String xRequestId){
+        if(error)
+            return getErrorJsonMap(xRequestId);
+        
+        Map<String,String> map = new HashMap<>();
+        map.put(xRequestId+".statusCode", Integer.toString(statusCode));
+        JSONObject h = new JSONObject(headers);
+        Iterator<String> hKeys = h.keys();
+        while(hKeys.hasNext()) {
+            String headerName = hKeys.next();
+            String headerVal = h.getString(headerName);
+            map.put(xRequestId+".headers."+headerName, headerVal);
+        }
+        try {
+            Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
+            for (Map.Entry<String, Object> entry : flatMap.entrySet()){
+                map.put(xRequestId+".body."+entry.getKey(), entry.getValue().toString());
+            }
+        } catch (JSONException jx) {
+            try {
+                System.out.println("JSON_ARRAY");
+                Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
+                for (Map.Entry<String, Object> entry : flatMap.entrySet()){
+                    map.put(xRequestId+".body."+entry.getKey(), entry.getValue().toString());
+                }
+            } catch (JSONException jx1) {
+                map.put(xRequestId+".body", "Could not parse json response.");
+            }
+        }
+        return map;
     }
 
     public JSONObject getJsonForJsonXResponse() {

@@ -257,6 +257,7 @@ public class QueryDAO {
      */
     public JSONObject executeSql(String query, String appName, String queryType) 
             throws ClassNotFoundException, IOException, PropertyVetoException, NamingException {
+        //System.out.println("DEBUG querybyuser "+query);
         boolean isSuccessfull = true;
         JSONObject tableData = new JSONObject();
         JSONArray dataArray = new JSONArray();

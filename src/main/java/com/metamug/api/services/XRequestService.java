@@ -224,7 +224,7 @@ import org.json.JSONObject;
  *
  * @author anishhirlekar
  */
-public class XRequestClient {
+public class XRequestService {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -250,7 +250,7 @@ public class XRequestClient {
                     queryParams.append("&");
                 }
             } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(XRequestClient.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         url = url + "?" + queryParams.toString();
@@ -263,7 +263,6 @@ public class XRequestClient {
                 //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: "+response, true);
             } else{
-
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
             
@@ -274,7 +273,7 @@ public class XRequestClient {
 
             return xr;
         } catch (IOException ex) {
-            //Logger.getLogger(XRequestClient.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
             xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
         }
         
@@ -327,7 +326,6 @@ public class XRequestClient {
                 //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: "+response);
             }else{
-
                 xr = new XResponse(response.code(), response.body().string().trim());
             }            
             
@@ -390,7 +388,6 @@ public class XRequestClient {
                 //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: "+response,true);
             }else{
-
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
             
@@ -419,7 +416,7 @@ public class XRequestClient {
                     queryParams.append("&");
                 }
             } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(XRequestClient.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         url = url + "?" + queryParams.toString();
@@ -433,7 +430,6 @@ public class XRequestClient {
                 //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: "+response,true);
             }else{
-
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
                 

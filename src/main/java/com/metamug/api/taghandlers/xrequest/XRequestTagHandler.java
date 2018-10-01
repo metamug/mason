@@ -205,7 +205,7 @@ package com.metamug.api.taghandlers.xrequest;
 
 import com.metamug.api.common.MtgRequest;
 import com.metamug.api.common.XResponse;
-import com.metamug.api.services.XRequestClient;
+import com.metamug.api.services.XRequestService;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -276,16 +276,16 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
         
         switch (method) {
             case "GET":
-                xresponse = XRequestClient.get(url, headers, parameters);
+                xresponse = XRequestService.get(url, headers, parameters);
                 break;
             case "POST":
-                xresponse = XRequestClient.post(url, headers, parameters, requestBody);
+                xresponse = XRequestService.post(url, headers, parameters, requestBody);
                 break;
             case "PUT":
-                xresponse = XRequestClient.put(url, headers, parameters, requestBody);
+                xresponse = XRequestService.put(url, headers, parameters, requestBody);
                 break;
             case "DELETE":
-                xresponse = XRequestClient.delete(url, parameters);
+                xresponse = XRequestService.delete(url, parameters);
                 break;
             default:
                 throw new JspTagException("Unsupported method \"" + method + "\".");
@@ -321,14 +321,15 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
             }
 
             if (isPersist != null && isPersist) {
-                mtgReq.getParams().put(id, xResponseJson.toString());
+                //mtgReq.getParams().put(id, xResponseJson.toString());
+                mtgReq.getParams().putAll(xresponse.getMapForJsonXResponse(id));
                 pageContext.getRequest().setAttribute("mtgReq", mtgReq);
             }
         }
 
         return EVAL_PAGE;
     }
-
+    
     public void setId(String id) {
         this.id = id;
     }
