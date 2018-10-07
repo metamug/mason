@@ -291,6 +291,12 @@ public class QueryController extends HttpServlet {
                     case "plsql":
                         result = queryService.execute(action, appName, query);
                         break;
+                    case "querybyuser":
+                        result = queryService.execute(action, appName, query);
+                        break;
+                    case "plsqlbyuser":
+                        result = queryService.execute(action, appName, query);
+                        break;
                     case "defaulttables":
                         queryService.createDefaultTables(query);
                         break;
