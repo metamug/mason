@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20180130</version>
+            <version>20180813</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.github.wnameless</groupId>
             <artifactId>json-flattener</artifactId>
-            <version>0.2.4</version>
+            <version>0.6.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
