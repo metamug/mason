@@ -290,21 +290,25 @@ public class XResponse {
             map.put(xRequestId+".headers."+headerName, headerVal);
         }
         try {
+            //test whether body is json object
+            JSONObject bodyObject = new JSONObject(body);
             Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
-            for (Map.Entry<String, Object> entry : flatMap.entrySet()){
+            flatMap.entrySet().forEach((entry) -> {
                 map.put(xRequestId+".body."+entry.getKey(), entry.getValue().toString());
-            }
+            });
         } catch (JSONException jx) {
             try {
-                System.out.println("JSON_ARRAY");
+                //test whether body is json array
+                JSONArray bodyArray = new JSONArray(body);
                 Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
-                for (Map.Entry<String, Object> entry : flatMap.entrySet()){
-                    map.put(xRequestId+".body."+entry.getKey(), entry.getValue().toString());
-                }
+                flatMap.entrySet().forEach((entry) -> {
+                    map.put(xRequestId+".body"+entry.getKey(), entry.getValue().toString());
+                });
             } catch (JSONException jx1) {
                 map.put(xRequestId+".body", "Could not parse json response.");
             }
         }
+        //System.out.println("XRESP: "+map);
         return map;
     }
 
