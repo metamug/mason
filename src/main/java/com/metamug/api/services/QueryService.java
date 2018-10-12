@@ -243,7 +243,7 @@ public class QueryService {
                     tablesArray.put(dao.executeSql(query, appName, queryType));
                 }
             }
-        } else if(queryType.equalsIgnoreCase("querybyuser")) {
+        } else if (queryType.equalsIgnoreCase("querybyuser")) {
             for (String query : separateBySemiColon(queries)) {
                 if (queries.toLowerCase().contains("create function") || queries.toLowerCase().contains("create or replace function") || queries.toLowerCase().contains("create procedure") || queries.toLowerCase().contains("create or replace procedure")) {
                     JSONArray dataArray = new JSONArray();

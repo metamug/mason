@@ -261,11 +261,11 @@ public class XRequestService {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
-                xr = new XResponse(response.code(), "XRequest error: "+response, true);
-            } else{
+                xr = new XResponse(response.code(), "XRequest error: " + response, true);
+            } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
-            
+
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
@@ -274,9 +274,9 @@ public class XRequestService {
             return xr;
         } catch (IOException ex) {
             //Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
-            xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
+            xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
         }
-        
+
         return xr;
     }
 
@@ -324,25 +324,25 @@ public class XRequestService {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
-                xr = new XResponse(response.code(), "XRequest error: "+response);
-            }else{
+                xr = new XResponse(response.code(), "XRequest error: " + response);
+            } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
-            }            
-            
+            }
+
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
             }
 
             return xr;
-        }catch(IOException ex){
-            xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
+        } catch (IOException ex) {
+            xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
         }
         return xr;
     }
 
     public static XResponse post(String url, Map<String, String> headers,
-            Map<String, String> params, String body){
+            Map<String, String> params, String body) {
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = null;
@@ -383,21 +383,21 @@ public class XRequestService {
 
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
-        
+
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
-                xr = new XResponse(response.code(), "XRequest error: "+response,true);
-            }else{
+                xr = new XResponse(response.code(), "XRequest error: " + response, true);
+            } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
-            
+
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
             }
 
-        }catch(IOException ex){
-            xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
+        } catch (IOException ex) {
+            xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
         }
         return xr;
     }
@@ -425,14 +425,14 @@ public class XRequestService {
 
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
-            
+
             if (!response.isSuccessful()) {
                 //throw new IOException("Unexpected code " + response);
-                xr = new XResponse(response.code(), "XRequest error: "+response,true);
-            }else{
+                xr = new XResponse(response.code(), "XRequest error: " + response, true);
+            } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
-                
+
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
                 xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
@@ -440,7 +440,7 @@ public class XRequestService {
 
             return xr;
         } catch (IOException ex) {
-            xr = new XResponse(0, "XRequest error: "+ex.getMessage(), true);
+            xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
         }
         return xr;
     }
