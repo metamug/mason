@@ -26,7 +26,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 
 ### Webapp Configuration
 
-You can find the following taglib added to your jsp for using the *mtg* prefix. This taglib is the part of mason jar.
+Import mtg-mason.tld inside your jsp file. This taglib is present inside the mason jar and enables usage of the *mtg* prefix. 
 ```  
 <% @taglib uri="mtg-mason.tld" prefix="mtg" %>
 ```
