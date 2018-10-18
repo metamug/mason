@@ -10,7 +10,7 @@ Mason resources are Plain Old JSPs with neat tag libraries. Mason doesn't encour
 
 ### Mason Query
 
-Currently you can write inline queries in the resources. But we are working towards moving the queries outside the JSPs, so you can reference them and queries become reusable. This will be done via query files.
+Currently you can write inline queries in the resources. But we are working towards moving the queries outside the JSPs [Issue #11](https://github.com/metamug/mason/issues/11), so you can reference them and queries become reusable. This will be done via query files.
 
 #### How does Mason run APIs ?
 
