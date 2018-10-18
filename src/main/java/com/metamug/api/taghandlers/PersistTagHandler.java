@@ -212,7 +212,6 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONObject;
 
 /**
  *

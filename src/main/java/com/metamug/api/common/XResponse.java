@@ -203,6 +203,7 @@
  */
 package com.metamug.api.common;
 
+import com.github.wnameless.json.flattener.JsonFlattener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -210,7 +211,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
-import com.github.wnameless.json.flattener.JsonFlattener;
 
 /**
  *
@@ -229,14 +229,14 @@ public class XResponse {
         this.body = body;
         this.error = error;
     }
-        
+
     public XResponse(int statusCode, String body) {
         this.statusCode = statusCode;
         this.headers = new HashMap<>();
         this.body = body;
         this.error = false;
     }
-    
+
     private JSONObject getErrorJson() {
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
@@ -245,29 +245,30 @@ public class XResponse {
 
         return obj;
     }
-    
-    private Map<String,String> getErrorJsonMap(String xRequestId){
-        Map<String,String> map = new HashMap<>();
-        map.put(xRequestId+".statusCode", Integer.toString(statusCode));
+
+    private Map<String, String> getErrorJsonMap(String xRequestId) {
+        Map<String, String> map = new HashMap<>();
+        map.put(xRequestId + ".statusCode", Integer.toString(statusCode));
         JSONObject h = new JSONObject(headers);
         Iterator<String> hKeys = h.keys();
-        while(hKeys.hasNext()) {
+        while (hKeys.hasNext()) {
             String headerName = hKeys.next();
             String headerVal = h.getString(headerName);
-            map.put(xRequestId+".headers."+headerName, headerVal);
+            map.put(xRequestId + ".headers." + headerName, headerVal);
         }
-        map.put(xRequestId+".body",body);
+        map.put(xRequestId + ".body", body);
         return map;
     }
-    
+
     private String getErrorXml() {
         return XML.toString(getErrorJson());
     }
 
     public JSONObject getJsonForXmlXResponse() {
-        if(error)
+        if (error) {
             return getErrorJson();
-        
+        }
+
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         obj.put("headers", new JSONObject(headers));
@@ -275,26 +276,27 @@ public class XResponse {
 
         return obj;
     }
-    
-    public Map<String,String> getMapForJsonXResponse(String xRequestId){
-        if(error)
+
+    public Map<String, String> getMapForJsonXResponse(String xRequestId) {
+        if (error) {
             return getErrorJsonMap(xRequestId);
-        
-        Map<String,String> map = new HashMap<>();
-        map.put(xRequestId+".statusCode", Integer.toString(statusCode));
+        }
+
+        Map<String, String> map = new HashMap<>();
+        map.put(xRequestId + ".statusCode", Integer.toString(statusCode));
         JSONObject h = new JSONObject(headers);
         Iterator<String> hKeys = h.keys();
-        while(hKeys.hasNext()) {
+        while (hKeys.hasNext()) {
             String headerName = hKeys.next();
             String headerVal = h.getString(headerName);
-            map.put(xRequestId+".headers."+headerName, headerVal);
+            map.put(xRequestId + ".headers." + headerName, headerVal);
         }
         try {
             //test whether body is json object
             JSONObject bodyObject = new JSONObject(body);
             Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
             flatMap.entrySet().forEach((entry) -> {
-                map.put(xRequestId+".body."+entry.getKey(), entry.getValue().toString());
+                map.put(xRequestId + ".body." + entry.getKey(), entry.getValue().toString());
             });
         } catch (JSONException jx) {
             try {
@@ -302,10 +304,10 @@ public class XResponse {
                 JSONArray bodyArray = new JSONArray(body);
                 Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
                 flatMap.entrySet().forEach((entry) -> {
-                    map.put(xRequestId+".body"+entry.getKey(), entry.getValue().toString());
+                    map.put(xRequestId + ".body" + entry.getKey(), entry.getValue().toString());
                 });
             } catch (JSONException jx1) {
-                map.put(xRequestId+".body", "Could not parse json response.");
+                map.put(xRequestId + ".body", "Could not parse json response.");
             }
         }
         //System.out.println("XRESP: "+map);
@@ -313,9 +315,10 @@ public class XResponse {
     }
 
     public JSONObject getJsonForJsonXResponse() {
-        if(error)
+        if (error) {
             return getErrorJson();
-        
+        }
+
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         obj.put("headers", new JSONObject(headers));
@@ -334,16 +337,18 @@ public class XResponse {
     }
 
     public String getXmlForXmlXResponse() {
-        if(error)
+        if (error) {
             return getErrorXml();
-        
+        }
+
         return XML.toString(getJsonForXmlXResponse());
     }
 
     public String getXmlForJsonXResponse() {
-        if(error)
+        if (error) {
             return getErrorXml();
-        
+        }
+
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         obj.put("headers", new JSONObject(headers));
