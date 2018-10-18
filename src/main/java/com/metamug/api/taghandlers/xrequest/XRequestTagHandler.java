@@ -206,7 +206,6 @@ package com.metamug.api.taghandlers.xrequest;
 import com.metamug.api.common.MtgRequest;
 import com.metamug.api.common.XResponse;
 import com.metamug.api.services.XRequestService;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
