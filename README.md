@@ -71,3 +71,7 @@ https://stackoverflow.com/a/1074971/4800126
 Mason supports `application/xml`, `applicaton/json` and `application/json+dataset` 
 Read More about how it is used here.
 https://metamug.com/docs/api-request
+
+### How To Contribute
+
+Fork this repo and submit a PR against the listed issues. We will provide certificates to all those who succcessfully contribute and help close existing issues and submit new features. 
