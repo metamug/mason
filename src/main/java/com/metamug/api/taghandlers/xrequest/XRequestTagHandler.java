@@ -290,6 +290,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 throw new JspTagException("Unsupported method \"" + method + "\".");
         }
 
+        //if Accept header "application/xml"
         if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
             String xResponseXml = null;
             if (xAcceptType.equals("xml")) {
@@ -308,6 +309,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
             }
 
         } else {
+            //if Accept header "application/json"
             JSONObject xResponseJson = null;
             if (xAcceptType.equals("xml")) {
                 xResponseJson = xresponse.getJsonForXmlXResponse();

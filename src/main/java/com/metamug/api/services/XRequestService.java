@@ -264,12 +264,7 @@ public class XRequestService {
                 xr = new XResponse(response.code(), "XRequest error: " + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
-            }
-
-            Headers responseHeaders = response.headers();
-            for (int i = 0; i < responseHeaders.size(); i++) {
-                xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
-            }
+            }          
 
             return xr;
         } catch (IOException ex) {
@@ -329,11 +324,6 @@ public class XRequestService {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
 
-            Headers responseHeaders = response.headers();
-            for (int i = 0; i < responseHeaders.size(); i++) {
-                xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
-            }
-
             return xr;
         } catch (IOException ex) {
             xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
@@ -391,11 +381,6 @@ public class XRequestService {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
 
-            Headers responseHeaders = response.headers();
-            for (int i = 0; i < responseHeaders.size(); i++) {
-                xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
-            }
-
         } catch (IOException ex) {
             xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
         }
@@ -431,11 +416,6 @@ public class XRequestService {
                 xr = new XResponse(response.code(), "XRequest error: " + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
-            }
-
-            Headers responseHeaders = response.headers();
-            for (int i = 0; i < responseHeaders.size(); i++) {
-                xr.addHeader(responseHeaders.name(i), responseHeaders.value(i));
             }
 
             return xr;

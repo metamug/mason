@@ -219,20 +219,17 @@ import org.json.XML;
 public class XResponse {
 
     private int statusCode;
-    private Map<String, String> headers;
     private String body;
     private boolean error;
 
     public XResponse(int statusCode, String body, boolean error) {
         this.statusCode = statusCode;
-        this.headers = new HashMap<>();
         this.body = body;
         this.error = error;
     }
 
     public XResponse(int statusCode, String body) {
         this.statusCode = statusCode;
-        this.headers = new HashMap<>();
         this.body = body;
         this.error = false;
     }
@@ -240,7 +237,6 @@ public class XResponse {
     private JSONObject getErrorJson() {
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
         obj.put("body", body);
 
         return obj;
@@ -248,14 +244,7 @@ public class XResponse {
 
     private Map<String, String> getErrorJsonMap(String xRequestId) {
         Map<String, String> map = new HashMap<>();
-        map.put(xRequestId + ".statusCode", Integer.toString(statusCode));
-        JSONObject h = new JSONObject(headers);
-        Iterator<String> hKeys = h.keys();
-        while (hKeys.hasNext()) {
-            String headerName = hKeys.next();
-            String headerVal = h.getString(headerName);
-            map.put(xRequestId + ".headers." + headerName, headerVal);
-        }
+        map.put(xRequestId + ".statusCode", Integer.toString(statusCode));        
         map.put(xRequestId + ".body", body);
         return map;
     }
@@ -271,7 +260,6 @@ public class XResponse {
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
         obj.put("body", body);
 
         return obj;
@@ -284,13 +272,7 @@ public class XResponse {
 
         Map<String, String> map = new HashMap<>();
         map.put(xRequestId + ".statusCode", Integer.toString(statusCode));
-        JSONObject h = new JSONObject(headers);
-        Iterator<String> hKeys = h.keys();
-        while (hKeys.hasNext()) {
-            String headerName = hKeys.next();
-            String headerVal = h.getString(headerName);
-            map.put(xRequestId + ".headers." + headerName, headerVal);
-        }
+       
         try {
             //test whether body is json object
             JSONObject bodyObject = new JSONObject(body);
@@ -321,7 +303,6 @@ public class XResponse {
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
         try {
             JSONObject bodyObject = new JSONObject(body);
             obj.put("body", bodyObject);
@@ -351,7 +332,6 @@ public class XResponse {
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
-        obj.put("headers", new JSONObject(headers));
         try {
             JSONObject bodyObject = new JSONObject(body);
             obj.put("body", bodyObject);
@@ -382,17 +362,5 @@ public class XResponse {
 
     public void setBody(String b) {
         body = b;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, String> h) {
-        headers = h;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
     }
 }
