@@ -63,6 +63,8 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 ```
 All requests made to the jsp resources are routed through this filter. 
 
+6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
+
 ### Dependencies
 
 mtg-mason-x.x.jar is shipped along with MTG SERVER and is present in all the backends generated via console.
