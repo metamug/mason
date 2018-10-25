@@ -2,11 +2,13 @@
 
 [![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason) 
 
-Mason is the open-source, ultra-lightweight data access layer for REST resources. It handles incoming API requests and routes the parameters to these resources.
+Mason is an open-source, ultra-lightweight data access layer for REST resources designed to be used in Java web applications. It handles incoming API requests and routes the parameters to these resources.
 
 ### Mason Resources
 
-Mason resources are Plain Old JSPs with neat tag libraries. Mason doesn't encourage [using scriptlets in Resource JSPs](http://balusc.omnifaces.org/2010/07/how-to-avoid-java-code-in-jsp-files.html). 
+Mason resources are Plain Old JSPs with neat tag libraries. Mason doesn't encourage [using scriptlets in Resource JSPs](http://balusc.omnifaces.org/2010/07/how-to-avoid-java-code-in-jsp-files.html).
+
+A Mason resource file represents a REST resource and contains JSP which describes the operations to be performed when an HTTP request is made to the resource.
 
 ### Mason Query
 
@@ -32,21 +34,34 @@ mvn clean package
 ```
 After that you can find *mtg-mason-1.0.jar* inside the target folder. You can use this jar as a dependency in your Java webapp.
 
-### Webapp Configuration
+### How to use mason in your Webapp
 
-Import mtg-mason.tld inside your jsp file. This taglib is present inside the mason jar and enables usage of the *mtg* prefix. 
+1. Place the mason jar file in `{webAppDir}/WEB-INF/lib` 
+
+2. Download [jstl](http://www.java2s.com/Code/Jar/j/Downloadjstl12jar.htm) jar file and place it inside `{webAppDir}/WEB-INF/lib`
+
+3. Create a folder `{webAppDir}/WEB-INF/resources/{resourceVersion}` and place your jsp file here.
+
+4. Import mtg-mason.tld inside your jsp file. This taglib is present inside the mason jar and enables usage of the *mtg* prefix. You will also need to import the jstl taglib. Your jsp file should contain the following
 ```  
 <% @taglib uri="mtg-mason.tld" prefix="mtg" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 ```
 
-And also add the following filter to your *web.xml*
+5. Add the following filter inside `{webAppDir}/WEB-INF/web.xml`
 ```
 <filter>
     <filter-name>RestRouterFilter</filter-name>
     <filter-class>com.metamug.api.filters.RestRouterFilter</filter-class>
 </filter>
+<filter-mapping>
+    <filter-name>RestRouterFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
 ```
-All the REST API calls to resources are routed through this filter. 
+All requests made to the jsp resources are routed through this filter. 
 
 ### Dependencies
 
