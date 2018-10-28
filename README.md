@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason) 
 
-Mason is an open-source, ultra-lightweight data access layer for REST resources designed to be used in Java web applications. It handles incoming API requests and routes the parameters to these resources.
+Mason is an open-source, lightweight data access layer for REST resources designed to be used in Java web applications. It handles incoming API requests and routes the parameters to these resources.
 
 ### Mason Resources
 
@@ -64,13 +64,6 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 All requests made to the jsp resources are routed through this filter. 
 
 6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
-
-### Dependencies
-
-mtg-mason-x.x.jar is shipped along with MTG SERVER and is present in all the backends generated via console.
-Due to this reason most of the dependencies have `<scope>provided</scope>`.
-Since all those dependencies are present in server lib.
-In case if you were to develop your own backend using this library, you'll have to comment out the <scope> tag of nearly all the dependencies.
 
 ### JDBC Drivers
 
