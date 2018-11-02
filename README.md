@@ -45,9 +45,9 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 4. Import mtg-mason.tld inside your jsp file. This taglib is present inside the mason jar and enables usage of the *mtg* prefix. You will also need to import the jstl taglib. Your jsp file should contain the following
 ```  
 <% @taglib uri="mtg-mason.tld" prefix="mtg" %>
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
-<%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<% @taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<% @taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
+<% @taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 ```
 
 5. Add the following filter inside `{webAppDir}/WEB-INF/web.xml`
@@ -56,6 +56,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
     <filter-name>RestRouterFilter</filter-name>
     <filter-class>com.metamug.api.filters.RestRouterFilter</filter-class>
 </filter>
+
 <filter-mapping>
     <filter-name>RestRouterFilter</filter-name>
     <url-pattern>/*</url-pattern>
@@ -64,6 +65,9 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 All requests made to the jsp resources are routed through this filter. 
 
 6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
+
+You can take a look at the sample webapp developed using mason
+https://github.com/metamug/mason-sample
 
 ### JDBC Drivers
 
