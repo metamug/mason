@@ -40,7 +40,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 
 2. Download [jstl](http://www.java2s.com/Code/Jar/j/Downloadjstl12jar.htm) jar file and place it inside `{webAppDir}/WEB-INF/lib`
 
-3. Create a folder `{webAppDir}/WEB-INF/resources/{resourceVersion}` and place your jsp file here.
+3. Create a folder `{webAppDir}/WEB-INF/resources/{resourceVersion}` and place your jsp files here.
 
 4. Import mtg-mason.tld inside your jsp file. This taglib is present inside the mason jar and enables usage of the *mtg* prefix. You will also need to import the jstl taglib. Your jsp file should contain the following
 ```  
@@ -66,12 +66,11 @@ All requests made to the jsp resources are routed through this filter.
 
 6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
 
-You can take a look at the sample webapp developed using mason
-https://github.com/metamug/mason-sample
+You can take a look at the [sample webapp](https://github.com/metamug/mason-sample).
 
 ### JDBC Drivers
 
-Except for javaee-web-api since that would be present in your application server and any one out of HSQL,MySQL or PostgreSQL dependency.
+Except for javaee-web-api since that would be present in your application server and any one out of HSQL, MySQL or PostgreSQL dependency.
 We also support Oracle database but due to licensing reason we can't ship oracle jdbc driver along with our MTG SERVER.
 So in case you are using Oracle database you'll have to manually install its driver as dependency and use that in this project.
 Instructions are given regarding how to do the same in below link(s) (You can refer either of them).
