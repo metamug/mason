@@ -178,6 +178,18 @@
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <name>isCollect</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <name>onError</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     <tag>
         <name>parent</name>
@@ -197,6 +209,16 @@
         <attribute>
             <name>value</name>
             <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
+        <name>validate</name>
+        <tag-class>com.metamug.api.taghandlers.ValidateQueryTagHandler</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>onError</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
