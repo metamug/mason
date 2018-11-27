@@ -203,6 +203,7 @@
  */
 package com.metamug.api.taghandlers;
 
+import com.github.wnameless.json.flattener.JsonFlattener;
 import com.metamug.api.common.MtgRequest;
 import com.metamug.api.exceptions.MetamugError;
 import com.metamug.api.exceptions.MetamugException;
@@ -333,7 +334,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             }
                             if (isVerbose != null && isVerbose) {
                                 if (isCollect != null && isCollect) {
-                                    //dxrequest
+                                    
                                     map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
                                 } else {
                                     map.put("dexecute" + (mapSize + 1), outputArray);
@@ -360,15 +361,16 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         map.put("dexecute" + (mapSize + 1), jsonOutput);
                                     }
                                 }
-                                //xrequest
+                                               
                                 if (isPersist != null && isPersist) {
-                                    Map<String, Object> jsonMap = jsonOutput.toMap();
+                                    Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
                                     jsonMap.entrySet().forEach((entry) -> {
                                         String key = entry.getKey();
                                         Object value = entry.getValue();
                                         mtgReq.getParams().put(key, String.valueOf(value));
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
+                                   
                                     pageContext.getRequest().setAttribute("mtgReq", mtgReq);
                                 }
                             } catch (JSONException jx) {

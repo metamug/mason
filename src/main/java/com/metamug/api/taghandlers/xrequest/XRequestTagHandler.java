@@ -322,7 +322,6 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
             }
 
             if (isPersist != null && isPersist) {
-                //mtgReq.getParams().put(id, xResponseJson.toString());
                 mtgReq.getParams().putAll(xresponse.getMapForJsonXResponse(id));
                 pageContext.getRequest().setAttribute("mtgReq", mtgReq);
             }
