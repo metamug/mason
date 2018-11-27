@@ -299,11 +299,31 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             try {
                                 JSONObject jsonOutput = new JSONObject((String) processedResult);
                                 map.put("dexecute" + (mapSize + 1), jsonOutput);
+                            
+                                if (isPersist != null && isPersist) {
+                                    MtgRequest mtg = (MtgRequest) param;
+                                    Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                                    mtg.getParams().entrySet().forEach((entry) -> {
+                                        String key = entry.getKey();
+                                        String value = entry.getValue();
+                                        requestParameters.put(key, value);
+                                    });
+                                    
+                                    Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
+                                    jsonMap.entrySet().forEach((entry) -> {
+                                        String key = entry.getKey();
+                                        Object value = entry.getValue();
+                                        mtgReq.getParams().put(key, String.valueOf(value));
+                                    });
+                                    mtgReq.getParams().putAll(requestParameters);
+                                   
+                                    pageContext.getRequest().setAttribute("mtgReq", mtgReq);
+                                }
                             } catch (JSONException jx) {
                                 map.put("dexecute" + (mapSize + 1), processedResult);
-                            }
-                        } //application/xml
-                        else {
+                            }                            
+                        } else {
+                            //application/xml
                             map.put("dexecute" + (mapSize + 1), processedResult);
                         }
                     }
@@ -333,8 +353,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                 outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
                             if (isVerbose != null && isVerbose) {
-                                if (isCollect != null && isCollect) {
-                                    
+                                if (isCollect != null && isCollect) {                                    
                                     map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
                                 } else {
                                     map.put("dexecute" + (mapSize + 1), outputArray);
