@@ -315,7 +315,7 @@ public class AnalyticDAO {
             if (driverName.contains("hsql")) {
                 query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (?,?,?,?,?,?,?)";
             } else if (driverName.contains("mysql")) {
-                query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (inet6_aton(?),?,?,?,?,?,?)";
+                query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (?,?,?,?,?,?,?)";
             } else if (driverName.contains("oracle")) {
                 query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (?,?,?,?,?,?,?)";
             } else if (driverName.contains("postgres")) {

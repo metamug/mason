@@ -240,6 +240,7 @@ public class QueryController extends HttpServlet {
         AnalyticService analyticService = new AnalyticService();
         String appName = request.getContextPath().split("/")[1];
         JSONObject result = new JSONObject();
+        //System.out.println("QUERY API CLIENT ADDRESS: "+request.getRemoteAddr());
         if (request.getRemoteAddr().equals("127.0.0.1")) {
             try {
                 String query = request.getParameter("query") == null ? "" : request.getParameter("query").toLowerCase().trim();
@@ -280,6 +281,7 @@ public class QueryController extends HttpServlet {
         QueryService queryService = new QueryService();
         String appName = request.getContextPath().split("/")[1];
         JSONArray result = new JSONArray();
+        //System.out.println("QUERY API CLIENT ADDRESS: "+request.getRemoteAddr());
         if (request.getRemoteAddr().equals("127.0.0.1")) {
             try {
                 String action = request.getParameter("action") == null ? "" : request.getParameter("action").toLowerCase().trim();
