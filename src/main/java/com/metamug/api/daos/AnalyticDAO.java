@@ -275,33 +275,33 @@ public class AnalyticDAO {
 
     public JSONObject getStats(String appName) {
         JSONObject obj = new JSONObject();
+        PreparedStatement stmt;
+        ResultSet rs;
         try (Connection con = ConnectionProvider.getInstance().getConnection()) {
             JSONArray resourceCountArray = new JSONArray();
             JSONArray dailyCountArray = new JSONArray();
-            PreparedStatement stmt = con.prepareStatement("SELECT app_name,resource,version,count(log_id) as count FROM request_log GROUP BY app_name,resource,version HAVING app_name=?");
+            stmt = con.prepareStatement("SELECT app_name,resource,version,count(log_id) as count FROM request_log GROUP BY app_name,resource,version HAVING app_name=?");
             stmt.setString(1, appName);
-            ResultSet resourceCountQuery = stmt.executeQuery();
-            while (resourceCountQuery.next()) {
+            rs = stmt.executeQuery();
+            while (rs.next()) {
                 JSONObject json = new JSONObject();
-                json.put("resource", resourceCountQuery.getString("resource"));
-                json.put("version", resourceCountQuery.getString("version"));
-                json.put("count", resourceCountQuery.getInt("count"));
+                json.put("resource", rs.getString("resource"));
+                json.put("version", rs.getString("version"));
+                json.put("count", rs.getInt("count"));
                 resourceCountArray.put(json);
             }
-            resourceCountQuery.close();
+            rs.close();
             stmt.close();
             
             stmt = con.prepareStatement("SELECT count(log_id) AS count,CAST(logged_on as DATE) AS date FROM (SELECT log_id,app_name,logged_on FROM request_log WHERE app_name=? AND logged_on >= now()-interval 1 month) AS log GROUP BY CAST(logged_on as DATE),app_name ORDER BY CAST(logged_on as DATE) ASC");
             stmt.setString(1, appName);
-            ResultSet dailyCountQuery = stmt.executeQuery();
-            while (dailyCountQuery.next()) {
+            rs = stmt.executeQuery();
+            while (rs.next()) {
                 JSONObject json = new JSONObject();
-                json.put("date", dailyCountQuery.getDate("date"));
-                json.put("count", dailyCountQuery.getInt("count"));
+                json.put("date", rs.getDate("date"));
+                json.put("count", rs.getInt("count"));
                 dailyCountArray.put(json);
             }
-            dailyCountQuery.close();
-            stmt.close();
             
             obj.put("resourcecount", resourceCountArray);
             obj.put("dailycount", dailyCountArray);
@@ -309,6 +309,9 @@ public class AnalyticDAO {
             obj.put("message", "Query Error");
             obj.put("Status", 409);
             Logger.getLogger(AnalyticDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        } finally{
+            rs.close();
+            stmt.close();
         }
         return obj;
     }

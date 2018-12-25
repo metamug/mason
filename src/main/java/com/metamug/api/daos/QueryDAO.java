@@ -265,10 +265,10 @@ public class QueryDAO {
         String driver = "";
         try {
             int recordCount = 0;
-            try (Connection con = ConnectionProvider.getInstance().getConnection(); Statement statement = con.createStatement()) {
+            try (Connection con = ConnectionProvider.getInstance().getConnection(); PreparedStatement statement = con.prepareStatement(query)) {
                 DatabaseMetaData dbMetaData = con.getMetaData();
                 driver = dbMetaData.getDriverName().toLowerCase().trim();
-                boolean status = statement.execute(query);
+                boolean status = statement.execute();
                 tableData.put("status", 200);
                 if (status) {
                     try (ResultSet resultSet = statement.getResultSet()) {
