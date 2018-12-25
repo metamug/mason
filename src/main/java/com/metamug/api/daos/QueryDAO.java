@@ -265,7 +265,7 @@ public class QueryDAO {
         String driver = "";
         try {
             int recordCount = 0;
-            try (Connection con = ConnectionProvider.getInstance().getConnection(); PreparedStatement statement = con.createStatement(query)) {
+            try (Connection con = ConnectionProvider.getInstance().getConnection(); PreparedStatement statement = con.prepareStatement(query)) {
                 DatabaseMetaData dbMetaData = con.getMetaData();
                 driver = dbMetaData.getDriverName().toLowerCase().trim();
                 boolean status = statement.execute();
