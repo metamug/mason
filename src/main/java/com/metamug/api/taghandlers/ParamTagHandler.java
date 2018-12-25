@@ -252,22 +252,23 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
      */
     @Override
     public int doEndTag() throws JspException {
+
         MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         mtg.getParams().put(name, value);
-        if (isRequired != null && isRequired) {
-            if (value == null && defaultValue == null) {
-                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-            }
-        }
 
-        if (value == null && defaultValue != null) {
-            value = defaultValue;
-            mtg.getParams().put(name, value);
+        if (isRequired != null && isRequired) {
+            if (value == null){
+                if(defaultValue == null) {
+                    throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
+                }else{
+                    value = defaultValue;        
+                }
+            }
         }
 
         if (pattern != null) {
             try {
-                if (!((String) value).matches(pattern)) {
+                if (!value.matches(pattern)) {
                     throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Input value doesn't match with specified pattern of " + name + " parameter"));
                 }
             } catch (PatternSyntaxException ex) {
