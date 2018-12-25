@@ -333,7 +333,7 @@ public class QueryDAO {
         columnHeader.put("query").put("status").put("executed_on");
         try (Connection con = ConnectionProvider.getInstance().getConnection()) {
             try (PreparedStatement statement = con.prepareStatement("SELECT query,status,executed_on FROM query_log WHERE app_name=? ORDER BY executed_on DESC LIMIT 100")) {
-                statement.setString(2, appName);
+                statement.setString(1, appName);
                 try (ResultSet result = statement.executeQuery()) {
                     while (result.next()) {
                         JSONObject queryLogRecord = new JSONObject();

@@ -288,15 +288,21 @@ public class AnalyticDAO {
                 json.put("count", resourceCountQuery.getInt("count"));
                 resourceCountArray.put(json);
             }
-            PreparedStatement stmnt = con.prepareStatement("SELECT count(log_id) AS count,CAST(logged_on as DATE) AS date FROM (SELECT log_id,app_name,logged_on FROM request_log WHERE app_name=? AND logged_on >= now()-interval 1 month) AS log GROUP BY CAST(logged_on as DATE),app_name ORDER BY CAST(logged_on as DATE) ASC");
-            stmnt.setString(1, appName);
-            ResultSet dailyCountQuery = stmnt.executeQuery();
+            resourceCountQuery.close();
+            stmt.close();
+            
+            stmt = con.prepareStatement("SELECT count(log_id) AS count,CAST(logged_on as DATE) AS date FROM (SELECT log_id,app_name,logged_on FROM request_log WHERE app_name=? AND logged_on >= now()-interval 1 month) AS log GROUP BY CAST(logged_on as DATE),app_name ORDER BY CAST(logged_on as DATE) ASC");
+            stmt.setString(1, appName);
+            ResultSet dailyCountQuery = stmt.executeQuery();
             while (dailyCountQuery.next()) {
                 JSONObject json = new JSONObject();
                 json.put("date", dailyCountQuery.getDate("date"));
                 json.put("count", dailyCountQuery.getInt("count"));
                 dailyCountArray.put(json);
             }
+            dailyCountQuery.close();
+            stmt.close();
+            
             obj.put("resourcecount", resourceCountArray);
             obj.put("dailycount", dailyCountArray);
         } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
@@ -321,15 +327,16 @@ public class AnalyticDAO {
             } else if (driverName.contains("postgres")) {
                 query = "INSERT INTO request_log (ip,app_name,resource,version,device_type,status,size) VALUES (?::inet,?,?,?,?,?,?)";
             }
-            PreparedStatement statement = con.prepareStatement(query);
-            statement.setString(1, remoteAddr);
-            statement.setString(2, appName);
-            statement.setString(3, resource);
-            statement.setString(4, version);
-            statement.setString(5, deviceType);
-            statement.setInt(6, statusCode);
-            statement.setInt(7, contentLength);
-            statement.execute();
+            try (PreparedStatement statement = con.prepareStatement(query)) {
+                statement.setString(1, remoteAddr);
+                statement.setString(2, appName);
+                statement.setString(3, resource);
+                statement.setString(4, version);
+                statement.setString(5, deviceType);
+                statement.setInt(6, statusCode);
+                statement.setInt(7, contentLength);
+                statement.execute();
+            }
         }
     }
 }

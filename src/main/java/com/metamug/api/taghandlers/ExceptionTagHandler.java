@@ -475,22 +475,12 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         } else {
             exceptionMessage = exception.toString();
         }
-        try (Connection con = ds.getConnection()) {
-            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,resource) VALUES(?,?,?,?)");
-            stmnt.setString(1, String.valueOf(errorId));
-            stmnt.setString(2, method);
-            stmnt.setString(3, exceptionMessage);
-            stmnt.setString(4, resourceURI);
-            stmnt.execute();
-        } catch (SQLException ex) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        //to trace here
+        dbLogErorr(errorId, request, exceptionMessage, new StringBuilder());
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
     private void logCodeError(String errorId, HttpServletRequest request, Exception exception) {
-        String method = (String) request.getAttribute("mtgMethod");
-        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         String exceptionMessage;
         if (exception.getMessage() != null) {
             exceptionMessage = exception.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
@@ -506,24 +496,11 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             }
             errorTraceBuilder.append("\n");
         }
-        try (Connection con = ds.getConnection()) {
-            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
-                    + " resource) VALUES(?,?,?,?,?)");
-            stmnt.setString(1, String.valueOf(errorId));
-            stmnt.setString(2, method);
-            stmnt.setString(3, exceptionMessage);
-            stmnt.setString(4, errorTraceBuilder.toString());
-            stmnt.setString(5, resourceURI);
-            stmnt.execute();
-        } catch (SQLException ex) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        dbLogErorr(errorId, request, exceptionMessage, errorTraceBuilder);
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
     private void logUploadCodeError(String errorId, HttpServletRequest request, Exception exception) {
-        String method = (String) request.getAttribute("mtgMethod");
-        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         String exceptionMessage;
         StringBuilder errorTraceBuilder = new StringBuilder();
         StackTraceElement[] stackTrace = exception.getStackTrace();
@@ -539,18 +516,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         } else {
             exceptionMessage = exception.toString();
         }
-        try (Connection con = ds.getConnection()) {
-            PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
-                    + " resource) VALUES(?,?,?,?,?)");
-            stmnt.setString(1, String.valueOf(errorId));
-            stmnt.setString(2, method);
-            stmnt.setString(3, exceptionMessage);
-            stmnt.setString(4, errorTraceBuilder.toString());
-            stmnt.setString(5, resourceURI);
-            stmnt.execute();
-        } catch (SQLException ex) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        dbLogErorr(errorId, request, exceptionMessage, errorTraceBuilder);
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -565,5 +531,22 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
 
     @Override
     public void doFinally() {
+    }
+    
+    private void dbLogErorr(String errorId, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder){
+        String method = (String) request.getAttribute("mtgMethod");
+        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        try (Connection con = ds.getConnection();PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
+                    + " resource) VALUES(?,?,?,?,?)");
+            ) {
+            stmnt.setString(1, String.valueOf(errorId));
+            stmnt.setString(2, method);
+            stmnt.setString(3, exceptionMessage);
+            stmnt.setString(4, errorTraceBuilder.toString());
+            stmnt.setString(5, resourceURI);
+            stmnt.execute();
+        } catch (SQLException ex) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
     }
 }
