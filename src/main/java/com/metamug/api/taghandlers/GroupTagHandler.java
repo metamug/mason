@@ -222,7 +222,7 @@ import org.json.JSONObject;
 public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private String value;
-    private AuthService authService;
+    transient private AuthService authService;
 
     /**
      * Creates new instance of tag handler

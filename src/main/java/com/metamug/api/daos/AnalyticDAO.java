@@ -222,7 +222,8 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 public class AnalyticDAO {
-
+    private static final String COUNT = "count";
+    
     public JSONObject getErrorLogs() throws IOException, ClassNotFoundException, PropertyVetoException, SQLException, NamingException {
         JSONObject errorRecords = new JSONObject();
         JSONArray jsonArray = new JSONArray();
@@ -287,7 +288,7 @@ public class AnalyticDAO {
                 JSONObject json = new JSONObject();
                 json.put("resource", rs.getString("resource"));
                 json.put("version", rs.getString("version"));
-                json.put("count", rs.getInt("count"));
+                json.put(COUNT, rs.getInt(COUNT));
                 resourceCountArray.put(json);
             }
             rs.close();
@@ -299,7 +300,7 @@ public class AnalyticDAO {
             while (rs.next()) {
                 JSONObject json = new JSONObject();
                 json.put("date", rs.getDate("date"));
-                json.put("count", rs.getInt("count"));
+                json.put(COUNT, rs.getInt(COUNT));
                 dailyCountArray.put(json);
             }
             
