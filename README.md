@@ -66,6 +66,12 @@ All requests made to the jsp resources are routed through this filter.
 
 You can take a look at the [sample webapp](https://github.com/metamug/mason-sample).
 
+### JSP
+
+Mason has been tested with tomcat 9. *jstl.jar* shipped with tomcat is make jstl work.
+Learn more about jsp configurations here.
+https://tomcat.apache.org/tomcat-9.0-doc/jasper-howto.html
+
 ### JDBC Drivers
 
 Except for javaee-web-api since that would be present in your application server and any one out of HSQL, MySQL or PostgreSQL dependency.
