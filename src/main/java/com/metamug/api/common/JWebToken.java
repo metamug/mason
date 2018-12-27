@@ -5,6 +5,10 @@
  */
 package com.metamug.api.common;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -31,7 +35,22 @@ public class JWebToken {
         payload.append("exp", expires);
         payload.append("iss", ISSUER);
         payload.append("jti", UUID.randomUUID().toString());
-    }    
+    }
+
+    public String getToken() throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException{
+        return encode(header)+"."+encode(payload)+ HMACSHA256(encode(header)+"."+encode(payload));
+    }
+    
+    public boolean verify(String token) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException{
+        String[] parts = token.split("\\.");
+        return parts[2].equals(HMACSHA256(parts[0]+"."+parts[1]));
+    }
+    
+    private String encode(JSONObject obj) throws UnsupportedEncodingException{
+        return new String(Base64.getEncoder().encode(obj.toString().getBytes("UTF-8")));
+    }
+    
+    
 
     /**
      * Sign with HMAC SHA256 (HS256)
@@ -39,7 +58,7 @@ public class JWebToken {
      * @return
      * @throws Exception 
      */    
-    public String HMACSHA256(String data) throws Exception {
+    private String HMACSHA256(String data) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException{
         Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
         SecretKeySpec secret_key = new SecretKeySpec(SECRET_KEY.getBytes("UTF-8"), "HmacSHA256");
         sha256_HMAC.init(secret_key);
