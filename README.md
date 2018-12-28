@@ -52,7 +52,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 ```
 <filter>
     <filter-name>RestRouterFilter</filter-name>
-    <filter-class>com.metamug.api.filters.RestRouterFilter</filter-class>
+    <filter-class>com.metamug.mason.filters.RestRouterFilter</filter-class>
 </filter>
 
 <filter-mapping>

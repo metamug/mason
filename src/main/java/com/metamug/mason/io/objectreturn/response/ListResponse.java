@@ -201,42 +201,58 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.masson.io.objectreturn;
+package com.metamug.mason.io.objectreturn.response;
 
-import java.io.StringWriter;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import org.eclipse.persistence.jaxb.JAXBContextFactory;
-import org.eclipse.persistence.jaxb.MarshallerProperties;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author anishhirlekar
  */
-public class ObjectReturn {
+public class ListResponse {
 
-    private static final String TYPE_JSON = "application/json";
-    private static final String TYPE_XML = "application/xml";
+    private int status;
+    private final Map<String, String> headers;
+    private List<?> data;
 
-    /**
-     * @param returnObject The object to be converted. if object is of type String, the object will be returned as it is and acceptHeader will be ignored
-     * @param acceptHeader Used to determine whether to convert into JSON or XML
-     * @return Json object or XML converted form of the returnObject as String
-     * @throws javax.xml.bind.JAXBException
-     */
-    public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
-        if (returnObject instanceof String) {
-            return (String) returnObject;
-        }
-        StringWriter marshalledResult = new StringWriter();
-        JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
+    public ListResponse() {
+        this.headers = new HashMap<>();
+    }
 
-        Marshaller marshaller = jc.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, acceptHeader);
-        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-        marshaller.marshal(returnObject, marshalledResult);
-        return marshalledResult.toString();
+    public ListResponse(int status) {
+        this.status = status;
+        this.headers = new HashMap<>();
+    }
+
+    public ListResponse(int status, List<?> data) {
+        this.status = status;
+        this.data = data;
+        this.headers = new HashMap<>();
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return this.status;
+    }
+
+    public void addHeader(String name, String value) {
+        headers.put(name, value);
+    }
+
+    public Map<String, String> getHeaders() {
+        return this.headers;
+    }
+
+    public void setData(List<?> data) {
+        this.data = data;
+    }
+
+    public List<?> getData() {
+        return this.data;
     }
 }

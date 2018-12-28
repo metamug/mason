@@ -201,32 +201,31 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.masson.io.objectreturn.response;
+package com.metamug.mason.io.objectreturn.response;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  *
  * @author anishhirlekar
  */
-public class ListResponse {
+public class StringResponse {
 
     private int status;
     private final Map<String, String> headers;
-    private List<?> data;
+    private String data;
 
-    public ListResponse() {
+    public StringResponse() {
         this.headers = new HashMap<>();
     }
 
-    public ListResponse(int status) {
+    public StringResponse(int status) {
         this.status = status;
         this.headers = new HashMap<>();
     }
 
-    public ListResponse(int status, List<?> data) {
+    public StringResponse(int status, String data) {
         this.status = status;
         this.data = data;
         this.headers = new HashMap<>();
@@ -248,11 +247,11 @@ public class ListResponse {
         return this.headers;
     }
 
-    public void setData(List<?> data) {
+    public void setData(String data) {
         this.data = data;
     }
 
-    public List<?> getData() {
+    public String getData() {
         return this.data;
     }
 }

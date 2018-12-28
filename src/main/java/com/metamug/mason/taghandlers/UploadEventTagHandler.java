@@ -209,7 +209,7 @@ import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.entity.Request;
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
-import com.metamug.masson.io.objectreturn.ObjectReturn;
+import com.metamug.mason.io.objectreturn.ObjectReturn;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

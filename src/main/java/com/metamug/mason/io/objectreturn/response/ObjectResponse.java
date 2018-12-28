@@ -201,7 +201,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.metamug.masson.io.objectreturn.response;
+package com.metamug.mason.io.objectreturn.response;
 
 import java.util.HashMap;
 import java.util.Map;
