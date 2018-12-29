@@ -5,6 +5,7 @@
  */
 package com.metamug.api.common;
 
+import java.util.Calendar;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -43,12 +44,14 @@ public class JWebTokenTest {
      */
     @org.junit.Test
     public void testHMACSHA256() {
-        HMACSHA256(
-  base64UrlEncode(header) + "." +
-  base64UrlEncode(payload), secretKey);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Calendar c = Calendar.getInstance();
+                c.add(Calendar.DAY_OF_YEAR, 2);
+        String token = new JWebToken("1234","admin", c.getTime().getTime()).toString();
+        System.out.println(token);
+//        JWebToken incomingToken = new JWebToken(token)
+//        if(token.isValid()){
+//            
+//        }
     }
     
 }
