@@ -502,6 +502,10 @@ public class RestRouterFilter implements Filter {
         mtgRequest.setParams(params);
         return mtgRequest;
     }
+    
+    private void createToken(String user, String pass){
+        
+    }
 
     /**
      * Return the filter configuration object for this filter.

@@ -34,13 +34,16 @@ public class JWebToken {
     private JWebToken() {
         encodedHeader = encode(new JSONObject(HEADER));
     }
-
+    
+    public JWebToken(JSONObject payload){
+        this(payload.getString("sub"), payload.getString("aud"), payload.getLong("exp"));
+    }
     public JWebToken(String sub, String aud, long expires) {
         this();
         payload.put("sub", sub);
         payload.put("aud", aud);
-        payload.put("iat", System.currentTimeMillis());
         payload.put("exp", expires);
+        payload.put("iat", System.currentTimeMillis());
         payload.put("iss", ISSUER);
         payload.put("jti", UUID.randomUUID().toString()); //how do we use this?
         signature = HMACSHA256(encodedHeader + "." + encode(payload));

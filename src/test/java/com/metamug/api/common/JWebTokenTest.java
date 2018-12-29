@@ -50,7 +50,7 @@ public class JWebTokenTest {
     public void test() {
         
         //generate JWT
-        String token = new JWebToken("1234", "admin", LocalDate.now().plusDays(2).toEpochDay()).toString();      
+        String token = new JWebToken("1234", "admin", LocalDate.now().plusDays(90).toEpochDay()).toString();      
         
         //verify and use
         JWebToken incomingToken = null;

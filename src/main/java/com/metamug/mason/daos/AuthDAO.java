@@ -204,12 +204,14 @@
 package com.metamug.mason.daos;
 
 import com.metamug.mason.services.ConnectionProvider;
+import com.sun.org.apache.xpath.internal.axes.LocPathIterator;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.NamingException;
@@ -224,13 +226,8 @@ public class AuthDAO {
     public JSONObject validateBasic(String userName, String password, String roleName) {
         JSONObject status = new JSONObject();
         status.put("status", 0);
-        String authQuery = "";
-        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
-            try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower('Basic')"); ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
-                if (authQueryResult.next()) {
-                    authQuery = authQueryResult.getString("auth_query");
-                }
-            }
+       try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            String authQuery = getConfigValue(con, "Basic");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, userName);
@@ -253,6 +250,54 @@ public class AuthDAO {
             Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return status;
+    }
+
+    public JSONObject getBearDetails(String user, String pass) {
+        JSONObject jwtPayload = new JSONObject();
+        jwtPayload.put("status", 0);
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+            String authQuery = getConfigValue(con, "bearer");
+
+            if (!authQuery.isEmpty()) {
+                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
+                    basicStmnt.setString(1, user);
+                    basicStmnt.setString(2, pass);
+                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
+                        while (basicResult.next()) {
+                            jwtPayload.put("sub", basicResult.getString(1));
+                            jwtPayload.put("aud", basicResult.getString(2));
+                            jwtPayload.put("exp", LocalDate.now().plusDays(90).toEpochDay()); //thsi needs to be configured
+                        }
+                    }
+                }
+            }
+        } catch (SQLException | IOException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return jwtPayload;
+    }
+
+    /**
+     * Get Value for key in mtg_config
+     *
+     * @param key
+     * @return
+     */
+    private String getConfigValue(Connection con, String key) {
+
+        try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower(?)");) {
+            basicAuthQueryStmnt.setString(0, key);
+            try (ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
+                if (authQueryResult.next()) {
+                    return authQueryResult.getString("auth_query");
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
 }
