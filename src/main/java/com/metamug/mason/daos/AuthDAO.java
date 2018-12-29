@@ -255,37 +255,4 @@ public class AuthDAO {
         return status;
     }
 
-    public JSONObject validateBearer(String bearerToken, String roleName) {
-        JSONObject status = new JSONObject();
-        status.put("status", 0);
-        String authQuery = "";
-        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
-            try (PreparedStatement bearerAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower('Bearer')"); ResultSet authQueryResult = bearerAuthQueryStmnt.executeQuery()) {
-                if (authQueryResult.next()) {
-                    authQuery = authQueryResult.getString("auth_query");
-                }
-            }
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement bearerStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    bearerStmnt.setString(1, bearerToken);
-                    try (ResultSet bearerResult = bearerStmnt.executeQuery()) {
-                        while (bearerResult.next()) {
-                            status.put("user_id", bearerResult.getString(1));
-                            status.put("role", bearerResult.getString(2));
-                            if (bearerResult.getString(2).equalsIgnoreCase(roleName)) {
-                                status.put("status", 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                status.put("status", -1);
-            }
-        } catch (SQLException | IOException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return status;
-    }
-
 }

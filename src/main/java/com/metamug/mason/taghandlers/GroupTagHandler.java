@@ -233,8 +233,10 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
     }
 
     /**
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
-     * methods that this method calls.
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP
+     * page, otherwise return SKIP_PAGE. This method is automatically generated.
+     * Do not modify this method. Instead, modify the methods that this method
+     * calls.
      * @throws javax.servlet.jsp.JspException
      */
     @Override
@@ -268,17 +270,9 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                     String bearerToken = new String(Base64.getDecoder().decode(authHeader.getBytes()));
                     //check jwt format
                     //validateJwt - check aud against val, exp
-                    JSONObject status = validateBearer(bearerToken.trim());
-                    switch (status.getInt("status")) {
-                        case -1:
-                            throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
-                        case 0:
-                            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
-                        case 1:
-                            mtg.setUid(String.valueOf(status.getInt("user_id")));
-                            pageContext.getRequest().setAttribute("mtgReq", mtg);
-                            break;
-                    }
+                    String userId = validateBearer(bearerToken.trim());
+                    mtg.setUid(userId);
+                    pageContext.getRequest().setAttribute("mtgReq", mtg);
 
                 } else {
                     throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
@@ -315,7 +309,7 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
         return authService.validateBasic(userName, password, value);
     }
 
-    private JSONObject validateBearer(String bearerToken) {
+    private String validateBearer(String bearerToken) throws JspException {
         return authService.validateBearer(bearerToken, value);
     }
 }

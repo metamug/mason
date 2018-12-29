@@ -203,7 +203,16 @@
  */
 package com.metamug.mason.services;
 
+import com.metamug.mason.common.JWebToken;
 import com.metamug.mason.daos.AuthDAO;
+import com.metamug.mason.exceptions.MetamugError;
+import com.metamug.mason.exceptions.MetamugException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
 
 /**
@@ -222,7 +231,32 @@ public class AuthService {
         return dao.validateBasic(userName, password, roleName);
     }
 
-    public JSONObject validateBearer(String bearerToken, String roleName) {
-        return dao.validateBearer(bearerToken, roleName);
+    /**
+     * Returns user and auth values to verify
+     *
+     * @param bearerToken
+     * @param roleName
+     * @return
+     * @throws javax.servlet.jsp.JspException
+     */
+    public String validateBearer(String bearerToken, String roleName) throws JspException {
+        JSONObject obj = new JSONObject();
+        try {
+            //verify and use
+            JWebToken incomingToken = new JWebToken(bearerToken);
+
+            if (!incomingToken.isValid()) {
+                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+            }
+
+            if (!roleName.equals(incomingToken.getAudience())) {
+                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+            }
+
+            return (incomingToken.getSubject());
+
+        } catch (NoSuchAlgorithmException ex) {
+            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+        }
     }
 }
