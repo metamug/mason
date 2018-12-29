@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -29,10 +30,13 @@ public class JWebToken {
     JSONObject payload = new JSONObject();
     private String signature;
     private String encodedHeader;
-   
+
+    private JWebToken() {
+        encodedHeader = encode(new JSONObject(HEADER));
+    }
 
     public JWebToken(String sub, String aud, long expires) {
-        encodedHeader = encode(new JSONObject(HEADER));
+        this();
         payload.put("sub", sub);
         payload.put("aud", aud);
         payload.put("iat", System.currentTimeMillis());
@@ -43,20 +47,28 @@ public class JWebToken {
     }
 
     public JWebToken(String token) throws NoSuchAlgorithmException {
+        this();
         String[] parts = token.split("\\.");
-        if(parts.length !=3) throw new IllegalArgumentException("Invalid Token format");        
-        if(Base64.getDecoder().decode(parts[0]).equals(HEADER)){
-            encodedHeader = parts[0];
-        }else{
-            throw new NoSuchAlgorithmException("JWT Header is Incorrect");        
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid Token format");
         }
-        payload = new JSONObject(Base64.getDecoder().decode(parts[1]));
+        if (encodedHeader.equals(parts[0])) {
+            encodedHeader = parts[0];
+        } else {
+            throw new NoSuchAlgorithmException("JWT Header is Incorrect: " + parts[0]);
+        }
+        String decodedPayload = new String(Base64.getDecoder().decode(parts[1]));
+        payload = new JSONObject(decodedPayload);
+        if(payload.isEmpty()) throw new JSONException("Payload is Empty: " + decodedPayload);
+        if (!payload.has("exp")) {
+            throw new JSONException("Payload doesn't contain expiry " + payload);
+        }
         signature = parts[2];
     }
 
     @Override
     public String toString() {
-            return encodedHeader + "." + encode(payload) + "." + signature;
+        return encodedHeader + "." + encode(payload) + "." + signature;
     }
 
     public boolean isValid() {
@@ -72,7 +84,7 @@ public class JWebToken {
         return payload.getString("aud");
     }
 
-    private static String encode(JSONObject obj){
+    private static String encode(JSONObject obj) {
         try {
             return new String(Base64.getEncoder().encode(obj.toString().getBytes("UTF-8")));
         } catch (UnsupportedEncodingException ex) {
@@ -88,7 +100,7 @@ public class JWebToken {
      * @return
      * @throws Exception
      */
-    private String HMACSHA256(String data){
+    private String HMACSHA256(String data) {
         try {
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(SECRET_KEY.getBytes("UTF-8"), "HmacSHA256");
