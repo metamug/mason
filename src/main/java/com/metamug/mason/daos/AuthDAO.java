@@ -257,7 +257,6 @@ public class AuthDAO {
         jwtPayload.put("status", 0);
         try (Connection con = ConnectionProvider.getInstance().getConnection()) {
             String authQuery = getConfigValue(con, "bearer");
-
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, user);
@@ -281,17 +280,17 @@ public class AuthDAO {
      * Get Value for key in mtg_config
      *
      * @param key
-     * @return
+     * @return empty string if no query
      */
     private String getConfigValue(Connection con, String key) {
 
         try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower(?)");) {
-            basicAuthQueryStmnt.setString(0, key);
+            basicAuthQueryStmnt.setString(1, key);
             try (ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
                 if (authQueryResult.next()) {
                     return authQueryResult.getString("auth_query");
                 } else {
-                    return null;
+                    return "";
                 }
             }
         } catch (SQLException ex) {
