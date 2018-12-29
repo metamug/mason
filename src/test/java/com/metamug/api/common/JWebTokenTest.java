@@ -5,18 +5,18 @@
  */
 package com.metamug.api.common;
 
+import com.metamug.mason.common.JWebToken;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
