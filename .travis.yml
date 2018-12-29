@@ -1,4 +1,11 @@
 language: java                                               
 jdk:                           
-    - oraclejdk8
-    
+    - oraclejdk8 
+addons:
+  sonarcloud:
+    organization: metamug
+    token:
+      secure: EBd+VXi/NH9NLPUH4al0X/FWAXLOH3lDBfOXv8ZiPzaD/4SnwBZeBspOpn5BSRAnATpOE3z3FCrMdQ3QMNrc2hQVQk1xJjVyvnWOny03pd2y/hpw0FNgqHhN8s1EOd4UVGhQ6RCX0/Rx+F3tuP1bDkzybAQ4EmEbw52eavSBAsq8zzoqcAqNxXN13aOPHK0DJm67K0IIwlIGPHeLYhyGF4ieyIMYn/xYyo4KyrLTczHY5xSC2urlbkNpydMrSRS1/wY+3r8RGqAEr7bcYBmgLBMlIMWgftUxKlAoLK2gl/D4JX54iVkbdxOdgxyS0d7al46wna3m02vCBq6G4hBcLX84m0BvN2Q6r03JVpXfCavRNwiLzs0uhFsu8fIBVEoFyfZ7eELfYx1bUD0J7LDkdeJqZ+LbEKaS/JP2P3vIBuAxdcnWOvN6DH3iGtbeF9H3h+BLV13KlP2sTwc1+QcYv597Qht9eL2HjC+P6m+y0GJhYcT03nuCiNugvPz9p0yfAlXWeTrtPYc0e5oPQ7VAn+pnMiPeCQj54Wx0G6pdGncqtrJDYUQ3yqTYkfN9L8+0jd46tsxER2NuNNRCeRmJM8sbG83UyXmB99s5xaO8DejkK6OHbekpkHwn2qAQgPGvspdGVtC1WUfBL2cFO9OHBPU3HaTM/dSSdZE0T+25z+Q=
+script:
+  # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=metamug_mason -Dsonar.organization=metamug -Dsonar.host.url=https://sonarcloud.io

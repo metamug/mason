@@ -52,7 +52,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 ```
 <filter>
     <filter-name>RestRouterFilter</filter-name>
-    <filter-class>com.metamug.api.filters.RestRouterFilter</filter-class>
+    <filter-class>com.metamug.mason.filters.RestRouterFilter</filter-class>
 </filter>
 
 <filter-mapping>
@@ -65,6 +65,12 @@ All requests made to the jsp resources are routed through this filter.
 6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
 
 You can take a look at the [sample webapp](https://github.com/metamug/mason-sample).
+
+### JSP
+
+Mason has been tested with tomcat 9. *jstl.jar* shipped with tomcat is make jstl work.
+Learn more about jsp configurations here.
+https://tomcat.apache.org/tomcat-9.0-doc/jasper-howto.html
 
 ### JDBC Drivers
 
