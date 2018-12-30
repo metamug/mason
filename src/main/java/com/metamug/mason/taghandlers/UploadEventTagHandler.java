@@ -203,15 +203,14 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.common.MtgRequest;
-import com.metamug.mason.exceptions.MetamugError;
-import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.entity.Request;
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
+import com.metamug.mason.common.MtgRequest;
+import com.metamug.mason.exceptions.MetamugError;
+import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -274,15 +273,13 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
         String contentType = request.getContentType() == null ? "" : request.getContentType();
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
-        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
-        String appName = resourceURI.split("/")[1];
         MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         if (contentType.contains("multipart/form-data")) {
             String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
             try {
                 String listenerClass;
                 Properties prop = new Properties();
-                try (FileInputStream fis = new FileInputStream(new File(System.getProperty("catalina.base") + File.separator + "api" + "/" + appName + "/WEB-INF/config.properties"))) {
+                try (InputStream fis = UploadEventTagHandler.class.getClassLoader().getResourceAsStream("config.properties")) {
                     prop.load(fis);
                     listenerClass = prop.getProperty("UploadListener");
                 }
