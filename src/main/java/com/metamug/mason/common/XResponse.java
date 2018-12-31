@@ -508,7 +508,6 @@ package com.metamug.mason.common;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -547,7 +546,7 @@ public class XResponse {
 
     private Map<String, String> getErrorJsonMap(String xRequestId) {
         Map<String, String> map = new HashMap<>();
-        map.put(xRequestId + ".statusCode", Integer.toString(statusCode));        
+        map.put(xRequestId + ".statusCode", Integer.toString(statusCode));
         map.put(xRequestId + ".body", body);
         return map;
     }
@@ -575,7 +574,7 @@ public class XResponse {
 
         Map<String, String> map = new HashMap<>();
         map.put(xRequestId + ".statusCode", Integer.toString(statusCode));
-       
+
         try {
             //test whether body is json object
             JSONObject bodyObject = new JSONObject(body);

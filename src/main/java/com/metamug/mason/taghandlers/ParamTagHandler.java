@@ -547,10 +547,8 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
     /**
      * This method is called after the JSP engine finished processing the tag.
      *
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP
-     * page, otherwise return SKIP_PAGE. This method is automatically generated.
-     * Do not modify this method. Instead, modify the methods that this method
-     * calls.
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
+     * methods that this method calls.
      * @throws javax.servlet.jsp.JspException
      */
     @Override
@@ -560,11 +558,11 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
         mtg.getParams().put(name, value);
 
         if (isRequired != null && isRequired) {
-            if (value == null){
-                if(defaultValue == null) {
+            if (value == null) {
+                if (defaultValue == null) {
                     throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                }else{
-                    value = defaultValue;        
+                } else {
+                    value = defaultValue;
                 }
             }
         }

@@ -507,7 +507,6 @@
 package com.metamug.mason.daos;
 
 import com.metamug.mason.services.ConnectionProvider;
-import com.sun.org.apache.xpath.internal.axes.LocPathIterator;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.Connection;
@@ -529,7 +528,7 @@ public class AuthDAO {
     public JSONObject validateBasic(String userName, String password, String roleName) {
         JSONObject status = new JSONObject();
         status.put("status", 0);
-       try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
             String authQuery = getConfigValue(con, "Basic");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
@@ -597,7 +596,7 @@ public class AuthDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             return "";
         }
     }

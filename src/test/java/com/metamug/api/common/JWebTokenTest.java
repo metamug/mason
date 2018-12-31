@@ -8,9 +8,6 @@ package com.metamug.api.common;
 import com.metamug.mason.common.JWebToken;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -48,14 +45,14 @@ public class JWebTokenTest {
      */
     @org.junit.Test
     public void test() {
-        
+
         //generate JWT
-        String token = new JWebToken("1234", "admin", LocalDate.now().plusDays(90).toEpochDay()).toString();      
-        
+        String token = new JWebToken("1234", "admin", LocalDate.now().plusDays(90).toEpochDay()).toString();
+
         //verify and use
         JWebToken incomingToken = null;
         try {
-            
+
             incomingToken = new JWebToken(token);
             if (incomingToken.isValid()) {
                 Assert.assertEquals("1234", incomingToken.getSubject());

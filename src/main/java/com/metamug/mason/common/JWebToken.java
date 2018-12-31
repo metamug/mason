@@ -535,10 +535,11 @@ public class JWebToken {
     private JWebToken() {
         encodedHeader = encode(new JSONObject(HEADER));
     }
-    
-    public JWebToken(JSONObject payload){
+
+    public JWebToken(JSONObject payload) {
         this(payload.getString("sub"), payload.getString("aud"), payload.getLong("exp"));
     }
+
     public JWebToken(String sub, String aud, long expires) {
         this();
         payload.put("sub", sub);
@@ -563,7 +564,9 @@ public class JWebToken {
         }
         String decodedPayload = new String(Base64.getDecoder().decode(parts[1]));
         payload = new JSONObject(decodedPayload);
-        if(payload.isEmpty()) throw new JSONException("Payload is Empty: " + decodedPayload);
+        if (payload.isEmpty()) {
+            throw new JSONException("Payload is Empty: " + decodedPayload);
+        }
         if (!payload.has("exp")) {
             throw new JSONException("Payload doesn't contain expiry " + payload);
         }

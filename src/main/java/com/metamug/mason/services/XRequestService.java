@@ -515,7 +515,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import okhttp3.FormBody;
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -567,7 +566,7 @@ public class XRequestService {
                 xr = new XResponse(response.code(), "XRequest error: " + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
-            }          
+            }
 
             return xr;
         } catch (IOException ex) {

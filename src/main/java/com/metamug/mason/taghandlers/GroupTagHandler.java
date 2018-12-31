@@ -536,10 +536,8 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
     }
 
     /**
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP
-     * page, otherwise return SKIP_PAGE. This method is automatically generated.
-     * Do not modify this method. Instead, modify the methods that this method
-     * calls.
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
+     * methods that this method calls.
      * @throws javax.servlet.jsp.JspException
      */
     @Override

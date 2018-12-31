@@ -805,9 +805,9 @@ public class RestRouterFilter implements Filter {
         mtgRequest.setParams(params);
         return mtgRequest;
     }
-    
-    private void createToken(String user, String pass){
-        
+
+    private void createToken(String user, String pass) {
+
     }
 
     /**

@@ -835,13 +835,12 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     @Override
     public void doFinally() {
     }
-    
-    private void dbLogErorr(String errorId, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder){
+
+    private void dbLogErorr(String errorId, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
         String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
-        try (Connection con = ds.getConnection();PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
-                    + " resource) VALUES(?,?,?,?,?)");
-            ) {
+        try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,method,message,trace,"
+                + " resource) VALUES(?,?,?,?,?)");) {
             stmnt.setString(1, String.valueOf(errorId));
             stmnt.setString(2, method);
             stmnt.setString(3, exceptionMessage);

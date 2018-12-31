@@ -507,11 +507,11 @@
 package com.metamug.mason.taghandlers;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
+import com.metamug.exec.RequestProcessable;
+import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.common.MtgRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
-import com.metamug.exec.RequestProcessable;
-import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.io.mpath.MPathUtil;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
 import java.security.NoSuchAlgorithmException;
@@ -602,7 +602,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             try {
                                 JSONObject jsonOutput = new JSONObject((String) processedResult);
                                 map.put("dexecute" + (mapSize + 1), jsonOutput);
-                            
+
                                 if (isPersist != null && isPersist) {
                                     MtgRequest mtg = (MtgRequest) param;
                                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -611,7 +611,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         String value = entry.getValue();
                                         requestParameters.put(key, value);
                                     });
-                                    
+
                                     Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
                                     jsonMap.entrySet().forEach((entry) -> {
                                         String key = entry.getKey();
@@ -619,12 +619,12 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         mtgReq.getParams().put(key, String.valueOf(value));
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
-                                   
+
                                     pageContext.getRequest().setAttribute("mtgReq", mtgReq);
                                 }
                             } catch (JSONException jx) {
                                 map.put("dexecute" + (mapSize + 1), processedResult);
-                            }                            
+                            }
                         } else {
                             //application/xml
                             map.put("dexecute" + (mapSize + 1), processedResult);
@@ -656,7 +656,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                 outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
                             if (isVerbose != null && isVerbose) {
-                                if (isCollect != null && isCollect) {                                    
+                                if (isCollect != null && isCollect) {
                                     map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
                                 } else {
                                     map.put("dexecute" + (mapSize + 1), outputArray);
@@ -683,7 +683,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         map.put("dexecute" + (mapSize + 1), jsonOutput);
                                     }
                                 }
-                                               
+
                                 if (isPersist != null && isPersist) {
                                     Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
                                     jsonMap.entrySet().forEach((entry) -> {
@@ -692,7 +692,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         mtgReq.getParams().put(key, String.valueOf(value));
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
-                                   
+
                                     pageContext.getRequest().setAttribute("mtgReq", mtgReq);
                                 }
                             } catch (JSONException jx) {

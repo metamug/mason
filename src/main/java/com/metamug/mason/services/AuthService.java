@@ -511,11 +511,6 @@ import com.metamug.mason.daos.AuthDAO;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
 
@@ -563,10 +558,10 @@ public class AuthService {
             throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
         }
     }
-    
-    public String createBearer(String user, String pass){
-        JSONObject payload = dao.getBearDetails(user,pass);
-        String token = new JWebToken(payload).toString(); 
+
+    public String createBearer(String user, String pass) {
+        JSONObject payload = dao.getBearDetails(user, pass);
+        String token = new JWebToken(payload).toString();
         return token;
     }
 }
