@@ -50,61 +50,106 @@
 *
 *This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
 */
-package com.mtg.io.mpath;
+package com.metamug.mason.io.objectreturn;
 
+import com.metamug.mason.io.objectreturn.testclasses.Customer;
+import com.metamug.mason.io.objectreturn.testclasses.PhoneNumber;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.JAXBException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- *
- * @author anishhirlekar
- */
-public class MPathUnflattenTest {
+public class ObjectReturnTest {
 
-    String json1;
+    private final String TYPE_JSON = "application/json";
+    private final String TYPE_XML = "application/xml";
+    private Customer customer1, customer2, customer3;
+    private final List<Customer> list = new ArrayList<>();
 
     @Before
     public void init() {
-        json1 = "{\"a\":{\"b\":{\"c\":123}}}";
+        customer1 = new Customer(1, "Kaustubh", "Gosling");
+        PhoneNumber pn = new PhoneNumber();
+        pn.setNum("9128992849");
+        pn.setType("mobile");
+        customer1.addPhoneNumber(pn);
+        list.add(customer1);
+
+        customer2 = new Customer(2, "Deepak", "Ritchie");
+        pn = new PhoneNumber();
+        pn.setNum("1204597612");
+        pn.setType("work");
+        customer2.addPhoneNumber(pn);
+        list.add(customer2);
+
+        customer3 = new Customer(3, "Suraj", "MacMaharaja");
+        pn = new PhoneNumber();
+        pn.setNum("164295318");
+        pn.setType("work");
+        customer3.addPhoneNumber(pn);
+        list.add(customer3);
     }
 
-    @Ignore
     @Test
-    public void TestCase1() {
-        String mPath = "a.b.c";
-        String value = "123";
+    public void ObjectToJsonTest() {
         try {
-            JSONObject json = MPathUtil.getJsonFromMPath(mPath, value);
-            System.out.println(json);
-        } catch (JSONException jx) {
-            Assert.fail(jx.toString());
+            String resultJson = ObjectReturn.convert(customer1, TYPE_JSON);
+            //System.out.println(resultJson);
+            JSONObject jsonObject = new JSONObject(resultJson);
+            Assert.assertNotNull(jsonObject);
+        } catch (JSONException | JAXBException e) {
+            Assert.fail(e.toString());
         }
     }
 
-    @Ignore
     @Test
-    public void TestCase2() {
+    public void ObjectToXmlTest() {
         try {
-            JSONObject initJson = new JSONObject(json1);
-            String mPath1 = "a.b.d";
-            int value1 = 456;
-            JSONObject unflatJson1 = MPathUtil.appendJsonFromMPath(initJson, mPath1, value1);
-            String mPath2 = "a.e.f", value2 = "8910";
-            JSONObject unflatJson2 = MPathUtil.appendJsonFromMPath(unflatJson1, mPath2, value2);
-            System.out.println(unflatJson2);
-        } catch (JSONException jx) {
-            Assert.fail(jx.toString());
+            String resultXml = ObjectReturn.convert(customer1, TYPE_XML);
+            //    System.out.println(resultXml);
+            Assert.assertNotNull(resultXml);
+        } catch (JAXBException ex) {
+            Assert.fail(ex.toString());
         }
     }
 
     @Test
-    public void TestCase3() {
-        JSONObject initJson = new JSONObject();
-        JSONObject result = MPathUtil.appendJsonFromMPath(initJson, "data", TestData.TEST_JSON4);
-        System.out.println(result);
+    public void StringTest() {
+        try {
+            String result = ObjectReturn.convert("Response String", "Ignored header");
+            //  System.out.println(result);
+            Assert.assertNotNull(result);
+        } catch (JAXBException ex) {
+            Assert.fail(ex.toString());
+        }
     }
+
+    @Test
+    public void ObjectListToJsonTest() {
+        try {
+            String result = ObjectReturn.convert(list, TYPE_JSON);
+            System.out.println(result);
+            JSONArray jsonArray = new JSONArray(result);
+            Assert.assertNotNull(jsonArray);
+        } catch (JSONException | JAXBException e) {
+            Assert.fail(e.toString());
+        }
+    }
+
+    @Test
+    public void ObjectListToXml() {
+        try {
+            String result = ObjectReturn.convert(list, TYPE_XML);
+            System.out.println(result);
+            Assert.assertNotNull(result);
+        } catch (JAXBException ex) {
+            Assert.fail(ex.toString());
+        }
+    }
+
 }

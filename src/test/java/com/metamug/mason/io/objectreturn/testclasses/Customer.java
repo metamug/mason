@@ -50,91 +50,41 @@
 *
 *This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
 */
-package com.mtg.io.mpath;
+package com.metamug.mason.io.objectreturn.testclasses;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- *
- * @author anishhirlekar
- */
-public class CollectTest {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "customer")
+public class Customer {
 
-    private static final String INPUT_JSON_1 = "[\n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book1\"}}, \n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book2\"}}, \n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book3\"}}, \n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book4\"}}, \n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book5\"}}  \n"
-            + "]";
-    private static final String INPUT_JSON_2 = "[\n"
-            + "   {\"name\":\"Anish1\", \"books\":{\"name\":\"book1\"}}, \n"
-            + "   {\"name\":\"Anish2\", \"books\":{\"name\":\"book2\"}}, \n"
-            + "   {\"name\":\"Anish3\", \"books\":{\"name\":\"book3\"}}, \n"
-            + "   {\"name\":\"Anish4\", \"books\":{\"name\":\"book4\"}}, \n"
-            + "   {\"name\":\"Anish5\", \"books\":{\"name\":\"book5\"}}, \n"
-            + "]";
+    @XmlAttribute
+    private int id;
 
-    private static final String INPUT_JSON_3 = "[\n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book1\",\"price\":\"10\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book2\",\"price\":\"11\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book3\",\"price\":\"12\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book4\",\"price\":\"13\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book5\",\"price\":\"14\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book6\",\"price\":\"15\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book7\",\"price\":\"16\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book8\",\"price\":\"17\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book9\",\"price\":\"18\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book10\",\"price\":\"19\"},\"number\":\"8080\"} \n"
-            + "    ]";
+    private String firstName;
 
-    @Ignore
-    @Test
-    public void TestWhetherNotJsonArray() {
-        JSONObject obj = new JSONObject();
-        obj.put("name", "Anish");
-        obj.put("age", "22");
+    private String lastName;
 
-        Object name = obj.get("name");
-        Assert.assertFalse(name instanceof JSONArray);
+    private final List<PhoneNumber> phoneNumbers = new ArrayList<>();
+
+    //must have zero argument constructor
+    public Customer() {
+
     }
 
-    @Ignore
-    @Test
-    public void TestWhetherJsonArray() {
-        JSONObject obj = new JSONObject();
-        JSONArray names = new JSONArray();
-        names.put("Anish");
-        names.put("Deepak");
-        names.put("Kaustubh");
-        obj.put("name", names);
-        obj.put("age", "22");
-
-        Object name = obj.get("name");
-        Assert.assertTrue(name instanceof JSONArray);
+    public Customer(int id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
-    @Ignore
-    @Test
-    public void TestCollect1() {
-        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_1));
-        System.out.println(object);
+    public void addPhoneNumber(PhoneNumber pn) {
+        phoneNumbers.add(pn);
     }
 
-    @Test
-    public void TestCollect2() {
-        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_2));
-        System.out.println(object);
-    }
-
-    @Ignore
-    @Test
-    public void TestCollect3() {
-        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_3));
-        System.out.println(object);
-    }
 }

@@ -50,41 +50,61 @@
 *
 *This Agreement shall be governed by the laws of the State of Maharashtra, India. Exclusive jurisdiction and venue for all matters relating to this Agreement shall be in courts and fora located in the State of Maharashtra, India, and you consent to such jurisdiction and venue. This agreement contains the entire Agreement between the parties hereto with respect to the subject matter hereof, and supersedes all prior agreements and/or understandings (oral or written). Failure or delay by METAMUG in enforcing any right or provision hereof shall not be deemed a waiver of such provision or right with respect to the instant or any subsequent breach. If any provision of this Agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, and the remaining provisions of this Agreement will remain in force and effect.
 */
-package com.mtg.io.objectreturn.testclasses;
+package com.metamug.mason.io.mpath;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "customer")
-public class Customer {
+/**
+ *
+ * @author anishhirlekar
+ */
+public class MPathUnflattenTest {
 
-    @XmlAttribute
-    private int id;
+    String json1;
 
-    private String firstName;
-
-    private String lastName;
-
-    private final List<PhoneNumber> phoneNumbers = new ArrayList<>();
-
-    //must have zero argument constructor
-    public Customer() {
-
+    @Before
+    public void init() {
+        json1 = "{\"a\":{\"b\":{\"c\":123}}}";
     }
 
-    public Customer(int id, String firstName, String lastName) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
+    @Ignore
+    @Test
+    public void TestCase1() {
+        String mPath = "a.b.c";
+        String value = "123";
+        try {
+            JSONObject json = MPathUtil.getJsonFromMPath(mPath, value);
+            System.out.println(json);
+        } catch (JSONException jx) {
+            Assert.fail(jx.toString());
+        }
     }
 
-    public void addPhoneNumber(PhoneNumber pn) {
-        phoneNumbers.add(pn);
+    @Ignore
+    @Test
+    public void TestCase2() {
+        try {
+            JSONObject initJson = new JSONObject(json1);
+            String mPath1 = "a.b.d";
+            int value1 = 456;
+            JSONObject unflatJson1 = MPathUtil.appendJsonFromMPath(initJson, mPath1, value1);
+            String mPath2 = "a.e.f", value2 = "8910";
+            JSONObject unflatJson2 = MPathUtil.appendJsonFromMPath(unflatJson1, mPath2, value2);
+            System.out.println(unflatJson2);
+        } catch (JSONException jx) {
+            Assert.fail(jx.toString());
+        }
     }
 
+    @Test
+    public void TestCase3() {
+        JSONObject initJson = new JSONObject();
+        JSONObject result = MPathUtil.appendJsonFromMPath(initJson, "data", TestData.TEST_JSON4);
+        System.out.println(result);
+    }
 }
