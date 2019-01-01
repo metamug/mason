@@ -513,11 +513,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -545,13 +542,7 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class RestRouterFilter implements Filter {
 
-    private static final List<String> ALLOWED_CONTENT_TYPES = new ArrayList<>(Arrays.asList(
-            "application/json; charset=utf-8",
-            "application/json",
-            "application/xml",
-            "application/x-www-form-urlencoded",
-            "multipart/form-data"
-    ));
+    private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
 
     private FilterConfig filterConfig = null;
     private String encoding;
@@ -586,7 +577,7 @@ public class RestRouterFilter implements Filter {
                 response.setContentType("application/json");
                 String contentType = req.getContentType() == null ? "application/html" : req.getContentType();
 
-                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase()) || contentType.contains("html")))) {
+                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (ALLOWED_CONTENT_TYPE_PATTERN.matches(contentType.toLowerCase()) || contentType.contains("html")))) {
                     try {
                         String appName = req.getServletContext().getContextPath();
                         String version = tokens[1];

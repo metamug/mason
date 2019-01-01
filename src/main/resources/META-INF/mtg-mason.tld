@@ -5,7 +5,7 @@
     <uri>mtg-mason.tld</uri>
     <tag>
         <name>out</name>
-        <tag-class>com.metamug.api.taghandlers.OutputTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.OutputTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>value</name>
@@ -28,7 +28,7 @@
     </tag>
     <tag>
         <name>persist</name>
-        <tag-class>com.metamug.api.taghandlers.PersistTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.PersistTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>value</name>
@@ -39,7 +39,7 @@
     </tag>
     <tag>
         <name>header</name>
-        <tag-class>com.metamug.api.taghandlers.HeaderTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.HeaderTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>value</name>
@@ -50,12 +50,12 @@
     </tag>
     <tag>
         <name>upload</name>
-        <tag-class>com.metamug.api.taghandlers.UploadEventTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.UploadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
     </tag>
     <tag>
         <name>status</name>
-        <tag-class>com.metamug.api.taghandlers.StatusTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.StatusTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>value</name>
@@ -72,7 +72,7 @@
     </tag>
     <tag>
         <name>exception</name>
-        <tag-class>com.metamug.api.taghandlers.ExceptionTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.ExceptionTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>value</name>
@@ -83,7 +83,7 @@
     </tag>
     <tag>
         <name>param</name>
-        <tag-class>com.metamug.api.taghandlers.ParamTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.ParamTagHandler</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>name</name>
@@ -146,7 +146,7 @@
     </tag>
     <tag>
         <name>execute</name>
-        <tag-class>com.metamug.api.taghandlers.CodeTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.CodeTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>className</name>
@@ -193,7 +193,7 @@
     </tag>
     <tag>
         <name>parent</name>
-        <tag-class>com.metamug.api.taghandlers.ParentTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.ParentTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>value</name>
@@ -204,7 +204,7 @@
     </tag>
     <tag>
         <name>group</name>
-        <tag-class>com.metamug.api.taghandlers.GroupTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.GroupTagHandler</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>value</name>
@@ -215,7 +215,7 @@
     </tag>
     <tag>
         <name>validate</name>
-        <tag-class>com.metamug.api.taghandlers.ValidateQueryTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.ValidateQueryTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>onError</name>
@@ -225,7 +225,7 @@
     </tag>
     <tag>
         <name>xheader</name>
-        <tag-class>com.metamug.api.taghandlers.xrequest.HeaderTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.xrequest.HeaderTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
@@ -242,7 +242,7 @@
     </tag>
     <tag>
         <name>xparam</name>
-        <tag-class>com.metamug.api.taghandlers.xrequest.ParamTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.xrequest.ParamTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
@@ -259,12 +259,12 @@
     </tag>
     <tag>
         <name>xbody</name>
-        <tag-class>com.metamug.api.taghandlers.xrequest.BodyTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.xrequest.BodyTagHandler</tag-class>
         <body-content>JSP</body-content>
     </tag> 
     <tag>
         <name>xrequest</name>
-        <tag-class>com.metamug.api.taghandlers.xrequest.XRequestTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.xrequest.XRequestTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>id</name>
