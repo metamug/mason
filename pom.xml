@@ -11,6 +11,13 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    <build>
+        <plugin>
+    <groupId>org.eluder.coveralls</groupId>
+    <artifactId>coveralls-maven-plugin</artifactId>
+    <version>4.3.0</version>
+</plugin>
+    </build>
     <dependencies>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
