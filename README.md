@@ -6,9 +6,12 @@ Mason is an open-source, lightweight data access layer for REST resources design
 
 ### Mason Resources
 
-Mason resources are Plain Old JSPs with neat tag libraries. Mason doesn't encourage [using scriptlets in Resource JSPs](http://balusc.omnifaces.org/2010/07/how-to-avoid-java-code-in-jsp-files.html).
+Mason turns your Plain Old JSPs (with neat tag libraries) into REST Resources. Mason doesn't encourage [using scriptlets in Resource JSPs](http://balusc.omnifaces.org/2010/07/how-to-avoid-java-code-in-jsp-files.html).
 
-A Mason resource file represents a REST resource and contains JSP which describes the operations to be performed when an HTTP request is made to the resource.
+You can handle GET,POST,PUT, DELETE requests in your JSP. Mason has been tested with tomcat 9. *jstl.jar* shipped with tomcat is make jstl work.
+
+Learn more about jsp configurations here.
+https://tomcat.apache.org/tomcat-9.0-doc/jasper-howto.html
 
 ### Mason Query
 
@@ -19,6 +22,7 @@ Currently you can write inline queries in the resources. But we are working towa
 - Request Processing
 - Routing to REST Resources
 - Authentication
+- Convert SQL Results into JSON/XML based on `Accept` Header 🌟
 - Make [External API Requests](https://metamug.com/docs/xrequest)
 
 ### Mason Jar
@@ -65,12 +69,6 @@ All requests made to the jsp resources are routed through this filter.
 6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
 
 You can take a look at the [sample webapp](https://github.com/metamug/mason-sample).
-
-### JSP
-
-Mason has been tested with tomcat 9. *jstl.jar* shipped with tomcat is make jstl work.
-Learn more about jsp configurations here.
-https://tomcat.apache.org/tomcat-9.0-doc/jasper-howto.html
 
 ### JDBC Drivers
 
