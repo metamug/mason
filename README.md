@@ -13,6 +13,10 @@ You can handle GET,POST,PUT, DELETE requests in your JSP. Mason has been tested 
 Learn more about jsp configurations here.
 https://tomcat.apache.org/tomcat-9.0-doc/jasper-howto.html
 
+### Mason Tag Libaries
+
+Mason provides a set of tag libraries which you can use in your JSPs.
+
 ### Mason Query
 
 Currently you can write inline queries in the resources. But we are working towards moving the queries outside the JSPs [Issue #11](https://github.com/metamug/mason/issues/11), so you can reference them and queries become reusable. This will be done via query files.
@@ -20,8 +24,8 @@ Currently you can write inline queries in the resources. But we are working towa
 #### How does Mason run APIs ?
 
 - Request Processing
-- Routing to REST Resources
-- Authentication
+- Mapping resource URI to JSP
+- Tag libraries to handle HTTP BASIC and JWT Authentication
 - Convert SQL Results into JSON/XML based on `Accept` Header 🌟
 - Make [External API Requests](https://metamug.com/docs/xrequest)
 
