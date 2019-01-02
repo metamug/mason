@@ -1,6 +1,6 @@
 # MASON [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=All%20New%20Way%20of%20Writing%20REST%20APIs&url=https://metamug.com/console&via=themetamug&hashtags=REST,API,MySQL,developers)
 
-[![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason) [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=alert_status)](https://sonarcloud.io/dashboard?id=metamug_mason)
+[![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason) [![Coverage Status](https://coveralls.io/repos/github/metamug/mason/badge.svg?branch=develop)](https://coveralls.io/github/metamug/mason?branch=develop)  [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=alert_status)](https://sonarcloud.io/dashboard?id=metamug_mason)
 
 Mason is an open-source, lightweight data access layer for REST resources designed to be used in Java web applications. It handles incoming API requests and routes the parameters to these resources.
 
