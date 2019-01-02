@@ -26,21 +26,22 @@ import org.junit.Test;
 
 /**
  *
- * @author GAURI
+ * @author d3ep4k
  */
 public class XRequestServiceTest {
-//    XRequestService auth;
+    XRequestService xRequestService;
 
     public XRequestServiceTest() {
-//        auth = new XRequestService();
+        xRequestService = new XRequestService();
     }
 
     @Test
     public void testGetXRequest() {
         Map<String, String> map = new HashMap<>();
-        XResponse xr = XRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", map, map);
+        XResponse xr = xRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", map, map);
         String foo = xr.getJsonForJsonXResponse().getJSONObject("body")
                 .getJSONObject("args").getString("foo1");
+        //System.out.println("FOO: "+foo);
         Assert.assertEquals("bar1", foo);
     }
 
