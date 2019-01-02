@@ -519,8 +519,8 @@ import org.eclipse.persistence.jaxb.MarshallerProperties;
  */
 public class ObjectReturn {
 
-    private static final String TYPE_JSON = "application/json";
-    private static final String TYPE_XML = "application/xml";
+    public static final String TYPE_JSON = "application/json";
+    public static final String TYPE_XML = "application/xml";
 
     /**
      * @param returnObject The object to be converted. if object is of type String, the object will be returned as it is and acceptHeader will be ignored

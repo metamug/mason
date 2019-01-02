@@ -532,7 +532,7 @@ public class MPathUtil {
      */
     public static Object getValueFromJson(String inputJson, String mPath) {
         Map<String, Object> flatMap = JsonFlattener.flattenAsMap(inputJson);
-        System.out.println("flatMap:" + flatMap);
+        //System.out.println("flatMap:" + flatMap);
         return flatMap.get(mPath);
     }
 

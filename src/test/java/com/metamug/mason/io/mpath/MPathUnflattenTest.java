@@ -79,7 +79,7 @@ public class MPathUnflattenTest {
         String value = "123";
         try {
             JSONObject json = MPathUtil.getJsonFromMPath(mPath, value);
-            System.out.println(json);
+            //System.out.println(json);
         } catch (JSONException jx) {
             Assert.fail(jx.toString());
         }
@@ -95,7 +95,7 @@ public class MPathUnflattenTest {
             JSONObject unflatJson1 = MPathUtil.appendJsonFromMPath(initJson, mPath1, value1);
             String mPath2 = "a.e.f", value2 = "8910";
             JSONObject unflatJson2 = MPathUtil.appendJsonFromMPath(unflatJson1, mPath2, value2);
-            System.out.println(unflatJson2);
+            //System.out.println(unflatJson2);
         } catch (JSONException jx) {
             Assert.fail(jx.toString());
         }
@@ -105,6 +105,6 @@ public class MPathUnflattenTest {
     public void TestCase3() {
         JSONObject initJson = new JSONObject();
         JSONObject result = MPathUtil.appendJsonFromMPath(initJson, "data", TestData.TEST_JSON4);
-        System.out.println(result);
+        //System.out.println(result);
     }
 }

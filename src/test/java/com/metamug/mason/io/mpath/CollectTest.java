@@ -122,19 +122,19 @@ public class CollectTest {
     @Test
     public void TestCollect1() {
         JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_1));
-        System.out.println(object);
+        //System.out.println(object);
     }
 
     @Test
     public void TestCollect2() {
         JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_2));
-        System.out.println(object);
+        //System.out.println(object);
     }
 
     @Ignore
     @Test
     public void TestCollect3() {
         JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_3));
-        System.out.println(object);
+        //System.out.println(object);
     }
 }

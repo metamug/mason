@@ -508,12 +508,9 @@ package com.metamug.mason.listener;
 
 import com.metamug.mason.services.ConnectionProvider;
 import com.metamug.mason.services.QueryManagerService;
-import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
