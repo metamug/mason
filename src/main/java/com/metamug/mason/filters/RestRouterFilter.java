@@ -515,6 +515,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -587,6 +588,10 @@ public class RestRouterFilter implements Filter {
                         } else {
                             resourceName = tokens[2];
                         }
+                        //get queries
+                        //HashMap<String,String> queryMap = (HashMap)req.getServletContext().getAttribute("masonQuery");
+                        //System.out.println("QUERYMAP: "+queryMap);
+                        
                         if (new File(System.getProperty("catalina.base") + File.separator + "webapps/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
                             MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
                             req.setAttribute("mtgReq", mtgReq);
@@ -622,7 +627,6 @@ public class RestRouterFilter implements Filter {
                             res.setStatus(422);
                             obj.put("status", 422);
                             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
-
                                 obj.put("message", "Could not parse the body of the request according to the provided Content-Type.");
                             } else if (ex.getCause() != null) {
                                 String cause = ex.getCause().toString();

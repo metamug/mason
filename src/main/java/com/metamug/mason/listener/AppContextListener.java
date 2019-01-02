@@ -507,6 +507,13 @@
 package com.metamug.mason.listener;
 
 import com.metamug.mason.services.ConnectionProvider;
+import com.metamug.mason.services.QueryManagerService;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -517,11 +524,17 @@ import javax.servlet.annotation.WebListener;
  * @author Kaisteel
  */
 @WebListener
-public class CleanUpListener implements ServletContextListener {
-
+public class AppContextListener implements ServletContextListener {
+    
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        //@todo do nothing
+        QueryManagerService queryManagerService = new QueryManagerService();
+        
+        try {
+            sce.getServletContext().setAttribute("masonQuery", queryManagerService.getQueryMap());
+        } catch (IOException ex) {
+            Logger.getLogger(AppContextListener.class.getName()).log(Level.SEVERE, null, ex);
+        }    
     }
 
     @Override
