@@ -528,9 +528,9 @@ import org.json.JSONObject;
  */
 public class XRequestService {
 
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static XResponse get(String url, Map<String, String> headers,
+    public XResponse get(String url, Map<String, String> headers,
             Map<String, String> params) {
         OkHttpClient client = new OkHttpClient();
 
@@ -577,8 +577,8 @@ public class XRequestService {
         return xr;
     }
 
-    public static XResponse put(String url, Map<String, String> headers,
-            Map<String, String> params, String body) {
+    public XResponse put(String url, Map<String, String> headers,
+                            Map<String, String> params, String body) {
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = null;
@@ -633,7 +633,7 @@ public class XRequestService {
         return xr;
     }
 
-    public static XResponse post(String url, Map<String, String> headers,
+    public XResponse post(String url, Map<String, String> headers,
             Map<String, String> params, String body) {
         OkHttpClient client = new OkHttpClient();
 
@@ -689,7 +689,7 @@ public class XRequestService {
         return xr;
     }
 
-    public static XResponse delete(String url, Map<String, String> params) {
+    public XResponse delete(String url, Map<String, String> params) {
         OkHttpClient client = new OkHttpClient();
 
         StringBuilder queryParams = new StringBuilder();
