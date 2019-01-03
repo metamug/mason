@@ -8,7 +8,7 @@ Mason is an open-source, lightweight data access layer for REST resources design
 
 Mason turns your Plain Old JSPs (with neat tag libraries) into REST Resources. Mason doesn't encourage [using scriptlets in Resource JSPs](http://balusc.omnifaces.org/2010/07/how-to-avoid-java-code-in-jsp-files.html).
 
-You can handle GET,POST,PUT, DELETE requests in your JSP. Mason has been tested with tomcat 9. *jstl.jar* shipped with tomcat is make jstl work.
+You can handle GET, POST, PUT, DELETE requests in your JSP. Mason has been tested with tomcat 9. *jstl.jar* shipped with tomcat is make jstl work.
 
 Learn more about jsp configurations here.
 https://tomcat.apache.org/tomcat-9.0-doc/jasper-howto.html
@@ -19,7 +19,7 @@ Mason provides a set of tag libraries which you can use in your JSPs.
 
 ### Mason Query
 
-Currently you can write inline queries in the resources. But we are working towards moving the queries outside the JSPs [Issue #11](https://github.com/metamug/mason/issues/11), so you can reference them and queries become reusable. This will be done via query files.
+You can write database queries inside the resource JSP files or you can place them in `{webAppDir}/WEB-INF/classes/query.properties` file and reference them inside the JSP files. This allows reuse or queries.
 
 #### How does Mason run APIs ?
 
@@ -72,7 +72,6 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
     <description>MasonAppContextListener</description>
     <listener-class>com.metamug.mason.listener.AppContextListener</listener-class>
 </listener>
-
 ```
 All requests made to the jsp resources are routed through this filter. 
 
