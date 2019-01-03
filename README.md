@@ -56,7 +56,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 <% @taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 ```
 
-5. Add the following filter inside `{webAppDir}/WEB-INF/web.xml`
+5. Add the following filter and listener inside `{webAppDir}/WEB-INF/web.xml`
 ```
 <filter>
     <filter-name>RestRouterFilter</filter-name>
@@ -67,6 +67,12 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
     <filter-name>RestRouterFilter</filter-name>
     <url-pattern>/*</url-pattern>
 </filter-mapping>
+
+<listener>
+    <description>MasonAppContextListener</description>
+    <listener-class>com.metamug.mason.listener.AppContextListener</listener-class>
+</listener>
+
 ```
 All requests made to the jsp resources are routed through this filter. 
 
