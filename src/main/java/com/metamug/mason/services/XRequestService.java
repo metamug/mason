@@ -531,6 +531,10 @@ public class XRequestService {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String UTF8 = "UTF-8";
     private static final String XREQUEST_ERROR = "XRequest error: ";
+  
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String APP_FORM_URLENCODED = "application/x-www-form-urlencoded";
+    public static final String APP_JSON = "application/json";
 
     public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {
         OkHttpClient client = new OkHttpClient();
@@ -567,67 +571,10 @@ public class XRequestService {
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
-
-            return xr;
         } catch (IOException ex) {
             xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }
 
-        return xr;
-    }
-
-    public XResponse put(String url, Map<String, String> headers,
-                            Map<String, String> params, String body) {
-        OkHttpClient client = new OkHttpClient();
-
-        Request.Builder reqBuilder = null;
-        String contentType = headers.get("Content-Type").toLowerCase();
-        if (contentType.equals("application/x-www-form-urlencoded")) {
-            FormBody.Builder formBuilder = new FormBody.Builder();
-
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                formBuilder.add(entry.getKey(), entry.getValue());
-            }
-            reqBuilder = new Request.Builder().put(formBuilder.build());
-        } else if (contentType.equals("application/json")) {
-            if ((body != null) && (!body.equals(""))) {
-                RequestBody reqBody = RequestBody.create(JSON, body);
-                reqBuilder = new Request.Builder().put(reqBody);
-            } else {
-                JSONObject jo = new JSONObject();
-                for (Map.Entry<String, String> entry : params.entrySet()) {
-                    jo.put(entry.getKey(), entry.getValue());
-                }
-                RequestBody reqBody = RequestBody.create(JSON, jo.toString());
-                reqBuilder = new Request.Builder().put(reqBody);
-            }
-        }
-        //no params or body given
-        if (null == reqBuilder) {
-            RequestBody reqbody = RequestBody.create(null, new byte[0]);
-            reqBuilder = new Request.Builder().put(reqbody);
-        }
-
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            reqBuilder.addHeader(key, value);
-        }
-
-        Request request = reqBuilder.url(url).build();
-
-        XResponse xr;
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), XREQUEST_ERROR + response);
-            } else {
-                xr = new XResponse(response.code(), response.body().string().trim());
-            }
-
-            return xr;
-        } catch (IOException ex) {
-            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
-        }
         return xr;
     }
 
@@ -636,14 +583,14 @@ public class XRequestService {
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = null;
-        String contentType = headers.get("Content-Type").toLowerCase();
-        if (contentType.equals("application/x-www-form-urlencoded")) {
+        String contentType = headers.get(CONTENT_TYPE).toLowerCase();
+        if (contentType.equals(APP_FORM_URLENCODED)) {
             FormBody.Builder formBuilder = new FormBody.Builder();
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 formBuilder.add(entry.getKey(), entry.getValue());
             }
             reqBuilder = new Request.Builder().post(formBuilder.build());
-        } else if (contentType.equals("application/json")) {
+        } else if (contentType.equals(APP_JSON)) {
             if ((body != null) && (!body.equals(""))) {
                 RequestBody reqBody = RequestBody.create(JSON, body);
                 reqBuilder = new Request.Builder().post(reqBody);
@@ -679,6 +626,61 @@ public class XRequestService {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
 
+        } catch (IOException ex) {
+            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
+        }
+        return xr;
+    }
+
+    public XResponse put(String url, Map<String, String> headers,
+                            Map<String, String> params, String body) {
+        OkHttpClient client = new OkHttpClient();
+
+        Request.Builder reqBuilder = null;
+        String contentType = headers.get(CONTENT_TYPE).toLowerCase();
+        if (contentType.equals(APP_FORM_URLENCODED)) {
+            FormBody.Builder formBuilder = new FormBody.Builder();
+
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                formBuilder.add(entry.getKey(), entry.getValue());
+            }
+            reqBuilder = new Request.Builder().put(formBuilder.build());
+        } else if (contentType.equals(APP_JSON)) {
+            if ((body != null) && (!body.equals(""))) {
+                RequestBody reqBody = RequestBody.create(JSON, body);
+                reqBuilder = new Request.Builder().put(reqBody);
+            } else {
+                JSONObject jo = new JSONObject();
+                for (Map.Entry<String, String> entry : params.entrySet()) {
+                    jo.put(entry.getKey(), entry.getValue());
+                }
+                RequestBody reqBody = RequestBody.create(JSON, jo.toString());
+                reqBuilder = new Request.Builder().put(reqBody);
+            }
+        }
+        //no params or body given
+        if (null == reqBuilder) {
+            RequestBody reqbody = RequestBody.create(null, new byte[0]);
+            reqBuilder = new Request.Builder().put(reqbody);
+        }
+
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            reqBuilder.addHeader(key, value);
+        }
+
+        Request request = reqBuilder.url(url).build();
+
+        XResponse xr;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                xr = new XResponse(response.code(), XREQUEST_ERROR + response);
+            } else {
+                xr = new XResponse(response.code(), response.body().string().trim());
+            }
+
+            return xr;
         } catch (IOException ex) {
             xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }

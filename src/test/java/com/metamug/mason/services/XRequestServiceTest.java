@@ -29,7 +29,11 @@ import org.junit.Test;
  * @author d3ep4k
  */
 public class XRequestServiceTest {
-    XRequestService xRequestService;
+    
+    private static final int STATUS_CODE_NOT_FOUND = 404;
+    private static final int STATUS_FAILED_REQUEST = 0;
+    
+    private XRequestService xRequestService;
 
     public XRequestServiceTest() {
         xRequestService = new XRequestService();
@@ -59,4 +63,19 @@ public class XRequestServiceTest {
         Assert.assertEquals("bar1", foo);
     }
 
+    @Test
+    public void testNotFound(){      
+        Map<String, String> params = new HashMap<>();
+        Map<String,String> headers = new HashMap<>();  
+        XResponse xr = xRequestService.get("https://postman-echo.com/xxx", headers, params);
+        Assert.assertEquals(STATUS_CODE_NOT_FOUND, xr.getStatusCode());
+    }
+    
+    @Test
+    public void testInvalidUrl(){      
+        Map<String, String> params = new HashMap<>();
+        Map<String,String> headers = new HashMap<>();  
+        XResponse xr = xRequestService.get("https://wrongurl/abc", headers, params);
+        Assert.assertEquals(STATUS_FAILED_REQUEST, xr.getStatusCode());
+    }
 }
