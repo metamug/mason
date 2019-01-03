@@ -60,8 +60,7 @@ public class XRequestServiceTest {
         params.put("foo1", "bar1");
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.get("https://postman-echo.com/get", headers, params);
-        String foo = xr.getJsonForJsonXResponse().getJSONObject("body")
-                .getJSONObject("args").getString("foo1");
+        String foo = xr.getJsonForJsonXResponse().getJSONObject("body").getJSONObject("args").getString("foo1");
         Assert.assertEquals("bar1", foo);
     }
 
@@ -70,6 +69,7 @@ public class XRequestServiceTest {
         Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();  
         XResponse xr = xRequestService.get("https://postman-echo.com/xxx", headers, params);
+        Assert.assertEquals(STATUS_CODE_NOT_FOUND, xr.getJsonForJsonXResponse().getInt("statusCode"));
         Assert.assertEquals(STATUS_CODE_NOT_FOUND, xr.getStatusCode());
     }
     
@@ -78,6 +78,8 @@ public class XRequestServiceTest {
         Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();  
         XResponse xr = xRequestService.get("https://wrongurl/abc", headers, params);
+        
+        Assert.assertEquals(STATUS_FAILED_REQUEST,xr.getJsonForJsonXResponse().getInt("statusCode"));
         Assert.assertEquals(STATUS_FAILED_REQUEST, xr.getStatusCode());
     }
     
