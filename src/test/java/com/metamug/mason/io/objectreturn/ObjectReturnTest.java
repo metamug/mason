@@ -72,23 +72,23 @@ public class ObjectReturnTest {
 
     @Before
     public void init() {
-        customer1 = new Customer(1, "Kaustubh", "Gosling");
+        customer1 = new Customer(1, "John", "Doe");
         PhoneNumber pn = new PhoneNumber();
         pn.setNum("9128992849");
         pn.setType("mobile");
         customer1.addPhoneNumber(pn);
         list.add(customer1);
 
-        customer2 = new Customer(2, "Deepak", "Ritchie");
+        customer2 = new Customer(2, "Al", "Fred");
         pn = new PhoneNumber();
         pn.setNum("1204597612");
         pn.setType("work");
         customer2.addPhoneNumber(pn);
         list.add(customer2);
 
-        customer3 = new Customer(3, "Suraj", "MacMaharaja");
+        customer3 = new Customer(3, "Mason", "Rich");
         pn = new PhoneNumber();
-        pn.setNum("164295318");
+        pn.setNum("1642953181");
         pn.setType("work");
         customer3.addPhoneNumber(pn);
         list.add(customer3);
