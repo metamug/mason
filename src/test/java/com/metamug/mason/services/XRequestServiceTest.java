@@ -21,6 +21,7 @@ package com.metamug.mason.services;
 import com.metamug.mason.common.XResponse;
 import java.util.HashMap;
 import java.util.Map;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,6 +33,7 @@ public class XRequestServiceTest {
     
     private static final int STATUS_CODE_NOT_FOUND = 404;
     private static final int STATUS_FAILED_REQUEST = 0;
+    private static final int STATUS_OK = 200;
     
     private XRequestService xRequestService;
 
@@ -41,9 +43,9 @@ public class XRequestServiceTest {
 
     @Test
     public void testGetXRequestWithQueryParams() {
-        Map<String, String> params = new HashMap<>();
+        Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
+        headers.put("Accept", XRequestService.APP_JSON);
         XResponse xr = xRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", headers, params);
         String foo = xr.getJsonForJsonXResponse().getJSONObject("body")
                 .getJSONObject("args").getString("foo1");
@@ -52,9 +54,9 @@ public class XRequestServiceTest {
     
     @Test
     public void testGetXRequestWithParamsMap() {
-        Map<String, String> params = new HashMap<>();
+        Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
+        headers.put("Accept", XRequestService.APP_JSON);
         params.put("foo1", "bar1");
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.get("https://postman-echo.com/get", headers, params);
@@ -65,7 +67,7 @@ public class XRequestServiceTest {
 
     @Test
     public void testNotFound(){      
-        Map<String, String> params = new HashMap<>();
+        Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();  
         XResponse xr = xRequestService.get("https://postman-echo.com/xxx", headers, params);
         Assert.assertEquals(STATUS_CODE_NOT_FOUND, xr.getStatusCode());
@@ -73,9 +75,39 @@ public class XRequestServiceTest {
     
     @Test
     public void testInvalidUrl(){      
-        Map<String, String> params = new HashMap<>();
+        Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();  
         XResponse xr = xRequestService.get("https://wrongurl/abc", headers, params);
         Assert.assertEquals(STATUS_FAILED_REQUEST, xr.getStatusCode());
+    }
+    
+    @Test
+    public void testPostWithFormParams(){
+        Map<String,String> params = new HashMap<>();
+        Map<String,String> headers = new HashMap<>();  
+        headers.put("Content-Type", XRequestService.APP_FORM_URLENCODED);
+        headers.put("Accept", XRequestService.APP_JSON);
+        params.put("foo1", "bar1");
+        params.put("foo2", "bar2");
+        XResponse xr = xRequestService.post("https://postman-echo.com/post", headers, params, null);
+        Assert.assertEquals(STATUS_OK, xr.getStatusCode());
+        Assert.assertEquals("bar1",xr.getJsonForJsonXResponse().getJSONObject("body")
+                .getJSONObject("form").getString("foo1"));
+    }
+    
+    @Test
+    public void testPostWithJSONBody(){
+        Map<String,String> params = new HashMap<>();
+        Map<String,String> headers = new HashMap<>();  
+        headers.put("Content-Type", XRequestService.APP_JSON);
+        headers.put("Accept", XRequestService.APP_JSON);
+        JSONObject json = new JSONObject();
+        json.put("foo1", "bar1");
+        json.put("foo2", "bar2");
+        XResponse xr = xRequestService.post("https://postman-echo.com/post", headers, params, json.toString());
+        Assert.assertEquals(STATUS_OK, xr.getStatusCode());
+        
+        Assert.assertEquals("bar1",xr.getJsonForJsonXResponse().getJSONObject("body")
+                .getJSONObject("data").getString("foo1"));
     }
 }
