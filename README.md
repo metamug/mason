@@ -27,7 +27,8 @@ You can write database queries inside the resource JSP files or you can place th
 - Mapping resource URI to JSP
 - Tag libraries to handle HTTP BASIC and JWT Authentication
 - Convert SQL Results into JSON/XML based on `Accept` Header 🌟
-- Make [External API Requests](https://metamug.com/docs/xrequest)
+- Make <a href="https://metamug.com/docs/xrequest" target="_blank">External API Requests</a>
+- <a href="https://metamug.com/docs/request-parameters#pagination-parameters" target="_blank">Pagination</a>
 
 ### Mason Jar
 
