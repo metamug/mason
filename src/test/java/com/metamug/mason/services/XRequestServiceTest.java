@@ -42,7 +42,7 @@ public class XRequestServiceTest {
     }
 
     @Test
-    public void testGetXRequestWithQueryParams() {
+    public void testGetWithQueryParams() {
         Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();
         headers.put("Accept", XRequestService.APP_JSON);
@@ -53,7 +53,7 @@ public class XRequestServiceTest {
     }
     
     @Test
-    public void testGetXRequestWithParamsMap() {
+    public void testGetWithParamsMap() {
         Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();
         headers.put("Accept", XRequestService.APP_JSON);
@@ -66,7 +66,7 @@ public class XRequestServiceTest {
     }
 
     @Test
-    public void testNotFound(){      
+    public void testGetNotFound(){      
         Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();  
         XResponse xr = xRequestService.get("https://postman-echo.com/xxx", headers, params);
@@ -74,7 +74,7 @@ public class XRequestServiceTest {
     }
     
     @Test
-    public void testInvalidUrl(){      
+    public void testGetInvalidUrl(){      
         Map<String,String> params = new HashMap<>();
         Map<String,String> headers = new HashMap<>();  
         XResponse xr = xRequestService.get("https://wrongurl/abc", headers, params);
@@ -109,5 +109,51 @@ public class XRequestServiceTest {
         
         Assert.assertEquals("bar1",xr.getJsonForJsonXResponse().getJSONObject("body")
                 .getJSONObject("data").getString("foo1"));
+    }
+    
+    @Test
+    public void testPutWithFormParams(){
+        Map<String,String> params = new HashMap<>();
+        Map<String,String> headers = new HashMap<>();  
+        headers.put("Content-Type", XRequestService.APP_FORM_URLENCODED);
+        headers.put("Accept", XRequestService.APP_JSON);
+        params.put("foo1", "bar1");
+        params.put("foo2", "bar2");
+        XResponse xr = xRequestService.put("https://postman-echo.com/put", headers, params, null);
+        Assert.assertEquals(STATUS_OK, xr.getStatusCode());
+        Assert.assertEquals("bar1",xr.getJsonForJsonXResponse().getJSONObject("body")
+                .getJSONObject("form").getString("foo1"));
+    }
+    
+    @Test
+    public void testPutWithJSONBody(){
+        Map<String,String> params = new HashMap<>();
+        Map<String,String> headers = new HashMap<>();  
+        headers.put("Content-Type", XRequestService.APP_JSON);
+        headers.put("Accept", XRequestService.APP_JSON);
+        JSONObject json = new JSONObject();
+        json.put("foo1", "bar1");
+        json.put("foo2", "bar2");
+        XResponse xr = xRequestService.put("https://postman-echo.com/put", headers, params, json.toString());
+        Assert.assertEquals(STATUS_OK, xr.getStatusCode());
+        
+        Assert.assertEquals("bar1",xr.getJsonForJsonXResponse().getJSONObject("body")
+                .getJSONObject("data").getString("foo1"));
+    }
+    
+    @Test
+    public void testDeleteWithQueryParams() {
+        Map<String,String> params = new HashMap<>();
+        XResponse xr = xRequestService.delete("https://postman-echo.com/delete?foo1=bar1&foo2=bar2", params);
+        Assert.assertEquals(STATUS_OK, xr.getStatusCode());
+    }
+    
+    @Test
+    public void testDeleteWithParamsMap() {
+        Map<String,String> params = new HashMap<>();
+        params.put("foo1", "bar1");
+        params.put("foo2", "bar2");
+        XResponse xr = xRequestService.delete("https://postman-echo.com/delete", params);
+        Assert.assertEquals(STATUS_OK, xr.getStatusCode());
     }
 }
