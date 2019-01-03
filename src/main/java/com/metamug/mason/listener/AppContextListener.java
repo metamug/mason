@@ -509,6 +509,7 @@ package com.metamug.mason.listener;
 import com.metamug.mason.services.ConnectionProvider;
 import com.metamug.mason.services.QueryManagerService;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletContextEvent;
@@ -525,7 +526,8 @@ public class AppContextListener implements ServletContextListener {
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        QueryManagerService queryManagerService = new QueryManagerService();
+        InputStream queryFileInputStream = AppContextListener.class.getClassLoader().getResourceAsStream("query.properties");
+        QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
         
         try {
             sce.getServletContext().setAttribute("masonQuery", queryManagerService.getQueryMap());
