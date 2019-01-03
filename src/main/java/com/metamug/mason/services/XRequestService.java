@@ -530,9 +530,9 @@ public class XRequestService {
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String UTF8 = "UTF-8";
+    private static final String XREQUEST_ERROR = "XRequest error: ";
 
-    public XResponse get(String url, Map<String, String> headers,
-            Map<String, String> params) {
+    public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = new Request.Builder().get();
@@ -563,14 +563,14 @@ public class XRequestService {
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), "XRequest error: " + response, true);
+                xr = new XResponse(response.code(), XREQUEST_ERROR + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
 
             return xr;
         } catch (IOException ex) {
-            xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
+            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }
 
         return xr;
@@ -619,14 +619,14 @@ public class XRequestService {
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), "XRequest error: " + response);
+                xr = new XResponse(response.code(), XREQUEST_ERROR + response);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
 
             return xr;
         } catch (IOException ex) {
-            xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
+            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }
         return xr;
     }
@@ -674,13 +674,13 @@ public class XRequestService {
         try (Response response = client.newCall(request).execute()) {
 
             if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), "XRequest error: " + response, true);
+                xr = new XResponse(response.code(), XREQUEST_ERROR + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
 
         } catch (IOException ex) {
-            xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
+            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }
         return xr;
     }
@@ -710,14 +710,14 @@ public class XRequestService {
         try (Response response = client.newCall(request).execute()) {
 
             if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), "XRequest error: " + response, true);
+                xr = new XResponse(response.code(), XREQUEST_ERROR + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
 
             return xr;
         } catch (IOException ex) {
-            xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
+            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }
         return xr;
     }

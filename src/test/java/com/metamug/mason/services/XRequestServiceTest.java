@@ -36,12 +36,26 @@ public class XRequestServiceTest {
     }
 
     @Test
-    public void testGetXRequest() {
-        Map<String, String> map = new HashMap<>();
-        XResponse xr = xRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", map, map);
+    public void testGetXRequestWithQueryParams() {
+        Map<String, String> params = new HashMap<>();
+        Map<String,String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
+        XResponse xr = xRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", headers, params);
         String foo = xr.getJsonForJsonXResponse().getJSONObject("body")
                 .getJSONObject("args").getString("foo1");
-        //System.out.println("FOO: "+foo);
+        Assert.assertEquals("bar1", foo);
+    }
+    
+    @Test
+    public void testGetXRequestWithParamsMap() {
+        Map<String, String> params = new HashMap<>();
+        Map<String,String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
+        params.put("foo1", "bar1");
+        params.put("foo2", "bar2");
+        XResponse xr = xRequestService.get("https://postman-echo.com/get", headers, params);
+        String foo = xr.getJsonForJsonXResponse().getJSONObject("body")
+                .getJSONObject("args").getString("foo1");
         Assert.assertEquals("bar1", foo);
     }
 
