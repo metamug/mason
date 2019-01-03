@@ -529,13 +529,14 @@ import org.json.JSONObject;
 public class XRequestService {
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final String UTF8 = "UTF-8";
 
     public XResponse get(String url, Map<String, String> headers,
             Map<String, String> params) {
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = new Request.Builder().get();
-        headers.entrySet().forEach((entry) -> {
+        headers.entrySet().forEach(entry -> {
             String key = entry.getKey();
             String value = entry.getValue();
             reqBuilder.addHeader(key, value);
@@ -545,8 +546,8 @@ public class XRequestService {
         for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {
                 String str = (String) iterator.next();
-                String key = URLEncoder.encode(str, "UTF-8");
-                String value = URLEncoder.encode(params.get(str), "UTF-8");
+                String key = URLEncoder.encode(str, UTF8);
+                String value = URLEncoder.encode(params.get(str), UTF8);
                 queryParams.append(key).append("=").append(value);
                 if (iterator.hasNext()) {
                     queryParams.append("&");
@@ -562,7 +563,6 @@ public class XRequestService {
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: " + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
@@ -570,7 +570,6 @@ public class XRequestService {
 
             return xr;
         } catch (IOException ex) {
-            //Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
             xr = new XResponse(0, "XRequest error: " + ex.getMessage(), true);
         }
 
@@ -586,8 +585,8 @@ public class XRequestService {
         if (contentType.equals("application/x-www-form-urlencoded")) {
             FormBody.Builder formBuilder = new FormBody.Builder();
 
-            for (String key : params.keySet()) {
-                formBuilder.add(key, params.get(key));
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                formBuilder.add(entry.getKey(), entry.getValue());
             }
             reqBuilder = new Request.Builder().put(formBuilder.build());
         } else if (contentType.equals("application/json")) {
@@ -596,8 +595,8 @@ public class XRequestService {
                 reqBuilder = new Request.Builder().put(reqBody);
             } else {
                 JSONObject jo = new JSONObject();
-                for (String key : params.keySet()) {
-                    jo.put(key, params.get(key));
+                for (Map.Entry<String, String> entry : params.entrySet()) {
+                    jo.put(entry.getKey(), entry.getValue());
                 }
                 RequestBody reqBody = RequestBody.create(JSON, jo.toString());
                 reqBuilder = new Request.Builder().put(reqBody);
@@ -620,7 +619,6 @@ public class XRequestService {
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: " + response);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
@@ -641,9 +639,8 @@ public class XRequestService {
         String contentType = headers.get("Content-Type").toLowerCase();
         if (contentType.equals("application/x-www-form-urlencoded")) {
             FormBody.Builder formBuilder = new FormBody.Builder();
-
-            for (String key : params.keySet()) {
-                formBuilder.add(key, params.get(key));
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                formBuilder.add(entry.getKey(), entry.getValue());
             }
             reqBuilder = new Request.Builder().post(formBuilder.build());
         } else if (contentType.equals("application/json")) {
@@ -652,8 +649,8 @@ public class XRequestService {
                 reqBuilder = new Request.Builder().post(reqBody);
             } else {
                 JSONObject jo = new JSONObject();
-                for (String key : params.keySet()) {
-                    jo.put(key, params.get(key));
+                for (Map.Entry<String, String> entry : params.entrySet()) {
+                    jo.put(entry.getKey(), entry.getValue());
                 }
                 RequestBody reqBody = RequestBody.create(JSON, jo.toString());
                 reqBuilder = new Request.Builder().post(reqBody);
@@ -677,7 +674,6 @@ public class XRequestService {
         try (Response response = client.newCall(request).execute()) {
 
             if (!response.isSuccessful()) {
-                //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: " + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
@@ -696,8 +692,8 @@ public class XRequestService {
         for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {
                 String str = (String) iterator.next();
-                String key = URLEncoder.encode(str, "UTF-8");
-                String value = URLEncoder.encode(params.get(str), "UTF-8");
+                String key = URLEncoder.encode(str, UTF8);
+                String value = URLEncoder.encode(params.get(str), UTF8);
                 queryParams.append(key).append("=").append(value);
                 if (iterator.hasNext()) {
                     queryParams.append("&");
@@ -714,7 +710,6 @@ public class XRequestService {
         try (Response response = client.newCall(request).execute()) {
 
             if (!response.isSuccessful()) {
-                //throw new IOException("Unexpected code " + response);
                 xr = new XResponse(response.code(), "XRequest error: " + response, true);
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
