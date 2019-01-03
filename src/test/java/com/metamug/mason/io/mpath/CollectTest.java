@@ -64,77 +64,41 @@ import org.junit.Test;
  */
 public class CollectTest {
 
-    private static final String INPUT_JSON_1 = "[\n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book1\"}}, \n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book2\"}}, \n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book3\"}}, \n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book4\"}}, \n"
-            + "   {\"name\":\"Anish\", \"books\":{\"name\":\"book5\"}}  \n"
-            + "]";
-    private static final String INPUT_JSON_2 = "[\n"
-            + "   {\"name\":\"Anish1\", \"books\":{\"name\":\"book1\"}}, \n"
-            + "   {\"name\":\"Anish2\", \"books\":{\"name\":\"book2\"}}, \n"
-            + "   {\"name\":\"Anish3\", \"books\":{\"name\":\"book3\"}}, \n"
-            + "   {\"name\":\"Anish4\", \"books\":{\"name\":\"book4\"}}, \n"
-            + "   {\"name\":\"Anish5\", \"books\":{\"name\":\"book5\"}}, \n"
+    private static final String INPUT_JSON_ARRAY = "[\n"
+            + "   {\"name\":\"Person1\", \"books\":{\"name\":\"book1\"}}, \n"
+            + "   {\"name\":\"Person1\", \"books\":{\"name\":\"book2\"}}, \n"
+            + "   {\"name\":\"Person1\", \"books\":{\"name\":\"book3\"}}, \n"
+            + "   {\"name\":\"Person1\", \"books\":{\"name\":\"book4\"}}, \n"
+            + "   {\"name\":\"Person1\", \"books\":{\"name\":\"book5\"}}  \n"
             + "]";
 
-    private static final String INPUT_JSON_3 = "[\n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book1\",\"price\":\"10\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book2\",\"price\":\"11\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book3\",\"price\":\"12\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book4\",\"price\":\"13\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book5\",\"price\":\"14\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book6\",\"price\":\"15\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book7\",\"price\":\"16\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book8\",\"price\":\"17\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book9\",\"price\":\"18\"},\"number\":\"8080\"}, \n"
-            + "       {\"name\":\"Anish\", \"books\":{\"name\":\"book10\",\"price\":\"19\"},\"number\":\"8080\"} \n"
-            + "    ]";
+    private static final String INPUT_JSON_ARRAY_SINGLE = "[\n"
+            + "       {\"name\":\"Person1\", \"books\":{\"name\":\"book1\",\"price\":\"10\"},\"number\":\"8080\"}, \n"
+            + "       ]";
 
-    @Ignore
+
     @Test
-    public void TestWhetherNotJsonArray() {
-        JSONObject obj = new JSONObject();
-        obj.put("name", "Anish");
-        obj.put("age", "22");
-
-        Object name = obj.get("name");
-        Assert.assertFalse(name instanceof JSONArray);
-    }
-
-    @Ignore
-    @Test
-    public void TestWhetherJsonArray() {
-        JSONObject obj = new JSONObject();
-        JSONArray names = new JSONArray();
-        names.put("Anish");
-        names.put("Deepak");
-        names.put("Kaustubh");
-        obj.put("name", names);
-        obj.put("age", "22");
-
-        Object name = obj.get("name");
-        Assert.assertTrue(name instanceof JSONArray);
-    }
-
-    @Ignore
-    @Test
-    public void TestCollect1() {
-        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_1));
-        //System.out.println(object);
+    public void TestCollectArray() {
+        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_ARRAY));
+        
+        JSONArray array = object.getJSONArray("books");
+        String bookName = array.getJSONObject(0).getString("name");
+        Assert.assertEquals("book1",bookName);
     }
 
     @Test
-    public void TestCollect2() {
-        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_2));
-        //System.out.println(object);
+    public void TestEmptyArray() {
+        JSONObject object = MPathUtil.collect(new JSONArray());
+        Assert.assertNull(object);
+    }
+    
+    
+    @Test
+    public void TestSingularArray() {
+        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_ARRAY_SINGLE));
+        String bookName = object.getJSONObject("books").getString("name");
+        
+        Assert.assertEquals("book1",bookName);
     }
 
-    @Ignore
-    @Test
-    public void TestCollect3() {
-        JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_3));
-        //System.out.println(object);
-    }
 }
