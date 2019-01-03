@@ -679,8 +679,6 @@ public class XRequestService {
             } else {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
-
-            return xr;
         } catch (IOException ex) {
             xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }
@@ -717,7 +715,6 @@ public class XRequestService {
                 xr = new XResponse(response.code(), response.body().string().trim());
             }
 
-            return xr;
         } catch (IOException ex) {
             xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }
