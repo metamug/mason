@@ -579,7 +579,7 @@ public class XResponse {
             //test whether body is json object
             JSONObject bodyObject = new JSONObject(body);
             Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
-            flatMap.entrySet().forEach((entry) -> {
+            flatMap.entrySet().forEach(entry -> {
                 map.put(xRequestId + ".body." + entry.getKey(), entry.getValue().toString());
             });
         } catch (JSONException jx) {
@@ -587,14 +587,13 @@ public class XResponse {
                 //test whether body is json array
                 JSONArray bodyArray = new JSONArray(body);
                 Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
-                flatMap.entrySet().forEach((entry) -> {
+                flatMap.entrySet().forEach(entry -> {
                     map.put(xRequestId + ".body" + entry.getKey(), entry.getValue().toString());
                 });
             } catch (JSONException jx1) {
                 map.put(xRequestId + ".body", "Could not parse json response.");
             }
         }
-        //System.out.println("XRESP: "+map);
         return map;
     }
 
@@ -652,17 +651,5 @@ public class XResponse {
 
     public int getStatusCode() {
         return statusCode;
-    }
-
-    public void setStatusCode(int sc) {
-        statusCode = sc;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String b) {
-        body = b;
     }
 }
