@@ -533,7 +533,9 @@ public class AppContextListener implements ServletContextListener {
             sce.getServletContext().setAttribute("masonQuery", queryManagerService.getQueryMap());
         } catch (IOException ex) {
             Logger.getLogger(AppContextListener.class.getName()).log(Level.SEVERE, null, ex);
-        }    
+        } catch (NullPointerException nx) {
+            //query file does not exist
+        }   
     }
 
     @Override
