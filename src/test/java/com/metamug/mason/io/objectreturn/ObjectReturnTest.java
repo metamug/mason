@@ -141,7 +141,7 @@ public class ObjectReturnTest {
             Assert.fail(e.toString());
         }
     }
-    
+
     @Ignore
     @Test
     public void ObjectListToXml() {

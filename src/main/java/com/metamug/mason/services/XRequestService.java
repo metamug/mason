@@ -531,7 +531,7 @@ public class XRequestService {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String UTF8 = "UTF-8";
     private static final String XREQUEST_ERROR = "XRequest error: ";
-  
+
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String APP_FORM_URLENCODED = "application/x-www-form-urlencoded";
     public static final String APP_JSON = "application/json";
@@ -633,7 +633,7 @@ public class XRequestService {
     }
 
     public XResponse put(String url, Map<String, String> headers,
-                            Map<String, String> params, String body) {
+            Map<String, String> params, String body) {
         OkHttpClient client = new OkHttpClient();
 
         Request.Builder reqBuilder = null;

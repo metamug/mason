@@ -589,8 +589,8 @@ public class RestRouterFilter implements Filter {
                             resourceName = tokens[2];
                         }
                         //get queries
-                        Map<String,String> queryMap = (HashMap)req.getServletContext().getAttribute("masonQuery");
-                        
+                        Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute("masonQuery");
+
                         if (new File(System.getProperty("catalina.base") + File.separator + "webapps/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
                             MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
                             req.setAttribute("mtgReq", mtgReq);

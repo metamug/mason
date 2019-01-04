@@ -5,7 +5,6 @@
  */
 package com.metamug.mason.services;
 
-import com.metamug.mason.taghandlers.UploadEventTagHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -16,22 +15,23 @@ import java.util.Properties;
  * @author anishhirlekar
  */
 public class QueryManagerService {
+
     private final String queryFile = "query.properties";
     private final InputStream queryFis;
-    
-    public QueryManagerService(){
+
+    public QueryManagerService() {
         queryFis = QueryManagerService.class.getClassLoader().getResourceAsStream(queryFile);
     }
-    
-    public HashMap<String,String> getQueryMap() throws IOException{
-        HashMap<String,String> map = new HashMap<>();
+
+    public HashMap<String, String> getQueryMap() throws IOException {
+        HashMap<String, String> map = new HashMap<>();
         Properties p = new Properties();
         p.load(queryFis);
-        
+
         p.stringPropertyNames().forEach((key) -> {
             map.put(key, p.getProperty(key));
         });
-        
+
         return map;
     }
 }

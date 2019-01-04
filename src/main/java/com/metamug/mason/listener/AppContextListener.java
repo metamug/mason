@@ -522,16 +522,16 @@ import javax.servlet.annotation.WebListener;
  */
 @WebListener
 public class AppContextListener implements ServletContextListener {
-    
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         QueryManagerService queryManagerService = new QueryManagerService();
-        
+
         try {
             sce.getServletContext().setAttribute("masonQuery", queryManagerService.getQueryMap());
         } catch (IOException ex) {
             Logger.getLogger(AppContextListener.class.getName()).log(Level.SEVERE, null, ex);
-        }    
+        }
     }
 
     @Override
