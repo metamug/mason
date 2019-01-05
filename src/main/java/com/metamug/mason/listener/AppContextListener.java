@@ -528,9 +528,10 @@ public class AppContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         InputStream queryFileInputStream = AppContextListener.class.getClassLoader().getResourceAsStream("query.properties");
         QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
-
+        
         try {
             sce.getServletContext().setAttribute("masonQuery", queryManagerService.getQueryMap());
+            queryFileInputStream.close();
         } catch (IOException ex) {
             Logger.getLogger(AppContextListener.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NullPointerException nx) {

@@ -30,6 +30,7 @@ public class QueryManagerService {
 
         p.stringPropertyNames().forEach(key -> {
             map.put(key, p.getProperty(key));
+            //System.out.println("Key: "+key+", Prop: "+p.getProperty(key));
         });
 
         return map;
