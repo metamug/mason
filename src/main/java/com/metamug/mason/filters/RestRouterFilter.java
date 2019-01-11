@@ -577,8 +577,10 @@ public class RestRouterFilter implements Filter {
             } else {
                 response.setContentType("application/json");
                 String contentType = req.getContentType() == null ? "application/html" : req.getContentType();
-
-                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (ALLOWED_CONTENT_TYPE_PATTERN.matches(contentType.toLowerCase()) || contentType.contains("html")))) {
+                //System.out.println("CONENT: "+req.getContentType());
+                //System.out.println("CONENT: "+req.getContentType());
+                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (ALLOWED_CONTENT_TYPE_PATTERN.matches(contentType.toLowerCase())) || contentType.contains("html")
+                                             || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("application/json"))) {
                     try {
                         String appName = req.getServletContext().getContextPath();
                         String version = tokens[1];
