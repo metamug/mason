@@ -1,4 +1,4 @@
-/*
+   /*
  *                   GNU LESSER GENERAL PUBLIC LICENSE
  *                        Version 2.1, February 1999
  *
@@ -504,111 +504,52 @@
  *
  * That's all there is to it!
  */
+
 package com.metamug.mason.common;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
- *
- * @author deepak
+ * Immutable version of Mason Request Object using Decorator Pattern
+ * @author user
  */
-public class MtgRequest {
-
-    private String uri, id, pid, uid, method, parent;
-    private int statusCode;
-    private Map<String, String> params;
-
-    public MtgRequest() {
-    }
+final public class ImmutableMtgRequest extends MtgRequest{
     
-    /**
-     * Copy Constructor
-     * @param request 
-     */
-    public MtgRequest(MtgRequest request) {
-        this.uri = request.uri;
-        this.id = request.id;
-        this.pid = request.pid;
-        this.uid = request.uid;
-        this.method = request.method;
-        this.parent = request.parent;
-        this.statusCode = request.statusCode;
-        this.params = request.params;
-    }
-        
-    public MtgRequest(String uri, String id, String method, Map<String, String> map) {
-        this.uri = uri;
-        this.id = id;
-        this.method = method;
-        this.params = map;
+    public ImmutableMtgRequest(MtgRequest mtgReq) {
+        super(mtgReq);
     }
 
-    public String getUri() {
-        return uri;
-    }
-
+    @Override
     public void setUri(String uri) {
-        this.uri = uri;
     }
 
-    public String getId() {
-        return id;
-    }
-
+    @Override
     public void setId(String id) {
-        this.id = id;
     }
 
-    public String getPid() {
-        return pid;
-    }
-
+    @Override
     public void setPid(String pid) {
-        this.pid = pid;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
+    @Override
     public void setUid(String uid) {
-        this.uid = uid;
     }
 
-    public String getMethod() {
-        return method;
-    }
-
+    @Override
     public void setMethod(String method) {
-        this.method = method;
-    }
+    } 
 
-    public Map<String, String> getParams() {
-        return params;
-    }
-    
-    /**
-     * To make the request parameters immutable
-     * @param params 
-     */
+    @Override
     public void setParams(Map<String, String> params) {
-        this.params = Collections.unmodifiableMap(params);
     }
 
-    public int getStatusCode() {
-        return statusCode;
-    }
-
+    @Override
     public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
     }
 
-    public String getParent() {
-        return parent;
-    }
-
+    @Override
     public void setParent(String parent) {
-        this.parent = parent;
     }
 }
+
+
