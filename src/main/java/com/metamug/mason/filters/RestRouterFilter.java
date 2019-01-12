@@ -514,6 +514,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -795,7 +796,7 @@ public class RestRouterFilter implements Filter {
      * @throws IOException
      */
     private void writeError(HttpServletResponse res, int status, String message) throws IOException {
-        try (ServletOutputStream writer = res.getOutputStream()) {
+        try (PrintWriter writer = res.getWriter()) {
             res.setContentType("application/json;charset=UTF-8");
             res.setCharacterEncoding("UTF-8");
             res.setStatus(status);
