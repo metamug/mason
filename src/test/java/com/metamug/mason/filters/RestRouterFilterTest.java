@@ -106,7 +106,7 @@ public class RestRouterFilterTest {
     }
     
     @Test
-    public void testBadContent() {
+    public void testResourceNotFound() {
         when(request.getContentType()).thenReturn("application/json");
         when(request.getServletPath()).thenReturn("/backend/resource");
         when(request.getMethod()).thenReturn("POST");
