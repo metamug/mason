@@ -592,7 +592,7 @@ public class XRequestService {
             }
             reqBuilder = new Request.Builder().post(formBuilder.build());
         } else if (contentType.equals(APP_JSON)) {
-            if (StringUtils.isBlank(body)) {
+            if (StringUtils.isNotBlank(body)) {
                 RequestBody reqBody = RequestBody.create(JSON, body);
                 reqBuilder = new Request.Builder().post(reqBody);
             } else {
