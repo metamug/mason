@@ -525,15 +525,16 @@ import org.json.JSONObject;
 public class JWebToken {
 
     private static final String SECRET_KEY = "FREE_MASON"; //@TODO Add Signature here
-    private final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-    private final static String ISSUER = "mason.metamug.net";
-    private static String HEADER = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
-    JSONObject payload = new JSONObject();
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    private static final String ISSUER = "mason.metamug.net";
+    private static final String JWT_HEADER = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
+    private static final String UTF8 = "UTF-8";
+    private JSONObject payload = new JSONObject();
     private String signature;
     private String encodedHeader;
 
     private JWebToken() {
-        encodedHeader = encode(new JSONObject(HEADER));
+        encodedHeader = encode(new JSONObject(JWT_HEADER));
     }
 
     public JWebToken(JSONObject payload) {
@@ -548,7 +549,7 @@ public class JWebToken {
         payload.put("iat", System.currentTimeMillis());
         payload.put("iss", ISSUER);
         payload.put("jti", UUID.randomUUID().toString()); //how do we use this?
-        signature = HMACSHA256(encodedHeader + "." + encode(payload));
+        signature = HmacSha256(encodedHeader + "." + encode(payload));
     }
 
     public JWebToken(String token) throws NoSuchAlgorithmException {
@@ -580,7 +581,7 @@ public class JWebToken {
 
     public boolean isValid() {
         return payload.getLong("exp") > System.currentTimeMillis() //token not expired
-                && signature.equals(HMACSHA256(encodedHeader + "." + payload)); //signature matched
+                && signature.equals(HmacSha256(encodedHeader + "." + payload)); //signature matched
     }
 
     public String getSubject() {
@@ -593,7 +594,7 @@ public class JWebToken {
 
     private static String encode(JSONObject obj) {
         try {
-            return new String(Base64.getEncoder().encode(obj.toString().getBytes("UTF-8")));
+            return new String(Base64.getEncoder().encode(obj.toString().getBytes(UTF8)));
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(JWebToken.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -607,12 +608,12 @@ public class JWebToken {
      * @return
      * @throws Exception
      */
-    private String HMACSHA256(String data) {
+    private String HmacSha256(String data) {
         try {
-            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secret_key = new SecretKeySpec(SECRET_KEY.getBytes("UTF-8"), "HmacSHA256");
-            sha256_HMAC.init(secret_key);
-            return new String(Base64.getEncoder().encode(sha256_HMAC.doFinal(data.getBytes("UTF-8"))));
+            Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(UTF8), "HmacSHA256");
+            sha256Hmac.init(secretKey);
+            return new String(Base64.getEncoder().encode(sha256Hmac.doFinal(data.getBytes(UTF8))));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException ex) {
             Logger.getLogger(JWebToken.class.getName()).log(Level.SEVERE, null, ex);
             return null;

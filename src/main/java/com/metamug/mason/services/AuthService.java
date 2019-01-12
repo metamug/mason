@@ -539,7 +539,7 @@ public class AuthService {
      * @throws javax.servlet.jsp.JspException
      */
     public String validateBearer(String bearerToken, String roleName) throws JspException {
-        JSONObject obj = new JSONObject();
+
         try {
             //verify and use
             JWebToken incomingToken = new JWebToken(bearerToken);

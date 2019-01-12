@@ -545,6 +545,7 @@ import org.json.JSONObject;
 public class RestRouterFilter implements Filter {
 
     private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
+    private static final String APPLICATION_JSON = "application/json";
 
     private FilterConfig filterConfig = null;
     private String encoding;
@@ -597,7 +598,7 @@ public class RestRouterFilter implements Filter {
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         String contentType = request.getHeader("Content-Type") == null ? "application/html" : request.getHeader("Content-Type");
         if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("DELETE")) {
-            if (contentType.contains("application/json")) {
+            if (contentType.contains(APPLICATION_JSON)) {
                 String line;
                 StringBuilder jsonData = new StringBuilder();
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
@@ -637,7 +638,7 @@ public class RestRouterFilter implements Filter {
             }
             mtgRequest.setParams(params);
         } //For hanlding PUT request
-        else if (contentType.contains("application/json")) {
+        else if (contentType.contains(APPLICATION_JSON)) {
             String line;
             StringBuilder jsonData = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
@@ -727,14 +728,14 @@ public class RestRouterFilter implements Filter {
 
         //TODO Is the pattern even needed??
         boolean validContentType = contentType != null && (ALLOWED_CONTENT_TYPE_PATTERN.matches(contentType)) || contentType.contains("html")
-                || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("application/json");
+                || contentType.contains("application/x-www-form-urlencoded") || contentType.contains(APPLICATION_JSON);
 
         if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
             writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
             return;
         }
 
-        res.setContentType("application/json");
+        res.setContentType(APPLICATION_JSON);
         //requesting a REST resource
 
         try {
