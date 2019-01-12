@@ -520,6 +520,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 /**
@@ -591,7 +592,7 @@ public class XRequestService {
             }
             reqBuilder = new Request.Builder().post(formBuilder.build());
         } else if (contentType.equals(APP_JSON)) {
-            if ((body != null) && (!body.equals(""))) {
+            if (StringUtils.isBlank(body)) {
                 RequestBody reqBody = RequestBody.create(JSON, body);
                 reqBuilder = new Request.Builder().post(reqBody);
             } else {
