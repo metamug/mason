@@ -5,14 +5,19 @@
  */
 package com.metamug.mason.filters;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -40,6 +45,7 @@ public class RestRouterFilterTest {
     private FilterChain filterChain;
     private StringWriter stringWriter;
     private PrintWriter writer;
+    private ServletInputStream inputStream;
 
     public RestRouterFilterTest() {
     }
@@ -57,6 +63,10 @@ public class RestRouterFilterTest {
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         filterChain = mock(FilterChain.class);
+        inputStream = mock(ServletInputStream.class);
+        ServletContext context = mock(ServletContext.class);
+        when(request.getServletContext()).thenReturn(context);
+        when(request.getServletContext().getContextPath()).thenReturn("backend");
         
         //prepare String Writer
         stringWriter = new StringWriter();
@@ -93,5 +103,35 @@ public class RestRouterFilterTest {
         writer.flush(); // it may not have been flushed yet...
         System.out.println(stringWriter.toString());
         assertTrue(stringWriter.toString().contains("415"));
+    }
+    
+    @Test
+    public void testBadContent() {
+        when(request.getContentType()).thenReturn("application/json");
+        when(request.getServletPath()).thenReturn("/backend/resource");
+        when(request.getMethod()).thenReturn("POST");
+        
+        //InputStream stream = new ByteArrayInputStream("Definately Not JSON".getBytes(StandardCharsets.UTF_8));
+        try {
+            when(request.getInputStream()).thenReturn(inputStream);
+        } catch (IOException ex) {
+            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        RestRouterFilter router = new RestRouterFilter();
+
+        try {
+            router.doFilter(request, response, filterChain);
+        } catch (IOException ex) {
+            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ServletException ex) {
+            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        verify(request, atLeast(1)).getContentType(); // verify if Content Type was called
+        verify(request, atLeast(1)).getServletPath(); // verify if servlet path was called
+        writer.flush(); // it may not have been flushed yet...
+        System.out.println(stringWriter.toString());
+        assertTrue(stringWriter.toString().contains("404"));
     }
 }

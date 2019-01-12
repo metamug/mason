@@ -507,6 +507,7 @@
 package com.metamug.mason.common;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -528,7 +529,6 @@ public class JWebToken {
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     private static final String ISSUER = "mason.metamug.net";
     private static final String JWT_HEADER = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
-    private static final String UTF8 = "UTF-8";
     private JSONObject payload = new JSONObject();
     private String signature;
     private String encodedHeader;
@@ -593,12 +593,7 @@ public class JWebToken {
     }
 
     private static String encode(JSONObject obj) {
-        try {
-            return new String(Base64.getEncoder().encode(obj.toString().getBytes(UTF8)));
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(JWebToken.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
+        return new String(Base64.getEncoder().encode(obj.toString().getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
@@ -611,10 +606,10 @@ public class JWebToken {
     private String HmacSha256(String data) {
         try {
             Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(UTF8), "HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             sha256Hmac.init(secretKey);
-            return new String(Base64.getEncoder().encode(sha256Hmac.doFinal(data.getBytes(UTF8))));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException ex) {
+            return new String(Base64.getEncoder().encode(sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8))));
+        } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
             Logger.getLogger(JWebToken.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
