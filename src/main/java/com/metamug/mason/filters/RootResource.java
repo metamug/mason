@@ -511,10 +511,14 @@ package com.metamug.mason.filters;
 import com.metamug.mason.services.AuthService;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.json.JSONObject;
 
 /**
  *
@@ -523,8 +527,31 @@ import javax.servlet.http.HttpServletResponse;
 public class RootResource extends HttpServlet {
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/index.html").forward(request, response);
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+
+        try {
+            request.getRequestDispatcher("/index.html").forward(request, response);
+        } catch (ServletException | IOException ex) {
+            try {
+                writeError(response, 512, "Unable to load docs");
+            } catch (IOException ex1) {
+                Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+
+    }
+
+    private void writeError(HttpServletResponse res, int status, String message) throws IOException {
+        try (ServletOutputStream writer = res.getOutputStream()) {
+            res.setContentType("application/json;charset=UTF-8");
+            res.setCharacterEncoding("UTF-8");
+            res.setStatus(status);
+            JSONObject obj = new JSONObject();
+            obj.put("status", status);
+            obj.put("message", message);
+            writer.print(obj.toString());
+            writer.flush();
+        }
     }
 
     @Override
@@ -538,13 +565,19 @@ public class RootResource extends HttpServlet {
             String pass = request.getParameter("password");
             AuthService service = new AuthService();
             token = service.createBearer(user, pass);
-            PrintWriter out = response.getWriter();
-            if (contentType == null || contentType == "application/json") {
-                out.print("{\"token\":\"" + token + "\"}");
-            } else {
-                out.print("<token>" + token + "</token>");
+            try (PrintWriter out = response.getWriter();) {
+                if (contentType == null || contentType == "application/json") {
+                    out.print("{\"token\":\"" + token + "\"}");
+                } else {
+                    out.print("<token>" + token + "</token>");
+                }
+            } catch (IOException e) {
+                try {
+                    writeError(response, 512, "Unable to load docs");
+                } catch (IOException ex1) {
+                    Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
+                }
             }
-
         }
 
     }
