@@ -571,96 +571,17 @@ public class RestRouterFilter implements Filter {
         }
         String path = req.getServletPath();
         String[] tokens = path.split("/");
-        if (tokens.length > 2) {
-            if (req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
-                chain.doFilter(request, response);
-            } else {
-                response.setContentType("application/json");
-                String contentType = req.getContentType() == null ? "application/html" : req.getContentType();
-                //System.out.println("CONENT: "+req.getContentType());
-                //System.out.println("CONENT: "+req.getContentType());
-                if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (ALLOWED_CONTENT_TYPE_PATTERN.matches(contentType.toLowerCase())) || contentType.contains("html")
-                                             || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("application/json"))) {
-                    try {
-                        String appName = req.getServletContext().getContextPath();
-                        String version = tokens[1];
-                        String resourceName;
-                        if (tokens.length == 5 || tokens.length == 6) {
-                            resourceName = tokens[4];
-                        } else {
-                            resourceName = tokens[2];
-                        }
-                        //get queries
-                        Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute("masonQuery");
 
-                        if (new File(System.getProperty("catalina.base") + File.separator + "webapps/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
-                            MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
-                            req.setAttribute("mtgReq", mtgReq);
-                            req.setAttribute("mtgMethod", req.getMethod());
-                            req.setAttribute("masonQuery", queryMap);
-                            req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
-                                @Override
-                                public String getMethod() {
-                                    String method = super.getMethod();
-                                    if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                                        return "POST";
-                                    } else {
-                                        return method;
-                                    }
-                                }
-                            }, response);
-                        } else {
-                            try (ServletOutputStream writer = response.getOutputStream()) {
-                                response.setContentType("application/json;charset=UTF-8");
-                                response.setCharacterEncoding("UTF-8");
-                                res.setStatus(404);
-                                JSONObject obj = new JSONObject();
-                                obj.put("status", 404);
-                                obj.put("message", "Resource doesn't exist");
-                                writer.print(obj.toString());
-                                writer.flush();
-                            }
-                        }
-                    } catch (IOException | ServletException | JSONException | ParseException ex) {
-                        try (ServletOutputStream writer = response.getOutputStream()) {
-                            response.setContentType("application/json;charset=UTF-8");
-                            response.setCharacterEncoding("UTF-8");
-                            JSONObject obj = new JSONObject();
-                            res.setStatus(422);
-                            obj.put("status", 422);
-                            if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
-                                obj.put("message", "Could not parse the body of the request according to the provided Content-Type.");
-                            } else if (ex.getCause() != null) {
-                                String cause = ex.getCause().toString();
-                                obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                            } else if (ex.getMessage().contains("ELException")) {
-                                obj.put("message", "Incorrect test condition in '" + tokens[2] + "' resource");
-                                obj.put("status", 512);
-                                res.setStatus(512);
-                            } else {
-                                obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                                Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, "Router " + tokens[2] + ":{0}", ex.getMessage());
-                            }
-                            writer.print(obj.toString());
-                            writer.flush();
-                        }
-                    }
-                } else {
-                    try (ServletOutputStream writer = response.getOutputStream()) {
-                        response.setContentType("application/json;charset=UTF-8");
-                        response.setCharacterEncoding("UTF-8");
-                        res.setStatus(415);
-                        JSONObject obj = new JSONObject();
-                        obj.put("status", 415);
-                        obj.put("message", "Unsupported Media Type");
-                        writer.print(obj.toString());
-                        writer.flush();
-                    }
-                }
-            }
-        } else {
+        if (tokens.length <= 2) {
             chain.doFilter(request, response);
         }
+
+        if (req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
+            chain.doFilter(request, response); //send request to docs
+        }
+        
+        processRequest(req, res, tokens);
+
     }
 
     private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {
@@ -803,10 +724,6 @@ public class RestRouterFilter implements Filter {
         return mtgRequest;
     }
 
-    private void createToken(String user, String pass) {
-
-    }
-
     /**
      * Return the filter configuration object for this filter.
      *
@@ -862,5 +779,97 @@ public class RestRouterFilter implements Filter {
 
     public void log(String msg) {
         filterConfig.getServletContext().log(msg);
+    }
+    
+    /**
+     * Servlet version of the request handling. Cast objects to handle REST request
+     * @param req
+     * @param res
+     * @param tokens
+     * @throws IOException 
+     */
+    private void processRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens) throws IOException {
+        
+        //requesting a REST resource
+        res.setContentType("application/json");
+        String contentType = req.getContentType() == null ? "application/html" : req.getContentType();
+        if (req.getMethod().equalsIgnoreCase("get") || req.getMethod().equalsIgnoreCase("delete") || (contentType != null && (ALLOWED_CONTENT_TYPE_PATTERN.matches(contentType.toLowerCase())) || contentType.contains("html")
+                || contentType.contains("application/x-www-form-urlencoded") || contentType.contains("application/json"))) {
+            try {
+                String appName = req.getServletContext().getContextPath();
+                String version = tokens[1];
+                String resourceName;
+                if (tokens.length == 5 || tokens.length == 6) {
+                    resourceName = tokens[4];
+                } else {
+                    resourceName = tokens[2];
+                }
+                //get queries
+                Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute("masonQuery");
+
+                if (new File(System.getProperty("catalina.base") + File.separator + "webapps/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
+                    MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
+                    req.setAttribute("mtgReq", mtgReq);
+                    req.setAttribute("mtgMethod", req.getMethod());
+                    req.setAttribute("masonQuery", queryMap);
+                    req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
+                        @Override
+                        public String getMethod() {
+                            String method = super.getMethod();
+                            if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
+                                return "POST";
+                            } else {
+                                return method;
+                            }
+                        }
+                    }, res);
+                } else {
+                    try (ServletOutputStream writer = res.getOutputStream()) {
+                        res.setContentType("application/json;charset=UTF-8");
+                        res.setCharacterEncoding("UTF-8");
+                        res.setStatus(404);
+                        JSONObject obj = new JSONObject();
+                        obj.put("status", 404);
+                        obj.put("message", "Resource doesn't exist");
+                        writer.print(obj.toString());
+                        writer.flush();
+                    }
+                }
+            } catch (IOException | ServletException | JSONException | ParseException ex) {
+                try (ServletOutputStream writer = res.getOutputStream()) {
+                    res.setContentType("application/json;charset=UTF-8");
+                    res.setCharacterEncoding("UTF-8");
+                    JSONObject obj = new JSONObject();
+                    res.setStatus(422);
+                    obj.put("status", 422);
+                    if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
+                        obj.put("message", "Could not parse the body of the request according to the provided Content-Type.");
+                    } else if (ex.getCause() != null) {
+                        String cause = ex.getCause().toString();
+                        obj.put("message", cause.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                    } else if (ex.getMessage().contains("ELException")) {
+                        obj.put("message", "Incorrect test condition in '" + tokens[2] + "' resource");
+                        obj.put("status", 512);
+                        res.setStatus(512);
+                    } else {
+                        obj.put("message", ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                        Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, "Router " + tokens[2] + ":{0}", ex.getMessage());
+                    }
+                    writer.print(obj.toString());
+                    writer.flush();
+                }
+            }
+        } else {
+            try (ServletOutputStream writer = res.getOutputStream()) {
+                res.setContentType("application/json;charset=UTF-8");
+                res.setCharacterEncoding("UTF-8");
+                res.setStatus(415);
+                JSONObject obj = new JSONObject();
+                obj.put("status", 415);
+                obj.put("message", "Unsupported Media Type");
+                writer.print(obj.toString());
+                writer.flush();
+            }
+        }
     }
 }

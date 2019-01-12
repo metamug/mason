@@ -523,6 +523,11 @@ import javax.servlet.http.HttpServletResponse;
 public class RootResource extends HttpServlet {
 
     @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        
+    }
+    
+    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String contentType = request.getHeader("Accept");
         String token = null;
