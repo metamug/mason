@@ -572,12 +572,9 @@ public class RestRouterFilter implements Filter {
         String path = req.getServletPath();
         String[] tokens = path.split("/");
 
-        if (tokens.length <= 2) {
-            chain.doFilter(request, response);
-        }
-
-        if (req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
-            chain.doFilter(request, response); //send request to docs
+        if (tokens.length <= 2 || req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
+            chain.doFilter(request, response); //TODO add comment here for this case
+            return;
         }
         
         processRequest(req, res, tokens);
