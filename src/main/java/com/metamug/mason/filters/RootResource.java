@@ -479,7 +479,7 @@
  * <one line to give the library's name and a brief idea of what it does.>
  * Copyright (C) <year>  <name of author>
  *
-    This library is free software; you can redistribute it and/or modify it under
+ * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
@@ -497,8 +497,7 @@
  *
  * You should also get your employer (if you work as a programmer) or your
  * school, if any, to sign a "copyright disclaimer" for the library, if
- * necessary. Here is a sample; alter  *
- * the names:
+ * necessary. Here is a sample; alter * the names:
  *
  * Yoyodyne, Inc., hereby disclaims all copyright interest in the library `Frob'
  * (a library for tweaking knobs) written by James Random Hacker.
@@ -524,9 +523,9 @@ public class RootResource extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        
+
     }
-    
+
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String contentType = request.getHeader("Accept");
@@ -538,13 +537,13 @@ public class RootResource extends HttpServlet {
             String pass = request.getParameter("password");
             AuthService service = new AuthService();
             token = service.createBearer(user, pass);
-            try (PrintWriter out = response.getWriter()) {
-                if (contentType == null || contentType == "application/json") {
-                    out.print("{\"token\":\"" + token + "\"}");
-                } else {
-                    out.print("<token>" + token + "</token>");
-                }
+            PrintWriter out = response.getWriter();
+            if (contentType == null || contentType == "application/json") {
+                out.print("{\"token\":\"" + token + "\"}");
+            } else {
+                out.print("<token>" + token + "</token>");
             }
+
         }
 
     }

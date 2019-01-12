@@ -513,7 +513,7 @@ import java.util.Map;
  * Immutable version of Mason Request Object using Decorator Pattern
  * @author user
  */
-final public class ImmutableMtgRequest extends MtgRequest{
+public final class ImmutableMtgRequest extends MtgRequest{
     
     public ImmutableMtgRequest(MtgRequest mtgReq) {
         super(mtgReq);
@@ -521,34 +521,42 @@ final public class ImmutableMtgRequest extends MtgRequest{
 
     @Override
     public void setUri(String uri) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setId(String id) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setPid(String pid) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setUid(String uid) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setMethod(String method) {
+        throw new UnsupportedOperationException();
     } 
 
     @Override
     public void setParams(Map<String, String> params) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setStatusCode(int statusCode) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setParent(String parent) {
+        throw new UnsupportedOperationException();
     }
 }
 
