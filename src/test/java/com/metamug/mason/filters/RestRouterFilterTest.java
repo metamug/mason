@@ -22,22 +22,30 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  *
  * @author user
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RestRouterFilterTest {
 
+    @Mock
     private HttpServletRequest request;
+    @Mock
     private HttpServletResponse response;
+    @Mock
     private FilterChain filterChain;
     private StringWriter stringWriter;
     private PrintWriter writer;
+    @Mock
     private ServletInputStream inputStream;
 
     @BeforeClass
@@ -50,10 +58,7 @@ public class RestRouterFilterTest {
 
     @Before
     public void setUp() {
-        request = mock(HttpServletRequest.class);
-        response = mock(HttpServletResponse.class);
-        filterChain = mock(FilterChain.class);
-        inputStream = mock(ServletInputStream.class);
+        
         ServletContext context = mock(ServletContext.class);
         when(request.getServletContext()).thenReturn(context);
         when(request.getServletContext().getContextPath()).thenReturn("backend");

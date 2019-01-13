@@ -530,7 +530,7 @@ public class RootResource extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 
         try {
             request.getRequestDispatcher("/index.html").forward(request, response);
