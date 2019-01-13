@@ -525,6 +525,9 @@ import org.json.JSONObject;
  * @author GAURI
  */
 public class RootResource extends HttpServlet {
+    
+    public RootResource(){
+    }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -555,7 +558,7 @@ public class RootResource extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String contentType = request.getHeader("Accept");
         String token = null;
 

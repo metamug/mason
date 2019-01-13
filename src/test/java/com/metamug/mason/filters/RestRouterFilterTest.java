@@ -5,22 +5,15 @@
  */
 package com.metamug.mason.filters;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -47,9 +40,6 @@ public class RestRouterFilterTest {
     private PrintWriter writer;
     private ServletInputStream inputStream;
 
-    public RestRouterFilterTest() {
-    }
-
     @BeforeClass
     public static void setUpClass() {
     }
@@ -67,7 +57,7 @@ public class RestRouterFilterTest {
         ServletContext context = mock(ServletContext.class);
         when(request.getServletContext()).thenReturn(context);
         when(request.getServletContext().getContextPath()).thenReturn("backend");
-        
+
         //prepare String Writer
         stringWriter = new StringWriter();
         writer = new PrintWriter(stringWriter);
@@ -104,20 +94,22 @@ public class RestRouterFilterTest {
         System.out.println(stringWriter.toString());
         assertTrue(stringWriter.toString().contains("415"));
     }
+
     
+
     @Test
     public void testResourceNotFound() {
         when(request.getContentType()).thenReturn("application/json");
         when(request.getServletPath()).thenReturn("/backend/resource");
         when(request.getMethod()).thenReturn("POST");
-        
+
         //InputStream stream = new ByteArrayInputStream("Definately Not JSON".getBytes(StandardCharsets.UTF_8));
         try {
             when(request.getInputStream()).thenReturn(inputStream);
         } catch (IOException ex) {
             Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         RestRouterFilter router = new RestRouterFilter();
 
         try {
