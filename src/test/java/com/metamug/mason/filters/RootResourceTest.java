@@ -655,6 +655,7 @@ That's all there is to it!
  */
 package com.metamug.mason.filters;
 
+import com.metamug.mason.controllers.RootResource;
 import com.metamug.mason.daos.AuthDAO;
 import com.metamug.mason.services.AuthService;
 import com.metamug.mason.services.ConnectionProvider;
@@ -667,7 +668,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
