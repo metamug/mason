@@ -526,7 +526,6 @@ import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.MultipartConfig;
@@ -544,10 +543,13 @@ import org.json.JSONObject;
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class RestRouterFilter implements Filter {
-
     private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
-    private static final String APPLICATION_JSON = "application/json";
-
+    
+    public static final String APPLICATION_JSON = "application/json";
+    public static final String APPLICATION_HTML = "application/html";
+    public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
+                                        + "webapps" + File.separator;
+    
     private FilterConfig filterConfig = null;
     private String encoding;
 
@@ -597,7 +599,7 @@ public class RestRouterFilter implements Filter {
         mtgRequest.setMethod(method);
         mtgRequest.setUri(tokens[2]);
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        String contentType = request.getHeader("Content-Type") == null ? "application/html" : request.getHeader("Content-Type");
+        String contentType = request.getHeader("Content-Type") == null ? APPLICATION_HTML : request.getHeader("Content-Type");
         if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("DELETE")) {
             if (contentType.contains(APPLICATION_JSON)) {
                 String line;
@@ -608,7 +610,7 @@ public class RestRouterFilter implements Filter {
                     }
                 }
                 Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-                flattenAsMap.entrySet().forEach((entry) -> {
+                flattenAsMap.entrySet().forEach( entry -> {
                     String key = entry.getKey();
                     String value = String.valueOf(entry.getValue());
                     addKeyPair(mtgRequest, new String[]{key, value}, params);
@@ -648,7 +650,7 @@ public class RestRouterFilter implements Filter {
                 }
             }
             Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-            flattenAsMap.entrySet().forEach((entry) -> {
+            flattenAsMap.entrySet().forEach( entry -> {
                 String key = entry.getKey();
                 String value = String.valueOf(entry.getValue());
                 addKeyPair(mtgRequest, new String[]{key, value}, params);
@@ -668,7 +670,7 @@ public class RestRouterFilter implements Filter {
                 }
                 params.put(part.getName(), data.toString());
             }
-        } else if (contentType.contains("application/html")) {
+        } else if (contentType.contains(APPLICATION_HTML)) {
             String line;
             StringBuilder data = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
@@ -724,7 +726,7 @@ public class RestRouterFilter implements Filter {
      */
     private void processRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens) throws IOException {
 
-        String contentType = req.getContentType() == null ? "application/html" : req.getContentType().toLowerCase();
+        String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod().toLowerCase();
 
         //TODO Is the pattern even needed??
@@ -751,12 +753,15 @@ public class RestRouterFilter implements Filter {
             //get queries
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute("masonQuery");
 
-            if (new File(System.getProperty("catalina.base") + File.separator + "webapps/" + appName + "/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").exists()) {
+            if ( new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator 
+                                + "resources" + File.separator + version.toLowerCase() + File.separator 
+                                        + resourceName + ".jsp").exists() ) {
                 MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
                 req.setAttribute("mtgReq", mtgReq);
                 req.setAttribute("mtgMethod", req.getMethod());
                 req.setAttribute("masonQuery", queryMap);
-                req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
+                req.getRequestDispatcher(File.separator+"WEB-INF"+File.separator+"resources"+File.separator 
+                        + version.toLowerCase() + File.separator + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
                     @Override
                     public String getMethod() {
                         String method = super.getMethod();
