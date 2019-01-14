@@ -506,7 +506,6 @@
  */
 package com.metamug.mason.common;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -549,7 +548,7 @@ public class JWebToken {
         payload.put("iat", System.currentTimeMillis());
         payload.put("iss", ISSUER);
         payload.put("jti", UUID.randomUUID().toString()); //how do we use this?
-        signature = HmacSha256(encodedHeader + "." + encode(payload));
+        signature = hmacSha256(encodedHeader + "." + encode(payload));
     }
 
     public JWebToken(String token) throws NoSuchAlgorithmException {
@@ -581,7 +580,7 @@ public class JWebToken {
 
     public boolean isValid() {
         return payload.getLong("exp") > System.currentTimeMillis() //token not expired
-                && signature.equals(HmacSha256(encodedHeader + "." + payload)); //signature matched
+                && signature.equals(hmacSha256(encodedHeader + "." + payload)); //signature matched
     }
 
     public String getSubject() {
@@ -603,7 +602,7 @@ public class JWebToken {
      * @return
      * @throws Exception
      */
-    private String HmacSha256(String data) {
+    private String hmacSha256(String data) {
         try {
             Mac sha256Hmac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
