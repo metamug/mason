@@ -760,8 +760,7 @@ public class RestRouterFilter implements Filter {
                 req.setAttribute("mtgReq", mtgReq);
                 req.setAttribute("mtgMethod", req.getMethod());
                 req.setAttribute("masonQuery", queryMap);
-                req.getRequestDispatcher(File.separator+"WEB-INF"+File.separator+"resources"+File.separator 
-                        + version.toLowerCase() + File.separator + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
+                req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
                     @Override
                     public String getMethod() {
                         String method = super.getMethod();
