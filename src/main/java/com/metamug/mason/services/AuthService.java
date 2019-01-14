@@ -510,7 +510,13 @@ import com.metamug.mason.common.JWebToken;
 import com.metamug.mason.daos.AuthDAO;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
 
@@ -520,10 +526,19 @@ import org.json.JSONObject;
  */
 public class AuthService {
 
-    private final AuthDAO dao;
+    private AuthDAO dao;
 
     public AuthService() {
-        this.dao = new AuthDAO();
+        try {
+            this.dao = new AuthDAO(ConnectionProvider.getInstance());
+        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
+            this.dao = null;
+        }
+    }
+    
+    public AuthService(AuthDAO dao) {
+        this.dao = dao;
     }
 
     public JSONObject validateBasic(String userName, String password, String roleName) {

@@ -655,39 +655,65 @@ That's all there is to it!
  */
 package com.metamug.mason.filters;
 
+import com.metamug.mason.daos.AuthDAO;
+import com.metamug.mason.services.AuthService;
+import com.metamug.mason.services.ConnectionProvider;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  *
  * @author GAURI
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RootResourceTest {
 
+    @Mock
     private HttpServletRequest request;
+    @Mock
     private HttpServletResponse response;
+
     private StringWriter stringWriter;
     private PrintWriter writer;
-
+    @Mock
+    private ConnectionProvider provider;
+    @Mock
+    Connection connection;
+    
+    @Mock
+    private PreparedStatement statement;
+    
+    @Mock
+    private ResultSet resultSet;
+    
     @Before
     public void setUp() {
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
-        ServletContext context = mock(ServletContext.class);
-        when(request.getServletContext()).thenReturn(context);
-        when(context.getContextPath()).thenReturn("backend");
+//        ServletContext context = mock(ServletContext.class);
+//        when(request.getServletContext()).thenReturn(context);
+//        when(context.getContextPath()).thenReturn("backend");
 
         //prepare String Writer
         stringWriter = new StringWriter();
@@ -699,18 +725,29 @@ public class RootResourceTest {
         }
 
     }
+
     @Ignore
     @Test
     public void testJwtAuthCall() {
-        when(request.getParameter("auth")).thenReturn("bearer");
-        when(request.getParameter("userid")).thenReturn("user");
-        when(request.getParameter("password")).thenReturn("pass");
-        RootResource root = new RootResource();
         try {
-            root.doPost(request, response);
-        } catch (IOException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ServletException ex) {
+            when(request.getParameter("auth")).thenReturn("bearer");
+            when(request.getParameter("userid")).thenReturn("1234");
+            when(request.getParameter("password")).thenReturn("pass");
+            when(provider.getConnection()).thenReturn(connection);
+            when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
+            when(statement.executeQuery()).thenReturn(resultSet);
+            when(resultSet.getString("auth_query")).thenReturn("");
+            when(resultSet.getString(1)).thenReturn("1234");
+            when(resultSet.getString(2)).thenReturn("admin");
+            
+            RootResource root = new RootResource();
+            root.processAuth(request, response, new AuthService(new AuthDAO(provider)));
+
+            System.out.println(stringWriter.toString());
+            assertTrue(stringWriter.toString().contains("404"));
+        } catch (ServletException | IOException ex) {
+            Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
             Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

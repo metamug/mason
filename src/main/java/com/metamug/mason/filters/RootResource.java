@@ -559,6 +559,10 @@ public class RootResource extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+         processAuth(request, response, new AuthService());
+    }
+    
+    public void processAuth(HttpServletRequest request, HttpServletResponse response, AuthService service) throws ServletException, IOException {
         String contentType = request.getHeader("Accept");
         String token = null;
 
@@ -566,7 +570,6 @@ public class RootResource extends HttpServlet {
             //auth=bearer&userid=foo&password=pass
             String user = request.getParameter("userid");
             String pass = request.getParameter("password");
-            AuthService service = new AuthService();
             token = service.createBearer(user, pass);
             try (PrintWriter out = response.getWriter();) {
                 if (contentType == null || "application/json".equals(contentType)) {
@@ -584,6 +587,8 @@ public class RootResource extends HttpServlet {
         }
 
     }
+    
+    
     
     //private void processAuthRequest(dbconnection, request, response) {
     //
