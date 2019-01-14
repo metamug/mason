@@ -662,12 +662,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.junit.Test;
-
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -700,8 +699,8 @@ public class RootResourceTest {
         }
 
     }
-
-    //@Test
+    @Ignore
+    @Test
     public void testJwtAuthCall() {
         when(request.getParameter("auth")).thenReturn("bearer");
         when(request.getParameter("userid")).thenReturn("user");

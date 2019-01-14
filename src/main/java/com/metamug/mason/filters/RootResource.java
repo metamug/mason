@@ -569,7 +569,7 @@ public class RootResource extends HttpServlet {
             AuthService service = new AuthService();
             token = service.createBearer(user, pass);
             try (PrintWriter out = response.getWriter();) {
-                if (contentType == null || contentType == "application/json") {
+                if (contentType == null || "application/json".equals(contentType)) {
                     out.print("{\"token\":\"" + token + "\"}");
                 } else {
                     out.print("<token>" + token + "</token>");
@@ -584,4 +584,8 @@ public class RootResource extends HttpServlet {
         }
 
     }
+    
+    //private void processAuthRequest(dbconnection, request, response) {
+    //
+    //}
 }

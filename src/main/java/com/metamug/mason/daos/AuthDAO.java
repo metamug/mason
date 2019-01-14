@@ -558,7 +558,7 @@ public class AuthDAO {
         JSONObject jwtPayload = new JSONObject();
         jwtPayload.put("status", 0);
         try (Connection con = ConnectionProvider.getInstance().getConnection()) {
-            String authQuery = getConfigValue(con, "bearer");
+            String authQuery = getConfigValue(con, "JWT");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, user);
