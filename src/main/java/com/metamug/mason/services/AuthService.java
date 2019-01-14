@@ -554,21 +554,16 @@ public class AuthService {
      * @throws javax.servlet.jsp.JspException
      */
     public String validateBearer(String bearerToken, String roleName) throws JspException {
-
         try {
             //verify and use
             JWebToken incomingToken = new JWebToken(bearerToken);
-
             if (!incomingToken.isValid()) {
                 throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
             }
-
             if (!roleName.equals(incomingToken.getAudience())) {
                 throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
             }
-
             return (incomingToken.getSubject());
-
         } catch (NoSuchAlgorithmException ex) {
             throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
         }
@@ -581,7 +576,7 @@ public class AuthService {
      * @return 
      */
     public String createBearer(String user, String pass) {
-        JSONObject payload = dao.getBearDetails(user, pass);
+        JSONObject payload = dao.getBearerDetails(user, pass);
         String token = new JWebToken(payload).toString();
         return token;
     }

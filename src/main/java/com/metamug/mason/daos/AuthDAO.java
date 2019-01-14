@@ -507,8 +507,6 @@
 package com.metamug.mason.daos;
 
 import com.metamug.mason.services.ConnectionProvider;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -516,7 +514,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.NamingException;
 import org.json.JSONObject;
 
 /**
@@ -561,11 +558,11 @@ public class AuthDAO {
         return status;
     }
 
-    public JSONObject getBearDetails(String user, String pass) {
+    public JSONObject getBearerDetails(String user, String pass) {
         JSONObject jwtPayload = new JSONObject();
         jwtPayload.put("status", 0);
         try (Connection con = provider.getConnection()) {
-            String authQuery = getConfigValue(con, "JWT");
+            String authQuery = getConfigValue(con, "Bearer");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, user);
