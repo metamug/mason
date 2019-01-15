@@ -679,6 +679,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -726,7 +727,7 @@ public class RootResourceTest {
 
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void testJwtAuthCall() {
         try {
@@ -736,19 +737,23 @@ public class RootResourceTest {
             when(provider.getConnection()).thenReturn(connection);
             when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
             when(statement.executeQuery()).thenReturn(resultSet);
-            when(resultSet.getString("auth_query")).thenReturn("");
+            //result set should return true for config function to give auth query
+            //second time inside createBearer function and then it should return false.
+            when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
+            when(resultSet.getString("auth_query")).thenReturn("some query mocked");
             when(resultSet.getString(1)).thenReturn("1234");
             when(resultSet.getString(2)).thenReturn("admin");
             
             RootResource root = new RootResource();
             root.processAuth(request, response, new AuthService(new AuthDAO(provider)));
-
+            //verify(statement.executeQuery())
             System.out.println(stringWriter.toString());
-            assertTrue(stringWriter.toString().contains("404"));
+            assertTrue(stringWriter.toString().contains("token\":"));
         } catch (ServletException | IOException ex) {
             Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 }
