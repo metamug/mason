@@ -553,9 +553,10 @@ public class OutputTagHandler extends BodyTagSupport {
         String header = (String) type == null ? "application/json" : (String) type;
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         int count = 0;
+
         for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
             String key = entry.getKey();
-            if (key.startsWith("d")) {
+            if (key.startsWith("d")) { //d0,d1,d2
                 count++;
             }
         }
