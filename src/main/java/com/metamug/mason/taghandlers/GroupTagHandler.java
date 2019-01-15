@@ -567,8 +567,7 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                         throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
                     }
                 } else if (header.contains("Bearer ")) {
-                    String authHeader = header.replaceFirst("Bearer ", "");
-                    String bearerToken = new String(Base64.getDecoder().decode(authHeader.getBytes()));
+                    String bearerToken = header.replaceFirst("Bearer ", "");
                     //check jwt format
                     //validateJwt - check aud against val, exp
                     String userId = validateBearer(bearerToken.trim());

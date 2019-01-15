@@ -579,12 +579,6 @@ public class JWebToken {
     }
 
     public boolean isValid() {
-        /*System.out.println("Token EXP: "+payload.getLong("exp"));
-        System.out.println("Current Time: "+(System.currentTimeMillis()/1000));
-        System.out.println("Signature: "+signature);
-        System.out.println("encodedHeader.payload: "+encodedHeader + "." + payload);
-        System.out.println("HMAC_SHA_256: "+hmacSha256(encodedHeader + "." + encode(payload)));
-        */
         return payload.getLong("exp") > (System.currentTimeMillis()/1000) //token not expired
                 && signature.equals(hmacSha256(encodedHeader + "." + encode(payload))); //signature matched
     }
