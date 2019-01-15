@@ -548,12 +548,12 @@ abstract class MtgOutput{
     
       StringBuilder builder = new StringBuilder();
 
-      if(map.isEmpty()){
+      if(outputMap.isEmpty()){
           return emptyResponse(builder);
       }
       
       
-      for(Map.Entry<String, Object> entry: map.entrySet()){
+      for(Map.Entry<String, Object> entry: outputMap.entrySet()){
           Object obj = entry.getValue();
           if(obj instanceof JSONObject){
             builder.append(processJSONObject((JSONObject)obj));
@@ -566,9 +566,9 @@ abstract class MtgOutput{
           }    
       }
       
-      if(map.size() > 1){
+      if(outputMap.size() > 1){
          multipleObjectWrapper(builder);
-      }else if(map.size() == 1){
+      }else if(outputMap.size() == 1){
         singleObjectWrapper(builder);
       }
       
