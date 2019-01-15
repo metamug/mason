@@ -524,54 +524,48 @@ import org.json.JSONObject;
 /**
 * Generic Output Object
 */
-public abstract class MtgOutput{
-  
-  private Map<String, Object> outputMap;
+public class JSONOutput extends MtgOutput{
 
-  public MtgOutput(Map<String, Object> outputMap){
-      this.outputMap = outputMap;
-  }
+	public JSONOutput(Map<String, Object> outputMap){
+      	super(outputMap);
+  	}
   
-  protected abstract String processJSONObject(JSONObject obj);
-  protected abstract String processJSONArray(JSONArray obj);
-  protected abstract String processString(String obj);
-  protected abstract String processSQLResult(ResultImpl obj);
-
-  protected abstract String singleObjectWrapper(StringBuilder builder);
-  protected abstract String multipleObjectWrapper(StringBuilder builder);
   
-  protected abstract String emptyResponse(StringBuilder builder);
-  
-
   @Override
-  public String toString(){
-    
-      StringBuilder builder = new StringBuilder();
-
-      if(outputMap.isEmpty()){
-          return emptyResponse(builder);
-      }
-      
-      
-      for(Map.Entry<String, Object> entry: outputMap.entrySet()){
-          Object obj = entry.getValue();
-          if(obj instanceof JSONObject){
-            builder.append(processJSONObject((JSONObject)obj));
-          }else if(obj instanceof JSONArray){
-            builder.append(processJSONArray((JSONArray)obj));
-          }else if(obj instanceof String){
-            builder.append(processString((String)obj));
-          }else if(obj instanceof JSONArray){
-            builder.append(processSQLResult((ResultImpl)obj));
-          }    
-      }
-      
-      if(outputMap.size() > 1){
-         multipleObjectWrapper(builder);
-      }else if(outputMap.size() == 1){
-        singleObjectWrapper(builder);
-      }
-      
-      return builder.toString(); 
+  public String processJSONObject(JSONObject obj){
+  	return null;
   }
+  
+  @Override
+  public String processJSONArray(JSONArray obj){
+  	return null;
+  }
+  
+  @Override
+  public String processString(String obj){
+  	return null;
+  }
+  
+  @Override
+  public String processSQLResult(ResultImpl obj){
+  	return null;
+  }
+
+  
+  @Override
+  public String singleObjectWrapper(StringBuilder builder){
+  	return null;
+  }
+  
+  @Override
+  public String multipleObjectWrapper(StringBuilder builder){
+  	return null;
+  }
+  
+  
+  @Override
+  public String emptyResponse(StringBuilder builder){
+  	return null;
+  }
+
 }
