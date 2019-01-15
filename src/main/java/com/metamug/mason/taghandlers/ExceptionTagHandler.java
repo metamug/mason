@@ -581,7 +581,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
                         switch (mtgCause.getError()) {
-                            case BEARER_TOKEN_MISSMATCH:
+                            case BEARER_TOKEN_MISMATCH:
                                 response.setStatus(401);
                                 out.println("<message>" + mtgCause.getMessage() + "</message>"
                                         + "\n<status>" + 401 + "</status>");
@@ -678,7 +678,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
                         switch (mtgCause.getError()) {
-                            case BEARER_TOKEN_MISSMATCH:
+                            case BEARER_TOKEN_MISMATCH:
                                 response.setStatus(401);
                                 out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 401 + "}");
                                 break;

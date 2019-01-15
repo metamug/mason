@@ -512,6 +512,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
@@ -571,7 +573,8 @@ public class AuthDAO {
                         while (basicResult.next()) {
                             jwtPayload.put("sub", basicResult.getString(1));
                             jwtPayload.put("aud", basicResult.getString(2));
-                            jwtPayload.put("exp", LocalDate.now().plusDays(90).toEpochDay()); //thsi needs to be configured
+                            LocalDateTime ldt = LocalDateTime.now().plusDays(90);
+                            jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //thsi needs to be configured
                         }
                     }
                 }

@@ -7,7 +7,8 @@ package com.metamug.api.common;
 
 import com.metamug.mason.common.JWebToken;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.After;
@@ -21,7 +22,8 @@ import org.junit.BeforeClass;
  * @author user
  */
 public class JWebTokenTest {
-
+    LocalDateTime ldt;
+    
     public JWebTokenTest() {
     }
 
@@ -35,6 +37,7 @@ public class JWebTokenTest {
 
     @Before
     public void setUp() {
+        ldt = LocalDateTime.now().plusDays(90);
     }
 
     @After
@@ -47,7 +50,7 @@ public class JWebTokenTest {
     @org.junit.Test
     public void testWithData() {
         //generate JWT
-        String token = new JWebToken("1234", "admin", LocalDate.now().plusDays(90).toEpochDay()).toString();
+        String token = new JWebToken("1234", "admin", ldt.toEpochSecond(ZoneOffset.UTC)).toString();
         //verify and use
         JWebToken incomingToken;
         try {
@@ -65,7 +68,7 @@ public class JWebTokenTest {
     @org.junit.Test
     public void testWithJson() {
         JSONObject payload = new JSONObject("{\"sub\":\"1234\",\"aud\":\"admin\","
-                + "\"exp\":" + LocalDate.now().plusDays(90).toEpochDay() + "}");
+                + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
         String token = new JWebToken(payload).toString();
         //verify and use
         JWebToken incomingToken;
@@ -83,7 +86,7 @@ public class JWebTokenTest {
     @org.junit.Test(expected=IllegalArgumentException.class)
     public void testBadHeaderFormat() {
         JSONObject payload = new JSONObject("{\"sub\":\"1234\",\"aud\":\"admin\","
-                + "\"exp\":" + LocalDate.now().plusDays(90).toEpochDay() + "}");
+                + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
         String token = new JWebToken(payload).toString();
         token = token.replaceAll("\\.","X");
         //verify and use
@@ -102,7 +105,7 @@ public class JWebTokenTest {
     @org.junit.Test(expected=NoSuchAlgorithmException.class)
     public void testIncorrectHeader() throws NoSuchAlgorithmException {
         JSONObject payload = new JSONObject("{\"sub\":\"1234\",\"aud\":\"admin\","
-                + "\"exp\":" + LocalDate.now().plusDays(90).toEpochDay() + "}");
+                + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
         String token = new JWebToken(payload).toString();
         token = token.replaceAll("[^.]","X");
         //verify and use

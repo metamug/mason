@@ -511,7 +511,7 @@ package com.metamug.mason.exceptions;
  * @author Kaisteel
  */
 public enum MetamugError {
-    BEARER_TOKEN_MISSMATCH("Token doesn't belong to specified user."),
+    BEARER_TOKEN_MISMATCH("Token doesn't belong to specified user."),
     CLASS_NOT_IMPLEMENTED("Did not implement any of the processable interface."),
     CODE_ERROR("Error occured during code execution."),
     EMPTY_PERSIST_ERROR("No result to persist."),

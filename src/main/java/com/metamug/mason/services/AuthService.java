@@ -558,14 +558,14 @@ public class AuthService {
             //verify and use
             JWebToken incomingToken = new JWebToken(bearerToken);
             if (!incomingToken.isValid()) {
-                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
             if (!roleName.equals(incomingToken.getAudience())) {
-                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
             return (incomingToken.getSubject());
         } catch (NoSuchAlgorithmException ex) {
-            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
         }
     }
     
