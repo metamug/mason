@@ -527,6 +527,7 @@ import org.json.JSONObject;
 public abstract class MtgOutput{
   
   private Map<String, Object> outputMap;
+  StringBuilder builder = new StringBuilder();
 
   public MtgOutput(Map<String, Object> outputMap){
       this.outputMap = outputMap;
@@ -542,11 +543,16 @@ public abstract class MtgOutput{
   
   protected abstract String emptyResponse(StringBuilder builder);
   
+  /**
+  * Get Content Length
+  */
+  public int length(){
+    return builder.length();
+  }
 
   @Override
   public String toString(){
     
-      StringBuilder builder = new StringBuilder();
 
       if(outputMap.isEmpty()){
           return emptyResponse(builder);
