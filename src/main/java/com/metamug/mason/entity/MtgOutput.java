@@ -521,13 +521,15 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
+/**
+* Generic Output Object
+*/
 abstract class MtgOutput{
   
-  private Map<String, Object> map;
+  private Map<String, Object> outputMap;
 
-  public MtgOutput(Map<String, Object> map){
-    this.map = map;
+  public MtgOutput(Map<String, Object> outputMap){
+      this.outputMap = outputMap;
   }
   
   protected abstract String processJSONObject(JSONObject obj);
@@ -544,29 +546,32 @@ abstract class MtgOutput{
   @Override
   public String toString(){
     
-    StringBuilder builder = new StringBuilder();
+      StringBuilder builder = new StringBuilder();
 
-    if(map.isEmpty()){
-      return emptyResponse(builder);
-    }
-    
-    
-    for(Map.Entry<String, Object> entry: map.entrySet()){
-      Object obj = entry.getValue();
-      if(obj instanceof JSONObject){
-        builder.append(processJSONObject((JSONObject)obj));
+      if(map.isEmpty()){
+          return emptyResponse(builder);
       }
-      //@TODO add other 3 types ...
       
       
-    }
-    
-    if(map.size() > 1){
-       multipleObjectWrapper(builder);
-    }else if(map.size() == 1){
-      singleObjectWrapper(builder);
-    }
-    
-    return builder.toString(); 
+      for(Map.Entry<String, Object> entry: map.entrySet()){
+          Object obj = entry.getValue();
+          if(obj instanceof JSONObject){
+            builder.append(processJSONObject((JSONObject)obj));
+          }else if(obj instanceof JSONArray){
+            builder.append(processJSONArray((JSONArray)obj));
+          }else if(obj instanceof String){
+            builder.append(processString((String)obj));
+          }else if(obj instanceof JSONArray){
+            builder.append(processSQLResult((ResultImpl)obj));
+          }    
+      }
+      
+      if(map.size() > 1){
+         multipleObjectWrapper(builder);
+      }else if(map.size() == 1){
+        singleObjectWrapper(builder);
+      }
+      
+      return builder.toString(); 
   }
 }
