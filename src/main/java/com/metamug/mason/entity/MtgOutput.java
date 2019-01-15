@@ -538,21 +538,25 @@ abstract class MtgOutput{
   protected abstract String singleObjectWrapper(StringBuilder builder);
   protected abstract String multipleObjectWrapper(StringBuilder builder);
   
+  protected abstract String emptyResponse(StringBuilder builder);
+  
+
   @Override
   public String toString(){
     
+    StringBuilder builder = new StringBuilder();
+
     if(map.isEmpty()){
-      return "";
+      return emptyResponse(builder);
     }
     
-    StringBuilder builder = new StringBuilder();
     
     for(Map.Entry<String, Object> entry: map.entrySet()){
       Object obj = entry.getValue();
       if(obj instanceof JSONObject){
         builder.append(processJSONObject((JSONObject)obj));
       }
-      //...
+      //@TODO add other 3 types ...
       
       
     }
