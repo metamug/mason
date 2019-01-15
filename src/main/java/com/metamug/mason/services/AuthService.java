@@ -519,6 +519,7 @@ import java.util.logging.Logger;
 import javax.naming.NamingException;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
+import java.util.Base64;
 
 /**
  *
@@ -541,8 +542,29 @@ public class AuthService {
         this.dao = dao;
     }
 
-    public JSONObject validateBasic(String userName, String password, String roleName) {
-        return dao.validateBasic(userName, password, roleName);
+    public String validateBasic(String header, String roleName) throws JspException{
+
+    	String authHeader = header.replaceFirst("Basic ", "");
+        
+        String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
+        String[] split = userCred.split(":");
+        String user = split[0], password = split[1];
+
+        if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
+        	throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+        }
+
+        JSONObject status = dao.validateBasic(user, password, roleName);
+        switch (status.getInt("status")) {
+            case -1:
+                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            case 0:
+                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
+            case 1:
+                return status.getString("user_id");
+        }
+
+        return null;
     }
 
     /**

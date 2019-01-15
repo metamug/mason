@@ -551,6 +551,9 @@ public class JWebToken {
         signature = hmacSha256(encodedHeader + "." + encode(payload));
     }
 
+    /**
+    * For verification 
+    */
     public JWebToken(String token) throws NoSuchAlgorithmException {
         this();
         String[] parts = token.split("\\.");

@@ -590,9 +590,4 @@ public class RootResource extends HttpServlet {
 
     }
     
-    
-    
-    //private void processAuthRequest(dbconnection, request, response) {
-    //
-    //}
 }
