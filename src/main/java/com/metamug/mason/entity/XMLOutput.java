@@ -554,5 +554,10 @@ public class XMLOutput extends MtgOutput{
   public String emptyResponse(StringBuilder builder){
   	return null;
   }*/
+
+    @Override
+    protected String generateOutputString() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
   
 }

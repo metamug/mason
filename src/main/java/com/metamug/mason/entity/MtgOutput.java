@@ -506,7 +506,13 @@
  */
 package com.metamug.mason.entity;
 
+import com.metamug.mason.io.mpath.MPathUtil;
 import java.util.Map;
+import java.util.SortedMap;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.XML;
 
 /**
 * Generic Output Object
@@ -514,29 +520,53 @@ import java.util.Map;
 public abstract class MtgOutput{
   
     protected Map<String, Object> outputMap;
-    //StringBuilder builder = new StringBuilder();
 
     public MtgOutput(Map<String, Object> outputMap){
         this.outputMap = outputMap;
-    }
-
-    /*protected abstract String processJSONObject(JSONObject obj);
-    protected abstract String processJSONArray(JSONArray obj);
-    protected abstract String processString(String obj);
-    protected abstract String processSQLResult(ResultImpl obj);
-*/
-    //protected abstract String singleObjectWrapper(StringBuilder builder);
-    //protected abstract String multipleObjectWrapper(StringBuilder builder);
-
-    //protected abstract String emptyResponse(StringBuilder builder);
-
+    }   
+    
+    protected abstract String generateOutputString();
+    
     /**
     * Get Content Length
     * @return int 
     */
-    /*public int length(){
-        return builder.length();
-    }*/
+    public int length(){
+        return generateOutputString().length();
+    }
+    
+    protected String convertSQLResultToXml(ResultImpl resultImpl){
+        return XML.toString(convertSQLResultToJson(resultImpl));
+    } 
+    
+    protected JSONArray convertSQLResultToJson(ResultImpl resultImpl){
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
+        JSONArray array = new JSONArray();
+        for (SortedMap row : rows) {
+            JSONObject rowJson = new JSONObject();
+            for (int i = 0; i < columnNames.length; i++) {
+                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
+                /*if (entry.getKey().startsWith("p")) {
+                    params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
+                }*/
+            }
+            if (rowJson.length() > 0) {
+                array.put(rowJson);
+            }
+        }
+      // if (array.length() > 0) {
+      //     if (entry.getKey().startsWith("d")) {
+      //        	if (entry.getKey().startsWith("c")) {
+      //             responseJson.put("response", MPathUtil.collect(array));
+      //         } else {
+      //             responseJson.put("response", array);
+      //         }
+      //     }
+      // }
+        return array;
+    }
 /*
     @Override
     public String toString(){

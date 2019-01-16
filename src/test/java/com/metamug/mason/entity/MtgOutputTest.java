@@ -36,7 +36,8 @@ public class MtgOutputTest {
     @Test
     public void testJsonOutput(){
         JSONOutput jsonOutput = new JSONOutput(outputMap);
-        JSONArray resArray = new JSONArray(jsonOutput.toString());
+        System.out.println(jsonOutput.length());
+        JSONArray resArray = new JSONArray(jsonOutput.generateOutputString());
         System.out.println(resArray.toString());
     }
 }
