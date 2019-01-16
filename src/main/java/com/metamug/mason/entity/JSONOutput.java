@@ -506,17 +506,10 @@
  */
 package com.metamug.mason.entity;
 
-import java.io.IOException;
-import java.util.Arrays;
+import com.metamug.mason.io.mpath.MPathUtil;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.JspException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -526,76 +519,77 @@ import org.json.JSONObject;
 */
 public class JSONOutput extends MtgOutput{
 
-	public JSONOutput(Map<String, Object> outputMap){
+    public JSONOutput(Map<String, Object> outputMap){
       	super(outputMap);
-  	}
+    }  
   
-  
-  @Override
-  public String processJSONObject(JSONObject obj){
-  	return null;
-  }
-  
-  @Override
-  public String processJSONArray(JSONArray obj){
-  	return null;
-  }
-  
-  @Override
-  public String processString(String obj){
-  	return null;
-  }
-  
-  @Override
-  public String processSQLResult(ResultImpl resultImpl){
-  	    
-	SortedMap[] rows = resultImpl.getRows();
-    String[] columnNames = resultImpl.getColumnNames();
-    
-    // JSONArray array = new JSONArray();
-    // for (SortedMap row : rows) {
-    //     JSONObject rowJson = new JSONObject();
-    //     for (int i = 0; i < columnNames.length; i++) {
-    //         String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-    //         rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
-    //         if (entry.getKey().startsWith("p")) {
-    //             params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
-    //         }
-    //     }
-    //     if (rowJson.length() > 0) {
-    //         array.put(rowJson);
-    //     }
-    // }
+    @Override
+    public String processJSONObject(JSONObject obj){
+        JSONObject singleData = new JSONObject();
+        for (Iterator<String> iterator = obj.keys(); iterator.hasNext();) {
+            String key = iterator.next();
+            singleData.put(key, obj.get(key));
+        }
+        /*if (singleData.length() > 0) {
+            responseJson.append("response", singleData);
+        }*/
+        return singleData.toString();
+    }
 
-    // if (array.length() > 0) {
-    //     if (entry.getKey().startsWith("d")) {
-    //        	if (entry.getKey().startsWith("c")) {
-    //             responseJson.put("response", MPathUtil.collect(array));
-    //         } else {
-    //             responseJson.put("response", array);
-    //         }
-    //     }
-    // }
+    @Override
+    public String processJSONArray(JSONArray obj){
+        return obj.toString();
+    }
 
-    return null;
+    @Override
+    public String processString(String obj){
+        return obj;
+    }
 
-  }
+    @Override
+    public String processSQLResult(ResultImpl resultImpl){
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
+        JSONArray array = new JSONArray();
+        for (SortedMap row : rows) {
+            JSONObject rowJson = new JSONObject();
+            for (int i = 0; i < columnNames.length; i++) {
+                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
+                /*if (entry.getKey().startsWith("p")) {
+                    params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
+                }*/
+            }
+            if (rowJson.length() > 0) {
+                array.put(rowJson);
+            }
+        }
+      // if (array.length() > 0) {
+      //     if (entry.getKey().startsWith("d")) {
+      //        	if (entry.getKey().startsWith("c")) {
+      //             responseJson.put("response", MPathUtil.collect(array));
+      //         } else {
+      //             responseJson.put("response", array);
+      //         }
+      //     }
+      // }
+        return array.toString();
+    }
 
-  
-  @Override
-  public String singleObjectWrapper(StringBuilder builder){
-  	return null;
-  }
-  
-  @Override
-  public String multipleObjectWrapper(StringBuilder builder){
-  	return null;
-  }
-  
-  
-  @Override
-  public String emptyResponse(StringBuilder builder){
-  	return null;
-  }
+    @Override
+    public String singleObjectWrapper(StringBuilder builder){
+          return null;
+    }
+
+    @Override
+    public String multipleObjectWrapper(StringBuilder builder){
+          return null;
+    }
+
+
+    @Override
+    public String emptyResponse(StringBuilder builder){
+        return "";
+    }
 
 }

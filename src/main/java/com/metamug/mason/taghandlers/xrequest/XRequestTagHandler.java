@@ -596,7 +596,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
         //if Accept header "application/xml"
         if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
-            String xResponseXml = null;
+            String xResponseXml;
             if (xAcceptType.equals("xml")) {
                 xResponseXml = xresponse.getXmlForXmlXResponse();
             } else {
@@ -614,7 +614,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
         } else {
             //if Accept header "application/json"
-            JSONObject xResponseJson = null;
+            JSONObject xResponseJson;
             if (xAcceptType.equals("xml")) {
                 xResponseJson = xresponse.getJsonForXmlXResponse();
             } else {

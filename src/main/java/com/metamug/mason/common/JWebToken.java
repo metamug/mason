@@ -553,6 +553,8 @@ public class JWebToken {
 
     /**
     * For verification 
+     * @param token
+     * @throws java.security.NoSuchAlgorithmException
     */
     public JWebToken(String token) throws NoSuchAlgorithmException {
         this();

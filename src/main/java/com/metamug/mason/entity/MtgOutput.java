@@ -506,17 +506,7 @@
  */
 package com.metamug.mason.entity;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.JspException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -526,58 +516,57 @@ import org.json.JSONObject;
 */
 public abstract class MtgOutput{
   
-  private Map<String, Object> outputMap;
-  StringBuilder builder = new StringBuilder();
+    private Map<String, Object> outputMap;
+    StringBuilder builder = new StringBuilder();
 
-  public MtgOutput(Map<String, Object> outputMap){
-      this.outputMap = outputMap;
-  }
-  
-  protected abstract String processJSONObject(JSONObject obj);
-  protected abstract String processJSONArray(JSONArray obj);
-  protected abstract String processString(String obj);
-  protected abstract String processSQLResult(ResultImpl obj);
+    public MtgOutput(Map<String, Object> outputMap){
+        this.outputMap = outputMap;
+    }
 
-  protected abstract String singleObjectWrapper(StringBuilder builder);
-  protected abstract String multipleObjectWrapper(StringBuilder builder);
-  
-  protected abstract String emptyResponse(StringBuilder builder);
-  
-  /**
-  * Get Content Length
-  */
-  public int length(){
-    return builder.length();
-  }
+    protected abstract String processJSONObject(JSONObject obj);
+    protected abstract String processJSONArray(JSONArray obj);
+    protected abstract String processString(String obj);
+    protected abstract String processSQLResult(ResultImpl obj);
 
-  @Override
-  public String toString(){
-    
+    protected abstract String singleObjectWrapper(StringBuilder builder);
+    protected abstract String multipleObjectWrapper(StringBuilder builder);
 
-      if(outputMap.isEmpty()){
-          return emptyResponse(builder);
-      }
-      
-      
-      for(Map.Entry<String, Object> entry: outputMap.entrySet()){
-          Object obj = entry.getValue();
-          if(obj instanceof JSONObject){
-            builder.append(processJSONObject((JSONObject)obj));
-          }else if(obj instanceof JSONArray){
-            builder.append(processJSONArray((JSONArray)obj));
-          }else if(obj instanceof String){
-            builder.append(processString((String)obj));
-          }else if(obj instanceof JSONArray){
-            builder.append(processSQLResult((ResultImpl)obj));
-          }    
-      }
-      
-      if(outputMap.size() > 1){
-         multipleObjectWrapper(builder);
-      }else if(outputMap.size() == 1){
-        singleObjectWrapper(builder);
-      }
-      
-      return builder.toString(); 
-  }
+    protected abstract String emptyResponse(StringBuilder builder);
+
+    /**
+    * Get Content Length
+    * @return int 
+    */
+    public int length(){
+      return builder.length();
+    }
+
+    @Override
+    public String toString(){
+
+        if(outputMap.isEmpty()){
+            return emptyResponse(builder);
+        }
+
+        for(Map.Entry<String, Object> entry: outputMap.entrySet()){
+            Object obj = entry.getValue();
+            if(obj instanceof JSONObject){
+                builder.append(processJSONObject((JSONObject)obj));
+            }else if(obj instanceof JSONArray){
+                builder.append(processJSONArray((JSONArray)obj));
+            }else if(obj instanceof String){
+                builder.append(processString((String)obj));
+            }else if(obj instanceof ResultImpl){
+                builder.append(processSQLResult((ResultImpl)obj));
+            }    
+        }
+
+        if(outputMap.size() > 1){
+            multipleObjectWrapper(builder);
+        }else if(outputMap.size() == 1){
+            singleObjectWrapper(builder);
+        }
+
+        return builder.toString(); 
+    }
 }

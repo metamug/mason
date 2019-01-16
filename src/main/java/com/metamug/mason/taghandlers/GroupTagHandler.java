@@ -545,16 +545,12 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String header = request.getHeader("Authorization");
         MtgRequest mtg = (MtgRequest) request.getAttribute("mtgReq");
-        
         try {
-
-        	if (header == null) {
+            if (header == null) {
                 throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
-
             if (header.contains("Basic ")) {
                 mtg.setUid(validateBasic(header));
-                
             } else if (header.contains("Bearer ")) {
                 String bearerToken = header.replaceFirst("Bearer ", "");
                 //check jwt format
@@ -562,12 +558,9 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
                 mtg.setUid(validateBearer(bearerToken.trim()));
                 //@TODO why set mtgReq again.
                 //pageContext.getRequest().setAttribute("mtgReq", mtg);
-
             } else {
                 throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
-             
-            
         } catch (IllegalArgumentException ex) {
             throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
