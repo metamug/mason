@@ -509,6 +509,7 @@ package com.metamug.mason.entity;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -518,9 +519,10 @@ public class JSONOutput extends MtgOutput{
     private JSONObject responseJson;
     
     public JSONOutput(Map<String, Object> outputMap){
-        super(outputMap);
         responseJson = new JSONObject(new LinkedHashMap<>());
-
+        if(outputMap.isEmpty())
+            responseJson.put("response", new JSONArray());
+        
         for(Map.Entry<String, Object> entry: outputMap.entrySet()){
             Object obj = entry.getValue();
             

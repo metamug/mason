@@ -518,13 +518,7 @@ import org.json.XML;
 * Generic Output Object
 */
 public abstract class MtgOutput{
-  
-    protected Map<String, Object> outputMap;
-
-    public MtgOutput(Map<String, Object> outputMap){
-        this.outputMap = outputMap;
-    }   
-    
+     
     protected abstract String generateOutputString();
     
     /**

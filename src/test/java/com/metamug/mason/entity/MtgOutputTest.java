@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import junit.framework.Assert;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,6 +56,13 @@ public class MtgOutputTest {
         System.out.println(jsonOutput.length());
         JSONArray resArray = new JSONArray(jsonOutput.generateOutputString());
         System.out.println(resArray.toString());
+    }
+    
+    @Test
+    public void testEmptyJson(){
+        JSONOutput jsonOutput = new JSONOutput(new LinkedHashMap<>());
+        JSONArray resArray = new JSONArray(jsonOutput.generateOutputString());
+        Assert.assertEquals("[]",resArray.toString());
     }
     
     private SortedMap[] getSampleRows(){
