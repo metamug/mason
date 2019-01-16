@@ -506,20 +506,7 @@
  */
 package com.metamug.mason.entity;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.JspException;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
 * Generic Output Object
@@ -530,7 +517,7 @@ public class XMLOutput extends MtgOutput{
       	super(outputMap);
   	}
   
-  
+  /*
   @Override
   public String processJSONObject(JSONObject obj){
   	return null;
@@ -566,6 +553,6 @@ public class XMLOutput extends MtgOutput{
   @Override
   public String emptyResponse(StringBuilder builder){
   	return null;
-  }
+  }*/
   
 }

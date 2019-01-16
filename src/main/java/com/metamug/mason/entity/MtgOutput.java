@@ -507,40 +507,37 @@
 package com.metamug.mason.entity;
 
 import java.util.Map;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
 * Generic Output Object
 */
 public abstract class MtgOutput{
   
-    private Map<String, Object> outputMap;
-    StringBuilder builder = new StringBuilder();
+    protected Map<String, Object> outputMap;
+    //StringBuilder builder = new StringBuilder();
 
     public MtgOutput(Map<String, Object> outputMap){
         this.outputMap = outputMap;
     }
 
-    protected abstract String processJSONObject(JSONObject obj);
+    /*protected abstract String processJSONObject(JSONObject obj);
     protected abstract String processJSONArray(JSONArray obj);
     protected abstract String processString(String obj);
     protected abstract String processSQLResult(ResultImpl obj);
+*/
+    //protected abstract String singleObjectWrapper(StringBuilder builder);
+    //protected abstract String multipleObjectWrapper(StringBuilder builder);
 
-    protected abstract String singleObjectWrapper(StringBuilder builder);
-    protected abstract String multipleObjectWrapper(StringBuilder builder);
-
-    protected abstract String emptyResponse(StringBuilder builder);
+    //protected abstract String emptyResponse(StringBuilder builder);
 
     /**
     * Get Content Length
     * @return int 
     */
-    public int length(){
-      return builder.length();
-    }
-
+    /*public int length(){
+        return builder.length();
+    }*/
+/*
     @Override
     public String toString(){
 
@@ -568,5 +565,5 @@ public abstract class MtgOutput{
         }
 
         return builder.toString(); 
-    }
+    }*/
 }

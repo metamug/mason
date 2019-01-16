@@ -507,7 +507,7 @@
 package com.metamug.mason.entity;
 
 import com.metamug.mason.io.mpath.MPathUtil;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
@@ -518,36 +518,12 @@ import org.json.JSONObject;
 * Generic Output Object
 */
 public class JSONOutput extends MtgOutput{
-
+    
     public JSONOutput(Map<String, Object> outputMap){
       	super(outputMap);
     }  
-  
-    @Override
-    public String processJSONObject(JSONObject obj){
-        JSONObject singleData = new JSONObject();
-        for (Iterator<String> iterator = obj.keys(); iterator.hasNext();) {
-            String key = iterator.next();
-            singleData.put(key, obj.get(key));
-        }
-        /*if (singleData.length() > 0) {
-            responseJson.append("response", singleData);
-        }*/
-        return singleData.toString();
-    }
-
-    @Override
-    public String processJSONArray(JSONArray obj){
-        return obj.toString();
-    }
-
-    @Override
-    public String processString(String obj){
-        return obj;
-    }
-
-    @Override
-    public String processSQLResult(ResultImpl resultImpl){
+    
+    public JSONArray processSQLResult(ResultImpl resultImpl){
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
         JSONArray array = new JSONArray();
@@ -573,23 +549,32 @@ public class JSONOutput extends MtgOutput{
       //         }
       //     }
       // }
-        return array.toString();
+        return array;
     }
-
+    
     @Override
-    public String singleObjectWrapper(StringBuilder builder){
-          return null;
+    public String toString(){
+        JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
+        /*if(outputMap.isEmpty()){
+            return emptyResponse(builder);
+        }*/
+
+        for(Map.Entry<String, Object> entry: outputMap.entrySet()){
+            Object obj = entry.getValue();
+            
+            if(obj instanceof ResultImpl){
+                responseJson.append("response",processSQLResult((ResultImpl)obj));
+            }else{
+                responseJson.append("response",obj);
+            }
+        }
+/*
+        if(outputMap.size() > 1){
+            multipleObjectWrapper(builder);
+        }else if(outputMap.size() == 1){
+            singleObjectWrapper(builder);
+        }
+*/
+        return responseJson.get("response").toString(); 
     }
-
-    @Override
-    public String multipleObjectWrapper(StringBuilder builder){
-          return null;
-    }
-
-
-    @Override
-    public String emptyResponse(StringBuilder builder){
-        return "";
-    }
-
 }
