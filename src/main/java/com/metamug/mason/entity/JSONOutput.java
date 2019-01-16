@@ -516,10 +516,12 @@ import org.json.JSONObject;
 * Generic Output Object
 */
 public class JSONOutput extends MtgOutput{
-    private JSONObject responseJson;
+    protected JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
+    
+    public JSONOutput(){     
+    }
     
     public JSONOutput(Map<String, Object> outputMap){
-        responseJson = new JSONObject(new LinkedHashMap<>());
         if(outputMap.isEmpty())
             responseJson.put("response", new JSONArray());
         

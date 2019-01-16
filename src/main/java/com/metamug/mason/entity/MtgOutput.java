@@ -507,7 +507,6 @@
 package com.metamug.mason.entity;
 
 import com.metamug.mason.io.mpath.MPathUtil;
-import java.util.Map;
 import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
@@ -532,6 +531,29 @@ public abstract class MtgOutput{
     protected String convertSQLResultToXml(ResultImpl resultImpl){
         return XML.toString(convertSQLResultToJson(resultImpl));
     } 
+    
+    protected JSONObject convertSQLResultToDataset(ResultImpl resultImpl){
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
+        JSONObject object = new JSONObject();
+        JSONArray columnArray = new JSONArray();
+        for (int i = 0; i < columnNames.length; i++) {
+            String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+            columnArray.put(columnName);
+        }
+        object.put("columns", columnArray);
+        JSONArray dataSetArray = new JSONArray();
+        for (SortedMap row : rows) {
+            JSONArray rowArray = new JSONArray();
+            for (int i = 0; i < columnNames.length; i++) {
+                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                rowArray.put((row.get(columnName) != null) ? row.get(columnName) : "null");
+            }
+            dataSetArray.put(rowArray);
+        }
+        object.put("dataset", dataSetArray);
+        return object;
+    }
     
     protected JSONArray convertSQLResultToJson(ResultImpl resultImpl){
         SortedMap[] rows = resultImpl.getRows();

@@ -59,6 +59,14 @@ public class MtgOutputTest {
     }
     
     @Test
+    public void testJsonDataset(){
+        DatasetOutput datasetOutput = new DatasetOutput(outputMap);
+        System.out.println(datasetOutput.length());
+        JSONArray resArray = new JSONArray(datasetOutput.generateOutputString());
+        System.out.println(resArray.toString());
+    }
+    
+    @Test
     public void testEmptyJson(){
         JSONOutput jsonOutput = new JSONOutput(new LinkedHashMap<>());
         JSONArray resArray = new JSONArray(jsonOutput.generateOutputString());
