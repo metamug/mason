@@ -513,9 +513,9 @@ import java.util.Map;
 */
 public class XMLOutput extends MtgOutput{
 
-	public XMLOutput(Map<String, Object> outputMap){
+    public XMLOutput(Map<String, Object> outputMap){
       	super(outputMap);
-  	}
+    }
   
   /*
   @Override
