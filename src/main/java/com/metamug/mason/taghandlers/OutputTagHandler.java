@@ -516,6 +516,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -536,7 +537,6 @@ public class OutputTagHandler extends BodyTagSupport {
     public static final String KEY_DATASET = "dataset";
 
     private LinkedHashMap<String, Object> value;
-    private String type;
     private String tableName;
 
     /**
@@ -551,8 +551,9 @@ public class OutputTagHandler extends BodyTagSupport {
     public int doEndTag() throws JspException {
         JspWriter out = pageContext.getOut();
         LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String, Object>) value;
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        String header = (String) type == null ? "application/json" : (String) type;
+        String header = request.getHeader("Authorization") == null ? "application/json" : request.getHeader("Authorization");
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         int count = 0;
 
@@ -1019,10 +1020,6 @@ public class OutputTagHandler extends BodyTagSupport {
 
     public void setValue(LinkedHashMap resultMap) {
         this.value = resultMap;
-    }
-
-    public void setType(String value) {
-        this.type = value;
     }
 
     public void setTableName(String value) {
