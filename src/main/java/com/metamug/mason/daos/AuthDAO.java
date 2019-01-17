@@ -511,7 +511,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.logging.Level;
@@ -523,13 +522,12 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 public class AuthDAO {
-    
+
     ConnectionProvider provider;
 
     public AuthDAO(ConnectionProvider provider) {
         this.provider = provider;
     }
-   
 
     public JSONObject validateBasic(String userName, String password, String roleName) {
         JSONObject status = new JSONObject();

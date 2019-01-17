@@ -514,12 +514,12 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.NamingException;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
-import java.util.Base64;
 
 /**
  *
@@ -537,21 +537,21 @@ public class AuthService {
             this.dao = null;
         }
     }
-    
+
     public AuthService(AuthDAO dao) {
         this.dao = dao;
     }
 
-    public String validateBasic(String header, String roleName) throws JspException{
+    public String validateBasic(String header, String roleName) throws JspException {
 
-    	String authHeader = header.replaceFirst("Basic ", "");
-        
+        String authHeader = header.replaceFirst("Basic ", "");
+
         String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
         String[] split = userCred.split(":");
         String user = split[0], password = split[1];
 
         if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
-        	throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
 
         JSONObject status = dao.validateBasic(user, password, roleName);

@@ -511,21 +511,21 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.XML;
 
 /**
-* Generic Output Object
-*/
-public class XMLOutput extends JSONOutput{
+ * Generic Output Object
+ */
+public class XMLOutput extends JSONOutput {
 
-    public XMLOutput(Map<String, Object> outputMap){
-      	super(outputMap);
+    public XMLOutput(Map<String, Object> outputMap) {
+        super(outputMap);
     }
-   
-    protected void sQLResultToXml(ResultImpl resultImpl){
-    	StringBuilder xmlBuilder = new StringBuilder();
+
+    protected void sQLResultToXml(ResultImpl resultImpl) {
+        StringBuilder xmlBuilder = new StringBuilder();
         xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        xmlBuilder.append("<response>"); 
+        xmlBuilder.append("<response>");
         xmlBuilder.append(XML.toString(resultSetToJson(resultImpl)));
-        xmlBuilder.append("</response>"); 
+        xmlBuilder.append("</response>");
         output = xmlBuilder.toString();
     }
-  
+
 }

@@ -543,9 +543,7 @@ public class OutputTagHandler extends BodyTagSupport {
     private String tableName;
 
     /**
-     * Called by the container to invoke this tag. The implementation of this
-     * method is provided by the tag library developer, and handles all tag
-     * processing, body iteration, etc.
+     * Called by the container to invoke this tag. The implementation of this method is provided by the tag library developer, and handles all tag processing, body iteration, etc.
      *
      * @return
      * @throws javax.servlet.jsp.JspException
@@ -735,7 +733,7 @@ public class OutputTagHandler extends BodyTagSupport {
         } //Accept: application/json+dataset
         else if (header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
             response.setContentType(HEADER_DATASET);
-            if(mtgResultMap.isEmpty()) {
+            if (mtgResultMap.isEmpty()) {
                 response.setStatus(204);
             } else {
                 MtgOutput datasetOutput = new DatasetOutput(mtgResultMap);
@@ -886,7 +884,7 @@ public class OutputTagHandler extends BodyTagSupport {
         } //Accept: application/json OR default
         else {
             response.setContentType(HEADER_JSON);
-            if(mtgResultMap.isEmpty()) {
+            if (mtgResultMap.isEmpty()) {
                 response.setStatus(204);
             } else {
                 MtgOutput jsonOutput = new JSONOutput(mtgResultMap);
@@ -1039,7 +1037,7 @@ public class OutputTagHandler extends BodyTagSupport {
             } catch (IOException ex) {
                 Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
-            */
+             */
         }
         return EVAL_PAGE;
     }

@@ -510,13 +510,11 @@ import com.metamug.mason.common.MtgRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.mason.services.AuthService;
-import java.util.Base64;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
-import org.json.JSONObject;
 
 /**
  *

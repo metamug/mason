@@ -22,8 +22,9 @@ import org.junit.BeforeClass;
  * @author user
  */
 public class JWebTokenTest {
+
     LocalDateTime ldt;
-    
+
     public JWebTokenTest() {
     }
 

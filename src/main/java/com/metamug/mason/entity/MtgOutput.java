@@ -506,34 +506,29 @@
  */
 package com.metamug.mason.entity;
 
-import com.metamug.mason.io.mpath.MPathUtil;
-import java.util.SortedMap;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.XML;
 import java.util.Map;
+
 /**
-* Generic Output Object
-*/
-public abstract class MtgOutput{
-	
+ * Generic Output Object
+ */
+public abstract class MtgOutput {
+
     public static final String HEADER_JSON = "application/json";
-    public static final String HEADER_DATASET = "application/json+dataset";    
-    public static final String HEADER_XML = "application/xml";    
-    
+    public static final String HEADER_DATASET = "application/json+dataset";
+    public static final String HEADER_XML = "application/xml";
+
     protected String output;
 
-    public MtgOutput(Map<String, Object> outputMap){
+    public MtgOutput(Map<String, Object> outputMap) {
     }
 
-    
     /**
-    * Get Content Length
-    * @return int 
-    */
-    public int length(){
+     * Get Content Length
+     *
+     * @return int
+     */
+    public int length() {
         return output.length();
-    } 
-    
+    }
+
 }

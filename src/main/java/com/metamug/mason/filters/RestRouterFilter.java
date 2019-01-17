@@ -548,7 +548,7 @@ public class RestRouterFilter implements Filter {
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
-                                        + "webapps" + File.separator;
+            + "webapps" + File.separator;
     private FilterConfig filterConfig = null;
     private String encoding;
 
@@ -573,8 +573,8 @@ public class RestRouterFilter implements Filter {
             request.setCharacterEncoding(encoding);
         }
         String path = req.getServletPath();
-        String[] tokens = path.split("/");        
-        if (tokens.length <= 2 || req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {            
+        String[] tokens = path.split("/");
+        if (tokens.length <= 2 || req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
             chain.doFilter(request, response); //TODO add comment here for this case
             return;
         }

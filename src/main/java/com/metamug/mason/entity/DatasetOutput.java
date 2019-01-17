@@ -16,16 +16,16 @@ import org.json.JSONObject;
  * @author anishhirlekar
  */
 public class DatasetOutput extends JSONOutput {
-    
+
     public DatasetOutput(Map<String, Object> outputMap) {
-        super(outputMap);        
-    }      
-    
-    protected Object getJson(ResultImpl impl){
+        super(outputMap);
+    }
+
+    protected Object getJson(ResultImpl impl) {
         return resultSetToDataSet(impl);
     }
-    
-    private JSONObject resultSetToDataSet(ResultImpl resultImpl){
+
+    private JSONObject resultSetToDataSet(ResultImpl resultImpl) {
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
         JSONObject object = new JSONObject();
@@ -47,5 +47,5 @@ public class DatasetOutput extends JSONOutput {
         object.put("dataset", dataSetArray);
         return object;
     }
-      
+
 }
