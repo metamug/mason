@@ -78,7 +78,6 @@ public class CollectTest {
     @Test
     public void TestCollectArray() {
         JSONObject object = MPathUtil.collect(new JSONArray(INPUT_JSON_ARRAY));
-
         JSONArray array = object.getJSONArray("books");
         String bookName = array.getJSONObject(0).getString("name");
         Assert.assertEquals("book1", bookName);

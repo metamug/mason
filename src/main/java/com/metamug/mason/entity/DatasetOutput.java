@@ -13,21 +13,18 @@ import org.json.JSONArray;
  *
  * @author anishhirlekar
  */
-public class DatasetOutput extends JSONOutput {
-    
+public class DatasetOutput extends JSONOutput {    
     public DatasetOutput(Map<String, Object> outputMap) {
         if(outputMap.isEmpty())
             responseJson.put("response", new JSONArray());
         
         for(Map.Entry<String, Object> entry: outputMap.entrySet()){
-            Object obj = entry.getValue();
-            
+            Object obj = entry.getValue();            
             if(obj instanceof ResultImpl){
                 responseJson.append("response",convertSQLResultToDataset((ResultImpl)obj));
             } else{
                 responseJson.append("response",obj);
             }
         }        
-    }      
-      
+    }            
 }
