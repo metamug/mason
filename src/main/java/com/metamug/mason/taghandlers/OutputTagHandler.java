@@ -553,7 +553,7 @@ public class OutputTagHandler extends BodyTagSupport {
         LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String, Object>) value;
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        String header = request.getHeader("Authorization") == null ? "application/json" : request.getHeader("Authorization");
+        String header = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         int count = 0;
 
