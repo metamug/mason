@@ -506,7 +506,9 @@
  */
 package com.metamug.mason.taghandlers;
 
+import com.metamug.mason.entity.DatasetOutput;
 import com.metamug.mason.entity.JSONOutput;
+import static com.metamug.mason.entity.MtgOutput.HEADER_DATASET;
 import static com.metamug.mason.entity.MtgOutput.HEADER_JSON;
 import java.io.IOException;
 import java.util.Arrays;
@@ -731,8 +733,19 @@ public class OutputTagHandler extends BodyTagSupport {
             }
         } //Accept: application/json+dataset
         else if (header != null && Arrays.asList(header.split("/")).contains("json+dataset")) {
-            response.setContentType("application/json+dataset");
-            JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
+            response.setContentType(HEADER_DATASET);
+            if(mtgResultMap.isEmpty()) {
+                response.setStatus(204);
+            } else {
+                DatasetOutput datasetOutput = new DatasetOutput(mtgResultMap);
+                pageContext.setAttribute("Content-Length", datasetOutput.length(), PageContext.REQUEST_SCOPE);
+                try {
+                    out.print(datasetOutput.generateOutputString());
+                } catch (IOException ex) {
+                    Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            /*JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
                 Object mapValue = entry.getValue();
                 if (mapValue instanceof ResultImpl) {
@@ -868,7 +881,7 @@ public class OutputTagHandler extends BodyTagSupport {
                 }
             } catch (IOException ex) {
                 Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            }
+            }*/
         } //Accept: application/json OR default
         else {
             response.setContentType(HEADER_JSON);
