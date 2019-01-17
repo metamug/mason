@@ -50,27 +50,27 @@ public class MtgOutputTest {
         outputMap.put("res4",sampleResult);        
     }
     
-    @Test
-    public void testJsonOutput(){
-        JSONOutput jsonOutput = new JSONOutput(outputMap);
-        System.out.println(jsonOutput.length());
-        JSONArray resArray = new JSONArray(jsonOutput.generateOutputString());
-        System.out.println(resArray.toString());
-    }
     
     @Test
-    public void testJsonDataset(){
-        DatasetOutput datasetOutput = new DatasetOutput(outputMap);
-        System.out.println(datasetOutput.length());
-        JSONArray resArray = new JSONArray(datasetOutput.generateOutputString());
-        System.out.println(resArray.toString());
-    }
-    
-    @Test
-    public void testEmptyJson(){
-        JSONOutput jsonOutput = new JSONOutput(new LinkedHashMap<>());
-        JSONArray resArray = new JSONArray(jsonOutput.generateOutputString());
-        Assert.assertEquals("[]",resArray.toString());
+    public void testOutput(){
+        MtgOutput output = new JSONOutput(new LinkedHashMap<>());
+        Assert.assertEquals("[]", output.toString());
+
+        String dataType = MtgOutput.HEADER_JSON;
+        switch(dataType){
+            case MtgOutput.HEADER_JSON:
+                output = new JSONOutput(outputMap);
+                break;
+            case MtgOutput.HEADER_DATASET:
+                output = new DatasetOutput(outputMap);
+                break;
+            case MtgOutput.HEADER_XML:
+                output = new XMLOutput(outputMap);
+                break;           
+        }
+        
+        System.out.println(output.toString());
+        Assert.assertTrue(output.length()>1);
     }
     
     private SortedMap[] getSampleRows(){
