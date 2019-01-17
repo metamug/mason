@@ -521,6 +521,7 @@ public class JSONOutput extends MtgOutput{
     protected JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
     
     public JSONOutput(Map<String, Object> outputMap){
+    	super(outputMap);
         if(outputMap.isEmpty())
             responseJson.put("response", new JSONArray());
         
@@ -528,17 +529,19 @@ public class JSONOutput extends MtgOutput{
             Object obj = entry.getValue();
             
             if(obj instanceof ResultImpl){
-                responseJson.append("response",convertSQLResultToJson((ResultImpl)obj));
+                responseJson.append("response", getJson((ResultImpl)obj));
             }else{
                 responseJson.append("response",obj);
             }
         }        
     }    
     
-    
+    protected Object getJson(ResultImpl impl){
+    	return resultSetToJson(impl);
+    }
    
     
-    protected JSONArray convertSQLResultToJson(ResultImpl resultImpl){
+    protected JSONArray resultSetToJson(ResultImpl resultImpl){
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
         JSONArray array = new JSONArray();
@@ -567,8 +570,11 @@ public class JSONOutput extends MtgOutput{
         return array;
     }
 
+   
+
     @Override
-    public String generateOutputString() {
-        return responseJson.get("response").toString();
+    public String toString() {
+        output = responseJson.get("response").toString();
+        return output;
     }    
 }

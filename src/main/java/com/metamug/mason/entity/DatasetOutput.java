@@ -18,23 +18,14 @@ import org.json.JSONObject;
 public class DatasetOutput extends JSONOutput {
     
     public DatasetOutput(Map<String, Object> outputMap) {
-        if(outputMap.isEmpty())
-            responseJson.put("response", new JSONArray());
-        
-        for(Map.Entry<String, Object> entry: outputMap.entrySet()){
-            Object obj = entry.getValue();
-            
-            if(obj instanceof ResultImpl){
-                responseJson.append("response",convertSQLResultToJson((ResultImpl)obj));
-            } else{
-                responseJson.append("response",obj);
-            }
-        }        
+        super(outputMap);        
     }      
     
+    protected Object getJson(ResultImpl impl){
+        return resultSetToDataSet(impl);
+    }
     
-    @Override
-    protected JSONObject convertSQLResultToJson(ResultImpl resultImpl){
+    private JSONObject resultSetToDataSet(ResultImpl resultImpl){
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
         JSONObject object = new JSONObject();

@@ -513,19 +513,14 @@ import org.json.XML;
 /**
 * Generic Output Object
 */
-public class XMLOutput extends MtgOutput{
+public class XMLOutput extends JSONOutput{
 
     public XMLOutput(Map<String, Object> outputMap){
-      	
+      	super(outputMap);
     }
-  
-    @Override
-    public String generateOutputString() {
-        throw new UnsupportedOperationException("Not supported yet."); 
-    }
-    
+   
     protected String sQLResultToXml(ResultImpl resultImpl){
-        return XML.toString(convertSQLResultToJson(resultImpl));
+        return XML.toString(resultSetToJson(resultImpl));
     }
   
 }

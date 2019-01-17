@@ -512,22 +512,27 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
+import java.util.Map;
 
 /**
 * Generic Output Object
 */
 public abstract class MtgOutput{
+	
     public static final String HEADER_JSON = "application/json";
     public static final String HEADER_DATASET = "application/json+dataset";    
-    
-    public abstract String generateOutputString();
+    protected String output;
+
+    public MtgOutput(Map<String, Object> outputMap){
+    }
+
     
     /**
     * Get Content Length
     * @return int 
     */
     public int length(){
-        return generateOutputString().length();
+        return output.length();
     } 
     
 }

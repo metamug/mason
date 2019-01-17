@@ -508,6 +508,7 @@ package com.metamug.mason.taghandlers;
 
 import com.metamug.mason.entity.DatasetOutput;
 import com.metamug.mason.entity.JSONOutput;
+import com.metamug.mason.entity.MtgOutput;
 import static com.metamug.mason.entity.MtgOutput.HEADER_DATASET;
 import static com.metamug.mason.entity.MtgOutput.HEADER_JSON;
 import java.io.IOException;
@@ -737,10 +738,10 @@ public class OutputTagHandler extends BodyTagSupport {
             if(mtgResultMap.isEmpty()) {
                 response.setStatus(204);
             } else {
-                DatasetOutput datasetOutput = new DatasetOutput(mtgResultMap);
+                MtgOutput datasetOutput = new DatasetOutput(mtgResultMap);
                 pageContext.setAttribute("Content-Length", datasetOutput.length(), PageContext.REQUEST_SCOPE);
                 try {
-                    out.print(datasetOutput.generateOutputString());
+                    out.print(datasetOutput.toString());
                 } catch (IOException ex) {
                     Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -888,10 +889,10 @@ public class OutputTagHandler extends BodyTagSupport {
             if(mtgResultMap.isEmpty()) {
                 response.setStatus(204);
             } else {
-                JSONOutput jsonOutput = new JSONOutput(mtgResultMap);
+                MtgOutput jsonOutput = new JSONOutput(mtgResultMap);
                 pageContext.setAttribute("Content-Length", jsonOutput.length(), PageContext.REQUEST_SCOPE);
                 try {
-                    out.print(jsonOutput.generateOutputString());
+                    out.print(jsonOutput.toString());
                 } catch (IOException ex) {
                     Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
