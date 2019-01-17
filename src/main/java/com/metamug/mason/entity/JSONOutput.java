@@ -506,8 +506,10 @@
  */
 package com.metamug.mason.entity;
 
+import com.metamug.mason.io.mpath.MPathUtil;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -517,9 +519,6 @@ import org.json.JSONObject;
 */
 public class JSONOutput extends MtgOutput{
     protected JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
-    
-    public JSONOutput(){     
-    }
     
     public JSONOutput(Map<String, Object> outputMap){
         if(outputMap.isEmpty())
@@ -534,7 +533,39 @@ public class JSONOutput extends MtgOutput{
                 responseJson.append("response",obj);
             }
         }        
-    }      
+    }    
+    
+    
+   
+    
+    protected JSONArray convertSQLResultToJson(ResultImpl resultImpl){
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
+        JSONArray array = new JSONArray();
+        for (SortedMap row : rows) {
+            JSONObject rowJson = new JSONObject();
+            for (int i = 0; i < columnNames.length; i++) {
+                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
+                /*if (entry.getKey().startsWith("p")) {
+                    params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
+                }*/
+            }
+            if (rowJson.length() > 0) {
+                array.put(rowJson);
+            }
+        }
+      // if (array.length() > 0) {
+      //     if (entry.getKey().startsWith("d")) {
+      //        	if (entry.getKey().startsWith("c")) {
+      //             responseJson.put("response", MPathUtil.collect(array));
+      //         } else {
+      //             responseJson.put("response", array);
+      //         }
+      //     }
+      // }
+        return array;
+    }
 
     @Override
     public String generateOutputString() {

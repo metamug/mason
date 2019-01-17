@@ -528,61 +528,6 @@ public abstract class MtgOutput{
     */
     public int length(){
         return generateOutputString().length();
-    }
-    
-    protected String convertSQLResultToXml(ResultImpl resultImpl){
-        return XML.toString(convertSQLResultToJson(resultImpl));
     } 
     
-    protected JSONObject convertSQLResultToDataset(ResultImpl resultImpl){
-        SortedMap[] rows = resultImpl.getRows();
-        String[] columnNames = resultImpl.getColumnNames();
-        JSONObject object = new JSONObject();
-        JSONArray columnArray = new JSONArray();
-        for (int i = 0; i < columnNames.length; i++) {
-            String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-            columnArray.put(columnName);
-        }
-        object.put("columns", columnArray);
-        JSONArray dataSetArray = new JSONArray();
-        for (SortedMap row : rows) {
-            JSONArray rowArray = new JSONArray();
-            for (int i = 0; i < columnNames.length; i++) {
-                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                rowArray.put((row.get(columnName) != null) ? row.get(columnName) : "null");
-            }
-            dataSetArray.put(rowArray);
-        }
-        object.put("dataset", dataSetArray);
-        return object;
-    }
-    
-    protected JSONArray convertSQLResultToJson(ResultImpl resultImpl){
-        SortedMap[] rows = resultImpl.getRows();
-        String[] columnNames = resultImpl.getColumnNames();
-        JSONArray array = new JSONArray();
-        for (SortedMap row : rows) {
-            JSONObject rowJson = new JSONObject();
-            for (int i = 0; i < columnNames.length; i++) {
-                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
-                /*if (entry.getKey().startsWith("p")) {
-                    params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
-                }*/
-            }
-            if (rowJson.length() > 0) {
-                array.put(rowJson);
-            }
-        }
-      // if (array.length() > 0) {
-      //     if (entry.getKey().startsWith("d")) {
-      //        	if (entry.getKey().startsWith("c")) {
-      //             responseJson.put("response", MPathUtil.collect(array));
-      //         } else {
-      //             responseJson.put("response", array);
-      //         }
-      //     }
-      // }
-        return array;
-    }
 }

@@ -507,6 +507,8 @@
 package com.metamug.mason.entity;
 
 import java.util.Map;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.XML;
 
 /**
 * Generic Output Object
@@ -520,6 +522,10 @@ public class XMLOutput extends MtgOutput{
     @Override
     public String generateOutputString() {
         throw new UnsupportedOperationException("Not supported yet."); 
+    }
+    
+    protected String sQLResultToXml(ResultImpl resultImpl){
+        return XML.toString(convertSQLResultToJson(resultImpl));
     }
   
 }
