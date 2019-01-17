@@ -506,83 +506,29 @@
  */
 package com.metamug.mason.entity;
 
-import com.metamug.mason.io.mpath.MPathUtil;
-import java.util.SortedMap;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.XML;
+import java.util.Map;
 
 /**
-* Generic Output Object
-*/
-public abstract class MtgOutput{
+ * Generic Output Object
+ */
+public abstract class MasonOutput {
+
     public static final String HEADER_JSON = "application/json";
-    public static final String HEADER_DATASET = "application/json+dataset";    
-    
-    public abstract String generateOutputString();
-    
+    public static final String HEADER_DATASET = "application/json+dataset";
+    public static final String HEADER_XML = "application/xml";
+
+    protected String output;
+
+    public MasonOutput(Map<String, Object> outputMap) {
+    }
+
     /**
-    * Get Content Length
-    * @return int 
-    */
-    public int length(){
-        return generateOutputString().length();
+     * Get Content Length
+     *
+     * @return int
+     */
+    public int length() {
+        return output.length();
     }
-    
-    protected String convertSQLResultToXml(ResultImpl resultImpl){
-        return XML.toString(convertSQLResultToJson(resultImpl));
-    } 
-    
-    protected JSONObject convertSQLResultToDataset(ResultImpl resultImpl){
-        SortedMap[] rows = resultImpl.getRows();
-        String[] columnNames = resultImpl.getColumnNames();
-        JSONObject object = new JSONObject();
-        JSONArray columnArray = new JSONArray();
-        for (int i = 0; i < columnNames.length; i++) {
-            String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-            columnArray.put(columnName);
-        }
-        object.put("columns", columnArray);
-        JSONArray dataSetArray = new JSONArray();
-        for (SortedMap row : rows) {
-            JSONArray rowArray = new JSONArray();
-            for (int i = 0; i < columnNames.length; i++) {
-                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                rowArray.put((row.get(columnName) != null) ? row.get(columnName) : "null");
-            }
-            dataSetArray.put(rowArray);
-        }
-        object.put("dataset", dataSetArray);
-        return object;
-    }
-    
-    protected JSONArray convertSQLResultToJson(ResultImpl resultImpl){
-        SortedMap[] rows = resultImpl.getRows();
-        String[] columnNames = resultImpl.getColumnNames();
-        JSONArray array = new JSONArray();
-        for (SortedMap row : rows) {
-            JSONObject rowJson = new JSONObject();
-            for (int i = 0; i < columnNames.length; i++) {
-                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
-                /*if (entry.getKey().startsWith("p")) {
-                    params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
-                }*/
-            }
-            if (rowJson.length() > 0) {
-                array.put(rowJson);
-            }
-        }
-      // if (array.length() > 0) {
-      //     if (entry.getKey().startsWith("d")) {
-      //        	if (entry.getKey().startsWith("c")) {
-      //             responseJson.put("response", MPathUtil.collect(array));
-      //         } else {
-      //             responseJson.put("response", array);
-      //         }
-      //     }
-      // }
-        return array;
-    }
+
 }

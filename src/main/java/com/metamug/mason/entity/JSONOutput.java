@@ -506,38 +506,79 @@
  */
 package com.metamug.mason.entity;
 
+import com.metamug.mason.io.mpath.MPathUtil;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
-* Generic Output Object
-*/
-public class JSONOutput extends MtgOutput{
+ * Generic Output Object
+ */
+public class JSONOutput extends MasonOutput {
+
     protected JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
-    
-    public JSONOutput(){     
-    }
-    
-    public JSONOutput(Map<String, Object> outputMap){
-        if(outputMap.isEmpty())
+
+    public JSONOutput(Map<String, Object> outputMap) {
+        super(outputMap);
+        if (outputMap.isEmpty()) {
             responseJson.put("response", new JSONArray());
-        
-        for(Map.Entry<String, Object> entry: outputMap.entrySet()){
+        }
+
+        for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
             Object obj = entry.getValue();
-            
-            if(obj instanceof ResultImpl){
-                responseJson.append("response",convertSQLResultToJson((ResultImpl)obj));
-            }else{
-                responseJson.append("response",obj);
+
+            if (obj instanceof ResultImpl) {
+                responseJson.append("response", getJson((ResultImpl) obj));
+            } else {
+                responseJson.append("response", obj);
             }
-        }        
-    }      
+        }
+    }
+
+    protected Object getJson(ResultImpl impl) {
+        return resultSetToJson(impl);
+    }
+
+    protected JSONArray resultSetToJson(ResultImpl resultImpl) {
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
+        JSONArray array = new JSONArray();
+        for (SortedMap row : rows) {
+            JSONObject rowJson = new JSONObject();
+            for (int i = 0; i < columnNames.length; i++) {
+                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
+                /*if (entry.getKey().startsWith("p")) {
+                    params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
+                }*/
+            }
+            if (rowJson.length() > 0) {
+                array.put(rowJson);
+            }
+        }
+        // if (array.length() > 0) {
+        //     if (entry.getKey().startsWith("d")) {
+        //        	if (entry.getKey().startsWith("c")) {
+        //             responseJson.put("response", MPathUtil.collect(array));
+        //         } else {
+        //             responseJson.put("response", array);
+        //         }
+        //     }
+        // }
+        return array;
+    }
 
     @Override
-    public String generateOutputString() {
-        return responseJson.get("response").toString();
-    }    
+    public String toString() {
+        output = responseJson.get("response").toString();
+        return output;
+    }
+
+    JSONTokener generateOutputString() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

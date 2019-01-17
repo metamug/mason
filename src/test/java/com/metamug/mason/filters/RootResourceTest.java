@@ -699,13 +699,13 @@ public class RootResourceTest {
     private ConnectionProvider provider;
     @Mock
     Connection connection;
-    
+
     @Mock
     private PreparedStatement statement;
-    
+
     @Mock
     private ResultSet resultSet;
-    
+
     @Before
     public void setUp() {
         request = mock(HttpServletRequest.class);
@@ -741,7 +741,7 @@ public class RootResourceTest {
             when(resultSet.getString("auth_query")).thenReturn("some query mocked");
             when(resultSet.getString(1)).thenReturn("1234");
             when(resultSet.getString(2)).thenReturn("admin");
-            
+
             RootResource root = new RootResource();
             root.processAuth(request, response, new AuthService(new AuthDAO(provider)));
             //verify(statement.executeQuery())

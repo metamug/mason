@@ -507,19 +507,24 @@
 package com.metamug.mason.entity;
 
 import java.util.Map;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.XML;
 
 /**
-* Generic Output Object
-*/
-public class XMLOutput extends MtgOutput{
+ * Generic Output Object
+ */
+public class XMLOutput extends JSONOutput {
 
-    public XMLOutput(Map<String, Object> outputMap){
-      	
+    public XMLOutput(Map<String, Object> outputMap) {
+        super(outputMap);
     }
-  
-    @Override
-    public String generateOutputString() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+
+    protected void SqlResultToXml(ResultImpl resultImpl) {
+        StringBuilder xmlBuilder = new StringBuilder();
+        xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        xmlBuilder.append("<response>");
+        xmlBuilder.append(XML.toString(resultSetToJson(resultImpl)));
+        xmlBuilder.append("</response>");
+        output = xmlBuilder.toString();
     }
-  
 }
