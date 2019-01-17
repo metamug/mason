@@ -543,41 +543,21 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         String header = request.getHeader("Authorization");
+        MtgRequest mtg = (MtgRequest) request.getAttribute("mtgReq");
         try {
-            if (header != null) {
-                if (header.contains("Basic ")) {
-                    String authHeader = header.replaceFirst("Basic ", "");
-                    String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
-                    String[] split = userCred.split(":");
-                    if (split.length > 1 && !split[0].isEmpty() && !split[1].isEmpty()) {
-                        JSONObject status = validateBasic(split[0].trim(), split[1]);
-                        switch (status.getInt("status")) {
-                            case -1:
-                                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-                            case 0:
-                                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
-                            case 1:
-                                mtg.setUid(String.valueOf(status.getInt("user_id")));
-                                pageContext.getRequest().setAttribute("mtgReq", mtg);
-                                break;
-                        }
-                    } else {
-                        throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-                    }
-                } else if (header.contains("Bearer ")) {
-                    String authHeader = header.replaceFirst("Bearer ", "");
-                    String bearerToken = new String(Base64.getDecoder().decode(authHeader.getBytes()));
-                    //check jwt format
-                    //validateJwt - check aud against val, exp
-                    String userId = validateBearer(bearerToken.trim());
-                    mtg.setUid(userId);
-                    pageContext.getRequest().setAttribute("mtgReq", mtg);
-
-                } else {
-                    throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-                }
+            if (header == null) {
+                throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            }
+            if (header.contains("Basic ")) {
+                mtg.setUid(validateBasic(header));
+            } else if (header.contains("Bearer ")) {
+                String bearerToken = header.replaceFirst("Bearer ", "");
+                //check jwt format
+                //validateJwt - check aud against val, exp
+                mtg.setUid(validateBearer(bearerToken.trim()));
+                //@TODO why set mtgReq again.
+                //pageContext.getRequest().setAttribute("mtgReq", mtg);
             } else {
                 throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
@@ -606,8 +586,8 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
         status.put("status", 0);
         return status;
     }*/
-    private JSONObject validateBasic(String userName, String password) {
-        return authService.validateBasic(userName, password, value);
+    private String validateBasic(String header) throws JspException {
+        return authService.validateBasic(header, value);
     }
 
     private String validateBearer(String bearerToken) throws JspException {

@@ -510,9 +510,16 @@ import com.metamug.mason.common.JWebToken;
 import com.metamug.mason.daos.AuthDAO;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
+import java.util.Base64;
 
 /**
  *
@@ -520,14 +527,44 @@ import org.json.JSONObject;
  */
 public class AuthService {
 
-    private final AuthDAO dao;
+    private AuthDAO dao;
 
     public AuthService() {
-        this.dao = new AuthDAO();
+        try {
+            this.dao = new AuthDAO(ConnectionProvider.getInstance());
+        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
+            this.dao = null;
+        }
+    }
+    
+    public AuthService(AuthDAO dao) {
+        this.dao = dao;
     }
 
-    public JSONObject validateBasic(String userName, String password, String roleName) {
-        return dao.validateBasic(userName, password, roleName);
+    public String validateBasic(String header, String roleName) throws JspException{
+
+    	String authHeader = header.replaceFirst("Basic ", "");
+        
+        String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
+        String[] split = userCred.split(":");
+        String user = split[0], password = split[1];
+
+        if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
+        	throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+        }
+
+        JSONObject status = dao.validateBasic(user, password, roleName);
+        switch (status.getInt("status")) {
+            case -1:
+                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            case 0:
+                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
+            case 1:
+                return status.getString("user_id");
+        }
+
+        return null;
     }
 
     /**
@@ -539,23 +576,18 @@ public class AuthService {
      * @throws javax.servlet.jsp.JspException
      */
     public String validateBearer(String bearerToken, String roleName) throws JspException {
-
         try {
             //verify and use
             JWebToken incomingToken = new JWebToken(bearerToken);
-
             if (!incomingToken.isValid()) {
-                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
-
             if (!roleName.equals(incomingToken.getAudience())) {
-                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
-
             return (incomingToken.getSubject());
-
         } catch (NoSuchAlgorithmException ex) {
-            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
+            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
         }
     }
 
@@ -567,7 +599,7 @@ public class AuthService {
      * @return
      */
     public String createBearer(String user, String pass) {
-        JSONObject payload = dao.getBearDetails(user, pass);
+        JSONObject payload = dao.getBearerDetails(user, pass);
         String token = new JWebToken(payload).toString();
         return token;
     }

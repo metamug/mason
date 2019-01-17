@@ -513,6 +513,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
@@ -562,7 +563,8 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         //Accept header of mtg request
-        String acceptHeader = (String) type == null ? "application/json" : (String) type;
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String acceptHeader = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
         //Accept type of XRequest
         String xAcceptType = "json";
         for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -596,7 +598,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
         //if Accept header "application/xml"
         if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
-            String xResponseXml = null;
+            String xResponseXml;
             if (xAcceptType.equals("xml")) {
                 xResponseXml = xresponse.getXmlForXmlXResponse();
             } else {
@@ -614,7 +616,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
         } else {
             //if Accept header "application/json"
-            JSONObject xResponseJson = null;
+            JSONObject xResponseJson;
             if (xAcceptType.equals("xml")) {
                 xResponseJson = xresponse.getJsonForXmlXResponse();
             } else {

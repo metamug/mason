@@ -551,6 +551,11 @@ public class JWebToken {
         signature = hmacSha256(encodedHeader + "." + encode(payload));
     }
 
+    /**
+    * For verification 
+     * @param token
+     * @throws java.security.NoSuchAlgorithmException
+    */
     public JWebToken(String token) throws NoSuchAlgorithmException {
         this();
         String[] parts = token.split("\\.");
@@ -579,8 +584,8 @@ public class JWebToken {
     }
 
     public boolean isValid() {
-        return payload.getLong("exp") > System.currentTimeMillis() //token not expired
-                && signature.equals(hmacSha256(encodedHeader + "." + payload)); //signature matched
+        return payload.getLong("exp") > (System.currentTimeMillis()/1000) //token not expired
+                && signature.equals(hmacSha256(encodedHeader + "." + encode(payload))); //signature matched
     }
 
     public String getSubject() {

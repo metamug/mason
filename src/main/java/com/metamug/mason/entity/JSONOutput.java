@@ -1,4 +1,4 @@
-   /*
+/*
  *                   GNU LESSER GENERAL PUBLIC LICENSE
  *                        Version 2.1, February 1999
  *
@@ -504,61 +504,82 @@
  *
  * That's all there is to it!
  */
+package com.metamug.mason.entity;
 
-package com.metamug.mason.common;
-
+import com.metamug.mason.io.mpath.MPathUtil;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
- * Immutable version of Mason Request Object using Decorator Pattern
- * @author user
- */
-public final class ImmutableMtgRequest extends MtgRequest{
+* Generic Output Object
+*/
+public class JSONOutput extends MtgOutput{
+    protected JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
     
-    public ImmutableMtgRequest(MtgRequest mtgReq) {
-        super(mtgReq);
+    public JSONOutput(Map<String, Object> outputMap){
+    	super(outputMap);
+        if(outputMap.isEmpty())
+            responseJson.put("response", new JSONArray());
+        
+        for(Map.Entry<String, Object> entry: outputMap.entrySet()){
+            Object obj = entry.getValue();
+            
+            if(obj instanceof ResultImpl){
+                responseJson.append("response", getJson((ResultImpl)obj));
+            }else{
+                responseJson.append("response",obj);
+            }
+        }        
+    }    
+    
+    protected Object getJson(ResultImpl impl){
+    	return resultSetToJson(impl);
+    }
+   
+    
+    protected JSONArray resultSetToJson(ResultImpl resultImpl){
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
+        JSONArray array = new JSONArray();
+        for (SortedMap row : rows) {
+            JSONObject rowJson = new JSONObject();
+            for (int i = 0; i < columnNames.length; i++) {
+                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
+                /*if (entry.getKey().startsWith("p")) {
+                    params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
+                }*/
+            }
+            if (rowJson.length() > 0) {
+                array.put(rowJson);
+            }
+        }
+      // if (array.length() > 0) {
+      //     if (entry.getKey().startsWith("d")) {
+      //        	if (entry.getKey().startsWith("c")) {
+      //             responseJson.put("response", MPathUtil.collect(array));
+      //         } else {
+      //             responseJson.put("response", array);
+      //         }
+      //     }
+      // }
+        return array;
     }
 
-    @Override
-    public void setUri(String uri) {
-        throw new UnsupportedOperationException();
-    }
+   
 
     @Override
-    public void setId(String id) {
-        throw new UnsupportedOperationException();
-    }
+    public String toString() {
+        output = responseJson.get("response").toString();
+        return output;
+    }    
 
-    @Override
-    public void setPid(String pid) {
-        throw new UnsupportedOperationException();
-    }
-
-    //uid can be set, this is used for auth purpose
-    @Override
-    public void setUid(String uid) {
-        super.setUid(uid);
-    }
-
-    @Override
-    public void setMethod(String method) {
-        throw new UnsupportedOperationException();
-    } 
-
-    @Override
-    public void setParams(Map<String, String> params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setStatusCode(int statusCode) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setParent(String parent) {
-        throw new UnsupportedOperationException();
+    JSONTokener generateOutputString() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
-
-

@@ -545,12 +545,10 @@ import org.json.JSONObject;
 public class RestRouterFilter implements Filter {
 
     private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
-
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
-            + "webapps" + File.separator;
-
+                                        + "webapps" + File.separator;
     private FilterConfig filterConfig = null;
     private String encoding;
 
@@ -570,21 +568,17 @@ public class RestRouterFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-
         //Setting character encoding
         if (null == request.getCharacterEncoding()) {
             request.setCharacterEncoding(encoding);
         }
         String path = req.getServletPath();
-        String[] tokens = path.split("/");
-
-        if (tokens.length <= 2 || req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
+        String[] tokens = path.split("/");        
+        if (tokens.length <= 2 || req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {            
             chain.doFilter(request, response); //TODO add comment here for this case
             return;
         }
-
         processRequest(req, res, tokens);
-
     }
 
     private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {

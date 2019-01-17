@@ -507,16 +507,15 @@
 package com.metamug.mason.daos;
 
 import com.metamug.mason.services.ConnectionProvider;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.NamingException;
 import org.json.JSONObject;
 
 /**
@@ -524,11 +523,18 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 public class AuthDAO {
+    
+    ConnectionProvider provider;
+
+    public AuthDAO(ConnectionProvider provider) {
+        this.provider = provider;
+    }
+   
 
     public JSONObject validateBasic(String userName, String password, String roleName) {
         JSONObject status = new JSONObject();
         status.put("status", 0);
-        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
+        try (Connection con = provider.getConnection()) {
             String authQuery = getConfigValue(con, "Basic");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
@@ -548,17 +554,17 @@ public class AuthDAO {
             } else {
                 status.put("status", -1);
             }
-        } catch (SQLException | IOException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return status;
     }
 
-    public JSONObject getBearDetails(String user, String pass) {
+    public JSONObject getBearerDetails(String user, String pass) {
         JSONObject jwtPayload = new JSONObject();
         jwtPayload.put("status", 0);
-        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
-            String authQuery = getConfigValue(con, "JWT");
+        try (Connection con = provider.getConnection()) {
+            String authQuery = getConfigValue(con, "Bearer");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, user);
@@ -567,12 +573,13 @@ public class AuthDAO {
                         while (basicResult.next()) {
                             jwtPayload.put("sub", basicResult.getString(1));
                             jwtPayload.put("aud", basicResult.getString(2));
-                            jwtPayload.put("exp", LocalDate.now().plusDays(90).toEpochDay()); //thsi needs to be configured
+                            LocalDateTime ldt = LocalDateTime.now().plusDays(90);
+                            jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //thsi needs to be configured
                         }
                     }
                 }
             }
-        } catch (SQLException | IOException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return jwtPayload;

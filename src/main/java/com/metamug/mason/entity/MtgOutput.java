@@ -1,4 +1,4 @@
-   /*
+/*
  *                   GNU LESSER GENERAL PUBLIC LICENSE
  *                        Version 2.1, February 1999
  *
@@ -504,61 +504,35 @@
  *
  * That's all there is to it!
  */
+package com.metamug.mason.entity;
 
-package com.metamug.mason.common;
-
+import com.metamug.mason.io.mpath.MPathUtil;
+import java.util.SortedMap;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.XML;
 import java.util.Map;
 
 /**
- * Immutable version of Mason Request Object using Decorator Pattern
- * @author user
- */
-public final class ImmutableMtgRequest extends MtgRequest{
+* Generic Output Object
+*/
+public abstract class MtgOutput{
+	
+    public static final String HEADER_JSON = "application/json";
+    public static final String HEADER_DATASET = "application/json+dataset";    
+    protected String output;
+
+    public MtgOutput(Map<String, Object> outputMap){
+    }
+
     
-    public ImmutableMtgRequest(MtgRequest mtgReq) {
-        super(mtgReq);
-    }
-
-    @Override
-    public void setUri(String uri) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setId(String id) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setPid(String pid) {
-        throw new UnsupportedOperationException();
-    }
-
-    //uid can be set, this is used for auth purpose
-    @Override
-    public void setUid(String uid) {
-        super.setUid(uid);
-    }
-
-    @Override
-    public void setMethod(String method) {
-        throw new UnsupportedOperationException();
+    /**
+    * Get Content Length
+    * @return int 
+    */
+    public int length(){
+        return output.length();
     } 
-
-    @Override
-    public void setParams(Map<String, String> params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setStatusCode(int statusCode) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setParent(String parent) {
-        throw new UnsupportedOperationException();
-    }
+    
 }
-
-
