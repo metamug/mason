@@ -537,7 +537,7 @@ public class JSONOutput extends MtgOutput{
     }      
 
     @Override
-    protected String generateOutputString() {
+    public String generateOutputString() {
         return responseJson.get("response").toString();
     }    
 }

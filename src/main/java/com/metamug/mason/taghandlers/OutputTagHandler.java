@@ -506,10 +506,10 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.io.mpath.MPathUtil;
+import com.metamug.mason.entity.JSONOutput;
+import static com.metamug.mason.entity.MtgOutput.HEADER_JSON;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -553,7 +553,7 @@ public class OutputTagHandler extends BodyTagSupport {
         LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String, Object>) value;
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        String header = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
+        String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         int count = 0;
 
@@ -871,8 +871,19 @@ public class OutputTagHandler extends BodyTagSupport {
             }
         } //Accept: application/json OR default
         else {
-            response.setContentType("application/json");
-            JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
+            response.setContentType(HEADER_JSON);
+            if(mtgResultMap.isEmpty()) {
+                response.setStatus(204);
+            } else {
+                JSONOutput jsonOutput = new JSONOutput(mtgResultMap);
+                pageContext.setAttribute("Content-Length", jsonOutput.length(), PageContext.REQUEST_SCOPE);
+                try {
+                    out.print(jsonOutput.generateOutputString());
+                } catch (IOException ex) {
+                    Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            /*JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
             for (Map.Entry<String, Object> entry : mtgResultMap.entrySet()) {
                 Object mapValue = entry.getValue();
                 if (mapValue instanceof ResultImpl) {
@@ -1014,6 +1025,7 @@ public class OutputTagHandler extends BodyTagSupport {
             } catch (IOException ex) {
                 Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
+            */
         }
         return EVAL_PAGE;
     }

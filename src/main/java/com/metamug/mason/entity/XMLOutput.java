@@ -517,47 +517,9 @@ public class XMLOutput extends MtgOutput{
       	
     }
   
-  /*
-  @Override
-  public String processJSONObject(JSONObject obj){
-  	return null;
-  }
-  
-  @Override
-  public String processJSONArray(JSONArray obj){
-  	return null;
-  }
-  
-  @Override
-  public String processString(String obj){
-  	return null;
-  }
-  
-  @Override
-  public String processSQLResult(ResultImpl obj){
-  	return null;
-  }
-
-  
-  @Override
-  public String singleObjectWrapper(StringBuilder builder){
-  	return null;
-  }
-  
-  @Override
-  public String multipleObjectWrapper(StringBuilder builder){
-  	return null;
-  }
-  
-  
-  @Override
-  public String emptyResponse(StringBuilder builder){
-  	return null;
-  }*/
-
     @Override
-    protected String generateOutputString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String generateOutputString() {
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
   
 }

@@ -517,8 +517,10 @@ import org.json.XML;
 * Generic Output Object
 */
 public abstract class MtgOutput{
-     
-    protected abstract String generateOutputString();
+    public static final String HEADER_JSON = "application/json";
+    public static final String HEADER_DATASET = "application/json+dataset";    
+    
+    public abstract String generateOutputString();
     
     /**
     * Get Content Length
@@ -583,33 +585,4 @@ public abstract class MtgOutput{
       // }
         return array;
     }
-/*
-    @Override
-    public String toString(){
-
-        if(outputMap.isEmpty()){
-            return emptyResponse(builder);
-        }
-
-        for(Map.Entry<String, Object> entry: outputMap.entrySet()){
-            Object obj = entry.getValue();
-            if(obj instanceof JSONObject){
-                builder.append(processJSONObject((JSONObject)obj));
-            }else if(obj instanceof JSONArray){
-                builder.append(processJSONArray((JSONArray)obj));
-            }else if(obj instanceof String){
-                builder.append(processString((String)obj));
-            }else if(obj instanceof ResultImpl){
-                builder.append(processSQLResult((ResultImpl)obj));
-            }    
-        }
-
-        if(outputMap.size() > 1){
-            multipleObjectWrapper(builder);
-        }else if(outputMap.size() == 1){
-            singleObjectWrapper(builder);
-        }
-
-        return builder.toString(); 
-    }*/
 }
