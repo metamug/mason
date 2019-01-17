@@ -519,8 +519,13 @@ public class XMLOutput extends JSONOutput{
       	super(outputMap);
     }
    
-    protected String sQLResultToXml(ResultImpl resultImpl){
-        return XML.toString(resultSetToJson(resultImpl));
+    protected void sQLResultToXml(ResultImpl resultImpl){
+    	StringBuilder xmlBuilder = new StringBuilder();
+        xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        xmlBuilder.append("<response>"); 
+        xmlBuilder.append(XML.toString(resultSetToJson(resultImpl)));
+        xmlBuilder.append("</response>"); 
+        output = xmlBuilder.toString();
     }
   
 }
