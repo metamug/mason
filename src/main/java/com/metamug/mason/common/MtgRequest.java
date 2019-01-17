@@ -521,10 +521,11 @@ public class MtgRequest {
 
     public MtgRequest() {
     }
-    
+
     /**
      * Copy Constructor
-     * @param request 
+     *
+     * @param request
      */
     public MtgRequest(MtgRequest request) {
         this.uri = request.uri;
@@ -536,7 +537,7 @@ public class MtgRequest {
         this.statusCode = request.statusCode;
         this.params = request.params;
     }
-        
+
     public MtgRequest(String uri, String id, String method, Map<String, String> map) {
         this.uri = uri;
         this.id = id;
@@ -587,10 +588,11 @@ public class MtgRequest {
     public Map<String, String> getParams() {
         return params;
     }
-    
+
     /**
      * To make the request parameters immutable
-     * @param params 
+     *
+     * @param params
      */
     public void setParams(Map<String, String> params) {
         this.params = Collections.unmodifiableMap(params);

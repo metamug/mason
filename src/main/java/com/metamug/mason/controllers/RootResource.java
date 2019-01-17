@@ -479,28 +479,20 @@
  * <one line to give the library's name and a brief idea of what it does.>
  * Copyright (C) <year>  <name of author>
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
  * Also add information on how to contact you by electronic and paper mail.
  *
- * You should also get your employer (if you work as a programmer) or your
- * school, if any, to sign a "copyright disclaimer" for the library, if
- * necessary. Here is a sample; alter * the names:
+ * You should also get your employer (if you work as a programmer) or your school, if any, to sign a "copyright disclaimer" for the library, if necessary. Here is a sample; alter * the names:
  *
- * Yoyodyne, Inc., hereby disclaims all copyright interest in the library `Frob'
- * (a library for tweaking knobs) written by James Random Hacker.
+ * Yoyodyne, Inc., hereby disclaims all copyright interest in the library `Frob' (a library for tweaking knobs) written by James Random Hacker.
  *
  * <signature of Ty Coon>, 1 April 1990 Ty Coon, President of Vice
  *
@@ -527,8 +519,8 @@ import org.json.JSONObject;
  */
 @WebServlet(name = "RootResource", urlPatterns = {"/"})
 public class RootResource extends HttpServlet {
-    
-    public RootResource(){
+
+    public RootResource() {
     }
 
     @Override
@@ -561,9 +553,9 @@ public class RootResource extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-         processAuth(request, response, new AuthService());
+        processAuth(request, response, new AuthService());
     }
-    
+
     public void processAuth(HttpServletRequest request, HttpServletResponse response, AuthService service) throws ServletException, IOException {
         String contentType = request.getHeader("Accept");
         String token = null;
@@ -589,5 +581,5 @@ public class RootResource extends HttpServlet {
         }
 
     }
-    
+
 }

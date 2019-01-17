@@ -513,35 +513,37 @@ import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
-* Generic Output Object
-*/
-public class JSONOutput extends MtgOutput{
+ * Generic Output Object
+ */
+public class JSONOutput extends MtgOutput {
+
     protected JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
-    
-    public JSONOutput(Map<String, Object> outputMap){
-    	super(outputMap);
-        if(outputMap.isEmpty())
+
+    public JSONOutput(Map<String, Object> outputMap) {
+        super(outputMap);
+        if (outputMap.isEmpty()) {
             responseJson.put("response", new JSONArray());
-        
-        for(Map.Entry<String, Object> entry: outputMap.entrySet()){
+        }
+
+        for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
             Object obj = entry.getValue();
-            
-            if(obj instanceof ResultImpl){
-                responseJson.append("response", getJson((ResultImpl)obj));
-            }else{
-                responseJson.append("response",obj);
+
+            if (obj instanceof ResultImpl) {
+                responseJson.append("response", getJson((ResultImpl) obj));
+            } else {
+                responseJson.append("response", obj);
             }
-        }        
-    }    
-    
-    protected Object getJson(ResultImpl impl){
-    	return resultSetToJson(impl);
+        }
     }
-   
-    
-    protected JSONArray resultSetToJson(ResultImpl resultImpl){
+
+    protected Object getJson(ResultImpl impl) {
+        return resultSetToJson(impl);
+    }
+
+    protected JSONArray resultSetToJson(ResultImpl resultImpl) {
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
         JSONArray array = new JSONArray();
@@ -558,23 +560,25 @@ public class JSONOutput extends MtgOutput{
                 array.put(rowJson);
             }
         }
-      // if (array.length() > 0) {
-      //     if (entry.getKey().startsWith("d")) {
-      //        	if (entry.getKey().startsWith("c")) {
-      //             responseJson.put("response", MPathUtil.collect(array));
-      //         } else {
-      //             responseJson.put("response", array);
-      //         }
-      //     }
-      // }
+        // if (array.length() > 0) {
+        //     if (entry.getKey().startsWith("d")) {
+        //        	if (entry.getKey().startsWith("c")) {
+        //             responseJson.put("response", MPathUtil.collect(array));
+        //         } else {
+        //             responseJson.put("response", array);
+        //         }
+        //     }
+        // }
         return array;
     }
-
-   
 
     @Override
     public String toString() {
         output = responseJson.get("response").toString();
         return output;
-    }    
+    }
+
+    JSONTokener generateOutputString() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
