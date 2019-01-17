@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
  *
  * @author anishhirlekar
  */
-public class MtgOutputTest {
+public class MasonOutputTest {
 
     private Map<String, Object> outputMap;
     private final String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
@@ -55,7 +55,7 @@ public class MtgOutputTest {
     public void testJson(){
         String dataType = MasonOutput.HEADER_JSON;
         MasonOutput output = getOutput(dataType);
-        System.out.println(output.toString());
+        System.out.println("JSON: "+output.toString());
         Assert.assertTrue(output.length()>1);
     }
 
@@ -63,7 +63,7 @@ public class MtgOutputTest {
     public void testDataSet(){
         String dataType = MasonOutput.HEADER_DATASET;
         MasonOutput output = getOutput(dataType);
-        System.out.println(output.toString());
+        System.out.println("DATASET: "+output.toString());
         Assert.assertTrue(output.length()>1);
     }
 
@@ -71,7 +71,7 @@ public class MtgOutputTest {
     public void testXml(){
         String dataType = MasonOutput.HEADER_XML;
         MasonOutput output = getOutput(dataType);
-        System.out.println(output.toString());
+        System.out.println("XML: "+output.toString());
         Assert.assertTrue(output.length()>1);
     }
 
