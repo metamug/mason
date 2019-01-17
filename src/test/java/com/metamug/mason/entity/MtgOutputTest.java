@@ -52,9 +52,9 @@ public class MtgOutputTest {
     
     
     @Test
-    public void testJsonDataset(){
-        MtgOutput jsonOutput = new JSONOutput(new LinkedHashMap<>());
-        Assert.assertEquals("[]", jsonOutput.toString());
+    public void testOutput(){
+        MtgOutput output = new JSONOutput(new LinkedHashMap<>());
+        Assert.assertEquals("[]", output.toString());
 
         String dataType = MtgOutput.HEADER_JSON;
         switch(dataType){
@@ -63,8 +63,12 @@ public class MtgOutputTest {
                 break;
             case MtgOutput.HEADER_DATASET:
                 output = new DatasetOutput(outputMap);
-                break;       
+                break;
+            case MtgOutput.HEADER_XML:
+                output = new XMLOutput(outputMap);
+                break;           
         }
+        
         System.out.println(output.toString());
         Assert.assertTrue(output.length()>1);
     }
