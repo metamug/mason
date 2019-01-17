@@ -699,6 +699,7 @@ public class RootResourceTest {
         }
 
     }
+
     @Ignore
     @Test
     public void testJwtAuthCall() {

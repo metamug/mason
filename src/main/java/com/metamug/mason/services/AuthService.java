@@ -558,12 +558,13 @@ public class AuthService {
             throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISSMATCH));
         }
     }
-    
+
     /**
      * Create Bearer token with username and password. Uses JWT Scheme
+     *
      * @param user
      * @param pass
-     * @return 
+     * @return
      */
     public String createBearer(String user, String pass) {
         JSONObject payload = dao.getBearDetails(user, pass);

@@ -1,4 +1,4 @@
-   /*
+/*
  *                   GNU LESSER GENERAL PUBLIC LICENSE
  *                        Version 2.1, February 1999
  *
@@ -504,17 +504,17 @@
  *
  * That's all there is to it!
  */
-
 package com.metamug.mason.common;
 
 import java.util.Map;
 
 /**
  * Immutable version of Mason Request Object using Decorator Pattern
+ *
  * @author user
  */
-public final class ImmutableMtgRequest extends MtgRequest{
-    
+public final class ImmutableMtgRequest extends MtgRequest {
+
     public ImmutableMtgRequest(MtgRequest mtgReq) {
         super(mtgReq);
     }
@@ -542,7 +542,7 @@ public final class ImmutableMtgRequest extends MtgRequest{
     @Override
     public void setMethod(String method) {
         throw new UnsupportedOperationException();
-    } 
+    }
 
     @Override
     public void setParams(Map<String, String> params) {
@@ -559,5 +559,3 @@ public final class ImmutableMtgRequest extends MtgRequest{
         throw new UnsupportedOperationException();
     }
 }
-
-

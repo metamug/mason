@@ -543,13 +543,14 @@ import org.json.JSONObject;
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class RestRouterFilter implements Filter {
+
     private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
-    
+
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
-                                        + "webapps" + File.separator;
-    
+            + "webapps" + File.separator;
+
     private FilterConfig filterConfig = null;
     private String encoding;
 
@@ -610,7 +611,7 @@ public class RestRouterFilter implements Filter {
                     }
                 }
                 Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-                flattenAsMap.entrySet().forEach( entry -> {
+                flattenAsMap.entrySet().forEach(entry -> {
                     String key = entry.getKey();
                     String value = String.valueOf(entry.getValue());
                     addKeyPair(mtgRequest, new String[]{key, value}, params);
@@ -650,7 +651,7 @@ public class RestRouterFilter implements Filter {
                 }
             }
             Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-            flattenAsMap.entrySet().forEach( entry -> {
+            flattenAsMap.entrySet().forEach(entry -> {
                 String key = entry.getKey();
                 String value = String.valueOf(entry.getValue());
                 addKeyPair(mtgRequest, new String[]{key, value}, params);
@@ -716,8 +717,7 @@ public class RestRouterFilter implements Filter {
     }
 
     /**
-     * Servlet version of the request handling. Cast objects to handle REST
-     * request
+     * Servlet version of the request handling. Cast objects to handle REST request
      *
      * @param req
      * @param res
@@ -753,9 +753,9 @@ public class RestRouterFilter implements Filter {
             //get queries
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute("masonQuery");
 
-            if ( new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator 
-                                + "resources" + File.separator + version.toLowerCase() + File.separator 
-                                        + resourceName + ".jsp").exists() ) {
+            if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
+                    + "resources" + File.separator + version.toLowerCase() + File.separator
+                    + resourceName + ".jsp").exists()) {
                 MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
                 req.setAttribute("mtgReq", mtgReq);
                 req.setAttribute("mtgMethod", req.getMethod());

@@ -18,10 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import static org.mockito.Mockito.atLeast;
@@ -58,7 +58,7 @@ public class RestRouterFilterTest {
 
     @Before
     public void setUp() {
-        
+
         ServletContext context = mock(ServletContext.class);
         when(request.getServletContext()).thenReturn(context);
         when(request.getServletContext().getContextPath()).thenReturn("backend");
@@ -87,10 +87,8 @@ public class RestRouterFilterTest {
 
         try {
             router.doFilter(request, response, filterChain);
-        } catch (IOException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ServletException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException | ServletException ex) {
+            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         verify(request, atLeast(1)).getContentType(); // verify if Content Type was called
@@ -99,8 +97,6 @@ public class RestRouterFilterTest {
         System.out.println(stringWriter.toString());
         assertTrue(stringWriter.toString().contains("415"));
     }
-
-    
 
     @Test
     public void testResourceNotFound() {
@@ -112,17 +108,15 @@ public class RestRouterFilterTest {
         try {
             when(request.getInputStream()).thenReturn(inputStream);
         } catch (IOException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         RestRouterFilter router = new RestRouterFilter();
 
         try {
             router.doFilter(request, response, filterChain);
-        } catch (IOException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ServletException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException | ServletException ex) {
+            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         verify(request, atLeast(1)).getContentType(); // verify if Content Type was called
