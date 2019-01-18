@@ -59,6 +59,16 @@ public class MasonOutputTest {
         System.out.println("Length: "+output.length());
         Assert.assertTrue(output.length()>1);
     }
+    
+    @Test
+    public void testJsonSingleResult(){
+        Map<String, Object> singleMap = new LinkedHashMap<>();   
+        singleMap.put("res2", new JSONArray(sampleArray));
+        MasonOutput output = new JSONOutput(singleMap);
+        System.out.println("JSON Single: "+output.toString());
+        System.out.println("Length: "+output.length());
+        Assert.assertTrue(output.length()>1);
+    }
 
     @Test
     public void testDataSet(){
