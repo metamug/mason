@@ -737,9 +737,10 @@ public class OutputTagHandler extends BodyTagSupport {
                 response.setStatus(204);
             } else {
                 MasonOutput datasetOutput = new DatasetOutput(mtgResultMap);
+                String outputString = datasetOutput.toString();
                 pageContext.setAttribute("Content-Length", datasetOutput.length(), PageContext.REQUEST_SCOPE);
                 try {
-                    out.print(datasetOutput.toString());
+                    out.print(outputString);
                 } catch (IOException ex) {
                     Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -888,9 +889,10 @@ public class OutputTagHandler extends BodyTagSupport {
                 response.setStatus(204);
             } else {
                 MasonOutput jsonOutput = new JSONOutput(mtgResultMap);
+                String outputString = jsonOutput.toString();
                 pageContext.setAttribute("Content-Length", jsonOutput.length(), PageContext.REQUEST_SCOPE);
                 try {
-                    out.print(jsonOutput.toString());
+                    out.print(outputString);
                 } catch (IOException ex) {
                     Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }

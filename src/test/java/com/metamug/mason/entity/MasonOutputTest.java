@@ -56,6 +56,7 @@ public class MasonOutputTest {
         String dataType = MasonOutput.HEADER_JSON;
         MasonOutput output = getOutput(dataType);
         System.out.println("JSON: "+output.toString());
+        System.out.println("Length: "+output.length());
         Assert.assertTrue(output.length()>1);
     }
 
@@ -64,6 +65,7 @@ public class MasonOutputTest {
         String dataType = MasonOutput.HEADER_DATASET;
         MasonOutput output = getOutput(dataType);
         System.out.println("DATASET: "+output.toString());
+        System.out.println("Length: "+output.length());
         Assert.assertTrue(output.length()>1);
     }
 
@@ -72,6 +74,7 @@ public class MasonOutputTest {
         String dataType = MasonOutput.HEADER_XML;
         MasonOutput output = getOutput(dataType);
         System.out.println("XML: "+output.toString());
+        System.out.println("Length: "+output.length());
         Assert.assertTrue(output.length()>1);
     }
 

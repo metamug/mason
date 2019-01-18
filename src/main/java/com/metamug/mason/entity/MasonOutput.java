@@ -512,7 +512,6 @@ import java.util.Map;
  * Generic Output Object
  */
 public abstract class MasonOutput {
-
     public static final String HEADER_JSON = "application/json";
     public static final String HEADER_DATASET = "application/json+dataset";
     public static final String HEADER_XML = "application/xml";
@@ -530,5 +529,4 @@ public abstract class MasonOutput {
     public int length() {
         return output.length();
     }
-
 }
