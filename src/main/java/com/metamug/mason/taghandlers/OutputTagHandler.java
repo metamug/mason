@@ -509,7 +509,6 @@ package com.metamug.mason.taghandlers;
 import com.metamug.mason.entity.DatasetOutput;
 import com.metamug.mason.entity.JSONOutput;
 import com.metamug.mason.entity.MasonOutput;
-import static com.metamug.mason.entity.MasonOutput.HEADER_DATASET;
 import static com.metamug.mason.entity.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.XMLOutput;
 import java.io.IOException;
@@ -549,7 +548,6 @@ public class OutputTagHandler extends BodyTagSupport {
         LinkedHashMap<String, Object> mtgResultMap = (LinkedHashMap<String, Object>) value;
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
         /*Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         int count = 0;
 
@@ -568,23 +566,22 @@ public class OutputTagHandler extends BodyTagSupport {
             response.setStatus(204);
             return EVAL_PAGE;
         }
+        
+        String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
         MasonOutput output = null;
-        String outputString;
-        int outputLength;
-        if (header != null && Arrays.asList(header.split("/")).contains("xml")) { //Accept: application/xml
-            response.setContentType("application/xml");
+        if (Arrays.asList(header.split("/")).contains("xml")) { //Accept: application/xml, text/xml
             output = new XMLOutput(mtgResultMap);
-        } else if (header != null && Arrays.asList(header.split("/")).contains("json+dataset")) { //Accept: application/json+dataset
-            response.setContentType(HEADER_DATASET);
+        } else if (Arrays.asList(header.split("/")).contains("json+dataset")) { //Accept: application/json+dataset
             output = new DatasetOutput(mtgResultMap);
         } else { //Accept: application/json OR default
-            response.setContentType(HEADER_JSON)
             output = new JSONOutput(mtgResultMap);
         }
         
-        pageContext.setAttribute("Content-Length", output.length(), PageContext.REQUEST_SCOPE);
+        String strOutput = output.toString();
+        response.setContentType(output.getContentType());
+        pageContext.setAttribute("Content-Length", strOutput.length(), PageContext.REQUEST_SCOPE);
         try {
-            out.print(output.toString());
+            out.print(strOutput);
         } catch (IOException ex) {
             Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }

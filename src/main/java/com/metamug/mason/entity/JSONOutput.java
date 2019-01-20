@@ -574,11 +574,12 @@ public class JSONOutput extends MasonOutput {
 
     @Override
     public String toString() {
-        output = responseJson.get("response").toString();
-        return output;
+        return responseJson.get("response").toString();
     }
 
-    JSONTokener generateOutputString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+    @Override
+    public String getContentType() {
+        return HEADER_JSON;
     }
 }

@@ -531,7 +531,12 @@ public class XMLOutput extends JSONOutput {
     
     @Override
     public String toString() {
-        output = responseJson.get("response").toString();
+        String output = responseJson.get("response").toString();
         return getXml(output);
+    }
+    
+    @Override
+    public String getContentType() {
+        return HEADER_XML;
     }
 }

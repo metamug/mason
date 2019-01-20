@@ -516,17 +516,9 @@ public abstract class MasonOutput {
     public static final String HEADER_DATASET = "application/json+dataset";
     public static final String HEADER_XML = "application/xml";
 
-    protected String output;
 
     public MasonOutput(Map<String, Object> outputMap) {
     }
-
-    /**
-     * Get Content Length
-     *
-     * @return int
-     */
-    public int length() {
-        return output.length();
-    }
+    
+    public abstract String getContentType();
 }
