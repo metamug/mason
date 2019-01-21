@@ -555,7 +555,8 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
     public int doEndTag() throws JspException {
 
         MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
-        mtg.getParams().put(name, value);
+//        Causing error since MtgRequest is made immutable        
+//        mtg.getParams().put(name, value);
 
         if (isRequired != null && isRequired) {
             if (value == null) {
@@ -711,7 +712,8 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 default:
             }
         }
-        pageContext.getRequest().setAttribute("mtgReq", mtg);
+        //mtg is not modified so no need to set again.
+//        pageContext.getRequest().setAttribute("mtgReq", mtg);
         release();
         return EVAL_PAGE;
     }

@@ -523,7 +523,7 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
 
     private String value;
-    transient private AuthService authService;
+    private final transient AuthService authService;
 
     /**
      * Creates new instance of tag handler
