@@ -553,13 +553,9 @@ public class RootResource extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        processAuth(request, response, new AuthService());
-    }
-
-    public void processAuth(HttpServletRequest request, HttpServletResponse response, AuthService service) throws ServletException, IOException {
         String contentType = request.getHeader("Accept");
         String token = null;
-
+        AuthService service = new AuthService(); //will be created for each request
         if ("bearer".equals(request.getParameter("auth"))) {
             //auth=bearer&userid=foo&password=pass
             String user = request.getParameter("userid");
@@ -573,13 +569,12 @@ public class RootResource extends HttpServlet {
                 }
             } catch (IOException e) {
                 try {
-                    writeError(response, 512, "Unable to load docs");
+                    writeError(response, 512, "Unable to generate token");
                 } catch (IOException ex1) {
                     Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
                 }
             }
         }
-
     }
 
 }
