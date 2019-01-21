@@ -7,7 +7,7 @@ Mason is an open-source, lightweight data access layer for REST resources design
 
 ### Motivation
 
-Use JSP tags for easily editing queries and request handing. To hot deploy apis without compiling/deploying java classes. Build apis with jsp tags.
+Use JSP tags for editing database queries and request handling. To hot deploy REST APIs without compiling/deploying Java classes. Build REST APIs with JSP tags.
 
 ### Mason Resources
 
