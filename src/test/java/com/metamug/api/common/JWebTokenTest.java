@@ -5,7 +5,7 @@
  */
 package com.metamug.api.common;
 
-import com.metamug.mason.common.JWebToken;
+import com.metamug.mason.entity.auth.JWebToken;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

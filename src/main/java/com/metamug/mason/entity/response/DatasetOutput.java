@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.metamug.mason.entity;
+package com.metamug.mason.entity.response;
 
 import java.util.Map;
 import java.util.SortedMap;
@@ -12,8 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- *
- * @author anishhirlekar
+ * Dataset JSON output object
  */
 public class DatasetOutput extends JSONOutput {
 
@@ -46,5 +45,10 @@ public class DatasetOutput extends JSONOutput {
         }
         object.put("dataset", dataSetArray);
         return object;
+    }
+    
+    @Override
+    public String getContentType() {
+        return HEADER_DATASET;
     }
 }

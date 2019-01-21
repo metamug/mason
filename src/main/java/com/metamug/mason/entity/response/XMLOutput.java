@@ -504,59 +504,38 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.common;
+package com.metamug.mason.entity.response;
 
 import java.util.Map;
+import org.json.JSONObject;
+import org.json.XML;
 
 /**
- * Immutable version of Mason Request Object using Decorator Pattern
- *
- * @author user
+ * Generic Output Object
  */
-public final class ImmutableMtgRequest extends MtgRequest {
+public class XMLOutput extends JSONOutput {
 
-    public ImmutableMtgRequest(MtgRequest mtgReq) {
-        super(mtgReq);
+    public XMLOutput(Map<String, Object> outputMap) {
+        super(outputMap);
     }
-
-    @Override
-    public void setUri(String uri) {
-        throw new UnsupportedOperationException();
+    
+    protected String getXml(String json) {
+        StringBuilder xmlBuilder = new StringBuilder();
+        xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        xmlBuilder.append("<response>");
+        xmlBuilder.append(XML.toString(new JSONObject(json)));
+        xmlBuilder.append("</response>");
+        return xmlBuilder.toString();
     }
-
+    
     @Override
-    public void setId(String id) {
-        throw new UnsupportedOperationException();
+    public String toString() {
+        String output = responseJson.toString();
+        return getXml(output);
     }
-
+    
     @Override
-    public void setPid(String pid) {
-        throw new UnsupportedOperationException();
-    }
-
-    //uid can be set, this is used for auth purpose
-    @Override
-    public void setUid(String uid) {
-        super.setUid(uid);
-    }
-
-    @Override
-    public void setMethod(String method) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setParams(Map<String, String> params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setStatusCode(int statusCode) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setParent(String parent) {
-        throw new UnsupportedOperationException();
+    public String getContentType() {
+        return HEADER_XML;
     }
 }

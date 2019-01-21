@@ -504,34 +504,59 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.entity;
+package com.metamug.mason.entity.request;
 
 import java.util.Map;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.XML;
 
 /**
- * Generic Output Object
+ * Immutable version of Mason Request Object using Decorator Pattern
+ *
+ * @author user
  */
-public class XMLOutput extends JSONOutput {
+public final class ImmutableMtgRequest extends MtgRequest {
 
-    public XMLOutput(Map<String, Object> outputMap) {
-        super(outputMap);
+    public ImmutableMtgRequest(MtgRequest mtgReq) {
+        super(mtgReq);
     }
-    
-    protected String getXml(String json) {
-        StringBuilder xmlBuilder = new StringBuilder();
-        xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        xmlBuilder.append("<response>");
-        xmlBuilder.append(XML.toString(new JSONArray(json)));
-        xmlBuilder.append("</response>");
-        return xmlBuilder.toString();
-    }
-    
+
     @Override
-    public String toString() {
-        output = responseJson.get("response").toString();
-        return getXml(output);
+    public void setUri(String uri) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setId(String id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setPid(String pid) {
+        throw new UnsupportedOperationException();
+    }
+
+    //uid can be set, this is used for auth purpose
+    @Override
+    public void setUid(String uid) {
+        super.setUid(uid);
+    }
+
+    @Override
+    public void setMethod(String method) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setParams(Map<String, String> params) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setStatusCode(int statusCode) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setParent(String parent) {
+        throw new UnsupportedOperationException();
     }
 }

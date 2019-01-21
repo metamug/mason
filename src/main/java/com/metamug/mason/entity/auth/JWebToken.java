@@ -504,113 +504,130 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.common;
+package com.metamug.mason.entity.auth;
 
-import java.util.Collections;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
- * @author deepak
+ * @author user
  */
-public class MtgRequest {
+public class JWebToken {
 
-    private String uri, id, pid, uid, method, parent;
-    private int statusCode;
-    private Map<String, String> params;
+    private static final String SECRET_KEY = "FREE_MASON"; //@TODO Add Signature here
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    private static final String ISSUER = "mason.metamug.net";
+    private static final String JWT_HEADER = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
+    private JSONObject payload = new JSONObject();
+    private String signature;
+    private String encodedHeader;
 
-    public MtgRequest() {
+    private JWebToken() {
+        encodedHeader = encode(new JSONObject(JWT_HEADER));
+    }
+
+    public JWebToken(JSONObject payload) {
+        this(payload.getString("sub"), payload.getString("aud"), payload.getLong("exp"));
+    }
+
+    public JWebToken(String sub, String aud, long expires) {
+        this();
+        payload.put("sub", sub);
+        payload.put("aud", aud);
+        payload.put("exp", expires);
+        payload.put("iat", System.currentTimeMillis());
+        payload.put("iss", ISSUER);
+        payload.put("jti", UUID.randomUUID().toString()); //how do we use this?
+        signature = hmacSha256(encodedHeader + "." + encode(payload));
     }
 
     /**
-     * Copy Constructor
+     * For verification
      *
-     * @param request
+     * @param token
+     * @throws java.security.NoSuchAlgorithmException
      */
-    public MtgRequest(MtgRequest request) {
-        this.uri = request.uri;
-        this.id = request.id;
-        this.pid = request.pid;
-        this.uid = request.uid;
-        this.method = request.method;
-        this.parent = request.parent;
-        this.statusCode = request.statusCode;
-        this.params = request.params;
+    public JWebToken(String token) throws NoSuchAlgorithmException {
+        this();
+        String[] parts = token.split("\\.");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid Token format");
+        }
+        if (encodedHeader.equals(parts[0])) {
+            encodedHeader = parts[0];
+        } else {
+            throw new NoSuchAlgorithmException("JWT Header is Incorrect: " + parts[0]);
+        }
+        String decodedPayload = new String(Base64.getDecoder().decode(parts[1]));
+        payload = new JSONObject(decodedPayload);
+        if (payload.isEmpty()) {
+            throw new JSONException("Payload is Empty: " + decodedPayload);
+        }
+        if (!payload.has("exp")) {
+            throw new JSONException("Payload doesn't contain expiry " + payload);
+        }
+        signature = parts[2];
     }
 
-    public MtgRequest(String uri, String id, String method, Map<String, String> map) {
-        this.uri = uri;
-        this.id = id;
-        this.method = method;
-        this.params = map;
+    @Override
+    public String toString() {
+        return encodedHeader + "." + encode(payload) + "." + signature;
     }
 
-    public String getUri() {
-        return uri;
+    public boolean isValid() {
+        return payload.getLong("exp") > (System.currentTimeMillis() / 1000) //token not expired
+                && signature.equals(hmacSha256(encodedHeader + "." + encode(payload))); //signature matched
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
+    public String getSubject() {
+        return payload.getString("sub");
     }
 
-    public String getId() {
-        return id;
+    public String getAudience() {
+        return payload.getString("aud");
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getPid() {
-        return pid;
-    }
-
-    public void setPid(String pid) {
-        this.pid = pid;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public Map<String, String> getParams() {
-        return params;
+    private static String encode(JSONObject obj) {
+        return new String(Base64.getEncoder().encode(obj.toString().getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
-     * To make the request parameters immutable
+     * Sign with HMAC SHA256 (HS256)
      *
-     * @param params
+     * @param data
+     * @return
+     * @throws Exception
      */
-    public void setParams(Map<String, String> params) {
-        this.params = Collections.unmodifiableMap(params);
+    private String hmacSha256(String data) {
+        try {
+            Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            sha256Hmac.init(secretKey);
+            return new String(Base64.getEncoder().encode(sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8))));
+        } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
+            Logger.getLogger(JWebToken.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    private static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
 }

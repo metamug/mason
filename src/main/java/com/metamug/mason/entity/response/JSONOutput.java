@@ -504,37 +504,35 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.entity;
+package com.metamug.mason.entity.response;
 
 import com.metamug.mason.io.mpath.MPathUtil;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 /**
- * Generic Output Object
+ * JSONs Output Object
  */
 public class JSONOutput extends MasonOutput {
 
-    protected JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
+    protected JSONObject responseJson = new JSONObject();
 
     public JSONOutput(Map<String, Object> outputMap) {
         super(outputMap);
-        if (outputMap.isEmpty()) {
+        /*if (outputMap.isEmpty()) {
             responseJson.put("response", new JSONArray());
-        }
+        }*/
 
         for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
             Object obj = entry.getValue();
-
+            String key = entry.getKey();
             if (obj instanceof ResultImpl) {
-                responseJson.append("response", getJson((ResultImpl) obj));
+                responseJson.put(key, getJson((ResultImpl) obj));
             } else {
-                responseJson.append("response", obj);
+                responseJson.put(key, obj);
             }
         }
     }
@@ -574,11 +572,12 @@ public class JSONOutput extends MasonOutput {
 
     @Override
     public String toString() {
-        output = responseJson.get("response").toString();
-        return output;
+        return responseJson.toString();
     }
 
-    JSONTokener generateOutputString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+    @Override
+    public String getContentType() {
+        return HEADER_JSON;
     }
 }

@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.services;
 
-import com.metamug.mason.common.JWebToken;
+import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.daos.AuthDAO;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;

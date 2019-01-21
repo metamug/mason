@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.services;
 
-import com.metamug.mason.common.XResponse;
+import com.metamug.mason.entity.xrequest.XResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

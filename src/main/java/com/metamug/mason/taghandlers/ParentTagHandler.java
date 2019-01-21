@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.common.MtgRequest;
+import com.metamug.mason.entity.request.MtgRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import javax.servlet.jsp.JspException;

@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.common;
+package com.metamug.mason.entity.xrequest;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
 import java.util.HashMap;
