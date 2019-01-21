@@ -506,10 +506,8 @@
  */
 package com.metamug.mason.entity.response;
 
-import com.metamug.mason.entity.response.JSONOutput;
 import java.util.Map;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.XML;
 
 /**
@@ -525,14 +523,14 @@ public class XMLOutput extends JSONOutput {
         StringBuilder xmlBuilder = new StringBuilder();
         xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
         xmlBuilder.append("<response>");
-        xmlBuilder.append(XML.toString(new JSONArray(json)));
+        xmlBuilder.append(XML.toString(new JSONObject(json)));
         xmlBuilder.append("</response>");
         return xmlBuilder.toString();
     }
     
     @Override
     public String toString() {
-        String output = responseJson.get("response").toString();
+        String output = responseJson.toString();
         return getXml(output);
     }
     

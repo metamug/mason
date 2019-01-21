@@ -12,8 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- *
- * @author anishhirlekar
+ * Dataset JSON output object
  */
 public class DatasetOutput extends JSONOutput {
 

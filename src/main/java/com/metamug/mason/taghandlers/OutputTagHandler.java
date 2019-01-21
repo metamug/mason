@@ -568,7 +568,7 @@ public class OutputTagHandler extends BodyTagSupport {
         }
         
         String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
-        MasonOutput output = null;
+        MasonOutput output;
         if (Arrays.asList(header.split("/")).contains("xml")) { //Accept: application/xml, text/xml
             output = new XMLOutput(mtgResultMap);
         } else if (Arrays.asList(header.split("/")).contains("json+dataset")) { //Accept: application/json+dataset
