@@ -555,15 +555,14 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
     public int doEndTag() throws JspException {
 
         MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
-//        Causing error since MtgRequest is made immutable        
-//        mtg.getParams().put(name, value);
+        //mtg.getParams().put(name, value);
 
         if (isRequired != null && isRequired) {
             if (value == null) {
                 if (defaultValue == null) {
                     throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
                 } else {
-                    value = defaultValue;
+                    mtg.setDefault(name, defaultValue);
                 }
             }
         }

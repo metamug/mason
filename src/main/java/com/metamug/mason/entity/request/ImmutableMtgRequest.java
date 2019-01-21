@@ -534,12 +534,6 @@ public final class ImmutableMtgRequest extends MtgRequest {
         throw new UnsupportedOperationException();
     }
 
-    //uid can be set, this is used for auth purpose
-    @Override
-    public void setUid(String uid) {
-        super.setUid(uid);
-    }
-
     @Override
     public void setMethod(String method) {
         throw new UnsupportedOperationException();

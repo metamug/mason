@@ -575,7 +575,6 @@ public class JSONOutput extends MasonOutput {
         return responseJson.toString();
     }
 
-
     @Override
     public String getContentType() {
         return HEADER_JSON;

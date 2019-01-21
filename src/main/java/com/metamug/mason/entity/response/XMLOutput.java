@@ -518,7 +518,7 @@ public class XMLOutput extends JSONOutput {
     public XMLOutput(Map<String, Object> outputMap) {
         super(outputMap);
     }
-    
+
     protected String getXml(String json) {
         StringBuilder xmlBuilder = new StringBuilder();
         xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
@@ -527,13 +527,13 @@ public class XMLOutput extends JSONOutput {
         xmlBuilder.append("</response>");
         return xmlBuilder.toString();
     }
-    
+
     @Override
     public String toString() {
         String output = responseJson.toString();
         return getXml(output);
     }
-    
+
     @Override
     public String getContentType() {
         return HEADER_XML;

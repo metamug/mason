@@ -523,6 +523,7 @@ import org.xml.sax.SAXException;
  * @author anishhirlekar
  */
 public class MPathUtil {
+
     /**
      *
      * @param inputJson the json body containing data
@@ -616,7 +617,7 @@ public class MPathUtil {
                 for (int i = 1; i < len; i++) {
                     JSONObject object = inputArray.getJSONObject(i);
                     //loop through key-value pairs of object
-                    object.keySet().forEach( key -> {
+                    object.keySet().forEach(key -> {
                         Object firstObjectValue = firstObj.get(key);
                         //if value in first obj is already an array
                         if (firstObjectValue instanceof JSONArray) {

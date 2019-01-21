@@ -561,12 +561,12 @@ public class OutputTagHandler extends BodyTagSupport {
         int verboseCount = count;
         int resultCounter = 0;
         boolean emptyContent = true;*/
-        
-        if(mtgResultMap.isEmpty()){
+
+        if (mtgResultMap.isEmpty()) {
             response.setStatus(204);
             return EVAL_PAGE;
         }
-        
+
         String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
         MasonOutput output;
         if (Arrays.asList(header.split("/")).contains("xml")) { //Accept: application/xml, text/xml
@@ -576,7 +576,7 @@ public class OutputTagHandler extends BodyTagSupport {
         } else { //Accept: application/json OR default
             output = new JSONOutput(mtgResultMap);
         }
-        
+
         String strOutput = output.toString();
         response.setContentType(output.getContentType());
         pageContext.setAttribute("Content-Length", strOutput.length(), PageContext.REQUEST_SCOPE);

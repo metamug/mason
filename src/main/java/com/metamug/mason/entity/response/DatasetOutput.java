@@ -46,7 +46,7 @@ public class DatasetOutput extends JSONOutput {
         object.put("dataset", dataSetArray);
         return object;
     }
-    
+
     @Override
     public String getContentType() {
         return HEADER_DATASET;
