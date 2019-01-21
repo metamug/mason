@@ -673,6 +673,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -726,32 +727,31 @@ public class RootResourceTest {
     }
 
 //    @Ignore
-  /*  @Test
-    public void testJwtAuthCall() {
-        try {
-            when(request.getParameter("auth")).thenReturn("bearer");
-            when(request.getParameter("userid")).thenReturn("1234");
-            when(request.getParameter("password")).thenReturn("pass");
-            when(provider.getConnection()).thenReturn(connection);
-            when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
-            when(statement.executeQuery()).thenReturn(resultSet);
-            //result set should return true for config function to give auth query
-            //second time inside createBearer function and then it should return false.
-            when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
-            when(resultSet.getString("auth_query")).thenReturn("some query mocked");
-            when(resultSet.getString(1)).thenReturn("1234");
-            when(resultSet.getString(2)).thenReturn("admin");
-
-            RootResource root = new RootResource();
-            root.processAuth(request, response, new AuthService(new AuthDAO(provider)));
-            //verify(statement.executeQuery())
-            System.out.println(stringWriter.toString());
-            assertTrue(stringWriter.toString().contains("token\":"));
-        } catch (ServletException | IOException ex) {
-            Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-*/
+//    @Test
+//    public void testJwtAuthCall() {
+//        try {
+//            when(request.getParameter("auth")).thenReturn("bearer");
+//            when(request.getParameter("userid")).thenReturn("1234");
+//            when(request.getParameter("password")).thenReturn("pass");
+//            when(provider.getConnection()).thenReturn(connection);
+//            when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
+//            when(statement.executeQuery()).thenReturn(resultSet);
+//            //result set should return true for config function to give auth query
+//            //second time inside createBearer function and then it should return false.
+//            when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
+//            when(resultSet.getString("auth_query")).thenReturn("some query mocked");
+//            when(resultSet.getString(1)).thenReturn("1234");
+//            when(resultSet.getString(2)).thenReturn("admin");
+//
+//            RootResource root = new RootResource();
+//            root.processAuth(request, response, new AuthService(new AuthDAO(provider)));
+//            //verify(statement.executeQuery())
+//            System.out.println(stringWriter.toString());
+//            assertTrue(stringWriter.toString().contains("token\":"));
+//        } catch (ServletException | IOException ex) {
+//            Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (SQLException ex) {
+//            Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
 }

@@ -508,6 +508,7 @@ package com.metamug.mason.entity.request;
 
 import java.util.Collections;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -517,7 +518,7 @@ public class MtgRequest {
 
     private String uri, id, pid, uid, method, parent;
     private int statusCode;
-    private Map<String, String> params;
+    protected Map<String, String> params;
 
     public MtgRequest() {
     }
@@ -543,6 +544,13 @@ public class MtgRequest {
         this.id = id;
         this.method = method;
         this.params = map;
+    }
+    
+     
+    public void setDefault(String parameter, String defaultValue) {
+        if(StringUtils.isBlank(params.get(parameter))){
+            params.put(parameter, defaultValue);
+        }
     }
 
     public String getUri() {

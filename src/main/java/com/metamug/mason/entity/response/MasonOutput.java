@@ -515,10 +515,13 @@ public abstract class MasonOutput {
     public static final String HEADER_JSON = "application/json";
     public static final String HEADER_DATASET = "application/json+dataset";
     public static final String HEADER_XML = "application/xml";
-
+    Map<String, Object> responseMap;
 
     public MasonOutput(Map<String, Object> outputMap) {
+        
     }
+    
+    
     
     public abstract String getContentType();
 }
