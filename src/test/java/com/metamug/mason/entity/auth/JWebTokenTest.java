@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.metamug.api.common;
+package com.metamug.mason.entity.auth;
 
 import com.metamug.mason.entity.auth.JWebToken;
 import java.security.NoSuchAlgorithmException;

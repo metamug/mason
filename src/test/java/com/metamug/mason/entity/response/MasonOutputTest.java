@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.metamug.mason.entity;
+package com.metamug.mason.entity.response;
 
 import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.entity.response.MasonOutput;
