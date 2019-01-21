@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.common;
+package com.metamug.mason.entity.request;
 
 import java.util.Map;
 

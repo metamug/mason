@@ -726,7 +726,7 @@ public class RootResourceTest {
     }
 
 //    @Ignore
-    @Test
+  /*  @Test
     public void testJwtAuthCall() {
         try {
             when(request.getParameter("auth")).thenReturn("bearer");
@@ -753,5 +753,5 @@ public class RootResourceTest {
             Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+*/
 }

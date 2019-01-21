@@ -18,7 +18,7 @@
  */
 package com.metamug.mason.services;
 
-import com.metamug.mason.common.XResponse;
+import com.metamug.mason.entity.xrequest.XResponse;
 import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONObject;

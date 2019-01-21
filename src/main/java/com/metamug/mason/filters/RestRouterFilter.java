@@ -508,8 +508,8 @@ package com.metamug.mason.filters;
 
 import com.eclipsesource.json.ParseException;
 import com.github.wnameless.json.flattener.JsonFlattener;
-import com.metamug.mason.common.ImmutableMtgRequest;
-import com.metamug.mason.common.MtgRequest;
+import com.metamug.mason.entity.request.ImmutableMtgRequest;
+import com.metamug.mason.entity.request.MtgRequest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

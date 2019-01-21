@@ -5,6 +5,10 @@
  */
 package com.metamug.mason.entity;
 
+import com.metamug.mason.entity.response.XMLOutput;
+import com.metamug.mason.entity.response.MasonOutput;
+import com.metamug.mason.entity.response.JSONOutput;
+import com.metamug.mason.entity.response.DatasetOutput;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;

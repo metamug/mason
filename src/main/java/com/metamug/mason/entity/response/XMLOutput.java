@@ -504,82 +504,40 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.entity;
+package com.metamug.mason.entity.response;
 
-import com.metamug.mason.io.mpath.MPathUtil;
-import java.util.LinkedHashMap;
+import com.metamug.mason.entity.response.JSONOutput;
 import java.util.Map;
-import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.json.XML;
 
 /**
  * Generic Output Object
  */
-public class JSONOutput extends MasonOutput {
+public class XMLOutput extends JSONOutput {
 
-    protected JSONObject responseJson = new JSONObject(new LinkedHashMap<>());
-
-    public JSONOutput(Map<String, Object> outputMap) {
+    public XMLOutput(Map<String, Object> outputMap) {
         super(outputMap);
-        if (outputMap.isEmpty()) {
-            responseJson.put("response", new JSONArray());
-        }
-
-        for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
-            Object obj = entry.getValue();
-
-            if (obj instanceof ResultImpl) {
-                responseJson.append("response", getJson((ResultImpl) obj));
-            } else {
-                responseJson.append("response", obj);
-            }
-        }
     }
-
-    protected Object getJson(ResultImpl impl) {
-        return resultSetToJson(impl);
+    
+    protected String getXml(String json) {
+        StringBuilder xmlBuilder = new StringBuilder();
+        xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        xmlBuilder.append("<response>");
+        xmlBuilder.append(XML.toString(new JSONArray(json)));
+        xmlBuilder.append("</response>");
+        return xmlBuilder.toString();
     }
-
-    protected JSONArray resultSetToJson(ResultImpl resultImpl) {
-        SortedMap[] rows = resultImpl.getRows();
-        String[] columnNames = resultImpl.getColumnNames();
-        JSONArray array = new JSONArray();
-        for (SortedMap row : rows) {
-            JSONObject rowJson = new JSONObject();
-            for (int i = 0; i < columnNames.length; i++) {
-                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
-                /*if (entry.getKey().startsWith("p")) {
-                    params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
-                }*/
-            }
-            if (rowJson.length() > 0) {
-                array.put(rowJson);
-            }
-        }
-        // if (array.length() > 0) {
-        //     if (entry.getKey().startsWith("d")) {
-        //        	if (entry.getKey().startsWith("c")) {
-        //             responseJson.put("response", MPathUtil.collect(array));
-        //         } else {
-        //             responseJson.put("response", array);
-        //         }
-        //     }
-        // }
-        return array;
-    }
-
+    
     @Override
     public String toString() {
-        return responseJson.get("response").toString();
+        String output = responseJson.get("response").toString();
+        return getXml(output);
     }
-
-
+    
     @Override
     public String getContentType() {
-        return HEADER_JSON;
+        return HEADER_XML;
     }
 }

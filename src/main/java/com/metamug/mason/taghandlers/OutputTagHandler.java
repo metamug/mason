@@ -506,11 +506,11 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.entity.DatasetOutput;
-import com.metamug.mason.entity.JSONOutput;
-import com.metamug.mason.entity.MasonOutput;
-import static com.metamug.mason.entity.MasonOutput.HEADER_JSON;
-import com.metamug.mason.entity.XMLOutput;
+import com.metamug.mason.entity.response.DatasetOutput;
+import com.metamug.mason.entity.response.JSONOutput;
+import com.metamug.mason.entity.response.MasonOutput;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import com.metamug.mason.entity.response.XMLOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
