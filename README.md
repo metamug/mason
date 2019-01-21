@@ -105,3 +105,7 @@ https://metamug.com/docs/api-request
 ### How To Contribute
 
 Fork this repo and submit a PR against the listed issues. We will provide certificates to all those who succcessfully contribute and help close existing issues and submit new features. 
+
+### Examples
+
+- https://github.com/metamug/mason-sample
