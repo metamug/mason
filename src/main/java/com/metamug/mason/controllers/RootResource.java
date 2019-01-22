@@ -554,7 +554,7 @@ public class RootResource extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String contentType = request.getHeader("Accept");
-        String token = null;
+        String token;
         AuthService service = new AuthService(); //will be created for each request
         if ("bearer".equals(request.getParameter("auth"))) {
             //auth=bearer&userid=foo&password=pass
@@ -577,4 +577,7 @@ public class RootResource extends HttpServlet {
         }
     }
 
+    public void processAuth(HttpServletRequest request, HttpServletResponse response, AuthService authService) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

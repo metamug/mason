@@ -5,10 +5,6 @@
  */
 package com.metamug.mason.entity.response;
 
-import com.metamug.mason.entity.response.XMLOutput;
-import com.metamug.mason.entity.response.MasonOutput;
-import com.metamug.mason.entity.response.JSONOutput;
-import com.metamug.mason.entity.response.DatasetOutput;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -57,54 +53,54 @@ public class MasonOutputTest {
     }
 
     @Test
-    public void testJson(){
+    public void testJson() {
         String dataType = MasonOutput.HEADER_JSON;
         MasonOutput output = getOutput(dataType);
         String outStr = output.toString();
-        System.out.println("json: "+outStr);
-        System.out.println("Length: "+outStr.length());
+        System.out.println("json: " + outStr);
+        System.out.println("Length: " + outStr.length());
         //Assert.assertTrue(outStr.length()>1);
     }
-    
+
     @Test
-    public void testJsonSingleResult(){
-        Map<String, Object> singleMap = new LinkedHashMap<>();   
+    public void testJsonSingleResult() {
+        Map<String, Object> singleMap = new LinkedHashMap<>();
         singleMap.put("res2", new JSONArray(sampleArray));
         MasonOutput output = new JSONOutput(singleMap);
         String outStr = output.toString();
-        System.out.println("single json: "+outStr);
-        System.out.println("Length: "+outStr.length());
+        System.out.println("single json: " + outStr);
+        System.out.println("Length: " + outStr.length());
         //@TODO how do you know its a single json object. Do you want to look
         //everytime when you run the test. Validate the string back to JSON Object
         //Assert.assertTrue(outStr.length()>1);
     }
 
     @Test
-    public void testDataSet(){
+    public void testDataSet() {
         String dataType = MasonOutput.HEADER_DATASET;
         MasonOutput output = getOutput(dataType);
         String outStr = output.toString();
-        System.out.println("DATASET: "+outStr);
-        System.out.println("Length: "+outStr.length());
+        System.out.println("DATASET: " + outStr);
+        System.out.println("Length: " + outStr.length());
         //Assert.assertTrue(outStr.length()>1);
     }
 
     @Test
-    public void testXml(){
+    public void testXml() {
         String dataType = MasonOutput.HEADER_XML;
         MasonOutput output = getOutput(dataType);
         String outStr = output.toString();
-        System.out.println("XML: "+outStr);
-        System.out.println("Length: "+outStr.length());
+        System.out.println("XML: " + outStr);
+        System.out.println("Length: " + outStr.length());
         XML.toJSONObject(outStr); //validate xml 
         //Assert.assertTrue(outStr.length()>1);
     }
 
-    private MasonOutput getOutput(String dataType){
+    private MasonOutput getOutput(String dataType) {
         MasonOutput output = new JSONOutput(new LinkedHashMap<>());
         Assert.assertEquals("{}", output.toString());
 
-        switch(dataType){
+        switch (dataType) {
             case MasonOutput.HEADER_JSON:
                 output = new JSONOutput(outputMap);
                 break;

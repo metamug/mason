@@ -711,7 +711,8 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 default:
             }
         }
-        pageContext.getRequest().setAttribute("mtgReq", mtg);
+        //mtg is not modified so no need to set again.
+//        pageContext.getRequest().setAttribute("mtgReq", mtg);
         release();
         return EVAL_PAGE;
     }

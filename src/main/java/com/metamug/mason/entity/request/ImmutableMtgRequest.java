@@ -507,7 +507,6 @@
 package com.metamug.mason.entity.request;
 
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Immutable version of Mason Request Object using Decorator Pattern
@@ -535,9 +534,6 @@ public final class ImmutableMtgRequest extends MtgRequest {
         throw new UnsupportedOperationException();
     }
 
-    //uid can be set, this is used for auth purpose
-   
-   
     @Override
     public void setMethod(String method) {
         throw new UnsupportedOperationException();

@@ -545,10 +545,9 @@ public class MtgRequest {
         this.method = method;
         this.params = map;
     }
-    
-     
+
     public void setDefault(String parameter, String defaultValue) {
-        if(StringUtils.isBlank(params.get(parameter))){
+        if (StringUtils.isBlank(params.get(parameter))) {
             params.put(parameter, defaultValue);
         }
     }
