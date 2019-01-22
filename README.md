@@ -56,10 +56,10 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 
 4. Import mtg-mason.tld inside your jsp file. This taglib is present inside the mason jar and enables usage of the *mtg* prefix. You will also need to import the jstl taglib. Your jsp file should contain the following
 ```  
-<% @taglib uri="mtg-mason.tld" prefix="mtg" %>
 <% @taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% @taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
-<% @taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<% @taglib uri="mtg-mason.tld" prefix="m" %>
+<%@ page trimDirectiveWhitespaces="true" %>
 ```
 
 5. Add the following filter and listener inside `{webAppDir}/WEB-INF/web.xml`
