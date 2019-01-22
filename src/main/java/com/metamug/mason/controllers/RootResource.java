@@ -562,11 +562,10 @@ public class RootResource extends HttpServlet {
             String pass = request.getParameter("password");
             token = service.createBearer(user, pass);
             try (PrintWriter out = response.getWriter();) {
-                if (contentType == null || "application/json".equals(contentType)) {
-                    out.print("{\"token\":\"" + token + "\"}");
-                } else {
+                if (contentType.contains("application/xml")) 
                     out.print("<token>" + token + "</token>");
-                }
+                else 
+                    out.print("{\"token\":\"" + token + "\"}");                
             } catch (IOException e) {
                 try {
                     writeError(response, 512, "Unable to generate token");
