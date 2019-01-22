@@ -544,7 +544,7 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class RestRouterFilter implements Filter {
 
-    private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
+    //private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
@@ -724,7 +724,7 @@ public class RestRouterFilter implements Filter {
         String method = req.getMethod().toLowerCase();
 
         //TODO Is the pattern even needed??
-        boolean validContentType = contentType != null && (ALLOWED_CONTENT_TYPE_PATTERN.matches(contentType)) || contentType.contains("html")
+        boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
                 || contentType.contains("application/x-www-form-urlencoded") || contentType.contains(APPLICATION_JSON);
 
         if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
