@@ -535,10 +535,8 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     private String url;
     private String method;
     private String requestBody;
-    private Object param;
-    private String type;
-
-    private Boolean isVerbose;
+    
+    //private Boolean isVerbose;
     private Boolean isPersist;
 
     public XRequestTagHandler() {
@@ -550,11 +548,9 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
         id = null;
         url = null;
         method = null;
-        param = null;
         headers = new HashMap<>();
         parameters = new HashMap<>();
         requestBody = null;
-        type = null;
     }
 
     @Override
@@ -605,9 +601,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 xResponseXml = xresponse.getXmlForJsonXResponse();
             }
 
-            if (isVerbose != null && isVerbose) {
-                map.put("dxrequest" + (map.size() + 1), xResponseXml);
-            }
+            map.put("dxrequest" + (map.size() + 1), xResponseXml);
 
             if (isPersist != null && isPersist) {
                 mtgReq.getParams().put(id, xResponseXml);
@@ -623,9 +617,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 xResponseJson = xresponse.getJsonForJsonXResponse();
             }
 
-            if (isVerbose != null && isVerbose) {
-                map.put("dxrequest" + (map.size() + 1), xResponseJson);
-            }
+            map.put("dxrequest" + (map.size() + 1), xResponseJson);
 
             if (isPersist != null && isPersist) {
                 mtgReq.getParams().putAll(xresponse.getMapForJsonXResponse(id));
@@ -640,24 +632,12 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
         this.id = id;
     }
 
-    public void setType(String value) {
-        this.type = value;
-    }
-
     public void setUrl(String u) {
         url = u;
     }
 
     public void setMethod(String m) {
         method = m;
-    }
-
-    public void setParam(String p) {
-        param = p;
-    }
-
-    public void setIsVerbose(Boolean isVerbose) {
-        this.isVerbose = isVerbose;
     }
 
     public void setIsPersist(Boolean isPersist) {
