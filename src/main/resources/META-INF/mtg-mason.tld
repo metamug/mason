@@ -250,9 +250,9 @@
         <tag-class>com.metamug.mason.taghandlers.xrequest.XRequestTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
-            <name>id</name>
-            <required>false</required>
-            <rtexprvalue>false</rtexprvalue>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
@@ -272,18 +272,6 @@
             <required>true</required>
             <rtexprvalue>false</rtexprvalue>
             <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>isVerbose</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
-        </attribute>
-        <attribute>
-            <name>isPersist</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
         </attribute>
     </tag>
 </taglib>

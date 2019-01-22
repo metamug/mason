@@ -506,7 +506,6 @@
  */
 package com.metamug.mason.taghandlers.xrequest;
 
-import com.metamug.mason.entity.request.MtgRequest;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.services.XRequestService;
 import java.util.Arrays;
@@ -531,13 +530,13 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     private Map<String, String> headers;
     private Map<String, String> parameters;
 
-    private String id;
+    private String var;
     private String url;
     private String method;
     private String requestBody;
     
     //private Boolean isVerbose;
-    private Boolean isPersist;
+    //private Boolean isPersist;
 
     public XRequestTagHandler() {
         super();
@@ -545,7 +544,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     }
 
     private void init() {
-        id = null;
+        var = null;
         url = null;
         method = null;
         headers = new HashMap<>();
@@ -557,7 +556,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     public int doEndTag() throws JspException {
 
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
-        MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
+        //MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         //Accept header of mtg request
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeader = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
@@ -601,12 +600,12 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 xResponseXml = xresponse.getXmlForJsonXResponse();
             }
 
-            map.put("dxrequest" + (map.size() + 1), xResponseXml);
+            map.put(var, xResponseXml);
 
-            if (isPersist != null && isPersist) {
+            /*if (isPersist != null && isPersist) {
                 mtgReq.getParams().put(id, xResponseXml);
                 pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-            }
+            }*/
 
         } else {
             //if Accept header "application/json"
@@ -617,19 +616,19 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 xResponseJson = xresponse.getJsonForJsonXResponse();
             }
 
-            map.put("dxrequest" + (map.size() + 1), xResponseJson);
+            map.put(var, xResponseJson);
 
-            if (isPersist != null && isPersist) {
+            /*if (isPersist != null && isPersist) {
                 mtgReq.getParams().putAll(xresponse.getMapForJsonXResponse(id));
                 pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-            }
+            }*/
         }
 
         return EVAL_PAGE;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setVar(String var) {
+        this.var = var;
     }
 
     public void setUrl(String u) {
@@ -639,11 +638,11 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     public void setMethod(String m) {
         method = m;
     }
-
+/*
     public void setIsPersist(Boolean isPersist) {
         this.isPersist = isPersist;
     }
-
+*/
     public void setRequestBody(String b) {
         requestBody = b;
     }
