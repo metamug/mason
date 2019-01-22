@@ -548,9 +548,10 @@ public class RestRouterFilter implements Filter {
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
-            + "webapps" + File.separator;
+            + "webapps";
     private FilterConfig filterConfig = null;
     private String encoding;
+    private int versionTokenIndex = 0;
 
     public RestRouterFilter() {
     }
@@ -584,15 +585,15 @@ public class RestRouterFilter implements Filter {
     private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {
         MtgRequest mtgRequest = new MtgRequest();
         //Set parent value and pid
-        if (tokens.length == 5 || tokens.length == 6) {
-            mtgRequest.setParent(tokens[2]);
-            mtgRequest.setPid(tokens[3]);
-            mtgRequest.setId((tokens.length > 5) ? tokens[5] : null);
+        if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
+            mtgRequest.setParent(tokens[versionTokenIndex+1]);
+            mtgRequest.setPid(tokens[versionTokenIndex+2]);
+            mtgRequest.setId((tokens.length > versionTokenIndex+4) ? tokens[versionTokenIndex+4] : null);
         } else {
-            mtgRequest.setId((tokens.length > 3) ? tokens[3] : null);
+            mtgRequest.setId((tokens.length > versionTokenIndex+2) ? tokens[versionTokenIndex+2] : null);
         }
         mtgRequest.setMethod(method);
-        mtgRequest.setUri(tokens[2]);
+        mtgRequest.setUri(tokens[versionTokenIndex+1]);
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         String contentType = request.getHeader("Content-Type") == null ? APPLICATION_HTML : request.getHeader("Content-Type");
         if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("DELETE")) {
@@ -737,16 +738,23 @@ public class RestRouterFilter implements Filter {
 
         try {
             String appName = req.getServletContext().getContextPath();
-            String version = tokens[1];
+            
+            for(int i=0; i<tokens.length; i++){
+                if(tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
+                    versionTokenIndex = i;
+                    break;
+                }
+            }
+            
+            String version = tokens[versionTokenIndex];
             String resourceName;
-            if (tokens.length == 5 || tokens.length == 6) {
-                resourceName = tokens[4];
+            if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
+                resourceName = tokens[versionTokenIndex + 3];
             } else {
-                resourceName = tokens[2];
+                resourceName = tokens[versionTokenIndex + 1];
             }
             //get queries
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute("masonQuery");
-
             if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
                     + "resources" + File.separator + version.toLowerCase() + File.separator
                     + resourceName + ".jsp").exists()) {
@@ -776,10 +784,10 @@ public class RestRouterFilter implements Filter {
                 String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
                 writeError(res, 422, cause);
             } else if (ex.getMessage().contains("ELException")) {
-                writeError(res, 512, "Incorrect test condition in '" + tokens[2] + "' resource");
+                writeError(res, 512, "Incorrect test condition in '" + tokens[versionTokenIndex+1] + "' resource");
             } else {
                 writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, "Router " + tokens[2] + ":{0}", ex.getMessage());
+                Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex+1] + ":{0}", ex.getMessage());
             }
 
         }
