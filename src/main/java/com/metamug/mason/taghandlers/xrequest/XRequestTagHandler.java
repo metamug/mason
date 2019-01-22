@@ -600,7 +600,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 xResponseXml = xresponse.getXmlForJsonXResponse();
             }
 
-            map.put(var, xResponseXml);
+            pageContext.setAttribute(var, xResponseXml);
 
             /*if (isPersist != null && isPersist) {
                 mtgReq.getParams().put(id, xResponseXml);
@@ -616,7 +616,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
                 xResponseJson = xresponse.getJsonForJsonXResponse();
             }
 
-            map.put(var, xResponseJson);
+            pageContext.setAttribute(var, xResponseJson);
 
             /*if (isPersist != null && isPersist) {
                 mtgReq.getParams().putAll(xresponse.getMapForJsonXResponse(id));
