@@ -536,10 +536,12 @@ public class XRequestService {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String APP_FORM_URLENCODED = "application/x-www-form-urlencoded";
     public static final String APP_JSON = "application/json";
+    
+    private final OkHttpClient client = new OkHttpClient();
 
-    public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {
-        OkHttpClient client = new OkHttpClient();
-
+    
+    public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {        
+        
         Request.Builder reqBuilder = new Request.Builder().get();
         headers.entrySet().forEach(entry -> {
             String key = entry.getKey();
@@ -581,8 +583,7 @@ public class XRequestService {
 
     public XResponse post(String url, Map<String, String> headers,
             Map<String, String> params, String body) {
-        OkHttpClient client = new OkHttpClient();
-
+        
         Request.Builder reqBuilder = null;
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
         if (contentType.equals(APP_FORM_URLENCODED)) {
@@ -635,8 +636,7 @@ public class XRequestService {
 
     public XResponse put(String url, Map<String, String> headers,
             Map<String, String> params, String body) {
-        OkHttpClient client = new OkHttpClient();
-
+        
         Request.Builder reqBuilder = null;
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
         if (contentType.equals(APP_FORM_URLENCODED)) {
@@ -687,8 +687,7 @@ public class XRequestService {
     }
 
     public XResponse delete(String url, Map<String, String> params) {
-        OkHttpClient client = new OkHttpClient();
-
+        
         StringBuilder queryParams = new StringBuilder();
         for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {

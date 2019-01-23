@@ -35,7 +35,7 @@ public class XRequestServiceTest {
     private static final int STATUS_FAILED_REQUEST = 0;
     private static final int STATUS_OK = 200;
 
-    private XRequestService xRequestService;
+    private final XRequestService xRequestService;
 
     public XRequestServiceTest() {
         xRequestService = new XRequestService();
