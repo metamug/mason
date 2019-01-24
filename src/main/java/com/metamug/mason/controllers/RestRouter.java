@@ -504,12 +504,13 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.filters;
+package com.metamug.mason.controllers;
 
 import com.eclipsesource.json.ParseException;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.metamug.mason.entity.request.ImmutableMtgRequest;
 import com.metamug.mason.entity.request.MtgRequest;
+import com.metamug.mason.services.AuthService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -522,13 +523,10 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -542,47 +540,90 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
-public class RestRouterFilter implements Filter {
-
+public class RestRouter extends HttpServlet {
     //private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
-    public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
-            + "webapps";
-    private FilterConfig filterConfig = null;
+    public static final String WEBAPPS_DIR = System.getProperty("catalina.base")+File.separator+"webapps";
+    private ServletConfig servletConfig = null;
     private String encoding;
     private int versionTokenIndex = 0;
 
-    public RestRouterFilter() {
+    public RestRouter() {
     }
 
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {  
+        handleRequest(req,resp);
+    }
+
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if(req.getPathInfo()==null || req.getPathInfo().equals("/"))
+            processAuth(req,resp);
+        else
+            handleRequest(req,resp);
+    }
+
+    @Override
+    public void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        handleRequest(req,resp);
+    }
+
+    @Override
+    public void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        handleRequest(req,resp);
+    }
+    
+    public void processAuth(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String contentType = request.getHeader("Accept");
+        String token;
+        AuthService service = new AuthService();
+        if ("bearer".equals(request.getParameter("auth"))) {
+            //auth=bearer&userid=foo&password=pass
+            String user = request.getParameter("userid");
+            String pass = request.getParameter("password");
+            token = service.createBearer(user, pass);
+            try (PrintWriter out = response.getWriter();) {
+                if (contentType.contains("application/xml")) 
+                    out.print("<token>" + token + "</token>");
+                else 
+                    out.print("{\"token\":\"" + token + "\"}");                
+            } catch (IOException e) {
+                try {
+                    writeError(response, 512, "Unable to generate token");
+                } catch (IOException ex1) {
+                    Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            }
+        }
+    }
+    
     /**
      *
-     * @param request The servlet request we are processing
-     * @param response The servlet response we are creating
-     * @param chain The filter chain we are processing
+     * @param req The servlet request we are processing
+     * @param res The servlet response we are creating
      *
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a servlet error occurs
      */
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
+    public void handleRequest(HttpServletRequest req, HttpServletResponse res) 
+            throws IOException, ServletException {
         //Setting character encoding
-        if (null == request.getCharacterEncoding()) {
-            request.setCharacterEncoding(encoding);
+        if (null == req.getCharacterEncoding()) {
+            req.setCharacterEncoding(encoding);
         }
         String path = req.getServletPath();
         String[] tokens = path.split("/");
         if (tokens.length <= 2 || req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
-            chain.doFilter(request, response); //TODO add comment here for this case
+            //chain.doFilter(request, response); //TODO replace this with request forward
             return;
         }
-        processRequest(req, res, tokens);
+        processRestRequest(req, res, tokens);
     }
 
-    private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {
+    private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) 
+            throws IOException, JSONException, ServletException, ParseException {
         MtgRequest mtgRequest = new MtgRequest();
         //Set parent value and pid
         if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
@@ -699,7 +740,6 @@ public class RestRouterFilter implements Filter {
      * @param params
      */
     private void addKeyPair(MtgRequest mtgRequest, String[] keyValue, Map params) {
-
         if (keyValue[0].equalsIgnoreCase("id")) {
             mtgRequest.setId(keyValue[1]);
         } else if (keyValue[0].equalsIgnoreCase("pid")) {
@@ -719,7 +759,7 @@ public class RestRouterFilter implements Filter {
      * @param tokens The URI split by /
      * @throws IOException
      */
-    private void processRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens) throws IOException {
+    private void processRestRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens) throws IOException {
 
         String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod().toLowerCase();
@@ -787,7 +827,7 @@ public class RestRouterFilter implements Filter {
                 writeError(res, 512, "Incorrect test condition in '" + tokens[versionTokenIndex+1] + "' resource");
             } else {
                 writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                Logger.getLogger(RestRouterFilter.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex+1] + ":{0}", ex.getMessage());
+                Logger.getLogger(RestRouter.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex+1] + ":{0}", ex.getMessage());
             }
 
         }
@@ -815,59 +855,62 @@ public class RestRouterFilter implements Filter {
     }
 
     /**
-     * Return the filter configuration object for this filter.
+     * Return the servlet configuration object for this servlet.
      *
      * @return
      */
-    public FilterConfig getFilterConfig() {
-        return (this.filterConfig);
+    @Override
+    public ServletConfig getServletConfig() {
+        return servletConfig;
     }
 
     /**
-     * Set the filter configuration object for this filter.
+     * Set the servlet configuration object for this servlet.
      *
-     * @param filterConfig The filter configuration object
+     * @param config The servlet configuration object
      */
-    public void setFilterConfig(FilterConfig filterConfig) {
-        this.filterConfig = filterConfig;
+    public void setServletConfig(ServletConfig config) {
+        servletConfig = config;
     }
 
     /**
-     * Destroy method for this filter
+     * Destroy method for this servlet
      */
     @Override
     public void destroy() {
     }
 
     /**
-     * Init method for this filter
+     * Init method for this servlet
      *
-     * @param filterConfig
+     * @param config
      */
     @Override
-    public void init(FilterConfig filterConfig) {
-        this.filterConfig = filterConfig;
-        encoding = filterConfig.getInitParameter("requestEncoding");
+    public void init(ServletConfig config) {
+        servletConfig = config;
+        encoding = config.getInitParameter("requestEncoding");
         if (encoding == null) {
             encoding = "UTF-8";
         }
     }
 
     /**
-     * Return a String representation of this object.
+     * 
+     * @return String representation of this object.
      */
     @Override
     public String toString() {
-        if (filterConfig == null) {
-            return ("RestRouterFilter()");
+        if (servletConfig == null) {
+            return ("RestRouter()");
         }
-        StringBuilder sb = new StringBuilder("RestRouterFilter(");
-        sb.append(filterConfig);
+        StringBuilder sb = new StringBuilder("RestRouter(");
+        sb.append(servletConfig);
         sb.append(")");
         return (sb.toString());
     }
 
+    @Override
     public void log(String msg) {
-        filterConfig.getServletContext().log(msg);
+        servletConfig.getServletContext().log(msg);
     }
 }

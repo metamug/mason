@@ -5,6 +5,7 @@
  */
 package com.metamug.mason.filters;
 
+import com.metamug.mason.controllers.RestRouter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -41,8 +42,7 @@ public class RestRouterFilterTest {
     private HttpServletRequest request;
     @Mock
     private HttpServletResponse response;
-    @Mock
-    private FilterChain filterChain;
+    
     private StringWriter stringWriter;
     private PrintWriter writer;
     @Mock
@@ -83,10 +83,10 @@ public class RestRouterFilterTest {
         when(request.getContentType()).thenReturn("blah");
         when(request.getServletPath()).thenReturn("/backend/resource");
         when(request.getMethod()).thenReturn("POST");
-        RestRouterFilter router = new RestRouterFilter();
+        RestRouter router = new RestRouter();
 
         try {
-            router.doFilter(request, response, filterChain);
+            router.doPost(request, response);
         } catch (IOException | ServletException ex) {
             Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -111,10 +111,10 @@ public class RestRouterFilterTest {
             Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
-        RestRouterFilter router = new RestRouterFilter();
+        RestRouter router = new RestRouter();
 
         try {
-            router.doFilter(request, response, filterChain);
+            router.doPost(request, response);
         } catch (IOException | ServletException ex) {
             Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
