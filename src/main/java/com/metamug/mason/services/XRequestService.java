@@ -539,16 +539,27 @@ public class XRequestService {
     
     private final OkHttpClient client = new OkHttpClient();
 
+    private XResponse makeRequest(Request request) {
+        XResponse xr;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                xr = new XResponse(response.code(), XREQUEST_ERROR + response, true);
+            } else {
+                xr = new XResponse(response.code(), response.body().string().trim());
+            }
+        } catch (IOException ex) {
+            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
+        }
+        return xr;
+    } 
     
-    public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {        
-        
+    public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {           
         Request.Builder reqBuilder = new Request.Builder().get();
         headers.entrySet().forEach(entry -> {
             String key = entry.getKey();
             String value = entry.getValue();
             reqBuilder.addHeader(key, value);
         });
-
         StringBuilder queryParams = new StringBuilder();
         for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {
@@ -562,28 +573,13 @@ public class XRequestService {
             } catch (UnsupportedEncodingException ex) {
                 Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        url = url + "?" + queryParams.toString();
-
-        Request request = reqBuilder.url(url).build();
-
-        XResponse xr;
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), XREQUEST_ERROR + response, true);
-            } else {
-                xr = new XResponse(response.code(), response.body().string().trim());
-            }
-        } catch (IOException ex) {
-            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
-        }
-
-        return xr;
+        } 
+        Request request = reqBuilder.url(url+"?"+queryParams.toString()).build();
+        return makeRequest(request);
     }
 
     public XResponse post(String url, Map<String, String> headers,
-            Map<String, String> params, String body) {
-        
+            Map<String, String> params, String body) {    
         Request.Builder reqBuilder = null;
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
         if (contentType.equals(APP_FORM_URLENCODED)) {
@@ -610,38 +606,21 @@ public class XRequestService {
             RequestBody reqbody = RequestBody.create(null, new byte[0]);
             reqBuilder = new Request.Builder().post(reqbody);
         }
-
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             reqBuilder.addHeader(key, value);
         }
-
         Request request = reqBuilder.url(url).build();
-
-        XResponse xr;
-        try (Response response = client.newCall(request).execute()) {
-
-            if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), XREQUEST_ERROR + response, true);
-            } else {
-                xr = new XResponse(response.code(), response.body().string().trim());
-            }
-
-        } catch (IOException ex) {
-            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
-        }
-        return xr;
+        return makeRequest(request);
     }
 
     public XResponse put(String url, Map<String, String> headers,
-            Map<String, String> params, String body) {
-        
+            Map<String, String> params, String body) {        
         Request.Builder reqBuilder = null;
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
         if (contentType.equals(APP_FORM_URLENCODED)) {
             FormBody.Builder formBuilder = new FormBody.Builder();
-
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 formBuilder.add(entry.getKey(), entry.getValue());
             }
@@ -664,30 +643,16 @@ public class XRequestService {
             RequestBody reqbody = RequestBody.create(null, new byte[0]);
             reqBuilder = new Request.Builder().put(reqbody);
         }
-
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             reqBuilder.addHeader(key, value);
         }
-
         Request request = reqBuilder.url(url).build();
-
-        XResponse xr;
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), XREQUEST_ERROR + response);
-            } else {
-                xr = new XResponse(response.code(), response.body().string().trim());
-            }
-        } catch (IOException ex) {
-            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
-        }
-        return xr;
+        return makeRequest(request);
     }
 
     public XResponse delete(String url, Map<String, String> params) {
-        
         StringBuilder queryParams = new StringBuilder();
         for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {
@@ -702,22 +667,7 @@ public class XRequestService {
                 Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        url = url + "?" + queryParams.toString();
-
-        Request request = new Request.Builder().url(url).delete().build();
-
-        XResponse xr;
-        try (Response response = client.newCall(request).execute()) {
-
-            if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), XREQUEST_ERROR + response, true);
-            } else {
-                xr = new XResponse(response.code(), response.body().string().trim());
-            }
-
-        } catch (IOException ex) {
-            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
-        }
-        return xr;
+        Request request = new Request.Builder().url(url+"?"+queryParams.toString()).delete().build();
+        return makeRequest(request);
     }
 }
