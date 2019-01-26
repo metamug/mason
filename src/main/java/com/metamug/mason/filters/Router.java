@@ -573,14 +573,15 @@ public class Router implements Filter {
         }
         String path = req.getServletPath();
         String[] tokens = path.split("/");
-        if (tokens.length <= 2 || req.getServletPath().contains("index") || req.getServletPath().contains("docs")) {
+        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
             chain.doFilter(request, response); //TODO add comment here for this case
             return;
         }
         processRestRequest(req, res, tokens);
     }
 
-    private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {
+    private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) 
+                    throws IOException, JSONException, ServletException, ParseException {
         MtgRequest mtgRequest = new MtgRequest();
         //Set parent value and pid
         if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
