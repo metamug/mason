@@ -655,8 +655,8 @@ That's all there is to it!
  */
 package com.metamug.mason.entity;
 
+import com.metamug.mason.RouterTest;
 import com.metamug.mason.daos.AuthDAO;
-import com.metamug.mason.filters.RouterTest;
 import com.metamug.mason.services.AuthService;
 import com.metamug.mason.services.ConnectionProvider;
 import java.io.IOException;
@@ -747,8 +747,8 @@ public class RootResourceTest {
             when(resultSet.getString(1)).thenReturn("1234");
             when(resultSet.getString(2)).thenReturn("admin");
 
-            RootResource root = new RootResource();
-            root.processAuth(request, response, new AuthService(new AuthDAO(provider)));
+            RootResource root = new RootResource(request, response);
+            root.processAuth(new AuthService(new AuthDAO(provider)));
             //verify(statement.executeQuery())
             System.out.println(stringWriter.toString());
             assertTrue(stringWriter.toString().contains("token\":"));

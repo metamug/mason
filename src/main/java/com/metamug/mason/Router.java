@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.filters;
+package com.metamug.mason;
 
 import com.eclipsesource.json.ParseException;
 import com.github.wnameless.json.flattener.JsonFlattener;
@@ -840,6 +840,9 @@ public class Router implements Filter {
      */
     @Override
     public void init(FilterConfig config) {
+        
+        //@TODO load queries here.
+        
         filterConfig = config;
         encoding = config.getInitParameter("requestEncoding");
         if (encoding == null) {

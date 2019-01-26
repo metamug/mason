@@ -516,27 +516,32 @@ import org.json.JSONObject;
  * @author Deepak
  */
 public class RootResource {
+    
+    HttpServletRequest request;
+    HttpServletResponse response;
 
-    public RootResource() {
+    public RootResource(HttpServletRequest request, HttpServletResponse response) {
+        this.request = request;
+        this.response = response;
     }
-
-    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    
+    public void doGet() {
         try {
             request.getRequestDispatcher("/index.html").forward(request, response);
         } catch (ServletException | IOException ex) {
             try {
-                writeError(response, 512, "Unable to load docs");
+                writeError(512, "Unable to load docs");
             } catch (IOException ex1) {
                 Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
     }
 
-    private void writeError(HttpServletResponse res, int status, String message) throws IOException {
-        try (ServletOutputStream writer = res.getOutputStream()) {
-            res.setContentType("application/json;charset=UTF-8");
-            res.setCharacterEncoding("UTF-8");
-            res.setStatus(status);
+    private void writeError(int status, String message) throws IOException {
+        try (ServletOutputStream writer = response.getOutputStream()) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(status);
             JSONObject obj = new JSONObject();
             obj.put("status", status);
             obj.put("message", message);
@@ -545,12 +550,12 @@ public class RootResource {
         }
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        AuthService service = new AuthService(); //will be created for each request
-        processAuth(request,response,service);
-    }
+//    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        AuthService service = new AuthService(); //will be created for each request
+//        processAuth(request,response,service);
+//    }
     
-    protected void processAuth(HttpServletRequest request, HttpServletResponse response, AuthService service){
+    public void processAuth(AuthService service){
         String token;
         String contentType = request.getHeader("Accept");
         if ("bearer".equals(request.getParameter("auth"))) {
@@ -565,7 +570,7 @@ public class RootResource {
                     out.print("{\"token\":\"" + token + "\"}");                
             } catch (IOException e) {
                 try {
-                    writeError(response, 512, "Unable to generate token");
+                    writeError(512, "Unable to generate token");
                 } catch (IOException ex1) {
                     Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
                 }
