@@ -504,366 +504,120 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.filters;
+package com.metamug.mason.entity.request;
 
-import com.eclipsesource.json.ParseException;
-import com.github.wnameless.json.flattener.JsonFlattener;
-import com.metamug.mason.entity.request.ImmutableMtgRequest;
-import com.metamug.mason.entity.request.MtgRequest;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Rest Controller. Handles all the incoming requests
  *
- * @author Kaisteel
+ * @author deepak
  */
-@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
-public class Router implements Filter {
-    //private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
-    public static final String APPLICATION_JSON = "application/json";
-    public static final String APPLICATION_HTML = "application/html";
-    public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
-            + "webapps";
-    private FilterConfig filterConfig = null;
-    private String encoding;
-    private int versionTokenIndex = 0;
+public class MasonRequest {
 
-    public Router() {
+    private String uri, id, pid, uid, method, parent;
+    private int statusCode;
+    protected Map<String, String> params;
+
+    public MasonRequest() {
     }
+
     /**
+     * Copy Constructor
      *
-     * @param request The servlet request we are processing
-     * @param response The servlet response we are creating
-     * @param chain The filter chain we are processing
-     *
-     * @exception IOException if an input/output error occurs
-     * @exception ServletException if a servlet error occurs
+     * @param request
      */
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-        //Setting character encoding
-        if (null == request.getCharacterEncoding()) {
-            request.setCharacterEncoding(encoding);
-        }
-        String path = req.getServletPath();
-        String[] tokens = path.split("/");
-        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
-            chain.doFilter(request, response); //TODO add comment here for this case
-            return;
-        }
-        processRestRequest(req, res, tokens);
+    public MasonRequest(MasonRequest request) {
+        this.uri = request.uri;
+        this.id = request.id;
+        this.pid = request.pid;
+        this.uid = request.uid;
+        this.method = request.method;
+        this.parent = request.parent;
+        this.statusCode = request.statusCode;
+        this.params = request.params;
     }
 
-    private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) 
-                    throws IOException, JSONException, ServletException, ParseException {
-        MtgRequest mtgRequest = new MtgRequest();
-        //Set parent value and pid
-        if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
-            mtgRequest.setParent(tokens[versionTokenIndex+1]);
-            mtgRequest.setPid(tokens[versionTokenIndex+2]);
-            mtgRequest.setId((tokens.length > versionTokenIndex+4) ? tokens[versionTokenIndex+4] : null);
-        } else {
-            mtgRequest.setId((tokens.length > versionTokenIndex+2) ? tokens[versionTokenIndex+2] : null);
+    public MasonRequest(String uri, String id, String method, Map<String, String> map) {
+        this.uri = uri;
+        this.id = id;
+        this.method = method;
+        this.params = map;
+    }
+
+    public void setDefault(String parameter, String defaultValue) {
+        if (StringUtils.isBlank(params.get(parameter))) {
+            params.put(parameter, defaultValue);
         }
-        mtgRequest.setMethod(method);
-        mtgRequest.setUri(tokens[versionTokenIndex+1]);
-        Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        String contentType = request.getHeader("Content-Type") == null ? APPLICATION_HTML : request.getHeader("Content-Type");
-        if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("DELETE")) {
-            if (contentType.contains(APPLICATION_JSON)) {
-                String line;
-                StringBuilder jsonData = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-                    while ((line = br.readLine()) != null) {
-                        jsonData.append(line);
-                    }
-                }
-                Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-                flattenAsMap.entrySet().forEach(entry -> {
-                    String key = entry.getKey();
-                    String value = String.valueOf(entry.getValue());
-                    addKeyPair(mtgRequest, new String[]{key, value}, params);
-                });
-                //Add jsonData as String
-                params.put("mtgRawJson", jsonData.toString());
-            } else if (contentType.contains("application/xml")) {
-                //@todo handle xml input
-            } else {
-                //Content-Types  application/x-www-form-urlencoded and multipart/form-data
-                Enumeration<String> parameters = request.getParameterNames();
-                while (parameters.hasMoreElements()) {
-                    String paramName = parameters.nextElement();
-                    if (paramName.trim().equalsIgnoreCase("id")) {
-                        mtgRequest.setId(request.getParameter(paramName).trim());
-                    } else if (paramName.trim().equalsIgnoreCase("pid")) {
-                        mtgRequest.setPid(request.getParameter(paramName).trim());
-                    } else if (paramName.trim().equalsIgnoreCase("uid")) {
-                        mtgRequest.setUid(request.getParameter(paramName).trim());
-                    } else {
-                        if (request.getParameterValues(paramName).length > 1) {
-                            params.put(paramName.trim(), String.join(",", request.getParameterValues(paramName)).trim());
-                        } else {
-                            params.put(paramName.trim(), request.getParameter(paramName).trim().isEmpty() ? null : request.getParameter(paramName).trim());
-                        }
-                    }
-                }
-            }
-            mtgRequest.setParams(params);
-        } //For hanlding PUT request
-        else if (contentType.contains(APPLICATION_JSON)) {
-            String line;
-            StringBuilder jsonData = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-                while ((line = br.readLine()) != null) {
-                    jsonData.append(line);
-                }
-            }
-            Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-            flattenAsMap.entrySet().forEach(entry -> {
-                String key = entry.getKey();
-                String value = String.valueOf(entry.getValue());
-                addKeyPair(mtgRequest, new String[]{key, value}, params);
-            });
-            //Add jsonData as String
-            params.put("mtgRawJson", jsonData.toString());
-            mtgRequest.setParams(params); //@todo it is being set in the end, why here?
-        } else if (contentType.contains("multipart/form-data")) {
-            Collection<Part> parts = request.getParts();
-            for (Part part : parts) {
-                String line;
-                StringBuilder data = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
-                    while ((line = br.readLine()) != null) {
-                        data.append(line);
-                    }
-                }
-                params.put(part.getName(), data.toString());
-            }
-        } else if (contentType.contains(APPLICATION_HTML)) {
-            String line;
-            StringBuilder data = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-                while ((line = br.readLine()) != null) {
-                    data.append(line);
-                }
-            }
-            if (!data.toString().isEmpty()) {
-                if (data.toString().split("&").length > 1) {
-                    for (String parameter : data.toString().split("&")) {
-                        String[] keyValue = parameter.split("=");
-                        addKeyPair(mtgRequest, keyValue, params);
-                    }
-                } else {
-                    String[] keyValue = data.toString().split("=");
-                    addKeyPair(mtgRequest, keyValue, params);
-                }
-            }
-        }
-        mtgRequest.setParams(params);
-        //make the request immutable
-        return new ImmutableMtgRequest(mtgRequest);
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getPid() {
+        return pid;
+    }
+
+    public void setPid(String pid) {
+        this.pid = pid;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
     }
 
     /**
-     * Add Key Value pair to Mason Request Object
+     * To make the request parameters immutable
      *
-     * @param mtgRequest
-     * @param keyPair
      * @param params
      */
-    private void addKeyPair(MtgRequest mtgRequest, String[] keyValue, Map params) {
-        if (keyValue[0].equalsIgnoreCase("id")) {
-            mtgRequest.setId(keyValue[1]);
-        } else if (keyValue[0].equalsIgnoreCase("pid")) {
-            mtgRequest.setPid(keyValue[1]);
-        } else if (keyValue[0].equalsIgnoreCase("uid")) {
-            mtgRequest.setUid(keyValue[1]);
-        } else {
-            params.put(keyValue[0], keyValue[1]);
-        }
+    public void setParams(Map<String, String> params) {
+        this.params = Collections.unmodifiableMap(params);
     }
 
-    /**
-     * Servlet version of the request handling. Cast objects to handle REST request
-     *
-     * @param req
-     * @param res
-     * @param tokens The URI split by /
-     * @throws IOException
-     */
-    private void processRestRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens) throws IOException {
-        String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
-        String method = req.getMethod().toLowerCase();
-
-        boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
-                || contentType.contains("application/x-www-form-urlencoded") || contentType.contains(APPLICATION_JSON);
-
-        if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
-            writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
-            return;
-        }
-
-        res.setContentType(APPLICATION_JSON);
-        //requesting a REST resource
-
-        try {
-            String appName = req.getServletContext().getContextPath();
-            
-            for(int i=0; i<tokens.length; i++){
-                if(tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
-                    versionTokenIndex = i;
-                    break;
-                }
-            }
-            
-            String version = tokens[versionTokenIndex];
-            String resourceName;
-            if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
-                resourceName = tokens[versionTokenIndex + 3];
-            } else {
-                resourceName = tokens[versionTokenIndex + 1];
-            }
-            //get queries
-            Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute("masonQuery");
-            if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
-                    + "resources" + File.separator + version.toLowerCase() + File.separator
-                    + resourceName + ".jsp").exists()) {
-                MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
-                req.setAttribute("mtgReq", mtgReq);
-                req.setAttribute("mtgMethod", req.getMethod());
-                req.setAttribute("masonQuery", queryMap);
-                req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
-                    @Override
-                    public String getMethod() {
-                        String method = super.getMethod();
-                        if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                            return "POST";
-                        } else {
-                            return method;
-                        }
-                    }
-                }, res);
-            } else {
-                writeError(res, 404, "Resource doesn't exist");
-            }
-        } catch (IOException | ServletException | JSONException | ParseException ex) {
-            if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
-                writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
-            } else if (ex.getCause() != null) {
-                String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-                writeError(res, 422, cause);
-            } else if (ex.getMessage().contains("ELException")) {
-                writeError(res, 512, "Incorrect test condition in '" + tokens[versionTokenIndex+1] + "' resource");
-            } else {
-                writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex+1] + ":{0}", ex.getMessage());
-            }
-
-        }
+    public int getStatusCode() {
+        return statusCode;
     }
 
-    /**
-     * Error message to be returned
-     *
-     * @param res Http Response
-     * @param status Http Status Code
-     * @param message Message in Response
-     * @throws IOException
-     */
-    private void writeError(HttpServletResponse res, int status, String message) throws IOException {
-        try (PrintWriter writer = res.getWriter()) {
-            res.setContentType("application/json;charset=UTF-8");
-            res.setCharacterEncoding("UTF-8");
-            res.setStatus(status);
-            JSONObject obj = new JSONObject();
-            obj.put("status", status);
-            obj.put("message", message);
-            writer.print(obj.toString());
-            writer.flush();
-        }
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
     }
 
-    /**
-     * Return the filter configuration object for this filter.
-     *
-     * @return
-     */
-    public FilterConfig getFilterConfig() {
-        return filterConfig;
+    public String getParent() {
+        return parent;
     }
 
-    /**
-     * Set the filter configuration object for this filter.
-     *
-     * @param config The filter configuration object
-     */
-    public void setFilterConfig(FilterConfig config) {
-        filterConfig = config;
-    }
-
-    /**
-     * Destroy method for this filter
-     */
-    @Override
-    public void destroy() {
-    }
-
-    /**
-     * Init method for this filter
-     *
-     * @param config
-     */
-    @Override
-    public void init(FilterConfig config) {
-        filterConfig = config;
-        encoding = config.getInitParameter("requestEncoding");
-        if (encoding == null) {
-            encoding = "UTF-8";
-        }
-    }
-
-    /**
-     * 
-     * @return String representation of this object.
-     */
-    @Override
-    public String toString() {
-        if (filterConfig == null)
-            return ("RestRouter()");
-        
-        StringBuilder sb = new StringBuilder("RestRouter(");
-        sb.append(filterConfig);
-        sb.append(")");
-        return sb.toString();
-    }
-
-    public void log(String msg) {
-        filterConfig.getServletContext().log(msg);
+    public void setParent(String parent) {
+        this.parent = parent;
     }
 }

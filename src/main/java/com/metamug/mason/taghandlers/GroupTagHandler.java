@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.entity.request.MtgRequest;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.mason.services.AuthService;
@@ -542,7 +542,7 @@ public class GroupTagHandler extends BodyTagSupport implements TryCatchFinally {
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String header = request.getHeader("Authorization");
-        MtgRequest mtg = (MtgRequest) request.getAttribute("mtgReq");
+        MasonRequest mtg = (MasonRequest) request.getAttribute("mtgReq");
         try {
             if (header == null) {
                 throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));

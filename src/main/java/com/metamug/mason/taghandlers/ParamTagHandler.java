@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.entity.request.MtgRequest;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import java.text.ParseException;
@@ -554,7 +554,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public int doEndTag() throws JspException {
 
-        MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
+        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
         //mtg.getParams().put(name, value);
 
         if (isRequired != null && isRequired) {

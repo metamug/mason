@@ -509,7 +509,7 @@ package com.metamug.mason.taghandlers;
 import com.metamug.entity.Request;
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
-import com.metamug.mason.entity.request.MtgRequest;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
@@ -576,7 +576,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
         String contentType = request.getContentType() == null ? "" : request.getContentType();
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
-        MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
+        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
         if (contentType.contains("multipart/form-data")) {
             String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
             try {
@@ -638,7 +638,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                                             map.put("dupload" + (mapSize + 1), jsonOutput);
                                         }
                                     } catch (JSONException jx) {
-                                        //System.out.println("MtgRequest: Not a JSONObject");
+                                        //System.out.println("MasonRequest: Not a JSONObject");
                                         map.put("dupload" + (mapSize + 1), processedResult);
                                     }
                                 } //application/xml
@@ -674,7 +674,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
             Class cls = Class.forName((String) listenerClass);
             Object newInstance = cls.newInstance();
             UploadListener listener;
-            MtgRequest mtg = (MtgRequest) req.getAttribute("mtgReq");
+            MasonRequest mtg = (MasonRequest) req.getAttribute("mtgReq");
             if (UploadListener.class.isAssignableFrom(cls)) {
                 listener = (UploadListener) newInstance;
                 //Add Request Header values

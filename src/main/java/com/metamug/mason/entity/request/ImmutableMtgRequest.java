@@ -513,9 +513,9 @@ import java.util.Map;
  *
  * @author user
  */
-public final class ImmutableMtgRequest extends MtgRequest {
+public final class ImmutableMtgRequest extends MasonRequest {
 
-    public ImmutableMtgRequest(MtgRequest mtgReq) {
+    public ImmutableMtgRequest(MasonRequest mtgReq) {
         super(mtgReq);
     }
 

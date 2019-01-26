@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.entity.request.MtgRequest;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import javax.servlet.jsp.JspException;
@@ -523,7 +523,7 @@ public class ParentTagHandler extends BodyTagSupport {
 
     @Override
     public int doEndTag() throws JspException {
-        MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
+        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
         if (mtg.getParent() != null && !mtg.getParent().equalsIgnoreCase(value)) {
             throw new JspException("Parent resource not found", new MetamugException(MetamugError.PARENT_RESOURCE_MISSING));
         }

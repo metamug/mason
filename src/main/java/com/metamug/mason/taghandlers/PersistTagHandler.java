@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.entity.request.MtgRequest;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import java.util.SortedMap;
@@ -544,7 +544,7 @@ public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally
         ResultImpl resultImpl = (ResultImpl) value;
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
-        MtgRequest mtg = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
+        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
         if (rows.length > 0) {
             for (SortedMap row : rows) {
                 for (int i = 0; i < columnNames.length; i++) {

@@ -509,7 +509,7 @@ package com.metamug.mason.taghandlers;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
-import com.metamug.mason.entity.request.MtgRequest;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.mason.io.mpath.MPathUtil;
@@ -565,7 +565,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
+        MasonRequest mtgReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
@@ -604,7 +604,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                 map.put("dexecute" + (mapSize + 1), jsonOutput);
 
                                 if (isPersist != null && isPersist) {
-                                    MtgRequest mtg = (MtgRequest) param;
+                                    MasonRequest mtg = (MasonRequest) param;
                                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                                     mtg.getParams().entrySet().forEach((entry) -> {
                                         String key = entry.getKey();
@@ -633,8 +633,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
-                if (param instanceof MtgRequest) {
-                    MtgRequest mtg = (MtgRequest) param;
+                if (param instanceof MasonRequest) {
+                    MasonRequest mtg = (MasonRequest) param;
                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     mtg.getParams().entrySet().forEach((entry) -> {
                         String key = entry.getKey();
