@@ -5,7 +5,6 @@
  */
 package com.metamug.mason.filters;
 
-import com.metamug.mason.controllers.RestRouter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -36,13 +35,14 @@ import org.mockito.runners.MockitoJUnitRunner;
  * @author user
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RestRouterFilterTest {
+public class RouterTest {
 
     @Mock
     private HttpServletRequest request;
     @Mock
     private HttpServletResponse response;
-    
+    @Mock
+    private FilterChain filterChain;
     private StringWriter stringWriter;
     private PrintWriter writer;
     @Mock
@@ -69,7 +69,7 @@ public class RestRouterFilterTest {
         try {
             when(response.getWriter()).thenReturn(writer);
         } catch (IOException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -83,12 +83,12 @@ public class RestRouterFilterTest {
         when(request.getContentType()).thenReturn("blah");
         when(request.getServletPath()).thenReturn("/backend/resource");
         when(request.getMethod()).thenReturn("POST");
-        RestRouter router = new RestRouter();
+        Router router = new Router();
 
         try {
-            router.doPost(request, response);
+            router.doFilter(request, response, filterChain);
         } catch (IOException | ServletException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         verify(request, atLeast(1)).getContentType(); // verify if Content Type was called
@@ -108,15 +108,15 @@ public class RestRouterFilterTest {
         try {
             when(request.getInputStream()).thenReturn(inputStream);
         } catch (IOException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
-        RestRouter router = new RestRouter();
+        Router router = new Router();
 
         try {
-            router.doPost(request, response);
+            router.doFilter(request, response, filterChain);
         } catch (IOException | ServletException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         verify(request, atLeast(1)).getContentType(); // verify if Content Type was called

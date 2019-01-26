@@ -48,7 +48,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 
 ### How to use mason in your Webapp
 
-1. Place the mason jar file in `{webAppDir}/WEB-INF/lib` 
+1. Place the mason jar file in `{webAppDir}/WEB-INF/lib`
 
 2. Download [jstl](http://www.java2s.com/Code/Jar/j/Downloadjstl12jar.htm) jar file and place it inside `{webAppDir}/WEB-INF/lib`
 
@@ -65,12 +65,12 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 5. Add the following filter and listener inside `{webAppDir}/WEB-INF/web.xml`
 ```
 <filter>
-    <filter-name>RestRouterFilter</filter-name>
-    <filter-class>com.metamug.mason.filters.RestRouterFilter</filter-class>
+    <filter-name>Router</filter-name>
+    <filter-class>com.metamug.mason.filters.Router</filter-class>
 </filter>
 
 <filter-mapping>
-    <filter-name>RestRouterFilter</filter-name>
+    <filter-name>Router</filter-name>
     <url-pattern>/*</url-pattern>
 </filter-mapping>
 
@@ -79,7 +79,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
     <listener-class>com.metamug.mason.listener.AppContextListener</listener-class>
 </listener>
 ```
-All requests made to the jsp resources are routed through this filter. 
+All requests made to the jsp resources are routed through this filter.
 
 6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
 
@@ -98,13 +98,13 @@ https://stackoverflow.com/a/1074971/4800126
 
 ### Data Format Support
 
-Mason supports `application/xml`, `applicaton/json` and `application/json+dataset` 
+Mason supports `application/xml`, `applicaton/json` and `application/json+dataset`
 Read More about how it is used here.
 https://metamug.com/docs/api-request
 
 ### How To Contribute
 
-Fork this repo and submit a PR against the listed issues. We will provide certificates to all those who succcessfully contribute and help close existing issues and submit new features. 
+Fork this repo and submit a PR against the listed issues. We will provide certificates to all those who succcessfully contribute and help close existing issues and submit new features.
 
 ### Examples
 

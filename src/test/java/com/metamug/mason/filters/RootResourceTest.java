@@ -721,7 +721,7 @@ public class RootResourceTest {
         try {
             when(response.getWriter()).thenReturn(writer);
         } catch (IOException ex) {
-            Logger.getLogger(RestRouterFilterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
