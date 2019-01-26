@@ -554,7 +554,6 @@ public class Router implements Filter {
 
     public Router() {
     }
-
     /**
      *
      * @param request The servlet request we are processing
@@ -721,7 +720,6 @@ public class Router implements Filter {
         String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod().toLowerCase();
 
-        //TODO Is the pattern even needed??
         boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
                 || contentType.contains("application/x-www-form-urlencoded") || contentType.contains(APPLICATION_JSON);
 
@@ -774,7 +772,6 @@ public class Router implements Filter {
                 writeError(res, 404, "Resource doesn't exist");
             }
         } catch (IOException | ServletException | JSONException | ParseException ex) {
-
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
             } else if (ex.getCause() != null) {
@@ -856,13 +853,13 @@ public class Router implements Filter {
      */
     @Override
     public String toString() {
-        if (filterConfig == null) {
+        if (filterConfig == null)
             return ("RestRouter()");
-        }
+        
         StringBuilder sb = new StringBuilder("RestRouter(");
         sb.append(filterConfig);
         sb.append(")");
-        return (sb.toString());
+        return sb.toString();
     }
 
     public void log(String msg) {

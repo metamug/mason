@@ -653,10 +653,10 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
-package com.metamug.mason.filters;
+package com.metamug.mason.entity;
 
-import com.metamug.mason.controllers.RootResource;
 import com.metamug.mason.daos.AuthDAO;
+import com.metamug.mason.filters.RouterTest;
 import com.metamug.mason.services.AuthService;
 import com.metamug.mason.services.ConnectionProvider;
 import java.io.IOException;

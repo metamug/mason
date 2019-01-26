@@ -498,7 +498,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.controllers;
+package com.metamug.mason.entity;
 
 import com.metamug.mason.services.AuthService;
 import java.io.IOException;
@@ -507,23 +507,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 
 /**
  *
- * @author GAURI
+ * @author Deepak
  */
-public class RootResource extends HttpServlet {
+public class RootResource {
 
     public RootResource() {
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
         try {
             request.getRequestDispatcher("/index.html").forward(request, response);
         } catch (ServletException | IOException ex) {
@@ -533,7 +530,6 @@ public class RootResource extends HttpServlet {
                 Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
-
     }
 
     private void writeError(HttpServletResponse res, int status, String message) throws IOException {
@@ -549,11 +545,14 @@ public class RootResource extends HttpServlet {
         }
     }
 
-    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String contentType = request.getHeader("Accept");
-        String token;
         AuthService service = new AuthService(); //will be created for each request
+        processAuth(request,response,service);
+    }
+    
+    protected void processAuth(HttpServletRequest request, HttpServletResponse response, AuthService service){
+        String token;
+        String contentType = request.getHeader("Accept");
         if ("bearer".equals(request.getParameter("auth"))) {
             //auth=bearer&userid=foo&password=pass
             String user = request.getParameter("userid");
@@ -572,9 +571,5 @@ public class RootResource extends HttpServlet {
                 }
             }
         }
-    }
-
-    public void processAuth(HttpServletRequest request, HttpServletResponse response, AuthService authService) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
