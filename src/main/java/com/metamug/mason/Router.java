@@ -577,10 +577,10 @@ public class Router implements Filter {
             chain.doFilter(request, response); //TODO add comment here for this case
             return;
         }
-        processRestRequest(req, res, tokens);
+        processRequest(req, res, tokens);
     }
 
-    private MtgRequest createMtgResource(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {
+    private MtgRequest createRequest(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {
         MtgRequest mtgRequest = new MtgRequest();
         //Set parent value and pid
         if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
@@ -594,6 +594,7 @@ public class Router implements Filter {
         mtgRequest.setUri(tokens[versionTokenIndex+1]);
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         String contentType = request.getHeader("Content-Type") == null ? APPLICATION_HTML : request.getHeader("Content-Type");
+        
         if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("DELETE")) {
             if (contentType.contains(APPLICATION_JSON)) {
                 String line;
@@ -696,7 +697,7 @@ public class Router implements Filter {
      * @param keyPair
      * @param params
      */
-    private void addKeyPair(MtgRequest mtgRequest, String[] keyValue, Map params) {
+    public static void addKeyPair(MtgRequest mtgRequest, String[] keyValue, Map params) {
         if (keyValue[0].equalsIgnoreCase("id")) {
             mtgRequest.setId(keyValue[1]);
         } else if (keyValue[0].equalsIgnoreCase("pid")) {
@@ -716,7 +717,7 @@ public class Router implements Filter {
      * @param tokens The URI split by /
      * @throws IOException
      */
-    private void processRestRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens) throws IOException {
+    private void processRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens) throws IOException {
         String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod().toLowerCase();
 
@@ -753,9 +754,9 @@ public class Router implements Filter {
             if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
                     + "resources" + File.separator + version.toLowerCase() + File.separator
                     + resourceName + ".jsp").exists()) {
-                MtgRequest mtgReq = createMtgResource(tokens, req.getMethod(), req);
+                MtgRequest mtgReq = createRequest(tokens, req.getMethod(), req);
                 req.setAttribute("mtgReq", mtgReq);
-                req.setAttribute("mtgMethod", req.getMethod());
+                //req.setAttribute("mtgMethod", req.getMethod()); //@TODO was this even needed?
                 req.setAttribute("masonQuery", queryMap);
                 req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
                     @Override
