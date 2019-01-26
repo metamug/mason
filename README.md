@@ -66,18 +66,13 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 ```
 <filter>
     <filter-name>Router</filter-name>
-    <filter-class>com.metamug.mason.filters.Router</filter-class>
+    <filter-class>com.metamug.mason.Router</filter-class>
 </filter>
 
 <filter-mapping>
     <filter-name>Router</filter-name>
     <url-pattern>/*</url-pattern>
 </filter-mapping>
-
-<listener>
-    <description>MasonAppContextListener</description>
-    <listener-class>com.metamug.mason.listener.AppContextListener</listener-class>
-</listener>
 ```
 All requests made to the jsp resources are routed through this filter.
 
