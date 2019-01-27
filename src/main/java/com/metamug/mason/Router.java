@@ -512,9 +512,12 @@ import com.metamug.mason.entity.RootResource;
 import com.metamug.mason.entity.request.ImmutableMtgRequest;
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.services.AuthService;
+import com.metamug.mason.services.ConnectionProvider;
+import com.metamug.mason.services.QueryManagerService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -545,7 +548,6 @@ import org.json.JSONObject;
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
-    //private static final String ALLOWED_CONTENT_TYPE_PATTERN = "^.*(application\\/json|application\\/xml|application\\/x\\-www\\-form\\-urlencoded|multipart\\/form\\-data|application\\/vnd(\\.(\\w+))+\\+json).*$";
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
@@ -553,6 +555,9 @@ public class Router implements Filter {
     private FilterConfig filterConfig = null;
     private String encoding;
     private int versionTokenIndex;
+    
+    public static final String QUERY_FILE_NAME = "query.properties";
+    public static final String MASON_QUERY_ATTR = "masonQuery";
 
     public Router() {
     }
@@ -566,7 +571,8 @@ public class Router implements Filter {
      * @exception ServletException if a servlet error occurs
      */
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
+            throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         //Setting character encoding
@@ -589,14 +595,14 @@ public class Router implements Filter {
             return;
         }
         if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
-            chain.doFilter(request, response); //TODO add comment here for this case
+            chain.doFilter(request, response);
             return;
         }
         processRequest(req, res, tokens);
     }
 
     private MasonRequest createRequest(String[] tokens, String method, HttpServletRequest request) 
-            throws IOException, JSONException, ServletException, ParseException {
+            throws IOException, ServletException {
         MasonRequest masonRequest = new MasonRequest();
         //Set parent value and pid
         if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
@@ -758,14 +764,14 @@ public class Router implements Filter {
                 resourceName = tokens[versionTokenIndex + 1];
             }
             //get queries
-            Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute("masonQuery");
+            Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY_ATTR);
             if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
                     + "resources" + File.separator + version.toLowerCase() + File.separator
                     + resourceName + ".jsp").exists()) {
                 MasonRequest mtgReq = createRequest(tokens, req.getMethod(), req);
                 req.setAttribute("mtgReq", mtgReq);
                 //req.setAttribute("mtgMethod", req.getMethod()); //@TODO was this even needed?
-                req.setAttribute("masonQuery", queryMap);
+                req.setAttribute(MASON_QUERY_ATTR, queryMap);
                 req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
                     @Override
                     public String getMethod() {
@@ -840,6 +846,7 @@ public class Router implements Filter {
      */
     @Override
     public void destroy() {
+        ConnectionProvider.shutdown();
     }
 
     /**
@@ -849,13 +856,20 @@ public class Router implements Filter {
      */
     @Override
     public void init(FilterConfig config) {
-        
-        //@TODO load queries here.
-        
         filterConfig = config;
         encoding = config.getInitParameter("requestEncoding");
-        if (encoding == null) {
+        if (encoding == null) 
             encoding = "UTF-8";
+           
+        InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
+        QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
+        try {
+            config.getServletContext().setAttribute(MASON_QUERY_ATTR, queryManagerService.getQueryMap());
+            queryFileInputStream.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NullPointerException nx) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME+" file does not exist!", nx);
         }
     }
 
