@@ -531,7 +531,7 @@ public class ConnectionProvider {
     private ConnectionProvider() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException {
         Context initialContext = new InitialContext();
         Context envContext = (Context) initialContext.lookup("java:/comp/env");
-        ds = (DataSource) envContext.lookup("jdbc/mtgDataSource");
+        ds = (DataSource) envContext.lookup("jdbc/mason");
         con = ds.getConnection();
     }
 
