@@ -81,7 +81,7 @@ public class RouterTest {
     @Test
     public void testRestCall() {
         when(request.getContentType()).thenReturn("blah");
-        when(request.getServletPath()).thenReturn("/backend/resource");
+        when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
         Router router = new Router();
 
@@ -101,7 +101,7 @@ public class RouterTest {
     @Test
     public void testResourceNotFound() {
         when(request.getContentType()).thenReturn("application/json");
-        when(request.getServletPath()).thenReturn("/backend/resource");
+        when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
 
         //InputStream stream = new ByteArrayInputStream("Definately Not JSON".getBytes(StandardCharsets.UTF_8));

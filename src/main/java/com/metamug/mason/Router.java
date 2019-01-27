@@ -508,8 +508,10 @@ package com.metamug.mason;
 
 import com.eclipsesource.json.ParseException;
 import com.github.wnameless.json.flattener.JsonFlattener;
+import com.metamug.mason.entity.RootResource;
 import com.metamug.mason.entity.request.ImmutableMtgRequest;
 import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.services.AuthService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -550,7 +552,7 @@ public class Router implements Filter {
             + "webapps";
     private FilterConfig filterConfig = null;
     private String encoding;
-    private int versionTokenIndex = 0;
+    private int versionTokenIndex;
 
     public Router() {
     }
@@ -573,6 +575,19 @@ public class Router implements Filter {
         }
         String path = req.getServletPath();
         String[] tokens = path.split("/");
+        versionTokenIndex = -1;
+        for(int i=0; i<tokens.length; i++){
+            if(tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
+                versionTokenIndex = i;
+                break;
+            }
+        }
+        //check auth request
+        if(versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post")) {
+            RootResource rootResource = new RootResource(req, res);
+            rootResource.processAuth(new AuthService());
+            return;
+        }
         if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
             chain.doFilter(request, response); //TODO add comment here for this case
             return;
@@ -580,18 +595,19 @@ public class Router implements Filter {
         processRequest(req, res, tokens);
     }
 
-    private MasonRequest createRequest(String[] tokens, String method, HttpServletRequest request) throws IOException, JSONException, ServletException, ParseException {
-        MasonRequest mtgRequest = new MasonRequest();
+    private MasonRequest createRequest(String[] tokens, String method, HttpServletRequest request) 
+            throws IOException, JSONException, ServletException, ParseException {
+        MasonRequest masonRequest = new MasonRequest();
         //Set parent value and pid
         if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
-            mtgRequest.setParent(tokens[versionTokenIndex+1]);
-            mtgRequest.setPid(tokens[versionTokenIndex+2]);
-            mtgRequest.setId((tokens.length > versionTokenIndex+4) ? tokens[versionTokenIndex+4] : null);
+            masonRequest.setParent(tokens[versionTokenIndex+1]);
+            masonRequest.setPid(tokens[versionTokenIndex+2]);
+            masonRequest.setId((tokens.length > versionTokenIndex+4) ? tokens[versionTokenIndex+4] : null);
         } else {
-            mtgRequest.setId((tokens.length > versionTokenIndex+2) ? tokens[versionTokenIndex+2] : null);
+            masonRequest.setId((tokens.length > versionTokenIndex+2) ? tokens[versionTokenIndex+2] : null);
         }
-        mtgRequest.setMethod(method);
-        mtgRequest.setUri(tokens[versionTokenIndex+1]);
+        masonRequest.setMethod(method);
+        masonRequest.setUri(tokens[versionTokenIndex+1]);
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         String contentType = request.getHeader("Content-Type") == null ? APPLICATION_HTML : request.getHeader("Content-Type");
         
@@ -608,7 +624,7 @@ public class Router implements Filter {
                 flattenAsMap.entrySet().forEach(entry -> {
                     String key = entry.getKey();
                     String value = String.valueOf(entry.getValue());
-                    addKeyPair(mtgRequest, new String[]{key, value}, params);
+                    addKeyPair(masonRequest, new String[]{key, value}, params);
                 });
                 //Add jsonData as String
                 params.put("mtgRawJson", jsonData.toString());
@@ -620,11 +636,11 @@ public class Router implements Filter {
                 while (parameters.hasMoreElements()) {
                     String paramName = parameters.nextElement();
                     if (paramName.trim().equalsIgnoreCase("id")) {
-                        mtgRequest.setId(request.getParameter(paramName).trim());
+                        masonRequest.setId(request.getParameter(paramName).trim());
                     } else if (paramName.trim().equalsIgnoreCase("pid")) {
-                        mtgRequest.setPid(request.getParameter(paramName).trim());
+                        masonRequest.setPid(request.getParameter(paramName).trim());
                     } else if (paramName.trim().equalsIgnoreCase("uid")) {
-                        mtgRequest.setUid(request.getParameter(paramName).trim());
+                        masonRequest.setUid(request.getParameter(paramName).trim());
                     } else {
                         if (request.getParameterValues(paramName).length > 1) {
                             params.put(paramName.trim(), String.join(",", request.getParameterValues(paramName)).trim());
@@ -634,7 +650,7 @@ public class Router implements Filter {
                     }
                 }
             }
-            mtgRequest.setParams(params);
+            masonRequest.setParams(params);
         } //For hanlding PUT request
         else if (contentType.contains(APPLICATION_JSON)) {
             String line;
@@ -648,11 +664,11 @@ public class Router implements Filter {
             flattenAsMap.entrySet().forEach(entry -> {
                 String key = entry.getKey();
                 String value = String.valueOf(entry.getValue());
-                addKeyPair(mtgRequest, new String[]{key, value}, params);
+                addKeyPair(masonRequest, new String[]{key, value}, params);
             });
             //Add jsonData as String
             params.put("mtgRawJson", jsonData.toString());
-            mtgRequest.setParams(params); //@todo it is being set in the end, why here?
+            masonRequest.setParams(params); //@todo it is being set in the end, why here?
         } else if (contentType.contains("multipart/form-data")) {
             Collection<Part> parts = request.getParts();
             for (Part part : parts) {
@@ -677,24 +693,24 @@ public class Router implements Filter {
                 if (data.toString().split("&").length > 1) {
                     for (String parameter : data.toString().split("&")) {
                         String[] keyValue = parameter.split("=");
-                        addKeyPair(mtgRequest, keyValue, params);
+                        addKeyPair(masonRequest, keyValue, params);
                     }
                 } else {
                     String[] keyValue = data.toString().split("=");
-                    addKeyPair(mtgRequest, keyValue, params);
+                    addKeyPair(masonRequest, keyValue, params);
                 }
             }
         }
-        mtgRequest.setParams(params);
+        masonRequest.setParams(params);
         //make the request immutable
-        return new ImmutableMtgRequest(mtgRequest);
+        return new ImmutableMtgRequest(masonRequest);
     }
 
     /**
      * Add Key Value pair to Mason Request Object
      *
      * @param mtgRequest
-     * @param keyPair
+     * @param keyValue
      * @param params
      */
     public static void addKeyPair(MasonRequest mtgRequest, String[] keyValue, Map params) {
@@ -734,14 +750,6 @@ public class Router implements Filter {
 
         try {
             String appName = req.getServletContext().getContextPath();
-            
-            for(int i=0; i<tokens.length; i++){
-                if(tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
-                    versionTokenIndex = i;
-                    break;
-                }
-            }
-            
             String version = tokens[versionTokenIndex];
             String resourceName;
             if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
