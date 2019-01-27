@@ -104,7 +104,7 @@ public class RouterTest {
         when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
 
-        //InputStream stream = new ByteArrayInputStream("Definately Not JSON".getBytes(StandardCharsets.UTF_8));
+        //InputStream stream = new ByteArrayInputStream("Definitely Not JSON".getBytes(StandardCharsets.UTF_8));
         try {
             when(request.getInputStream()).thenReturn(inputStream);
         } catch (IOException ex) {
