@@ -515,8 +515,7 @@ import org.json.JSONObject;
  *
  * @author Deepak
  */
-public class RootResource {
-    
+public class RootResource { 
     HttpServletRequest request;
     HttpServletResponse response;
 
@@ -549,11 +548,6 @@ public class RootResource {
             writer.flush();
         }
     }
-
-//    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        AuthService service = new AuthService(); //will be created for each request
-//        processAuth(request,response,service);
-//    }
     
     public void processAuth(AuthService service){
         String token;

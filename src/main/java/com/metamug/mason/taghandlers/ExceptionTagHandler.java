@@ -507,6 +507,7 @@
 package com.metamug.mason.taghandlers;
 
 import com.metamug.mason.exceptions.MetamugException;
+import com.metamug.mason.services.ConnectionProvider;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -515,7 +516,6 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -530,9 +530,7 @@ import javax.sql.DataSource;
  * @author Kaisteel
  */
 public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinally {
-
     private Object value;
-    @Resource(name = "jdbc/mtgDataSource")
     private DataSource ds;
 
     /**
@@ -552,7 +550,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     @Override
     public int doEndTag() throws JspException {
         Exception ex = (Exception) value;
-
+        ds = ConnectionProvider.getMasonDatasource();
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();

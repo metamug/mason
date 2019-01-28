@@ -524,15 +524,27 @@ import javax.sql.DataSource;
  * @author Kainix
  */
 public class ConnectionProvider {
-
-    DataSource ds;
+    public static String masonDatasource;
     private final Connection con;
+    
+    public static void setMasonDatasource(String ds) {
+        masonDatasource = ds;
+    }
+    
+    public static DataSource getMasonDatasource() {
+        DataSource ds = null;
+        try {
+            Context initialContext = new InitialContext();
+            Context envContext = (Context) initialContext.lookup("java:/comp/env");
+            ds = (DataSource) envContext.lookup(masonDatasource);
+        } catch (NamingException ex) {
+            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ds;
+    }
 
-    private ConnectionProvider() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException {
-        Context initialContext = new InitialContext();
-        Context envContext = (Context) initialContext.lookup("java:/comp/env");
-        ds = (DataSource) envContext.lookup("jdbc/mason");
-        con = ds.getConnection();
+    private ConnectionProvider() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException { 
+        con = getMasonDatasource().getConnection();
     }
 
     public static ConnectionProvider getInstance() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException {

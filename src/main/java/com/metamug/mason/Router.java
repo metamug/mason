@@ -555,6 +555,7 @@ public class Router implements Filter {
     private FilterConfig filterConfig = null;
     private String encoding;
     private int versionTokenIndex;
+    private static String dataSource;
     
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY_ATTR = "masonQuery";
@@ -770,7 +771,7 @@ public class Router implements Filter {
                     + resourceName + ".jsp").exists()) {
                 MasonRequest mtgReq = createRequest(tokens, req.getMethod(), req);
                 req.setAttribute("mtgReq", mtgReq);
-                //req.setAttribute("mtgMethod", req.getMethod()); //@TODO was this even needed?
+                req.setAttribute("datasource", dataSource); 
                 req.setAttribute(MASON_QUERY_ATTR, queryMap);
                 req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
                     @Override
@@ -860,6 +861,9 @@ public class Router implements Filter {
         encoding = config.getInitParameter("requestEncoding");
         if (encoding == null) 
             encoding = "UTF-8";
+        
+        dataSource = config.getInitParameter("datasource");
+        ConnectionProvider.setMasonDatasource(dataSource);
            
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
         QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);

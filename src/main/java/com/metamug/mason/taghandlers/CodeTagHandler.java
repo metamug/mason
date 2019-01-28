@@ -514,6 +514,7 @@ import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.mason.io.mpath.MPathUtil;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
+import com.metamug.mason.services.ConnectionProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -522,7 +523,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
@@ -548,7 +548,6 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     private Boolean isPersist;
     private Boolean isCollect;
     private List<Object> parameters;
-    @Resource(name = "jdbc/mtgDataSource")
     private DataSource ds;
 
     public CodeTagHandler() throws NoSuchAlgorithmException {
@@ -566,6 +565,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         MasonRequest mtgReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
+        ds = ConnectionProvider.getMasonDatasource();
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);

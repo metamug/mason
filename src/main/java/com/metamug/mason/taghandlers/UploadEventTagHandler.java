@@ -513,6 +513,7 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
+import com.metamug.mason.services.ConnectionProvider;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -528,7 +529,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -550,8 +550,6 @@ import org.json.JSONObject;
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFinally {
-
-    @Resource(name = "jdbc/mtgDataSource")
     private DataSource ds;
 
     /**
@@ -570,6 +568,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
      */
     @Override
     public int doEndTag() throws JspException {
+        ds = ConnectionProvider.getMasonDatasource();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";

@@ -72,6 +72,10 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 <filter-mapping>
     <filter-name>Router</filter-name>
     <url-pattern>/*</url-pattern>
+    <init-param>
+        <param-name>datasource</param-name>
+        <param-value>jdbc/mason</param-value>
+    </init-param>
 </filter-mapping>
 ```
 All requests made to the jsp resources are routed through this filter.
