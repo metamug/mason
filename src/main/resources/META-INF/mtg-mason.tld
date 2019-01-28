@@ -21,6 +21,27 @@
         </attribute>
     </tag>
     <tag>
+        <name>resource</name>
+        <tag-class>com.metamug.mason.taghandlers.ResourceTagHandler</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+    <tag>
+        <name>request</name>
+        <tag-class>com.metamug.mason.taghandlers.request.RequestTagHandler</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>method</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>item</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>persist</name>
         <tag-class>com.metamug.mason.taghandlers.PersistTagHandler</tag-class>
         <body-content>JSP</body-content>
@@ -187,7 +208,7 @@
     </tag>
     <tag>
         <name>group</name>
-        <tag-class>com.metamug.mason.taghandlers.GroupTagHandler</tag-class>
+        <tag-class>com.metamug.mason.taghandlers.auth.GroupTagHandler</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>value</name>

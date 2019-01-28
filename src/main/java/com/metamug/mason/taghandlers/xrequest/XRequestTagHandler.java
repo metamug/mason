@@ -510,12 +510,10 @@ import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.services.XRequestService;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
@@ -554,8 +552,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
     @Override
     public int doEndTag() throws JspException {
-
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+        //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         //MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         //Accept header of mtg request
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();

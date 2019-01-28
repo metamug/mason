@@ -530,9 +530,6 @@ import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
  */
 public class OutputTagHandler extends BodyTagSupport {
 
-    public static final String KEY_COLUMN = "columns";
-    public static final String KEY_DATASET = "dataset";
-
     private LinkedHashMap<String, Object> value;
     private String tableName;
 

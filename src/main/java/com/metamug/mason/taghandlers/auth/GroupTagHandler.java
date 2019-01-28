@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.taghandlers.auth;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exceptions.MetamugError;
