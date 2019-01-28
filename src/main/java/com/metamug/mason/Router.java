@@ -546,19 +546,18 @@ import org.json.JSONObject;
  *
  * @author Kaisteel
  */
-@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
+@MultipartConfig(fileSizeThreshold=1024*1024, maxFileSize=1024*1024*5, maxRequestSize=1024*1024*25)
 public class Router implements Filter {
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
-    public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator
-            + "webapps";
+    public static final String WEBAPPS_DIR = System.getProperty("catalina.base")+File.separator+"webapps";
     private FilterConfig filterConfig = null;
     private String encoding;
-    private int versionTokenIndex;
     private static String dataSource;
     
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY_ATTR = "masonQuery";
+    public static final String REQUEST_HANDLED = "isRequestHandled";
 
     public Router() {
     }
@@ -582,7 +581,7 @@ public class Router implements Filter {
         }
         String path = req.getServletPath();
         String[] tokens = path.split("/");
-        versionTokenIndex = -1;
+        int versionTokenIndex = -1;
         for(int i=0; i<tokens.length; i++){
             if(tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
                 versionTokenIndex = i;
@@ -599,10 +598,10 @@ public class Router implements Filter {
             chain.doFilter(request, response);
             return;
         }
-        processRequest(req, res, tokens);
+        processRequest(req, res, tokens, versionTokenIndex);
     }
 
-    private MasonRequest createRequest(String[] tokens, String method, HttpServletRequest request) 
+    private MasonRequest createRequest(String[] tokens, String method, HttpServletRequest request, int versionTokenIndex) 
             throws IOException, ServletException {
         MasonRequest masonRequest = new MasonRequest();
         //Set parent value and pid
@@ -740,7 +739,8 @@ public class Router implements Filter {
      * @param tokens The URI split by /
      * @throws IOException
      */
-    private void processRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens) throws IOException {
+    private void processRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens, int versionTokenIndex)
+            throws IOException {
         String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod().toLowerCase();
 
@@ -769,7 +769,7 @@ public class Router implements Filter {
             if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
                     + "resources" + File.separator + version.toLowerCase() + File.separator
                     + resourceName + ".jsp").exists()) {
-                MasonRequest mtgReq = createRequest(tokens, req.getMethod(), req);
+                MasonRequest mtgReq = createRequest(tokens, req.getMethod(), req, versionTokenIndex);
                 req.setAttribute("mtgReq", mtgReq);
                 req.setAttribute("datasource", dataSource); 
                 req.setAttribute(MASON_QUERY_ATTR, queryMap);
@@ -884,8 +884,7 @@ public class Router implements Filter {
     @Override
     public String toString() {
         if (filterConfig == null)
-            return ("RestRouter()");
-        
+            return ("RestRouter()");  
         StringBuilder sb = new StringBuilder("RestRouter(");
         sb.append(filterConfig);
         sb.append(")");
