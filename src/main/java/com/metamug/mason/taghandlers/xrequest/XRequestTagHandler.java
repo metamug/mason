@@ -559,12 +559,10 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
         String acceptHeader = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
         //Accept type of XRequest
         String xAcceptType = "json";
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            if (entry.getKey().equals("Accept")) {
-                if (entry.getValue().equals("application/xml")) {
-                    //if Accept header of XRequest is application/xml 
-                    xAcceptType = "xml";
-                }
+        for (Map.Entry<String, String> entry: headers.entrySet()) {
+            if (entry.getKey().equals("Accept") && entry.getValue().equals("application/xml")) {
+                //if Accept header of XRequest is application/xml 
+                xAcceptType = "xml";
             }
         }
 

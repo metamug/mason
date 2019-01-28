@@ -771,8 +771,9 @@ public class Router implements Filter {
                     + resourceName + ".jsp").exists()) {
                 MasonRequest mtgReq = createRequest(tokens, req.getMethod(), req, versionTokenIndex);
                 req.setAttribute("mtgReq", mtgReq);
-                req.setAttribute(REQUEST_HANDLED, false);
+                req.setAttribute(REQUEST_HANDLED, Boolean.FALSE);
                 req.setAttribute("datasource", dataSource); 
+                req.setAttribute("mtgMethod", req.getMethod()); //needed by exception handler for logging request
                 req.setAttribute(MASON_QUERY_ATTR, queryMap);
                 req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp").forward(new HttpServletRequestWrapper(req) {
                     @Override

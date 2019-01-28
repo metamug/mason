@@ -35,11 +35,13 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
     
     private String method;
     private boolean item;
+    private boolean processOutput;
 
     public RequestTagHandler(){
         super();
         method = null;
         item = false;
+        processOutput = false;
     }
     
     @Override
@@ -49,19 +51,25 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         if(!isRequestHandled) {
             MasonRequest masonReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
             if(method.equalsIgnoreCase(request.getMethod())) {
-                if(masonReq.getId() != null && item) {
-                    return EVAL_BODY_INCLUDE;
-                } else if(masonReq.getId() == null && !item) {
-                    return EVAL_BODY_INCLUDE;
+                boolean hasId = masonReq.getId() != null;
+                if(hasId == item) {
+                    processOutput = true;
+                    return EVAL_BODY_INCLUDE;                 
                 }
             }
-        }
-        
+        } 
+        processOutput = false;
         return SKIP_BODY;
     }
     
     @Override
     public int doEndTag() throws JspException {
+        if(processOutput)
+            processOutput();
+        return EVAL_PAGE;
+    }
+    
+    public void processOutput() {
         JspWriter out = pageContext.getOut();
         LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
@@ -69,7 +77,7 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         
         if (resultMap.isEmpty()) {
             response.setStatus(204);
-            return EVAL_PAGE;
+            return;
         }
 
         String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
@@ -81,7 +89,7 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         } else { //Accept: application/json OR default
             output = new JSONOutput(resultMap);
         }
-
+        
         String strOutput = output.toString();
         response.setContentType(output.getContentType());
         pageContext.setAttribute("Content-Length", strOutput.length(), PageContext.REQUEST_SCOPE);
@@ -90,7 +98,7 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         } catch (IOException ex) {
             Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return EVAL_PAGE;
+        request.setAttribute(Router.REQUEST_HANDLED, Boolean.TRUE);
     }
     
     public void setMethod(String m) {
