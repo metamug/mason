@@ -7,24 +7,9 @@ package com.metamug.mason.taghandlers.request;
 
 import com.metamug.mason.Router;
 import com.metamug.mason.entity.request.MasonRequest;
-import com.metamug.mason.entity.response.DatasetOutput;
-import com.metamug.mason.entity.response.JSONOutput;
-import com.metamug.mason.entity.response.MasonOutput;
-import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
-import com.metamug.mason.entity.response.XMLOutput;
-import com.metamug.mason.taghandlers.OutputTagHandler;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
@@ -51,6 +36,7 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
             if(method.equalsIgnoreCase(request.getMethod())) {
                 boolean hasId = masonReq.getId() != null;
                 if(hasId == item) {
+                    request.setAttribute(Router.REQUEST_HANDLED, Boolean.TRUE);
                     return EVAL_BODY_INCLUDE;                 
                 }
             }

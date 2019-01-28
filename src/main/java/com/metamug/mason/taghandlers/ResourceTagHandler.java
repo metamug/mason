@@ -10,7 +10,6 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.entity.response.DatasetOutput;
 import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
-import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
@@ -37,6 +36,11 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     private String auth;
     private final transient AuthService authService;
     
+    public static final int STATUS_RES_NOT_FOUND = 404;
+    public static final String MSG_RES_NOT_FOUND = "Resource not found!";
+    
+    public static final String HEADER_JSON = "application/json";
+    
     public ResourceTagHandler(){
         super();
         auth = null;
@@ -49,19 +53,52 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     
     @Override
     public int doStartTag() throws JspException {
-        if(auth != null)
-            processAuth();
+        if(auth != null) {
+            HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+            processAuth(request);    
+        }
         return EVAL_BODY_INCLUDE;
     }
     
     @Override
     public int doEndTag() throws JspException {
-        processOutput();
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
+        boolean isRequestHandled = (boolean)request.getAttribute(Router.REQUEST_HANDLED);
+        if(isRequestHandled) {
+            processOutput(request, response, pageContext.getOut());
+        } else{
+            process404(request, response, pageContext.getOut());
+        }
         return EVAL_PAGE;
     }
     
-    public void processAuth() throws JspException {
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+    public void process404(HttpServletRequest request, HttpServletResponse response, JspWriter out){
+        String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
+        response.setContentType(header);
+        response.setStatus(STATUS_RES_NOT_FOUND);
+        try {
+            if (Arrays.asList(header.split("/")).contains("xml")) {
+                StringBuilder xmlBuilder = new StringBuilder();
+                xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+                xmlBuilder.append("<response>");
+                xmlBuilder.append("\n\t<status>");
+                xmlBuilder.append(STATUS_RES_NOT_FOUND);
+                xmlBuilder.append("</status>");
+                xmlBuilder.append("\n\t<message>");
+                xmlBuilder.append(MSG_RES_NOT_FOUND);
+                xmlBuilder.append("</message>");
+                xmlBuilder.append("\n</response>");
+                out.print(xmlBuilder.toString());                       
+            } else { 
+                out.print("{\"message\":\"" + MSG_RES_NOT_FOUND + "\",\"status\":" + STATUS_RES_NOT_FOUND + "}");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void processAuth(HttpServletRequest request) throws JspException {
         String header = request.getHeader("Authorization");
         MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
         try {
@@ -86,12 +123,9 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
         }
     }
     
-    public void processOutput() {
-        JspWriter out = pageContext.getOut();
-        LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        
+    public void processOutput(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
+        LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) 
+                                                    pageContext.getAttribute("map", PageContext.REQUEST_SCOPE); 
         if (resultMap.isEmpty()) {
             response.setStatus(204);
             return;
@@ -107,15 +141,14 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
             output = new JSONOutput(resultMap);
         }
         
-        String strOutput = output.toString();
+        String op = output.toString();
         response.setContentType(output.getContentType());
-        pageContext.setAttribute("Content-Length", strOutput.length(), PageContext.REQUEST_SCOPE);
+        pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
         try {
-            out.print(strOutput);
+            out.print(op);
         } catch (IOException ex) {
-            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        request.setAttribute(Router.REQUEST_HANDLED, Boolean.TRUE);
     }
     
     @Override
