@@ -35,13 +35,11 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
     
     private String method;
     private boolean item;
-    private boolean processOutput;
 
     public RequestTagHandler(){
         super();
         method = null;
         item = false;
-        processOutput = false;
     }
     
     @Override
@@ -53,53 +51,12 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
             if(method.equalsIgnoreCase(request.getMethod())) {
                 boolean hasId = masonReq.getId() != null;
                 if(hasId == item) {
-                    processOutput = true;
                     return EVAL_BODY_INCLUDE;                 
                 }
             }
         } 
-        processOutput = false;
         return SKIP_BODY;
-    }
-    
-    @Override
-    public int doEndTag() throws JspException {
-        if(processOutput)
-            processOutput();
-        return EVAL_PAGE;
-    }
-    
-    public void processOutput() {
-        JspWriter out = pageContext.getOut();
-        LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        
-        if (resultMap.isEmpty()) {
-            response.setStatus(204);
-            return;
-        }
-
-        String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
-        MasonOutput output;
-        if (Arrays.asList(header.split("/")).contains("xml")) { //Accept: application/xml, text/xml
-            output = new XMLOutput(resultMap);
-        } else if (Arrays.asList(header.split("/")).contains("json+dataset")) { //Accept: application/json+dataset
-            output = new DatasetOutput(resultMap);
-        } else { //Accept: application/json OR default
-            output = new JSONOutput(resultMap);
-        }
-        
-        String strOutput = output.toString();
-        response.setContentType(output.getContentType());
-        pageContext.setAttribute("Content-Length", strOutput.length(), PageContext.REQUEST_SCOPE);
-        try {
-            out.print(strOutput);
-        } catch (IOException ex) {
-            Logger.getLogger(OutputTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        request.setAttribute(Router.REQUEST_HANDLED, Boolean.TRUE);
-    }
+    }   
     
     public void setMethod(String m) {
         method = m;
