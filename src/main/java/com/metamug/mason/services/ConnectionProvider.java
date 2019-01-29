@@ -524,7 +524,7 @@ import javax.sql.DataSource;
  * @author Kainix
  */
 public class ConnectionProvider {
-    public static String masonDatasource;
+    private static String masonDatasource;
     private final Connection con;
     
     public static void setMasonDatasource(String ds) {
