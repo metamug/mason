@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  *
- * @author user
+ * @author D3ep4k
  */
 public abstract class ParamExtractStrategy {
 

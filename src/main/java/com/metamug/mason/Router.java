@@ -511,6 +511,7 @@ import com.github.wnameless.json.flattener.JsonFlattener;
 import com.metamug.mason.entity.RootResource;
 import com.metamug.mason.entity.request.ImmutableMtgRequest;
 import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.entity.request.MasonRequestFactory;
 import com.metamug.mason.services.AuthService;
 import com.metamug.mason.services.ConnectionProvider;
 import com.metamug.mason.services.QueryManagerService;
@@ -555,6 +556,7 @@ public class Router implements Filter {
     private String encoding;
     private String dataSource;
     
+    public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY_ATTR = "masonQuery";
     public static final String REQUEST_HANDLED = "isRequestHandled";
@@ -603,21 +605,17 @@ public class Router implements Filter {
 
     private MasonRequest createRequest(String[] tokens, String method, HttpServletRequest request, int versionTokenIndex) 
             throws IOException, ServletException {
-        MasonRequest masonRequest = new MasonRequest();
-        //Set parent value and pid
-        if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
-            masonRequest.setParent(tokens[versionTokenIndex+1]);
-            masonRequest.setPid(tokens[versionTokenIndex+2]);
-            masonRequest.setId((tokens.length > versionTokenIndex+4) ? tokens[versionTokenIndex+4] : null);
-        } else {
-            masonRequest.setId((tokens.length > versionTokenIndex+2) ? tokens[versionTokenIndex+2] : null);
-        }
-        masonRequest.setMethod(method);
-        masonRequest.setUri(tokens[versionTokenIndex+1]);
+        MasonRequest masonRequest;
+        
         Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        String contentType = request.getHeader("Content-Type") == null ? APPLICATION_HTML : request.getHeader("Content-Type");
+        String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null ? APPLICATION_HTML : 
+                request.getHeader(HEADER_CONTENT_TYPE);
         
         if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("DELETE")) {
+            masonRequest = MasonRequestFactory.create(request);
+        } else{ 
+            //For hanlding PUT request
+            masonRequest = new MasonRequest();
             if (contentType.contains(APPLICATION_JSON)) {
                 String line;
                 StringBuilder jsonData = new StringBuilder();
@@ -634,80 +632,54 @@ public class Router implements Filter {
                 });
                 //Add jsonData as String
                 params.put("mtgRawJson", jsonData.toString());
-            } else if (contentType.contains("application/xml")) {
-                //@todo handle xml input
-            } else {
-                //Content-Types  application/x-www-form-urlencoded and multipart/form-data
-                Enumeration<String> parameters = request.getParameterNames();
-                while (parameters.hasMoreElements()) {
-                    String paramName = parameters.nextElement();
-                    if (paramName.trim().equalsIgnoreCase("id")) {
-                        masonRequest.setId(request.getParameter(paramName).trim());
-                    } else if (paramName.trim().equalsIgnoreCase("pid")) {
-                        masonRequest.setPid(request.getParameter(paramName).trim());
-                    } else if (paramName.trim().equalsIgnoreCase("uid")) {
-                        masonRequest.setUid(request.getParameter(paramName).trim());
-                    } else {
-                        if (request.getParameterValues(paramName).length > 1) {
-                            params.put(paramName.trim(), String.join(",", request.getParameterValues(paramName)).trim());
-                        } else {
-                            params.put(paramName.trim(), request.getParameter(paramName).trim().isEmpty() ? null : request.getParameter(paramName).trim());
+                masonRequest.setParams(params);
+            } else if (contentType.contains("multipart/form-data")) {
+                Collection<Part> parts = request.getParts();
+                for (Part part : parts) {
+                    String line;
+                    StringBuilder data = new StringBuilder();
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
+                        while ((line = br.readLine()) != null) {
+                            data.append(line);
                         }
                     }
+                    params.put(part.getName(), data.toString());
                 }
-            }
-            masonRequest.setParams(params);
-        } //For hanlding PUT request
-        else if (contentType.contains(APPLICATION_JSON)) {
-            String line;
-            StringBuilder jsonData = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-                while ((line = br.readLine()) != null) {
-                    jsonData.append(line);
-                }
-            }
-            Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-            flattenAsMap.entrySet().forEach(entry -> {
-                String key = entry.getKey();
-                String value = String.valueOf(entry.getValue());
-                addKeyPair(masonRequest, new String[]{key, value}, params);
-            });
-            //Add jsonData as String
-            params.put("mtgRawJson", jsonData.toString());
-            masonRequest.setParams(params); //@todo it is being set in the end, why here?
-        } else if (contentType.contains("multipart/form-data")) {
-            Collection<Part> parts = request.getParts();
-            for (Part part : parts) {
+                masonRequest.setParams(params);
+            } else if (contentType.contains(APPLICATION_HTML)) {
                 String line;
                 StringBuilder data = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
                     while ((line = br.readLine()) != null) {
                         data.append(line);
                     }
                 }
-                params.put(part.getName(), data.toString());
-            }
-        } else if (contentType.contains(APPLICATION_HTML)) {
-            String line;
-            StringBuilder data = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-                while ((line = br.readLine()) != null) {
-                    data.append(line);
-                }
-            }
-            if (!data.toString().isEmpty()) {
-                if (data.toString().split("&").length > 1) {
-                    for (String parameter : data.toString().split("&")) {
-                        String[] keyValue = parameter.split("=");
+                if (!data.toString().isEmpty()) {
+                    if (data.toString().split("&").length > 1) {
+                        for (String parameter : data.toString().split("&")) {
+                            String[] keyValue = parameter.split("=");
+                            addKeyPair(masonRequest, keyValue, params);
+                        }
+                    } else {
+                        String[] keyValue = data.toString().split("=");
                         addKeyPair(masonRequest, keyValue, params);
                     }
-                } else {
-                    String[] keyValue = data.toString().split("=");
-                    addKeyPair(masonRequest, keyValue, params);
                 }
+                masonRequest.setParams(params);
             }
         }
-        masonRequest.setParams(params);
+        
+        //Set parent value and pid
+        if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
+            masonRequest.setParent(tokens[versionTokenIndex+1]);
+            masonRequest.setPid(tokens[versionTokenIndex+2]);
+            masonRequest.setId((tokens.length > versionTokenIndex+4) ? tokens[versionTokenIndex+4] : null);
+        } else {
+            masonRequest.setId((tokens.length > versionTokenIndex+2) ? tokens[versionTokenIndex+2] : null);
+        }
+        masonRequest.setMethod(method);
+        masonRequest.setUri(tokens[versionTokenIndex+1]);
+        
         //make the request immutable
         return new ImmutableMtgRequest(masonRequest);
     }

@@ -7,6 +7,7 @@ package com.metamug.mason.entity.request;
 
 import static com.metamug.mason.Router.APPLICATION_HTML;
 import static com.metamug.mason.Router.APPLICATION_JSON;
+import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -16,7 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 public class MasonRequestFactory {
     public static MasonRequest create(HttpServletRequest request){
         ParamExtractStrategy strategy = new FormStrategy(request); //default is form strategy
-        String contentType = request.getHeader("Content-Type") == null ? APPLICATION_HTML : request.getHeader("Content-Type");
+        String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null ? 
+                APPLICATION_HTML : request.getHeader(HEADER_CONTENT_TYPE);
         switch(contentType){
             case APPLICATION_JSON:
                 strategy = new JsonStrategy(request);
