@@ -2,24 +2,7 @@
 <taglib version="2.1" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd">
     <tlib-version>1.0</tlib-version>
     <short-name>mtg-mason</short-name>
-    <uri>mtg-mason.tld</uri>
-    <tag>
-        <name>out</name>
-        <tag-class>com.metamug.mason.taghandlers.OutputTagHandler</tag-class>
-        <body-content>JSP</body-content>
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.util.LinkedHashMap</type>
-        </attribute>
-        <attribute>
-            <name>tableName</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-    </tag>
+    <uri>mtg-mason.tld</uri>=
     <tag>
         <name>resource</name>
         <tag-class>com.metamug.mason.taghandlers.ResourceTagHandler</tag-class>
@@ -61,23 +44,6 @@
         <name>upload</name>
         <tag-class>com.metamug.mason.taghandlers.UploadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
-    </tag>
-    <tag>
-        <name>status</name>
-        <tag-class>com.metamug.mason.taghandlers.StatusTagHandler</tag-class>
-        <body-content>JSP</body-content>
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>message</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
     </tag>
     <tag>
         <name>exception</name>
@@ -204,17 +170,6 @@
         <name>parent</name>
         <tag-class>com.metamug.mason.taghandlers.ParentTagHandler</tag-class>
         <body-content>scriptless</body-content>
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-    </tag>
-    <tag>
-        <name>group</name>
-        <tag-class>com.metamug.mason.taghandlers.auth.GroupTagHandler</tag-class>
-        <body-content>empty</body-content>
         <attribute>
             <name>value</name>
             <required>true</required>

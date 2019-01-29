@@ -73,7 +73,7 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
         return EVAL_PAGE;
     }
     
-    public void process404(HttpServletRequest request, HttpServletResponse response, JspWriter out){
+    private void process404(HttpServletRequest request, HttpServletResponse response, JspWriter out){
         String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
         response.setContentType(header);
         response.setStatus(STATUS_RES_NOT_FOUND);
@@ -98,7 +98,7 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
         }
     }
     
-    public void processAuth(HttpServletRequest request) throws JspException {
+    private void processAuth(HttpServletRequest request) throws JspException {
         String header = request.getHeader("Authorization");
         MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
         try {
@@ -123,7 +123,7 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
         }
     }
     
-    public void processOutput(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
+    private void processOutput(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
         LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) 
                                                     pageContext.getAttribute("map", PageContext.REQUEST_SCOPE); 
         if (resultMap.isEmpty()) {
