@@ -533,7 +533,6 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
     private Integer maxLen;
     private Integer minLen;
     private String pattern;
-    private String exists;
     private String defaultValue;
     private String value;
 
@@ -555,18 +554,18 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
     public int doEndTag() throws JspException {
 
         MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        //mtg.getParams().put(name, value);
 
-        if (isRequired != null && isRequired) {
-            if (value == null) {
-                if (defaultValue == null) {
-                    throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                } else {
-                    mtg.setDefault(name, defaultValue);
-                }
+        if (value == null && isRequired != null && isRequired) {
+            if (defaultValue == null) {
+                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
+            } else {
+                mtg.setDefault(name, defaultValue);
+                release();
+                return EVAL_PAGE;
             }
         }
 
+        //continue validation if value != null
         if (pattern != null) {
             try {
                 if (!value.matches(pattern)) {
@@ -587,30 +586,18 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 case "date":
                     if (pattern == null) {
                         try {
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                            sdf.setLenient(false);
-                            sdf.parse(value);
+                            validateDateTime(value, "yyyy-MM-dd");                            
                         } catch (ParseException ex) {
                             throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                        } catch (NullPointerException ex) {
-                            if (isRequired != null) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                            }
                         }
                     }
                     break;
                 case "datetime":
                     if (pattern == null) {
                         try {
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            sdf.setLenient(false);
-                            sdf.parse(value);
+                            validateDateTime(value,"yyyy-MM-dd HH:mm:ss");                   
                         } catch (ParseException ex) {
                             throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Incorrect datetime pattern of " + name + " parameter"));
-                        } catch (NullPointerException ex) {
-                            if (isRequired != null) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                            }
                         }
                     }
                     break;
@@ -658,7 +645,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                         double maxLength = maxLen;
                         try {
                             if (value.length() > maxLength) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Input " + ((String) value) + " can be " + maxLength + " character long for " + name + " parameter"));
+                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Input " + value + " can be " + maxLength + " character long for " + name + " parameter"));
                             }
                         } catch (NullPointerException ex) {
                             if (isRequired != null) {
@@ -682,15 +669,9 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 case "time":
                     if (pattern == null) {
                         try {
-                            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                            sdf.setLenient(false);
-                            sdf.parse(value);
+                            validateDateTime(value, "HH:mm:ss");
                         } catch (ParseException ex) {
                             throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Incorrect time pattern of " + name + " parameter"));
-                        } catch (NullPointerException ex) {
-                            if (isRequired != null) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                            }
                         }
                     }
                     break;
@@ -711,8 +692,6 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 default:
             }
         }
-        //mtg is not modified so no need to set again.
-//        pageContext.getRequest().setAttribute("mtgReq", mtg);
         release();
         return EVAL_PAGE;
     }
@@ -749,10 +728,6 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
         this.pattern = pattern;
     }
 
-    public void setExists(String exists) {
-        this.exists = exists;
-    }
-
     public void setValue(String value) {
         if (value.isEmpty()) {
             this.value = null;
@@ -766,6 +741,18 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
             this.defaultValue = null;
         } else {
             this.defaultValue = defaultValue;
+        }
+    }
+    
+    private void validateDateTime(String value, String format) throws ParseException,JspException {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            sdf.setLenient(false);
+            sdf.parse(value);
+        } catch (NullPointerException ex) {
+            if (isRequired != null) {
+                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
+            }
         }
     }
 
