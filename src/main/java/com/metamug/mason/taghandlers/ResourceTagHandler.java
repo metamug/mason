@@ -113,12 +113,12 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
                 throw new JspException(ACCESS_DENIED,new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
             if (header.contains("Basic ")) {
-                masonReq.setUid(validateBasic(header));
+                masonReq.setUid(authService.validateBasic(header,auth));
             } else if (header.contains(BEARER_)) {
                 String bearerToken = header.replaceFirst(BEARER_, "");
                 //check jwt format
                 //validateJwt - check aud against val, exp
-                masonReq.setUid(validateBearer(bearerToken.trim()));
+                masonReq.setUid(authService.validateBearer(bearerToken.trim(),auth));
             } else {
                 throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
@@ -163,12 +163,4 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     @Override
     public void doFinally() {
     } 
-    
-    private String validateBasic(String header) throws JspException {
-        return authService.validateBasic(header, auth);
-    }
-
-    private String validateBearer(String bearerToken) throws JspException {
-        return authService.validateBearer(bearerToken, auth);
-    }
 }
