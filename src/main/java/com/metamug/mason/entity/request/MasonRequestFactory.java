@@ -16,14 +16,16 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class MasonRequestFactory {
     public static MasonRequest create(HttpServletRequest request){
-        ParamExtractStrategy strategy = new FormStrategy(request); //default is form strategy
+        ParamExtractStrategy strategy;
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null ? 
                 APPLICATION_HTML : request.getHeader(HEADER_CONTENT_TYPE);
         switch(contentType){
             case APPLICATION_JSON:
                 strategy = new JsonStrategy(request);
                 break;
-            //@TODO ... Add more cases here    
+            default:
+                strategy = new FormStrategy(request);
+                break;
         }
         return strategy.getRequest();
     }
