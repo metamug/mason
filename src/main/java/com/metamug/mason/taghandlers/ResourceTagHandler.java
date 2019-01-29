@@ -10,6 +10,7 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.entity.response.DatasetOutput;
 import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
@@ -38,8 +39,11 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     
     public static final int STATUS_RES_NOT_FOUND = 404;
     public static final String MSG_RES_NOT_FOUND = "Resource not found!";
+    public static final String ACCESS_DENIED = "Access Denied due to unauthorization!";
+    public static final String HEADER_ACCEPT = "Accept";
+    public static final String BEARER_ = "Bearer ";
     
-    public static final String HEADER_JSON = "application/json";
+    public static final String MASON_OUTPUT = "masonOutput";
     
     public ResourceTagHandler(){
         super();
@@ -57,6 +61,8 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             processAuth(request);    
         }
+        LinkedHashMap<String,Object> masonOutput = new LinkedHashMap<>();
+        pageContext.setAttribute(MASON_OUTPUT, masonOutput, PageContext.REQUEST_SCOPE);
         return EVAL_BODY_INCLUDE;
     }
     
@@ -74,7 +80,7 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     }
     
     private void process404(HttpServletRequest request, HttpServletResponse response, JspWriter out){
-        String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
+        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(header);
         response.setStatus(STATUS_RES_NOT_FOUND);
         try {
@@ -103,35 +109,32 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
         MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
         try {
             if (header == null) {
-                throw new JspException("Access Denied due to unauthorization.",
-                        new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+                throw new JspException(ACCESS_DENIED,new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
             if (header.contains("Basic ")) {
                 masonReq.setUid(validateBasic(header));
-            } else if (header.contains("Bearer ")) {
-                String bearerToken = header.replaceFirst("Bearer ", "");
+            } else if (header.contains(BEARER_)) {
+                String bearerToken = header.replaceFirst(BEARER_, "");
                 //check jwt format
                 //validateJwt - check aud against val, exp
                 masonReq.setUid(validateBearer(bearerToken.trim()));
             } else {
-                throw new JspException("Access Denied due to unauthorization.", 
-                        new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+                throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
         } catch (IllegalArgumentException ex) {
-            throw new JspException("Access Denied due to unauthorization.", 
-                    new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException(ACCESS_DENIED,new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
     }
     
     private void processOutput(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
         LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) 
-                                                    pageContext.getAttribute("map", PageContext.REQUEST_SCOPE); 
+                                                    pageContext.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE); 
         if (resultMap.isEmpty()) {
             response.setStatus(204);
             return;
         }
 
-        String header = request.getHeader("Accept") == null ? HEADER_JSON : request.getHeader("Accept");
+        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         MasonOutput output;
         if (Arrays.asList(header.split("/")).contains("xml")) { //Accept: application/xml, text/xml
             output = new XMLOutput(resultMap);

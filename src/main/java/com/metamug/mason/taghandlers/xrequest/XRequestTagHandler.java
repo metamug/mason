@@ -532,9 +532,6 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     private String url;
     private String method;
     private String requestBody;
-    
-    //private Boolean isVerbose;
-    //private Boolean isPersist;
 
     public XRequestTagHandler() {
         super();
@@ -552,8 +549,6 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
     @Override
     public int doEndTag() throws JspException {
-        //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
-        //MtgRequest mtgReq = (MtgRequest) pageContext.getRequest().getAttribute("mtgReq");
         //Accept header of mtg request
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeader = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
@@ -597,11 +592,6 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
             pageContext.setAttribute(var, xResponseXml);
 
-            /*if (isPersist != null && isPersist) {
-                mtgReq.getParams().put(id, xResponseXml);
-                pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-            }*/
-
         } else {
             //if Accept header "application/json"
             JSONObject xResponseJson;
@@ -613,10 +603,6 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
             pageContext.setAttribute(var, xResponseJson);
 
-            /*if (isPersist != null && isPersist) {
-                mtgReq.getParams().putAll(xresponse.getMapForJsonXResponse(id));
-                pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-            }*/
         }
 
         return EVAL_PAGE;

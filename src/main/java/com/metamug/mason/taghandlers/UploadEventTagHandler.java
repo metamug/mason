@@ -514,6 +514,7 @@ import com.metamug.mason.exceptions.MetamugError;
 import com.metamug.mason.exceptions.MetamugException;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
 import com.metamug.mason.services.ConnectionProvider;
+import static com.metamug.mason.taghandlers.ResourceTagHandler.MASON_OUTPUT;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -573,7 +574,8 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         String contentType = request.getContentType() == null ? "" : request.getContentType();
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
+                                                                    MASON_OUTPUT, PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
         MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
         if (contentType.contains("multipart/form-data")) {
@@ -649,7 +651,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                         mtg.getParams().put("filename", file.getName());
                         mtg.getParams().put("filesize", String.valueOf(file.length()));
                     }
-                    pageContext.getRequest().setAttribute("mtgReq", mtg);
+                    //pageContext.getRequest().setAttribute("mtgReq", mtg);
                 }
             } catch (IllegalStateException ex) {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {

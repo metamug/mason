@@ -553,7 +553,7 @@ public class Router implements Filter {
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base")+File.separator+"webapps";
     private FilterConfig filterConfig = null;
     private String encoding;
-    private static String dataSource;
+    private String dataSource;
     
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY_ATTR = "masonQuery";

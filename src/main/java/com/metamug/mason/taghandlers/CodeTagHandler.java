@@ -568,7 +568,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         ds = ConnectionProvider.getMasonDatasource();
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute("map", PageContext.REQUEST_SCOPE);
+        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
+                                                            ResourceTagHandler.MASON_OUTPUT, PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
         Object result;
         try {
