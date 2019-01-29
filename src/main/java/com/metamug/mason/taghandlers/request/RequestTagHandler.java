@@ -32,8 +32,9 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         boolean isRequestHandled = (boolean)request.getAttribute(Router.REQUEST_HANDLED);
         if(!isRequestHandled) {
-            MasonRequest masonReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-            if(method.equalsIgnoreCase(request.getMethod())) {
+            MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
+            String reqMethod = (String)request.getAttribute("mtgMethod");
+            if(method.equalsIgnoreCase(reqMethod)) {
                 boolean hasId = masonReq.getId() != null;
                 if(hasId == item) {
                     request.setAttribute(Router.REQUEST_HANDLED, Boolean.TRUE);

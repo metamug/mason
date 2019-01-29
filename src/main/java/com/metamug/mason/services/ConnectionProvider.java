@@ -543,7 +543,7 @@ public class ConnectionProvider {
         return ds;
     }
 
-    private ConnectionProvider() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException { 
+    private ConnectionProvider() throws SQLException { 
         con = getMasonDatasource().getConnection();
     }
 
@@ -551,7 +551,7 @@ public class ConnectionProvider {
         return new ConnectionProvider();
     }
 
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() {
         return this.con;
     }
 
