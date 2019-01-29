@@ -504,103 +504,35 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.services;
-
-import com.metamug.mason.entity.auth.JWebToken;
-import com.metamug.mason.daos.AuthDAO;
-import com.metamug.mason.exceptions.MetamugError;
-import com.metamug.mason.exceptions.MetamugException;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.naming.NamingException;
-import javax.servlet.jsp.JspException;
-import org.json.JSONObject;
+package com.metamug.mason.exception;
 
 /**
  *
  * @author Kaisteel
  */
-public class AuthService {
+public enum MetamugError {
+    BEARER_TOKEN_MISMATCH("Token doesn't belong to specified user."),
+    CLASS_NOT_IMPLEMENTED("Did not implement any of the processable interface."),
+    CODE_ERROR("Error occured during code execution."),
+    EMPTY_PERSIST_ERROR("No result to persist."),
+    INCORRECT_ROLE_AUTHENTICATION("Incorrect role credentials"),
+    INCORRECT_STATUS_CODE("Incorrect status code"),
+    INPUT_VALIDATION_ERROR("Param value failed validation"),
+    NO_UPLOAD_LISTENER("No implementation of UploadListener was found."),
+    PARENT_RESOURCE_MISSING("Parent resource missing"),
+    ROLE_ACCESS_DENIED("Forbidden access to resource"),
+    SQL_ERROR("SQL error occurred."),
+    UPLOAD_CODE_ERROR("Error occured in upload event."),
+    UPLOAD_SIZE_EXCEEDED("File size exceeds limit."),
+    XRESPONSE_PARSE_ERROR("Unable to parse XRequest response");
 
-    private AuthDAO dao;
+    private final String msg;
 
-    public AuthService() {
-        try {
-            this.dao = new AuthDAO(ConnectionProvider.getInstance());
-        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
-            Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
-            this.dao = null;
-        }
+    MetamugError(String msg) {
+        this.msg = msg;
     }
 
-    public AuthService(AuthDAO dao) {
-        this.dao = dao;
-    }
-
-    public String validateBasic(String header, String roleName) throws JspException {
-
-        String authHeader = header.replaceFirst("Basic ", "");
-
-        String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
-        String[] split = userCred.split(":");
-        String user = split[0], password = split[1];
-
-        if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
-            throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-        }
-
-        JSONObject status = dao.validateBasic(user, password, roleName);
-        switch (status.getInt("status")) {
-            case -1:
-                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-            case 0:
-                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
-            case 1:
-                return status.getString("user_id");
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns user and auth values to verify
-     *
-     * @param bearerToken
-     * @param roleName
-     * @return
-     * @throws javax.servlet.jsp.JspException
-     */
-    public String validateBearer(String bearerToken, String roleName) throws JspException {
-        try {
-            //verify and use
-            JWebToken incomingToken = new JWebToken(bearerToken);
-            if (!incomingToken.isValid()) {
-                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
-            }
-            if (!roleName.equals(incomingToken.getAudience())) {
-                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
-            }
-            return (incomingToken.getSubject());
-        } catch (NoSuchAlgorithmException ex) {
-            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
-        }
-    }
-
-    /**
-     * Create Bearer token with username and password. Uses JWT Scheme
-     *
-     * @param user
-     * @param pass
-     * @return
-     */
-    public String createBearer(String user, String pass) {
-        JSONObject payload = dao.getBearerDetails(user, pass);
-        String token = new JWebToken(payload).toString();
-        return token;
+    public String getMsg() {
+        return this.msg;
     }
 }

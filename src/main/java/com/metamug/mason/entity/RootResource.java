@@ -500,7 +500,7 @@
  */
 package com.metamug.mason.entity;
 
-import com.metamug.mason.services.AuthService;
+import com.metamug.mason.service.AuthService;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;

@@ -507,8 +507,8 @@
 package com.metamug.mason.taghandlers;
 
 import com.metamug.mason.entity.request.MasonRequest;
-import com.metamug.mason.exceptions.MetamugError;
-import com.metamug.mason.exceptions.MetamugException;
+import com.metamug.mason.exception.MetamugError;
+import com.metamug.mason.exception.MetamugException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;

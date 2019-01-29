@@ -506,8 +506,8 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.exceptions.MetamugError;
-import com.metamug.mason.exceptions.MetamugException;
+import com.metamug.mason.exception.MetamugError;
+import com.metamug.mason.exception.MetamugException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;

@@ -507,8 +507,8 @@
 package com.metamug.mason.taghandlers;
 
 import com.metamug.mason.entity.request.MasonRequest;
-import com.metamug.mason.exceptions.MetamugError;
-import com.metamug.mason.exceptions.MetamugException;
+import com.metamug.mason.exception.MetamugError;
+import com.metamug.mason.exception.MetamugException;
 import java.util.SortedMap;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;

@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.metamug.mason.services;
+package com.metamug.mason.service;
 
+import com.metamug.mason.service.QueryManagerService;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Assert;

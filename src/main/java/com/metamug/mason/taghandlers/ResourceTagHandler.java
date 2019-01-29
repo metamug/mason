@@ -12,9 +12,9 @@ import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
-import com.metamug.mason.exceptions.MetamugError;
-import com.metamug.mason.exceptions.MetamugException;
-import com.metamug.mason.services.AuthService;
+import com.metamug.mason.exception.MetamugError;
+import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.service.AuthService;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -37,8 +37,8 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     private String auth;
     private final transient AuthService authService;
     
-    public static final int STATUS_RES_NOT_FOUND = 404;
-    public static final String MSG_RES_NOT_FOUND = "Resource not found!";
+    public static final int STATUS_METHOD_NOT_ALLOWED = 405;
+    public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization!";
     public static final String HEADER_ACCEPT = "Accept";
     public static final String BEARER_ = "Bearer ";
@@ -74,30 +74,31 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
         if(isRequestHandled) {
             processOutput(request, response, pageContext.getOut());
         } else{
-            process404(request, response, pageContext.getOut());
+            process405(request, response, pageContext.getOut());
         }
         return EVAL_PAGE;
     }
     
-    private void process404(HttpServletRequest request, HttpServletResponse response, JspWriter out){
+    private void process405(HttpServletRequest request, HttpServletResponse response, JspWriter out){
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(header);
-        response.setStatus(STATUS_RES_NOT_FOUND);
+        response.setStatus(STATUS_METHOD_NOT_ALLOWED);
         try {
             if (Arrays.asList(header.split("/")).contains("xml")) {
                 StringBuilder xmlBuilder = new StringBuilder();
                 xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
                 xmlBuilder.append("<response>");
                 xmlBuilder.append("\n\t<status>");
-                xmlBuilder.append(STATUS_RES_NOT_FOUND);
+                xmlBuilder.append(STATUS_METHOD_NOT_ALLOWED);
                 xmlBuilder.append("</status>");
                 xmlBuilder.append("\n\t<message>");
-                xmlBuilder.append(MSG_RES_NOT_FOUND);
+                xmlBuilder.append(MSG_METHOD_NOT_ALLOWED);
                 xmlBuilder.append("</message>");
                 xmlBuilder.append("\n</response>");
                 out.print(xmlBuilder.toString());                       
             } else { 
-                out.print("{\"message\":\"" + MSG_RES_NOT_FOUND + "\",\"status\":" + STATUS_RES_NOT_FOUND + "}");
+                out.print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
+                        + STATUS_METHOD_NOT_ALLOWED + "}");
             }
         } catch (IOException ex) {
             Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);

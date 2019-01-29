@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.exceptions;
+package com.metamug.mason.exception;
 
 /**
  *

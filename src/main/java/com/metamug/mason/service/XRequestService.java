@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.services;
+package com.metamug.mason.service;
 
 import com.metamug.mason.entity.xrequest.XResponse;
 import java.io.IOException;

@@ -504,106 +504,103 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.daos;
+package com.metamug.mason.service;
 
-import com.metamug.mason.services.ConnectionProvider;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import com.metamug.mason.entity.auth.JWebToken;
+import com.metamug.mason.dao.AuthDAO;
+import com.metamug.mason.exception.MetamugError;
+import com.metamug.mason.exception.MetamugException;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.NamingException;
+import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
 
 /**
  *
  * @author Kaisteel
  */
-public class AuthDAO {
+public class AuthService {
 
-    ConnectionProvider provider;
+    private AuthDAO dao;
 
-    public AuthDAO(ConnectionProvider provider) {
-        this.provider = provider;
+    public AuthService() {
+        try {
+            this.dao = new AuthDAO(ConnectionProvider.getInstance());
+        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
+            this.dao = null;
+        }
     }
 
-    public JSONObject validateBasic(String userName, String password, String roleName) {
-        JSONObject status = new JSONObject();
-        status.put("status", 0);
-        try (Connection con = provider.getConnection()) {
-            String authQuery = getConfigValue(con, "Basic");
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    basicStmnt.setString(1, userName);
-                    basicStmnt.setString(2, password);
-                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
-                        while (basicResult.next()) {
-                            status.put("user_id", basicResult.getString(1));
-                            status.put("role", basicResult.getString(2));
-                            if (basicResult.getString(2).equalsIgnoreCase(roleName)) {
-                                status.put("status", 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                status.put("status", -1);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return status;
+    public AuthService(AuthDAO dao) {
+        this.dao = dao;
     }
 
-    public JSONObject getBearerDetails(String user, String pass) {
-        JSONObject jwtPayload = new JSONObject();
-        jwtPayload.put("status", 0);
-        try (Connection con = provider.getConnection()) {
-            String authQuery = getConfigValue(con, "Bearer");
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    basicStmnt.setString(1, user);
-                    basicStmnt.setString(2, pass);
-                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
-                        while (basicResult.next()) {
-                            jwtPayload.put("sub", basicResult.getString(1));
-                            jwtPayload.put("aud", basicResult.getString(2));
-                            LocalDateTime ldt = LocalDateTime.now().plusDays(90);
-                            jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //thsi needs to be configured
-                        }
-                    }
-                }
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+    public String validateBasic(String header, String roleName) throws JspException {
+
+        String authHeader = header.replaceFirst("Basic ", "");
+
+        String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
+        String[] split = userCred.split(":");
+        String user = split[0], password = split[1];
+
+        if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
+            throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
-        return jwtPayload;
+
+        JSONObject status = dao.validateBasic(user, password, roleName);
+        switch (status.getInt("status")) {
+            case -1:
+                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            case 0:
+                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
+            case 1:
+                return status.getString("user_id");
+        }
+
+        return null;
     }
 
     /**
-     * Get Value for key in mtg_config
+     * Returns user and auth values to verify
      *
-     * @param key
-     * @return empty string if no query
+     * @param bearerToken
+     * @param roleName
+     * @return
+     * @throws javax.servlet.jsp.JspException
      */
-    private String getConfigValue(Connection con, String key) {
-
-        try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower(?)");) {
-            basicAuthQueryStmnt.setString(1, key);
-            try (ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
-                if (authQueryResult.next()) {
-                    return authQueryResult.getString("auth_query");
-                } else {
-                    return "";
-                }
+    public String validateBearer(String bearerToken, String roleName) throws JspException {
+        try {
+            //verify and use
+            JWebToken incomingToken = new JWebToken(bearerToken);
+            if (!incomingToken.isValid()) {
+                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            return "";
+            if (!roleName.equals(incomingToken.getAudience())) {
+                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
+            }
+            return (incomingToken.getSubject());
+        } catch (NoSuchAlgorithmException ex) {
+            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
         }
     }
 
+    /**
+     * Create Bearer token with username and password. Uses JWT Scheme
+     *
+     * @param user
+     * @param pass
+     * @return
+     */
+    public String createBearer(String user, String pass) {
+        JSONObject payload = dao.getBearerDetails(user, pass);
+        String token = new JWebToken(payload).toString();
+        return token;
+    }
 }

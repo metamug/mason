@@ -506,8 +506,8 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.exceptions.MetamugException;
-import com.metamug.mason.services.ConnectionProvider;
+import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.service.ConnectionProvider;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

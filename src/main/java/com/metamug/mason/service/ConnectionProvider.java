@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.services;
+package com.metamug.mason.service;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.beans.PropertyVetoException;

@@ -504,35 +504,106 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.exceptions;
+package com.metamug.mason.dao;
+
+import com.metamug.mason.service.ConnectionProvider;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
  *
  * @author Kaisteel
  */
-public enum MetamugError {
-    BEARER_TOKEN_MISMATCH("Token doesn't belong to specified user."),
-    CLASS_NOT_IMPLEMENTED("Did not implement any of the processable interface."),
-    CODE_ERROR("Error occured during code execution."),
-    EMPTY_PERSIST_ERROR("No result to persist."),
-    INCORRECT_ROLE_AUTHENTICATION("Incorrect role credentials"),
-    INCORRECT_STATUS_CODE("Incorrect status code"),
-    INPUT_VALIDATION_ERROR("Param value failed validation"),
-    NO_UPLOAD_LISTENER("No implementation of UploadListener was found."),
-    PARENT_RESOURCE_MISSING("Parent resource missing"),
-    ROLE_ACCESS_DENIED("Forbidden access to resource"),
-    SQL_ERROR("SQL error occurred."),
-    UPLOAD_CODE_ERROR("Error occured in upload event."),
-    UPLOAD_SIZE_EXCEEDED("File size exceeds limit."),
-    XRESPONSE_PARSE_ERROR("Unable to parse XRequest response");
+public class AuthDAO {
 
-    private final String msg;
+    ConnectionProvider provider;
 
-    MetamugError(String msg) {
-        this.msg = msg;
+    public AuthDAO(ConnectionProvider provider) {
+        this.provider = provider;
     }
 
-    public String getMsg() {
-        return this.msg;
+    public JSONObject validateBasic(String userName, String password, String roleName) {
+        JSONObject status = new JSONObject();
+        status.put("status", 0);
+        try (Connection con = provider.getConnection()) {
+            String authQuery = getConfigValue(con, "Basic");
+            if (!authQuery.isEmpty()) {
+                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
+                    basicStmnt.setString(1, userName);
+                    basicStmnt.setString(2, password);
+                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
+                        while (basicResult.next()) {
+                            status.put("user_id", basicResult.getString(1));
+                            status.put("role", basicResult.getString(2));
+                            if (basicResult.getString(2).equalsIgnoreCase(roleName)) {
+                                status.put("status", 1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                status.put("status", -1);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return status;
     }
+
+    public JSONObject getBearerDetails(String user, String pass) {
+        JSONObject jwtPayload = new JSONObject();
+        jwtPayload.put("status", 0);
+        try (Connection con = provider.getConnection()) {
+            String authQuery = getConfigValue(con, "Bearer");
+            if (!authQuery.isEmpty()) {
+                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
+                    basicStmnt.setString(1, user);
+                    basicStmnt.setString(2, pass);
+                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
+                        while (basicResult.next()) {
+                            jwtPayload.put("sub", basicResult.getString(1));
+                            jwtPayload.put("aud", basicResult.getString(2));
+                            LocalDateTime ldt = LocalDateTime.now().plusDays(90);
+                            jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //thsi needs to be configured
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return jwtPayload;
+    }
+
+    /**
+     * Get Value for key in mtg_config
+     *
+     * @param key
+     * @return empty string if no query
+     */
+    private String getConfigValue(Connection con, String key) {
+
+        try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower(?)");) {
+            basicAuthQueryStmnt.setString(1, key);
+            try (ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
+                if (authQueryResult.next()) {
+                    return authQueryResult.getString("auth_query");
+                } else {
+                    return "";
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            return "";
+        }
+    }
+
 }

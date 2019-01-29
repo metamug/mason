@@ -507,7 +507,7 @@
 package com.metamug.mason.taghandlers.xrequest;
 
 import com.metamug.mason.entity.xrequest.XResponse;
-import com.metamug.mason.services.XRequestService;
+import com.metamug.mason.service.XRequestService;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

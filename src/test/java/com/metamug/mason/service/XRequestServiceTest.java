@@ -16,8 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package com.metamug.mason.services;
+package com.metamug.mason.service;
 
+import com.metamug.mason.service.XRequestService;
 import com.metamug.mason.entity.xrequest.XResponse;
 import java.util.HashMap;
 import java.util.Map;
