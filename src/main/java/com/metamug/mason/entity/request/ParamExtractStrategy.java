@@ -14,15 +14,14 @@ import javax.servlet.http.HttpServletRequest;
  * @author D3ep4k
  */
 public abstract class ParamExtractStrategy {
-
-    protected MasonRequest mtgRequest = new MasonRequest();
+    protected MasonRequest masonRequest = new MasonRequest();
     protected Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     
-    public ParamExtractStrategy(HttpServletRequest request){    
-        
+    public ParamExtractStrategy(HttpServletRequest request){        
     }
     
     public MasonRequest getRequest(){
-        return mtgRequest;
+        masonRequest.setParams(params);
+        return masonRequest;
     }
 }

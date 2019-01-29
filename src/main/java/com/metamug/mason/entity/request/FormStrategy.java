@@ -20,11 +20,11 @@ public class FormStrategy extends ParamExtractStrategy {
         while (parameters.hasMoreElements()) {
             String paramName = parameters.nextElement();
             if (paramName.trim().equalsIgnoreCase("id")) {
-                mtgRequest.setId(request.getParameter(paramName).trim());
+                masonRequest.setId(request.getParameter(paramName).trim());
             } else if (paramName.trim().equalsIgnoreCase("pid")) {
-                mtgRequest.setPid(request.getParameter(paramName).trim());
+                masonRequest.setPid(request.getParameter(paramName).trim());
             } else if (paramName.trim().equalsIgnoreCase("uid")) {
-                mtgRequest.setUid(request.getParameter(paramName).trim());
+                masonRequest.setUid(request.getParameter(paramName).trim());
             } else {
                 if (request.getParameterValues(paramName).length > 1) {
                     params.put(paramName.trim(), String.join(",", request.getParameterValues(paramName)).trim());
@@ -34,5 +34,4 @@ public class FormStrategy extends ParamExtractStrategy {
             }
         }
     }
-
 }

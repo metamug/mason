@@ -41,7 +41,7 @@ public class JsonStrategy extends ParamExtractStrategy {
         flattenAsMap.entrySet().forEach(entry -> {
             String key = entry.getKey();
             String value = String.valueOf(entry.getValue());
-            addKeyPair(mtgRequest, new String[]{key, value}, params);
+            addKeyPair(masonRequest, new String[]{key, value}, params);
         });
         //Add jsonData as String
         params.put("mtgRawJson", jsonData.toString());
