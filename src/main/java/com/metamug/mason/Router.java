@@ -508,7 +508,6 @@ package com.metamug.mason;
 
 import com.eclipsesource.json.ParseException;
 import com.metamug.mason.entity.RootResource;
-import com.metamug.mason.entity.request.ImmutableMtgRequest;
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.entity.request.MasonRequestFactory;
 import com.metamug.mason.service.AuthService;
@@ -600,25 +599,6 @@ public class Router implements Filter {
         processRequest(req, res, tokens, versionTokenIndex);
     }
 
-    private MasonRequest createRequest(String[] tokens, String method, HttpServletRequest request, int versionTokenIndex) 
-            throws IOException, ServletException {
-        MasonRequest masonRequest = MasonRequestFactory.create(request);
-
-        //Set parent value and pid
-        if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
-            masonRequest.setParent(tokens[versionTokenIndex+1]);
-            masonRequest.setPid(tokens[versionTokenIndex+2]);
-            masonRequest.setId((tokens.length > versionTokenIndex+4) ? tokens[versionTokenIndex+4] : null);
-        } else {
-            masonRequest.setId((tokens.length > versionTokenIndex+2) ? tokens[versionTokenIndex+2] : null);
-        }
-        masonRequest.setMethod(method);
-        masonRequest.setUri(tokens[versionTokenIndex+1]);
-        
-        //make the request immutable
-        return new ImmutableMtgRequest(masonRequest);
-    }
-
     /**
      * Servlet version of the request handling. Cast objects to handle REST request
      *
@@ -657,7 +637,7 @@ public class Router implements Filter {
             if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
                     + "resources" + File.separator + version.toLowerCase() + File.separator
                     + resourceName + ".jsp").exists()) {
-                MasonRequest mtgReq = createRequest(tokens, req.getMethod(), req, versionTokenIndex);
+                MasonRequest mtgReq = MasonRequestFactory.create(req,req.getMethod(),tokens,versionTokenIndex);
                 req.setAttribute("mtgReq", mtgReq);
                 req.setAttribute(REQUEST_HANDLED, Boolean.FALSE);
                 req.setAttribute("datasource", dataSource); 
