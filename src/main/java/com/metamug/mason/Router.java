@@ -549,7 +549,7 @@ public class Router implements Filter {
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base")+File.separator+"webapps";
     private FilterConfig filterConfig = null;
     private String encoding;
-    private String dataSource;
+    private String dataSource = "jdbc/mason";
     
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String QUERY_FILE_NAME = "query.properties";
@@ -752,9 +752,10 @@ public class Router implements Filter {
         if (encoding == null) 
             encoding = "UTF-8";
         
-        dataSource = config.getInitParameter("datasource") == null ? "jdbc/mason"
-                : config.getInitParameter("datasource");
-        ConnectionProvider.setMasonDatasource(dataSource);
+        if(config.getInitParameter("datasource") != null){
+            dataSource = config.getInitParameter("datasource");
+            ConnectionProvider.setMasonDatasource(dataSource);
+        }
            
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
         QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
