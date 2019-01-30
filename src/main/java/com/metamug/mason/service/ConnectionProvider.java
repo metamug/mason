@@ -522,30 +522,24 @@ import javax.sql.DataSource;
  * @author Kainix
  */
 public class ConnectionProvider {
-    private static String masonDatasource = "jdbc/mason";
+    private static String masonDatasource;
     private final Connection con;
     
     public static void setMasonDatasource(String ds) {
         masonDatasource = ds;
     }
     
-    public static DataSource getMasonDatasource() {
-        DataSource ds = null;
-        try {
-            Context initialContext = new InitialContext();
-            Context envContext = (Context) initialContext.lookup("java:/comp/env");
-            ds = (DataSource) envContext.lookup(masonDatasource);
-        } catch (NamingException ex) {
-            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return ds;
+    public static DataSource getMasonDatasource() throws NamingException {
+        Context initialContext = new InitialContext();
+        Context envContext = (Context) initialContext.lookup("java:/comp/env");
+        return (DataSource) envContext.lookup(masonDatasource);
     }
 
-    private ConnectionProvider() throws SQLException { 
+    private ConnectionProvider() throws SQLException, NamingException { 
         con = getMasonDatasource().getConnection();
     }
 
-    public static ConnectionProvider getInstance() throws SQLException {
+    public static ConnectionProvider getInstance() throws SQLException, NamingException {
         return new ConnectionProvider();
     }
 
@@ -553,7 +547,7 @@ public class ConnectionProvider {
         return this.con;
     }
 
-    public static void shutdown() {
+    public static void shutdown() throws SQLException, NamingException {
         String driver = "";
         try (Connection con = ConnectionProvider.getInstance().getConnection()) {
             DatabaseMetaData dbMetaData = con.getMetaData();

@@ -529,7 +529,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -569,7 +572,11 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
      */
     @Override
     public int doEndTag() throws JspException {
-        ds = ConnectionProvider.getMasonDatasource();
+        try {
+            ds = ConnectionProvider.getMasonDatasource();
+        } catch (NamingException ex) {
+            Logger.getLogger(UploadEventTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";

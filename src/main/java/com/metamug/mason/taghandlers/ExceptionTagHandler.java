@@ -516,6 +516,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -550,7 +551,11 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     @Override
     public int doEndTag() throws JspException {
         Exception ex = (Exception) value;
-        ds = ConnectionProvider.getMasonDatasource();
+        try {
+            ds = ConnectionProvider.getMasonDatasource();
+        } catch (NamingException ex1) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, null, ex1);
+        }
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();

@@ -516,6 +516,7 @@ import java.sql.SQLException;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
 
@@ -530,7 +531,7 @@ public class AuthService {
     public AuthService() {
         try {
             this.dao = new AuthDAO(ConnectionProvider.getInstance());
-        } catch (SQLException ex) {
+        } catch (SQLException | NamingException ex) {
             Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
             this.dao = null;
         }

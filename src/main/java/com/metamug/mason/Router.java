@@ -518,10 +518,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -737,7 +739,11 @@ public class Router implements Filter {
      */
     @Override
     public void destroy() {
-        ConnectionProvider.shutdown();
+        try {
+            ConnectionProvider.shutdown();
+        } catch (SQLException | NamingException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -752,10 +758,10 @@ public class Router implements Filter {
         if (encoding == null) 
             encoding = "UTF-8";
         
-        if(config.getInitParameter("datasource") != null){
+        if(config.getInitParameter("datasource") != null)
             dataSource = config.getInitParameter("datasource");
-            ConnectionProvider.setMasonDatasource(dataSource);
-        }
+        
+        ConnectionProvider.setMasonDatasource(dataSource);
            
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
         QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);

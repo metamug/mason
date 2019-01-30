@@ -523,6 +523,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
@@ -565,7 +568,11 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         MasonRequest mtgReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        ds = ConnectionProvider.getMasonDatasource();
+        try {
+            ds = ConnectionProvider.getMasonDatasource();
+        } catch (NamingException ex) {
+            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
