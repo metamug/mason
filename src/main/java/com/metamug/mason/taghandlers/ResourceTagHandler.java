@@ -5,13 +5,8 @@
  */
 package com.metamug.mason.taghandlers;
 
-import com.metamug.mason.Router;
 import com.metamug.mason.entity.request.MasonRequest;
-import com.metamug.mason.entity.response.DatasetOutput;
-import com.metamug.mason.entity.response.JSONOutput;
-import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
-import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.AuthService;
@@ -26,7 +21,6 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
@@ -69,13 +63,9 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        boolean isRequestHandled = (boolean)request.getAttribute(Router.REQUEST_HANDLED);
-        if(isRequestHandled) {
-            processOutput(request, response, pageContext.getOut());
-        } else{
-            process405(request, response, pageContext.getOut());
-        }
-        return EVAL_PAGE;
+        process405(request, response, pageContext.getOut());
+        
+        return SKIP_PAGE;
     }
     
     private void process405(HttpServletRequest request, HttpServletResponse response, JspWriter out){
@@ -124,34 +114,6 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
             }
         } catch (IllegalArgumentException ex) {
             throw new JspException(ACCESS_DENIED,new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-        }
-    }
-    
-    private void processOutput(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
-        LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) 
-                                        pageContext.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE); 
-        if (resultMap.isEmpty()) {
-            response.setStatus(204);
-            return;
-        }
-
-        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
-        MasonOutput output;
-        if (Arrays.asList(header.split("/")).contains("xml")) { //Accept: application/xml, text/xml
-            output = new XMLOutput(resultMap);
-        } else if (Arrays.asList(header.split("/")).contains("json+dataset")) { //Accept: application/json+dataset
-            output = new DatasetOutput(resultMap);
-        } else { //Accept: application/json OR default
-            output = new JSONOutput(resultMap);
-        }
-        
-        String op = output.toString();
-        response.setContentType(output.getContentType());
-        pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
-        try {
-            out.print(op);
-        } catch (IOException ex) {
-            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

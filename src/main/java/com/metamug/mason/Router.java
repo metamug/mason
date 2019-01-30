@@ -555,7 +555,6 @@ public class Router implements Filter {
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY = "masonQuery";
-    public static final String REQUEST_HANDLED = "isRequestHandled";
 
     public Router() {
     }
@@ -639,7 +638,6 @@ public class Router implements Filter {
                     + resourceName + ".jsp").exists()) {
                 MasonRequest mtgReq = MasonRequestFactory.create(req,req.getMethod(),tokens,versionTokenIndex);
                 req.setAttribute("mtgReq", mtgReq);
-                req.setAttribute(REQUEST_HANDLED, Boolean.FALSE);
                 req.setAttribute("datasource", dataSource); 
                  //save method as attribute because jsp only accepts GET and POST
                 req.setAttribute("mtgMethod", req.getMethod());
