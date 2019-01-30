@@ -6,7 +6,6 @@
 package com.metamug.mason.entity.request;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
-import static com.metamug.mason.Router.addKeyPair;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
  * @author D3ep4k
  */
 public class JsonStrategy extends ParamExtractStrategy {
-
     /**
      *
      * @param request
@@ -46,5 +44,4 @@ public class JsonStrategy extends ParamExtractStrategy {
         //Add jsonData as String
         params.put("mtgRawJson", jsonData.toString());
     }
-
 }

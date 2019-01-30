@@ -507,8 +507,6 @@
 package com.metamug.mason.service;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
