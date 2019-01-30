@@ -522,7 +522,7 @@ import javax.sql.DataSource;
  * @author Kainix
  */
 public class ConnectionProvider {
-    private static String masonDatasource;
+    private static String masonDatasource = "jdbc/mason";
     private final Connection con;
     
     public static void setMasonDatasource(String ds) {
@@ -545,7 +545,7 @@ public class ConnectionProvider {
         con = getMasonDatasource().getConnection();
     }
 
-    public static ConnectionProvider getInstance() throws SQLException, NamingException {
+    public static ConnectionProvider getInstance() throws SQLException {
         return new ConnectionProvider();
     }
 
@@ -558,7 +558,7 @@ public class ConnectionProvider {
         try (Connection con = ConnectionProvider.getInstance().getConnection()) {
             DatabaseMetaData dbMetaData = con.getMetaData();
             driver = dbMetaData.getDriverName().toLowerCase().trim();
-        } catch (SQLException | NamingException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         if (driver.contains("hsql")) {

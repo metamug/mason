@@ -35,11 +35,12 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  */
 public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinally{
     private String auth;
-    private final transient AuthService authService;
+    private transient AuthService authService;
     
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
     public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";
-    public static final String ACCESS_DENIED = "Access Denied due to unauthorization!";
+    public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
+    public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String HEADER_ACCEPT = "Accept";
     public static final String BEARER_ = "Bearer ";
     
@@ -48,7 +49,6 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     public ResourceTagHandler(){
         super();
         auth = null;
-        authService = new AuthService();
     }
     
     public void setAuth(String a){
@@ -61,8 +61,7 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             processAuth(request);    
         }
-        LinkedHashMap<String,Object> masonOutput = new LinkedHashMap<>();
-        pageContext.setAttribute(MASON_OUTPUT, masonOutput, PageContext.REQUEST_SCOPE);
+        pageContext.setAttribute(MASON_OUTPUT, new LinkedHashMap<>(), PageContext.REQUEST_SCOPE);
         return EVAL_BODY_INCLUDE;
     }
     
@@ -107,11 +106,12 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     
     private void processAuth(HttpServletRequest request) throws JspException {
         String header = request.getHeader("Authorization");
-        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
+        if (header == null) {
+            throw new JspException(ACCESS_DENIED,new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+        }
+        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");      
+        authService = new AuthService();
         try {
-            if (header == null) {
-                throw new JspException(ACCESS_DENIED,new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-            }
             if (header.contains("Basic ")) {
                 masonReq.setUid(authService.validateBasic(header,auth));
             } else if (header.contains(BEARER_)) {
@@ -129,7 +129,7 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     
     private void processOutput(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
         LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) 
-                                                    pageContext.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE); 
+                                        pageContext.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE); 
         if (resultMap.isEmpty()) {
             response.setStatus(204);
             return;

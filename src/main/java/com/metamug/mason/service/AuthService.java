@@ -516,7 +516,6 @@ import java.sql.SQLException;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.NamingException;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
 
@@ -531,7 +530,7 @@ public class AuthService {
     public AuthService() {
         try {
             this.dao = new AuthDAO(ConnectionProvider.getInstance());
-        } catch (SQLException | NamingException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
             this.dao = null;
         }
@@ -562,7 +561,7 @@ public class AuthService {
             case 1:
                 return status.getString("user_id");
             default:
-                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+                throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
     }
 
@@ -582,7 +581,7 @@ public class AuthService {
                 throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
             if (!roleName.equals(incomingToken.getAudience())) {
-                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
+                throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
             return (incomingToken.getSubject());
         } catch (NoSuchAlgorithmException ex) {

@@ -507,7 +507,6 @@
 package com.metamug.mason;
 
 import com.eclipsesource.json.ParseException;
-import com.github.wnameless.json.flattener.JsonFlattener;
 import com.metamug.mason.entity.RootResource;
 import com.metamug.mason.entity.request.ImmutableMtgRequest;
 import com.metamug.mason.entity.request.MasonRequest;
@@ -515,16 +514,12 @@ import com.metamug.mason.entity.request.MasonRequestFactory;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.Filter;
@@ -537,7 +532,6 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -758,7 +752,8 @@ public class Router implements Filter {
         if (encoding == null) 
             encoding = "UTF-8";
         
-        dataSource = config.getInitParameter("datasource");
+        dataSource = config.getInitParameter("datasource") == null ? "jdbc/mason"
+                : config.getInitParameter("datasource");
         ConnectionProvider.setMasonDatasource(dataSource);
            
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
