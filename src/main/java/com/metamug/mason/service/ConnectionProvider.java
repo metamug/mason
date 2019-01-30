@@ -547,7 +547,7 @@ public class ConnectionProvider {
         con = getMasonDatasource().getConnection();
     }
 
-    public static ConnectionProvider getInstance() throws IOException, SQLException, PropertyVetoException, ClassNotFoundException, NamingException {
+    public static ConnectionProvider getInstance() throws SQLException, NamingException {
         return new ConnectionProvider();
     }
 
@@ -560,7 +560,7 @@ public class ConnectionProvider {
         try (Connection con = ConnectionProvider.getInstance().getConnection()) {
             DatabaseMetaData dbMetaData = con.getMetaData();
             driver = dbMetaData.getDriverName().toLowerCase().trim();
-        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+        } catch (SQLException | NamingException ex) {
             Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         if (driver.contains("hsql")) {

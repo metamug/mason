@@ -510,8 +510,7 @@ import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.dao.AuthDAO;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
+import com.metamug.mason.taghandlers.ResourceTagHandler;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Base64;
@@ -532,7 +531,7 @@ public class AuthService {
     public AuthService() {
         try {
             this.dao = new AuthDAO(ConnectionProvider.getInstance());
-        } catch (IOException | SQLException | PropertyVetoException | ClassNotFoundException | NamingException ex) {
+        } catch (SQLException | NamingException ex) {
             Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
             this.dao = null;
         }
@@ -548,23 +547,23 @@ public class AuthService {
 
         String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
         String[] split = userCred.split(":");
-        String user = split[0], password = split[1];
+        String user = split[0]; 
+        String password = split[1];
 
         if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
-            throw new JspException("Access Denied due to unauthorization.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
 
         JSONObject status = dao.validateBasic(user, password, roleName);
         switch (status.getInt("status")) {
-            case -1:
-                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             case 0:
-                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
+                throw new JspException(ResourceTagHandler.ACCESS_DENIED, 
+                        new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
             case 1:
                 return status.getString("user_id");
+            default:
+                throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
-
-        return null;
     }
 
     /**
@@ -580,14 +579,14 @@ public class AuthService {
             //verify and use
             JWebToken incomingToken = new JWebToken(bearerToken);
             if (!incomingToken.isValid()) {
-                throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
+                throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
             if (!roleName.equals(incomingToken.getAudience())) {
                 throw new JspException("Forbidden Access to resource.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
             return (incomingToken.getSubject());
         } catch (NoSuchAlgorithmException ex) {
-            throw new JspException("Access Denied to resource due to unauthorization.", new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
+            throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
         }
     }
 
@@ -600,7 +599,6 @@ public class AuthService {
      */
     public String createBearer(String user, String pass) {
         JSONObject payload = dao.getBearerDetails(user, pass);
-        String token = new JWebToken(payload).toString();
-        return token;
+        return new JWebToken(payload).toString();
     }
 }
