@@ -53,6 +53,7 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         if(method.equalsIgnoreCase(reqMethod)) {
             boolean hasId = masonReq.getId() != null;
             if(hasId == item) {
+                pageContext.setAttribute(MASON_OUTPUT, new LinkedHashMap<>(), PageContext.REQUEST_SCOPE);
                 processOutput = true;
                 return EVAL_BODY_INCLUDE;                 
             }

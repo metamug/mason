@@ -55,7 +55,6 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             processAuth(request);    
         }
-        pageContext.setAttribute(MASON_OUTPUT, new LinkedHashMap<>(), PageContext.REQUEST_SCOPE);
         return EVAL_BODY_INCLUDE;
     }
     
