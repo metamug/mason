@@ -12,8 +12,6 @@ import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.tag.ResourceTagHandler;
-import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
-import static com.metamug.mason.tag.ResourceTagHandler.MASON_OUTPUT;
 import com.metamug.mason.tag.RestTag;
 import java.io.IOException;
 import java.util.Arrays;
@@ -25,7 +23,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 
 /**
@@ -37,21 +34,22 @@ public class RequestTagHandler extends RestTag {
     private String method;
     private boolean item;
     private boolean processOutput;
-    
+    @Resource
+    private MasonRequest masonReq;
+
     @Resource
     private LinkedHashMap<String, Object> resultMap;
     
     @Override
     public int doStartTag() throws JspException {
+        super.doStartTag();
+        masonReq = (MasonRequest) request.getAttribute("mtgReq");
         
-        HttpServletRequest request = (HttpServletRequest) context.getRequest();
-        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
-
         if (method.equalsIgnoreCase(masonReq.getMethod())) {
             processOutput = (masonReq.getId() != null) == item;
             if (processOutput) {
                 resultMap = new LinkedHashMap<>();
-                context.setAttribute(MASON_OUTPUT, resultMap, PageContext.PAGE_SCOPE); 
+                pageContext.setAttribute(MASON_OUTPUT, resultMap, PageContext.PAGE_SCOPE); 
                 //changed from request scope to page scope
                 return EVAL_BODY_INCLUDE;
             }
@@ -71,8 +69,6 @@ public class RequestTagHandler extends RestTag {
     }
 
     private void processOutput() {
-        HttpServletRequest request = (HttpServletRequest) context.getRequest();
-        HttpServletResponse response = (HttpServletResponse) context.getResponse();
         
         //added as an instance variable. Faster than pulling back from the map
         //LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) context.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE);
@@ -109,14 +105,5 @@ public class RequestTagHandler extends RestTag {
 
     public void setItem(boolean i) {
         item = i;
-    }
-
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    @Override
-    public void doFinally() {
-    }
+    }  
 }
