@@ -506,8 +506,8 @@
  */
 package com.metamug.mason.service;
 
-import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.dao.AuthDAO;
+import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.taghandlers.ResourceTagHandler;
@@ -547,7 +547,7 @@ public class AuthService {
 
         String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
         String[] split = userCred.split(":");
-        String user = split[0]; 
+        String user = split[0];
         String password = split[1];
 
         if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
@@ -557,7 +557,7 @@ public class AuthService {
         JSONObject status = dao.validateBasic(user, password, roleName);
         switch (status.getInt("status")) {
             case 0:
-                throw new JspException(ResourceTagHandler.ACCESS_DENIED, 
+                throw new JspException(ResourceTagHandler.ACCESS_DENIED,
                         new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
             case 1:
                 return status.getString("user_id");

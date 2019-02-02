@@ -554,6 +554,7 @@ import org.json.JSONObject;
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private DataSource ds;
 
     /**
@@ -582,7 +583,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         String contentType = request.getContentType() == null ? "" : request.getContentType();
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
-                                                                    MASON_OUTPUT, PageContext.REQUEST_SCOPE);
+                MASON_OUTPUT, PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
         MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
         if (contentType.contains("multipart/form-data")) {

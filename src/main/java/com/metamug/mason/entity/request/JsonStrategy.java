@@ -19,13 +19,14 @@ import javax.servlet.http.HttpServletRequest;
  * @author D3ep4k
  */
 public class JsonStrategy extends ParamExtractStrategy {
+
     /**
      *
      * @param request
      */
     public JsonStrategy(HttpServletRequest request) {
         super(request);
-        
+
         String line;
         StringBuilder jsonData = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {

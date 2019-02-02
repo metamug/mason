@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author D3ep4k
  */
 public class FormStrategy extends ParamExtractStrategy {
+
     public FormStrategy(HttpServletRequest request) {
         super(request);
         Enumeration<String> parameters = request.getParameterNames();

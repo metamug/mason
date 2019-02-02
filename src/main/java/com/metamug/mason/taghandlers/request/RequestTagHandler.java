@@ -32,50 +32,49 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  * @author anishhirlekar
  */
 public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally {
-    
+
     private String method;
     private boolean item;
     private boolean processOutput;
 
-    public RequestTagHandler(){
+    public RequestTagHandler() {
         super();
         method = null;
         item = false;
         processOutput = false;
     }
-    
+
     @Override
     public int doStartTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
-        String reqMethod = (String)request.getAttribute("mtgMethod");
-        
-        if(method.equalsIgnoreCase(reqMethod)) {
+        String reqMethod = (String) request.getAttribute("mtgMethod");
+
+        if (method.equalsIgnoreCase(reqMethod)) {
             boolean hasId = masonReq.getId() != null;
-            if(hasId == item) {
+            if (hasId == item) {
                 processOutput = true;
-                return EVAL_BODY_INCLUDE;                 
+                return EVAL_BODY_INCLUDE;
             }
         }
-        
+
         return SKIP_BODY;
-    }   
-    
+    }
+
     @Override
     public int doEndTag() throws JspException {
-        if(processOutput) {
+        if (processOutput) {
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-            processOutput(request,response,pageContext.getOut());
+            processOutput(request, response, pageContext.getOut());
             return SKIP_PAGE;
         } else {
             return EVAL_PAGE;
         }
     }
-    
+
     private void processOutput(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
-        LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) 
-                                        pageContext.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE); 
+        LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE);
         if (resultMap.isEmpty()) {
             response.setStatus(204);
             return;
@@ -90,25 +89,25 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         } else { //Accept: application/json OR default
             output = new JSONOutput(resultMap);
         }
-        
+
         String op = output.toString();
         response.setContentType(output.getContentType());
         pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
         try {
             out.print(op);
         } catch (IOException ex) {
-            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
-    
+
     public void setMethod(String m) {
         method = m;
     }
-    
-    public void setItem(boolean i){
+
+    public void setItem(boolean i) {
         item = i;
     }
-    
+
     @Override
     public void doCatch(Throwable throwable) throws Throwable {
         throw throwable;
@@ -116,5 +115,5 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
 
     @Override
     public void doFinally() {
-    } 
+    }
 }
