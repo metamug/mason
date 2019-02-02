@@ -39,7 +39,7 @@ public class RequestTagHandler extends RestTag {
 
     @Resource
     private LinkedHashMap<String, Object> resultMap;
-    
+
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
@@ -72,7 +72,6 @@ public class RequestTagHandler extends RestTag {
         
         //added as an instance variable. Faster than pulling back from the map
         //LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) context.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE);
-        
         if (resultMap.isEmpty()) {
             response.setStatus(204);
             return;

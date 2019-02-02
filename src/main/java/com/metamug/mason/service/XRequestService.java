@@ -536,7 +536,7 @@ public class XRequestService {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String APP_FORM_URLENCODED = "application/x-www-form-urlencoded";
     public static final String APP_JSON = "application/json";
-    
+
     private final OkHttpClient client = new OkHttpClient();
 
     private XResponse makeRequest(Request request) {
@@ -551,9 +551,9 @@ public class XRequestService {
             xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
         }
         return xr;
-    } 
-    
-    public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {           
+    }
+
+    public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {
         Request.Builder reqBuilder = new Request.Builder().get();
         headers.entrySet().forEach(entry -> {
             String key = entry.getKey();
@@ -573,13 +573,13 @@ public class XRequestService {
             } catch (UnsupportedEncodingException ex) {
                 Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } 
-        Request request = reqBuilder.url(url+"?"+queryParams.toString()).build();
+        }
+        Request request = reqBuilder.url(url + "?" + queryParams.toString()).build();
         return makeRequest(request);
     }
 
     public XResponse post(String url, Map<String, String> headers,
-            Map<String, String> params, String body) {    
+            Map<String, String> params, String body) {
         Request.Builder reqBuilder = null;
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
         if (contentType.equals(APP_FORM_URLENCODED)) {
@@ -616,7 +616,7 @@ public class XRequestService {
     }
 
     public XResponse put(String url, Map<String, String> headers,
-            Map<String, String> params, String body) {        
+            Map<String, String> params, String body) {
         Request.Builder reqBuilder = null;
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
         if (contentType.equals(APP_FORM_URLENCODED)) {
@@ -667,7 +667,7 @@ public class XRequestService {
                 Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        Request request = new Request.Builder().url(url+"?"+queryParams.toString()).delete().build();
+        Request request = new Request.Builder().url(url + "?" + queryParams.toString()).delete().build();
         return makeRequest(request);
     }
 }

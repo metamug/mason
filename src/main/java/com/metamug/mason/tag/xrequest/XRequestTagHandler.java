@@ -553,11 +553,11 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     public int doEndTag() throws JspException {
         //Accept header of mtg request
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeader = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null ?
-                MasonOutput.HEADER_JSON : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
+        String acceptHeader = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null
+                ? MasonOutput.HEADER_JSON : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
         //Accept type of XRequest
         String xAcceptType = "json";
-        for (Map.Entry<String, String> entry: headers.entrySet()) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
             if (entry.getKey().equals(ResourceTagHandler.HEADER_ACCEPT) && entry.getValue().equals("application/xml")) {
                 //if Accept header of XRequest is application/xml 
                 xAcceptType = "xml";
@@ -621,11 +621,12 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     public void setMethod(String m) {
         method = m;
     }
-/*
+
+    /*
     public void setIsPersist(Boolean isPersist) {
         this.isPersist = isPersist;
     }
-*/
+     */
     public void setRequestBody(String b) {
         requestBody = b;
     }

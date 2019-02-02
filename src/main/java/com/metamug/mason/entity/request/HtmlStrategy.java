@@ -15,26 +15,29 @@ import javax.servlet.http.HttpServletRequest;
  * @author anishhirlekar
  */
 public class HtmlStrategy extends ParamExtractStrategy {
+
     /**
      * @param request
      * @throws java.io.IOException
      */
     public HtmlStrategy(HttpServletRequest request) throws IOException {
         super(request);
-        
+
         String line;
         StringBuilder data = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-            while ((line = br.readLine()) != null) 
+            while ((line = br.readLine()) != null) {
                 data.append(line);
+            }
         }
         if (!data.toString().isEmpty()) {
             if (data.toString().split("&").length > 1) {
                 for (String parameter : data.toString().split("&")) {
                     addKeyPair(masonRequest, parameter.split("="), params);
                 }
-            } else 
+            } else {
                 addKeyPair(masonRequest, data.toString().split("="), params);
+            }
         }
     }
 }

@@ -531,6 +531,7 @@ import javax.sql.DataSource;
  * @author Kaisteel
  */
 public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private Object value;
     private DataSource ds;
 
@@ -773,8 +774,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     }
 
     private void logError(String errorId, HttpServletRequest request, Exception exception) {
-        String method = (String) request.getAttribute("mtgMethod");
-        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+//        String method = (String) request.getAttribute("mtgMethod");
+//        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         String exceptionMessage;
         if (exception.getMessage() != null) {
             exceptionMessage = exception.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");

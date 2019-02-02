@@ -505,7 +505,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -515,25 +514,14 @@ import org.json.JSONObject;
  *
  * @author Deepak
  */
-public class RootResource { 
+public class RootResource {
+
     HttpServletRequest request;
     HttpServletResponse response;
 
     public RootResource(HttpServletRequest request, HttpServletResponse response) {
         this.request = request;
         this.response = response;
-    }
-    
-    public void doGet() {
-        try {
-            request.getRequestDispatcher("/index.html").forward(request, response);
-        } catch (ServletException | IOException ex) {
-            try {
-                writeError(512, "Unable to load docs");
-            } catch (IOException ex1) {
-                Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
-            }
-        }
     }
 
     private void writeError(int status, String message) throws IOException {
@@ -548,8 +536,8 @@ public class RootResource {
             writer.flush();
         }
     }
-    
-    public void processAuth(AuthService service){
+
+    public void processAuth(AuthService service) {
         String token;
         String contentType = request.getHeader("Accept");
         if ("bearer".equals(request.getParameter("auth"))) {
@@ -558,15 +546,16 @@ public class RootResource {
             String pass = request.getParameter("password");
             token = service.createBearer(user, pass);
             try (PrintWriter out = response.getWriter();) {
-                if (contentType.contains("application/xml")) 
+                if (contentType.contains("application/xml")) {
                     out.print("<token>" + token + "</token>");
-                else 
-                    out.print("{\"token\":\"" + token + "\"}");                
+                } else {
+                    out.print("{\"token\":\"" + token + "\"}");
+                }
             } catch (IOException e) {
                 try {
                     writeError(512, "Unable to generate token");
-                } catch (IOException ex1) {
-                    Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, null, ex1);
+                } catch (IOException ex) {
+                    Logger.getLogger(RootResource.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             }
         }

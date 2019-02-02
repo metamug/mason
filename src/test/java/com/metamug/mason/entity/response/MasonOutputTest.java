@@ -35,7 +35,7 @@ public class MasonOutputTest {
             + "    { \"name\":\"BMW\", \"models\":[ \"320\", \"X3\", \"X5\" ] },\n"
             + "    { \"name\":\"Fiat\", \"models\":[ \"500\", \"Panda\" ] }\n"
             + "  ]";
-    
+
     @Mock
     private ResultImpl sampleResult;
 

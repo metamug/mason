@@ -533,6 +533,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -541,16 +542,16 @@ import org.json.JSONObject;
  *
  * @author Kaisteel
  */
-@MultipartConfig(fileSizeThreshold=1024*1024, maxFileSize=1024*1024*5, maxRequestSize=1024*1024*25)
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
+
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
-    public static final String WEBAPPS_DIR = System.getProperty("catalina.base")+File.separator+"webapps";
+    public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
     //private FilterConfig filterConfig = null;
     private String encoding;
-   
-    
+
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY = "masonQuery";
@@ -558,6 +559,7 @@ public class Router implements Filter {
 
     public Router() {
     }
+
     /**
      *
      * @param request The servlet request we are processing
@@ -568,7 +570,7 @@ public class Router implements Filter {
      * @exception ServletException if a servlet error occurs
      */
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
@@ -579,14 +581,14 @@ public class Router implements Filter {
         String path = req.getServletPath();
         String[] tokens = path.split("/");
         int versionTokenIndex = -1;
-        for(int i=0; i<tokens.length; i++){
-            if(tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
+        for (int i = 0; i < tokens.length; i++) {
+            if (tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
                 versionTokenIndex = i;
                 break;
             }
         }
         //check auth request
-        if(versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post")) {
+        if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post")) {
             RootResource rootResource = new RootResource(req, res);
             rootResource.processAuth(new AuthService());
             return;
@@ -626,8 +628,8 @@ public class Router implements Filter {
             String appName = req.getServletContext().getContextPath();
             String version = tokens[versionTokenIndex];
             String resourceName;
-            
-            if (tokens.length == versionTokenIndex+4 || tokens.length == versionTokenIndex+5) {
+
+            if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {
                 resourceName = tokens[versionTokenIndex + 3];
             } else {
                 resourceName = tokens[versionTokenIndex + 1];
@@ -637,28 +639,38 @@ public class Router implements Filter {
             if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
                     + "resources" + File.separator + version.toLowerCase() + File.separator
                     + resourceName + ".jsp").exists()) {
-                MasonRequest mtgReq = MasonRequestFactory.create(req,req.getMethod(),tokens,versionTokenIndex);
+                MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
                 req.setAttribute("mtgReq", mtgReq);
-                
+
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
-                req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE)); 
-                
+                req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
+
                 //save method as attribute because jsp only accepts GET and POST
                 //req.setAttribute("mtgMethod", req.getMethod()); method is already in masonrequest
-                
                 req.setAttribute(MASON_QUERY, queryMap);
-                req.getRequestDispatcher("/WEB-INF/resources/"+version.toLowerCase()+"/"+resourceName+".jsp")
+                req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp")
                         .forward(new HttpServletRequestWrapper(req) {
-                    @Override
-                    public String getMethod() {
-                        String method = super.getMethod();
-                        if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                            return "POST";
-                        } else {
-                            return method;
-                        }
-                    }
-                }, res);
+                            @Override
+                            public String getMethod() {
+                                String method = super.getMethod();
+                                if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
+                                    return "POST";
+                                } else {
+                                    return method;
+                                }
+                            }
+                            //Returning null, since request passing via this filter won't be using Sessions
+
+                            @Override
+                            public HttpSession getSession() {
+                                return null;
+                            }
+
+                            @Override
+                            public HttpSession getSession(boolean create) {
+                                return null;
+                            }
+                        }, res);
             } else {
                 writeError(res, 404, "Resource doesn't exist");
             }
@@ -669,10 +681,10 @@ public class Router implements Filter {
                 String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
                 writeError(res, 422, cause);
             } else if (ex.getMessage().contains("ELException")) {
-                writeError(res, 512, "Incorrect test condition in '" + tokens[versionTokenIndex+1] + "' resource");
+                writeError(res, 512, "Incorrect test condition in '" + tokens[versionTokenIndex + 1] + "' resource");
             } else {
                 writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex+1] + ":{0}", ex.getMessage());
+                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
             }
 
         }
@@ -707,7 +719,7 @@ public class Router implements Filter {
         try {
             ConnectionProvider.shutdown();
         } catch (SQLException | NamingException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
@@ -718,30 +730,29 @@ public class Router implements Filter {
      */
     @Override
     public void init(FilterConfig config) {
-       
+
         encoding = config.getInitParameter("requestEncoding");
-        if (encoding == null) 
+        if (encoding == null) {
             encoding = "UTF-8";
-        
-        
-        if(config.getInitParameter("datasource") != null){
-            config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
-        }else{
-             config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
-        }
-        
-        ConnectionProvider.setMasonDatasource((String) config.getServletContext().getAttribute(DATA_SOURCE));
-           
-        InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
-        QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
-        try {
-            config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
-            queryFileInputStream.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NullPointerException nx) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME+" file does not exist!", nx);
+
+            if (config.getInitParameter("datasource") != null) {
+                config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
+            } else {
+                config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
+            }
+
+            ConnectionProvider.setMasonDatasource((String) config.getServletContext().getAttribute(DATA_SOURCE));
+
+            InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
+            QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
+            try {
+                config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
+                queryFileInputStream.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            } catch (NullPointerException nx) {
+                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
+            }
         }
     }
-    
 }

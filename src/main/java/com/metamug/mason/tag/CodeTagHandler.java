@@ -564,9 +564,9 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         //MasonRequest mtgReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        
-        String acceptHeadr = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null ? "" :
-                request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
+
+        String acceptHeadr = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null ? ""
+                : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : MasonOutput.HEADER_JSON;
         //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(ResourceTagHandler.MASON_OUTPUT, PageContext.REQUEST_SCOPE);
         //int mapSize = map.size();
@@ -580,7 +580,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 resProcessable = (ResultProcessable) newInstance;
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
-                    
+
                     result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
                     if (result instanceof List) {
                         if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
@@ -732,7 +732,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     public void setParam(Object param) {
         this.param = param;
     }
-/*
+
+    /*
     public void setIsVerbose(Boolean isVerbose) {
         this.isVerbose = isVerbose;
     }
@@ -744,7 +745,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     public void setIsCollect(Boolean isCollect) {
         this.isCollect = isCollect;
     }
-*/
+     */
     /**
      * Just re-throws the Throwable.
      *
@@ -771,7 +772,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         }
         parameters.add(obj);
     }
-    
+
     public void setVar(String var) {
         this.var = var;
     }

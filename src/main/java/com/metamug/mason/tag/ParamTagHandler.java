@@ -583,7 +583,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 case "date":
                     if (pattern == null) {
                         try {
-                            validateDateTime(value, "yyyy-MM-dd");                            
+                            validateDateTime(value, "yyyy-MM-dd");
                         } catch (ParseException ex) {
                             throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
                         }
@@ -592,7 +592,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 case "datetime":
                     if (pattern == null) {
                         try {
-                            validateDateTime(value,"yyyy-MM-dd HH:mm:ss");                   
+                            validateDateTime(value, "yyyy-MM-dd HH:mm:ss");
                         } catch (ParseException ex) {
                             throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Incorrect datetime pattern of " + name + " parameter"));
                         }
@@ -740,8 +740,8 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
             this.defaultValue = defaultValue;
         }
     }
-    
-    private void validateDateTime(String value, String format) throws ParseException,JspException {
+
+    private void validateDateTime(String value, String format) throws ParseException, JspException {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(format);
             sdf.setLenient(false);
