@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.metamug.mason.taghandlers.request;
+package com.metamug.mason.tag.request;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.entity.response.DatasetOutput;
@@ -11,9 +11,10 @@ import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
-import com.metamug.mason.taghandlers.ResourceTagHandler;
-import static com.metamug.mason.taghandlers.ResourceTagHandler.HEADER_ACCEPT;
-import static com.metamug.mason.taghandlers.ResourceTagHandler.MASON_OUTPUT;
+import com.metamug.mason.tag.ResourceTagHandler;
+import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
+import static com.metamug.mason.tag.ResourceTagHandler.MASON_OUTPUT;
+import com.metamug.mason.tag.RestTag;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -24,26 +25,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
  *
  * @author anishhirlekar
  */
-public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class RequestTagHandler extends RestTag {
     
     private String method;
     private boolean item;
     private boolean processOutput;
-
-    public RequestTagHandler(){
-        super();
-        method = null;
-        item = false;
-        processOutput = false;
-    }
-    
+ 
     @Override
     public int doStartTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
@@ -51,10 +43,9 @@ public class RequestTagHandler extends BodyTagSupport implements TryCatchFinally
         String reqMethod = (String)request.getAttribute("mtgMethod");
         
         if(method.equalsIgnoreCase(reqMethod)) {
-            boolean hasId = masonReq.getId() != null;
-            if(hasId == item) {
+            processOutput = (masonReq.getId() != null) == item;
+            if(processOutput) {
                 pageContext.setAttribute(MASON_OUTPUT, new LinkedHashMap<>(), PageContext.REQUEST_SCOPE);
-                processOutput = true;
                 return EVAL_BODY_INCLUDE;                 
             }
         }

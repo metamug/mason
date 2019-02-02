@@ -504,35 +504,249 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers.xrequest;
+package com.metamug.mason.tag;
 
+import com.metamug.entity.Request;
+import com.metamug.event.UploadEvent;
+import com.metamug.event.UploadListener;
+import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.exception.MetamugError;
+import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.io.objectreturn.ObjectReturn;
+import com.metamug.mason.service.ConnectionProvider;
+import static com.metamug.mason.tag.ResourceTagHandler.MASON_OUTPUT;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import javax.naming.NamingException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import javax.servlet.jsp.tagext.TryCatchFinally;
+import javax.sql.DataSource;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
- * @author anishhirlekar
+ * @author Kaisteel
  */
-public class BodyTagHandler extends BodyTagSupport {
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
+public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFinally {
+    private DataSource ds;
 
-    public BodyTagHandler() {
+    /**
+     * Creates new instance of tag handler
+     */
+    public UploadEventTagHandler() {
         super();
     }
 
+    /**
+     * This method is called after the JSP engine finished processing the tag.
+     *
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
+     * methods that this method calls.
+     * @throws javax.servlet.jsp.JspException
+     */
     @Override
     public int doEndTag() throws JspException {
-        XRequestTagHandler parent = (XRequestTagHandler) findAncestorWithClass(this, XRequestTagHandler.class);
-        if (parent == null) {
-            throw new JspTagException("X Body Tag outside X Request Tag");
+        try {
+            ds = ConnectionProvider.getMasonDatasource();
+        } catch (NamingException ex) {
+            Logger.getLogger(UploadEventTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
+        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
+        String contentType = request.getContentType() == null ? "" : request.getContentType();
+        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
+                                                                    MASON_OUTPUT, PageContext.REQUEST_SCOPE);
+        int mapSize = map.size();
+        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
+        if (contentType.contains("multipart/form-data")) {
+            String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
+            try {
+                String listenerClass;
+                Properties prop = new Properties();
+                try (InputStream fis = UploadEventTagHandler.class.getClassLoader().getResourceAsStream("config.properties")) {
+                    prop.load(fis);
+                    listenerClass = prop.getProperty("UploadListener");
+                }
+                if (listenerClass != null) {
+                    Files.createDirectories(Paths.get(uploadFilePath));
+                    String fileName = null;
+                    //Get all the parts from request and write it to the file on server
+                    List<Part> fileParts = request.getParts().stream().filter(part -> "file".equals(part.getName())).collect(Collectors.toList()); // Retrieves <input type="file" name="file" multiple="true">
 
-        String reqBodyContent = getBodyContent().getString().trim();
-        if (reqBodyContent.length() > 0) {
-            parent.setRequestBody(reqBodyContent);
+                    for (Part filePart : fileParts) {
+                        fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
+                        File uploadedFile = new File(uploadFilePath + File.separator + fileName);
+                        if (!uploadedFile.isDirectory()) {
+                            try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
+                                int read;
+                                byte[] bytes = new byte[1024];
+                                while ((read = fileContent.read(bytes)) != -1) {
+                                    fos.write(bytes, 0, read);
+                                }
+                            }
+                        }
+                    }
+                    Object result;
+                    if (fileName != null && !fileName.isEmpty()) {
+                        File file = new File(uploadFilePath + File.separator + fileName);
+                        result = callUploadEvent(new File(uploadFilePath + File.separator + fileName), listenerClass, request);
+                        if (result != null) {
+                            if (result instanceof List) {
+                                if (acceptHeader.equals("application/json")) {
+                                    JSONArray outputArray = new JSONArray();
+                                    for (Object object : (List) result) {
+                                        outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
+                                    }
+                                    map.put("dupload" + (mapSize + 1), outputArray);
+                                } else {
+                                    StringBuilder outputXml = new StringBuilder();
+                                    for (Object object : (List) result) {
+                                        outputXml.append(ObjectReturn.convert(object, acceptHeader));
+                                    }
+                                    map.put("dupload" + (mapSize + 1), outputXml.toString());
+                                }
+                            } else {
+                                Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                                if (acceptHeader.equals("application/json")) {
+                                    try {
+                                        JSONObject jsonOutput = new JSONObject((String) processedResult);
+                                        JSONObject jsonResult = new JSONObject();
+                                        for (Iterator<String> iterator = jsonOutput.keys(); iterator.hasNext();) {
+                                            String next = iterator.next();
+                                            jsonResult.put(next, jsonOutput.get(next));
+                                        }
+                                        if (jsonResult.length() > 0) {
+                                            map.put("dupload" + (mapSize + 1), jsonOutput);
+                                        }
+                                    } catch (JSONException jx) {
+                                        //System.out.println("MasonRequest: Not a JSONObject");
+                                        map.put("dupload" + (mapSize + 1), processedResult);
+                                    }
+                                } //application/xml
+                                else {
+                                    map.put("dupload" + (mapSize + 1), processedResult);
+                                }
+                            }
+                        }
+                        mtg.getParams().put("filename", file.getName());
+                        mtg.getParams().put("filesize", String.valueOf(file.length()));
+                    }
+                    //pageContext.getRequest().setAttribute("mtgReq", mtg);
+                }
+            } catch (IllegalStateException ex) {
+                if (ex.getMessage().contains("FileSizeLimitExceededException")) {
+                    throw new JspException("", new MetamugException(MetamugError.UPLOAD_SIZE_EXCEEDED));
+                }
+            } catch (ClassNotFoundException ex) {
+                throw new JspException("", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
+            } catch (NullPointerException | IOException | ServletException | InstantiationException | IllegalAccessException ex) {
+                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
+            } catch (RuntimeException ex) {
+                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
+            } catch (Exception ex) {
+                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
+            }
         }
-
         return EVAL_PAGE;
+    }
+
+    private Object callUploadEvent(File uploadedFile, String listenerClass, HttpServletRequest req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
+        if (listenerClass != null) {
+            Class cls = Class.forName((String) listenerClass);
+            Object newInstance = cls.newInstance();
+            UploadListener listener;
+            MasonRequest mtg = (MasonRequest) req.getAttribute("mtgReq");
+            if (UploadListener.class.isAssignableFrom(cls)) {
+                listener = (UploadListener) newInstance;
+                //Add Request Header values
+                Map<String, String> reqHeaders = new HashMap<>();
+                Enumeration<String> headerNames = req.getHeaderNames();
+                while (headerNames.hasMoreElements()) {
+                    String header = headerNames.nextElement();
+                    if (req.getHeader(header) != null) {
+                        reqHeaders.put(header, req.getHeader(header));
+                    }
+                }
+                //Add Request Parameter values
+                Map<String, String> reqParams = new HashMap<>();
+                Enumeration<String> parameterNames = req.getParameterNames();
+                while (parameterNames.hasMoreElements()) {
+                    String param = parameterNames.nextElement();
+                    if (req.getParameter(param) != null) {
+                        reqParams.put(param, req.getParameter(param));
+                    }
+                }
+                if (uploadedFile != null) {
+                    String resourceURI = (String) req.getAttribute("javax.servlet.forward.request_uri");
+                    String name = null, parent = null;
+                    float version = 1.0f;
+                    String[] tokens = resourceURI.split("/");
+                    //{appName}/v{versionNumber}/{resourceName}/{id}
+                    if (tokens.length >= 4) {
+                        try {
+                            version = Float.valueOf(tokens[2].replaceAll("v", ""));
+                        } catch (NumberFormatException ex) {
+                            version = 1.0f;
+                        }
+                        name = tokens[3];
+                    }
+                    //{appName}/v{versionNumber}/{parent}/{parentId}/{child}/{id}
+                    if (tokens.length >= 6) {
+                        parent = tokens[3];
+                        name = tokens[5];
+                    }
+                    Request uploadRequest = new Request(reqParams, reqHeaders, "POST", new com.metamug.entity.Resource(name, version, resourceURI, parent));
+                    Object result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), uploadRequest), ds);
+                    //Sync params to HttpRequest params
+                    reqParams.entrySet().forEach((entry) -> {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        mtg.getParams().put(key, value);
+                    });
+                    return result;
+                }
+            } else {
+                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));
+            }
+        } else {
+            throw new JspTagException("No implementation of UploadListener was found.", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
+        }
+        return null;
+    }
+
+    @Override
+    public void doCatch(Throwable throwable) throws Throwable {
+        throw throwable;
+    }
+
+    @Override
+    public void doFinally() {
     }
 }

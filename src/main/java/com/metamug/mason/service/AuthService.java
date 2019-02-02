@@ -510,7 +510,7 @@ import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.dao.AuthDAO;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import com.metamug.mason.taghandlers.ResourceTagHandler;
+import com.metamug.mason.tag.ResourceTagHandler;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Base64;

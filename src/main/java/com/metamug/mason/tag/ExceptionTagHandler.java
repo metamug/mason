@@ -504,62 +504,40 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.tag;
 
-import com.metamug.entity.Request;
-import com.metamug.event.UploadEvent;
-import com.metamug.event.UploadListener;
-import com.metamug.mason.entity.request.MasonRequest;
-import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import com.metamug.mason.io.objectreturn.ObjectReturn;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.taghandlers.ResourceTagHandler.MASON_OUTPUT;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.naming.NamingException;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import static javax.servlet.jsp.tagext.Tag.SKIP_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  *
  * @author Kaisteel
  */
-@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
-public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinally {
+    private Object value;
     private DataSource ds;
 
     /**
      * Creates new instance of tag handler
      */
-    public UploadEventTagHandler() {
+    public ExceptionTagHandler() {
         super();
     }
 
@@ -572,173 +550,284 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
      */
     @Override
     public int doEndTag() throws JspException {
+        Exception ex = (Exception) value;
         try {
             ds = ConnectionProvider.getMasonDatasource();
-        } catch (NamingException ex) {
-            Logger.getLogger(UploadEventTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NamingException ex1) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, null, ex1);
         }
+        JspWriter out = pageContext.getOut();
+        HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
-        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
-        String contentType = request.getContentType() == null ? "" : request.getContentType();
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
-                                                                    MASON_OUTPUT, PageContext.REQUEST_SCOPE);
-        int mapSize = map.size();
-        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        if (contentType.contains("multipart/form-data")) {
-            String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
-            try {
-                String listenerClass;
-                Properties prop = new Properties();
-                try (InputStream fis = UploadEventTagHandler.class.getClassLoader().getResourceAsStream("config.properties")) {
-                    prop.load(fis);
-                    listenerClass = prop.getProperty("UploadListener");
-                }
-                if (listenerClass != null) {
-                    Files.createDirectories(Paths.get(uploadFilePath));
-                    String fileName = null;
-                    //Get all the parts from request and write it to the file on server
-                    List<Part> fileParts = request.getParts().stream().filter(part -> "file".equals(part.getName())).collect(Collectors.toList()); // Retrieves <input type="file" name="file" multiple="true">
-
-                    for (Part filePart : fileParts) {
-                        fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-                        File uploadedFile = new File(uploadFilePath + File.separator + fileName);
-                        if (!uploadedFile.isDirectory()) {
-                            try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
-                                int read;
-                                byte[] bytes = new byte[1024];
-                                while ((read = fileContent.read(bytes)) != -1) {
-                                    fos.write(bytes, 0, read);
-                                }
-                            }
+        String header = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
+        try {
+            if (Arrays.asList(header.split("/")).contains("xml")) {
+                response.setContentType("application/xml");
+                out.println("<response>\n");
+                if (ex.getCause() != null) {
+                    String cause = ex.getCause().toString();
+                    if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
+                                + "\n<message>API Error. Please contact your API administrator.</message>");
+                    } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
+                        response.setStatus(422);
+                        out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
+                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } else if (cause.contains("MetamugException")) {
+                        MetamugException mtgCause = (MetamugException) ex.getCause();
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        switch (mtgCause.getError()) {
+                            case BEARER_TOKEN_MISMATCH:
+                                response.setStatus(401);
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 401 + "</status>");
+                                break;
+                            case INCORRECT_ROLE_AUTHENTICATION:
+                                response.setStatus(401);
+                                response.setHeader("WWW-Authenticate", "Basic");
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 401 + "</status>");
+                                break;
+                            case INCORRECT_STATUS_CODE:
+                                response.setStatus(406);
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 406 + "</status>");
+                                break;
+                            case INPUT_VALIDATION_ERROR:
+                                response.setStatus(412);
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 412 + "</status>");
+                                break;
+                            case NO_UPLOAD_LISTENER:
+                                response.setStatus(424);
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 424 + "</status>");
+                                break;
+                            case PARENT_RESOURCE_MISSING:
+                                response.setStatus(404);
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 424 + "</status>");
+                                break;
+                            case ROLE_ACCESS_DENIED:
+                                response.setStatus(403);
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 403 + "</status>");
+                                break;
+                            case SQL_ERROR:
+                                response.setStatus(512);
+                                logError(errorId, request, ex);
+                                out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
+                                        + "\n<error>" + mtgCause.getMessage() + "</error>"
+                                        + "\n<message>API Error. Please contact your API administrator.</message>");
+                                break;
+                            case UPLOAD_CODE_ERROR:
+                                response.setStatus(512);
+                                logUploadCodeError(errorId, request, mtgCause.getRootException());
+                                out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
+                                        + "\n<error>" + mtgCause.getMessage() + "</error>"
+                                        + "\n<message>API Error. Please contact your API administrator.</message>");
+                                break;
+                            case UPLOAD_SIZE_EXCEEDED:
+                                response.setStatus(413);
+                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                        + "\n<status>" + 413 + "</status>");
+                                break;
                         }
+                    } else {
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
+                                + "\n<message>API Error. Please contact your API administrator.</message>");
                     }
-                    Object result;
-                    if (fileName != null && !fileName.isEmpty()) {
-                        File file = new File(uploadFilePath + File.separator + fileName);
-                        result = callUploadEvent(new File(uploadFilePath + File.separator + fileName), listenerClass, request);
-                        if (result != null) {
-                            if (result instanceof List) {
-                                if (acceptHeader.equals("application/json")) {
-                                    JSONArray outputArray = new JSONArray();
-                                    for (Object object : (List) result) {
-                                        outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
-                                    }
-                                    map.put("dupload" + (mapSize + 1), outputArray);
-                                } else {
-                                    StringBuilder outputXml = new StringBuilder();
-                                    for (Object object : (List) result) {
-                                        outputXml.append(ObjectReturn.convert(object, acceptHeader));
-                                    }
-                                    map.put("dupload" + (mapSize + 1), outputXml.toString());
-                                }
-                            } else {
-                                Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                                if (acceptHeader.equals("application/json")) {
-                                    try {
-                                        JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                        JSONObject jsonResult = new JSONObject();
-                                        for (Iterator<String> iterator = jsonOutput.keys(); iterator.hasNext();) {
-                                            String next = iterator.next();
-                                            jsonResult.put(next, jsonOutput.get(next));
-                                        }
-                                        if (jsonResult.length() > 0) {
-                                            map.put("dupload" + (mapSize + 1), jsonOutput);
-                                        }
-                                    } catch (JSONException jx) {
-                                        //System.out.println("MasonRequest: Not a JSONObject");
-                                        map.put("dupload" + (mapSize + 1), processedResult);
-                                    }
-                                } //application/xml
-                                else {
-                                    map.put("dupload" + (mapSize + 1), processedResult);
-                                }
-                            }
+                } else {
+                    response.setStatus(512);
+                    String timestamp = String.valueOf(System.currentTimeMillis());
+                    long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                    String errorId = String.valueOf(Math.abs(hash));
+                    logError(errorId, request, ex);
+                    out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
+                            + "\n<message>API Error. Please contact your API administrator.</message>");
+                }
+                out.println("\n</response>");
+            } else {
+                response.setContentType("application/json");
+                if (ex.getCause() != null) {
+                    String cause = ex.getCause().toString();
+                    if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException")) {
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ""
+                                + "\"message\": \"API Error. Please contact your API administrator.\"}");
+                    } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
+                        response.setStatus(422);
+                        out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
+                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } else if (cause.contains("MetamugException")) {
+                        MetamugException mtgCause = (MetamugException) ex.getCause();
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        switch (mtgCause.getError()) {
+                            case BEARER_TOKEN_MISMATCH:
+                                response.setStatus(401);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 401 + "}");
+                                break;
+                            case CLASS_NOT_IMPLEMENTED:
+                                response.setStatus(422);
+                                logCodeError(errorId, request, mtgCause);
+                                out.println("{\"errorId\":" + errorId + ",\"error\":\"" + mtgCause.getMessage() + "\","
+                                        + "\"message\": \"API Error. Please contact your API administrator.\","
+                                        + "\"status\":" + 422 + "}");
+                                break;
+                            case CODE_ERROR:
+                                response.setStatus(512);
+                                logCodeError(errorId, request, mtgCause.getRootException());
+                                out.println("{\"errorId\":" + errorId + ",\"error\":\"" + mtgCause.getMessage() + "\","
+                                        + "\"message\": \"API Error. Please contact your API administrator.\","
+                                        + "\"status\":" + 512 + "}");
+                                break;
+                            case EMPTY_PERSIST_ERROR:
+                                response.setStatus(409);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 409 + "}");
+                                break;
+                            case INCORRECT_ROLE_AUTHENTICATION:
+                                response.setStatus(401);
+                                response.setHeader("WWW-Authenticate", "Basic");
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 401 + "}");
+                                break;
+                            case INCORRECT_STATUS_CODE:
+                                response.setStatus(406);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 406 + "}");
+                                break;
+                            case INPUT_VALIDATION_ERROR:
+                                response.setStatus(412);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 412 + "}");
+                                break;
+                            case NO_UPLOAD_LISTENER:
+                                response.setStatus(424);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 424 + "}");
+                                break;
+                            case PARENT_RESOURCE_MISSING:
+                                response.setStatus(404);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 404 + "}");
+                                break;
+                            case ROLE_ACCESS_DENIED:
+                                response.setStatus(403);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 403 + "}");
+                                break;
+                            case SQL_ERROR:
+                                response.setStatus(512);
+                                logError(errorId, request, mtgCause);
+                                out.println("{\"errorId\":" + errorId + ",\"error\":\"" + mtgCause.getMessage() + "\","
+                                        + "\"message\": \"API Error. Please contact your API administrator.\","
+                                        + "\"status\":" + 512 + "}");
+                                break;
+                            case UPLOAD_CODE_ERROR:
+                                response.setStatus(512);
+                                logUploadCodeError(errorId, request, mtgCause.getRootException());
+                                out.println("{\"errorId\":" + errorId + ",\"error\":\"" + mtgCause.getMessage() + "\","
+                                        + "\"message\": \"API Error. Please contact your API administrator.\","
+                                        + "\"status\":" + 512 + "}");
+                                break;
+                            case UPLOAD_SIZE_EXCEEDED:
+                                response.setStatus(413);
+                                out.println("{\"message\": \"" + mtgCause.getMessage() + "\",\"status\":" + 413 + "}");
+                                break;
                         }
-                        mtg.getParams().put("filename", file.getName());
-                        mtg.getParams().put("filesize", String.valueOf(file.length()));
+                    } else {
+                        response.setStatus(512);
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+                        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                        String errorId = String.valueOf(Math.abs(hash));
+                        logError(errorId, request, ex);
+                        out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ","
+                                + "\"message\": \"API Error. Please contact your API administrator.\"}");
                     }
-                    //pageContext.getRequest().setAttribute("mtgReq", mtg);
+                } else {
+                    response.setStatus(512);
+                    String timestamp = String.valueOf(System.currentTimeMillis());
+                    long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+                    String errorId = String.valueOf(Math.abs(hash));
+                    logError(errorId, request, ex);
+                    out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ","
+                            + "\"message\": \"API Error. Please contact your API administrator.\"}");
                 }
-            } catch (IllegalStateException ex) {
-                if (ex.getMessage().contains("FileSizeLimitExceededException")) {
-                    throw new JspException("", new MetamugException(MetamugError.UPLOAD_SIZE_EXCEEDED));
-                }
-            } catch (ClassNotFoundException ex) {
-                throw new JspException("", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
-            } catch (NullPointerException | IOException | ServletException | InstantiationException | IllegalAccessException ex) {
-                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
-            } catch (RuntimeException ex) {
-                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
-            } catch (Exception ex) {
-                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
             }
+        } catch (IOException ex1) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex1.getMessage(), ex1);
         }
-        return EVAL_PAGE;
+        return SKIP_PAGE;
     }
 
-    private Object callUploadEvent(File uploadedFile, String listenerClass, HttpServletRequest req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
-        if (listenerClass != null) {
-            Class cls = Class.forName((String) listenerClass);
-            Object newInstance = cls.newInstance();
-            UploadListener listener;
-            MasonRequest mtg = (MasonRequest) req.getAttribute("mtgReq");
-            if (UploadListener.class.isAssignableFrom(cls)) {
-                listener = (UploadListener) newInstance;
-                //Add Request Header values
-                Map<String, String> reqHeaders = new HashMap<>();
-                Enumeration<String> headerNames = req.getHeaderNames();
-                while (headerNames.hasMoreElements()) {
-                    String header = headerNames.nextElement();
-                    if (req.getHeader(header) != null) {
-                        reqHeaders.put(header, req.getHeader(header));
-                    }
-                }
-                //Add Request Parameter values
-                Map<String, String> reqParams = new HashMap<>();
-                Enumeration<String> parameterNames = req.getParameterNames();
-                while (parameterNames.hasMoreElements()) {
-                    String param = parameterNames.nextElement();
-                    if (req.getParameter(param) != null) {
-                        reqParams.put(param, req.getParameter(param));
-                    }
-                }
-                if (uploadedFile != null) {
-                    String resourceURI = (String) req.getAttribute("javax.servlet.forward.request_uri");
-                    String name = null, parent = null;
-                    float version = 1.0f;
-                    String[] tokens = resourceURI.split("/");
-                    //{appName}/v{versionNumber}/{resourceName}/{id}
-                    if (tokens.length >= 4) {
-                        try {
-                            version = Float.valueOf(tokens[2].replaceAll("v", ""));
-                        } catch (NumberFormatException ex) {
-                            version = 1.0f;
-                        }
-                        name = tokens[3];
-                    }
-                    //{appName}/v{versionNumber}/{parent}/{parentId}/{child}/{id}
-                    if (tokens.length >= 6) {
-                        parent = tokens[3];
-                        name = tokens[5];
-                    }
-                    Request uploadRequest = new Request(reqParams, reqHeaders, "POST", new com.metamug.entity.Resource(name, version, resourceURI, parent));
-                    Object result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), uploadRequest), ds);
-                    //Sync params to HttpRequest params
-                    reqParams.entrySet().forEach((entry) -> {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        mtg.getParams().put(key, value);
-                    });
-                    return result;
-                }
-            } else {
-                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));
-            }
+    private void logError(String errorId, HttpServletRequest request, Exception exception) {
+        String method = (String) request.getAttribute("mtgMethod");
+        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        String exceptionMessage;
+        if (exception.getMessage() != null) {
+            exceptionMessage = exception.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
         } else {
-            throw new JspTagException("No implementation of UploadListener was found.", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
+            exceptionMessage = exception.toString();
         }
-        return null;
+        //to trace here
+        dbLogErorr(errorId, request, exceptionMessage, new StringBuilder());
+        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
+    }
+
+    private void logCodeError(String errorId, HttpServletRequest request, Exception exception) {
+        String exceptionMessage;
+        if (exception.getMessage() != null) {
+            exceptionMessage = exception.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        } else {
+            exceptionMessage = exception.toString();
+        }
+        StringBuilder errorTraceBuilder = new StringBuilder();
+        StackTraceElement[] stackTrace = exception.getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            errorTraceBuilder.append(stackTraceElement);
+            if (stackTraceElement.getClassName().contains("CodeTagHandler")) {
+                break;
+            }
+            errorTraceBuilder.append("\n");
+        }
+        dbLogErorr(errorId, request, exceptionMessage, errorTraceBuilder);
+        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
+    }
+
+    private void logUploadCodeError(String errorId, HttpServletRequest request, Exception exception) {
+        String exceptionMessage;
+        StringBuilder errorTraceBuilder = new StringBuilder();
+        StackTraceElement[] stackTrace = exception.getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            if (stackTraceElement.getClassName().contains("UploadEventTagHandler")) {
+                errorTraceBuilder.append(stackTraceElement);
+                break;
+            }
+            errorTraceBuilder.append(stackTraceElement).append("\n");
+        }
+        if (exception.getMessage() != null) {
+            exceptionMessage = exception.getMessage().replaceAll("(\\w+)_db\\.", "").replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+        } else {
+            exceptionMessage = exception.toString();
+        }
+        dbLogErorr(errorId, request, exceptionMessage, errorTraceBuilder);
+        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     @Override
@@ -748,5 +837,21 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
 
     @Override
     public void doFinally() {
+    }
+
+    private void dbLogErorr(String errorId, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
+        String method = (String) request.getAttribute("mtgMethod");
+        String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,trace,"
+                + " resource) VALUES(?,?,?,?,?)");) {
+            stmnt.setString(1, String.valueOf(errorId));
+            stmnt.setString(2, method);
+            stmnt.setString(3, exceptionMessage);
+            stmnt.setString(4, errorTraceBuilder.toString());
+            stmnt.setString(5, resourceURI);
+            stmnt.execute();
+        } catch (SQLException ex) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
     }
 }
