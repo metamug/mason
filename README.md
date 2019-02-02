@@ -9,6 +9,22 @@ Mason is an open-source, lightweight data access layer for REST resources design
 
 Use JSP tags for editing database queries and request handling. To hot deploy REST APIs without compiling/deploying Java classes. Build REST APIs with JSP tags.
 
+```xml
+<jsp:directive.include file="../fragments/mason-init.jspf"/>
+<%-- customer.jsp --%>
+<m:resource>
+    <m:request method="GET">
+     	<sql:query var="result" dataSource="${datasource}"> 
+		SELECT name, address, phone, type from retail_customer 
+    	</sql:query>
+     	<c:set target="${masonOutput}" property="all customers" value="${result}"/>
+    </m:request>
+</m:resource>
+```
+
+Sample Project
+- https://github.com/metamug/mason-sample
+
 ### Mason Resources
 
 Mason turns your Plain Old JSPs (with neat tag libraries) into REST Resources. Mason doesn't encourage [using scriptlets in Resource JSPs](http://balusc.omnifaces.org/2010/07/how-to-avoid-java-code-in-jsp-files.html).
@@ -18,22 +34,19 @@ You can handle GET, POST, PUT, DELETE requests in your JSP. Mason has been teste
 Learn more about jsp configurations here.
 https://tomcat.apache.org/tomcat-9.0-doc/jasper-howto.html
 
-### Mason Tag Libaries
-
-Mason provides a set of tag libraries which you can use in your JSPs.
-
 ### Mason Query
 
-You can write database queries inside the resource JSP files or you can place them in `{webAppDir}/WEB-INF/classes/query.properties` file and reference them inside the JSP files. This allows reuse or queries.
+You can write database queries inside the resource JSP files as seen in the above example or you can place them in `{webAppDir}/WEB-INF/classes/query.properties` file and reference them inside the JSP files for reuse.
 
-#### How does Mason run APIs ?
+### Features?
 
 - Request Processing
 - Mapping resource URI to JSP
-- Tag libraries to handle HTTP BASIC and JWT Authentication
+- HTTP BASIC and JWT Authentication
 - Convert SQL Results into JSON/XML based on `Accept` Header 🌟
 - Make <a href="https://metamug.com/docs/xrequest" target="_blank">External API Requests</a>
 - <a href="https://metamug.com/docs/request-parameters#pagination-parameters" target="_blank">Pagination</a>
+- Many more
 
 ### Mason Jar
 
@@ -55,7 +68,8 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 3. Create a folder `{webAppDir}/WEB-INF/resources/{resourceVersion}` and place your jsp files here.
 
 4. Import mtg-mason.tld inside your jsp file. This taglib is present inside the mason jar and enables usage of the *mtg* prefix. You will also need to import the jstl taglib. Your jsp file should contain the following
-```  
+
+```xml
 <% @taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% @taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
 <% @taglib uri="mtg-mason.tld" prefix="m" %>
@@ -63,7 +77,8 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 ```
 
 5. Add the following filter and listener inside `{webAppDir}/WEB-INF/web.xml`
-```
+
+```xml
 <filter>
     <filter-name>Router</filter-name>
     <filter-class>com.metamug.mason.Router</filter-class>
@@ -78,6 +93,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
     </init-param>
 </filter-mapping>
 ```
+
 All requests made to the jsp resources are routed through this filter.
 
 6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
@@ -87,10 +103,10 @@ You can take a look at the [sample webapp](https://github.com/metamug/mason-samp
 ### JDBC Drivers
 
 Except for javaee-web-api since that would be present in your application server and any one out of HSQL, MySQL or PostgreSQL dependency.
-We also support Oracle database but due to licensing reason we can't ship oracle jdbc driver along with our MTG SERVER.
-So in case you are using Oracle database you'll have to manually install its driver as dependency and use that in this project.
-Instructions are given regarding how to do the same in below link(s) (You can refer either of them).
+We also support Oracle database but due to its licensing we can't ship oracle jdbc driver along.
+So in case you are using Oracle database, you'll have to manually install its driver as a dependency in your project.
 
+Instructions regarding how to do the same in below link(s) (You can refer either of them).
 https://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/
 					OR
 https://stackoverflow.com/a/1074971/4800126
@@ -104,7 +120,3 @@ https://metamug.com/docs/api-request
 ### How To Contribute
 
 Fork this repo and submit a PR against the listed issues. We will provide certificates to all those who succcessfully contribute and help close existing issues and submit new features.
-
-### Examples
-
-- https://github.com/metamug/mason-sample
