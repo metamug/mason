@@ -37,11 +37,6 @@ public class ResourceTagHandler extends RestTag {
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String BEARER_ = "Bearer ";
     
-     @Resource
-    protected HttpServletRequest request;
-    @Resource
-    protected HttpServletResponse response;
-  
     public void setAuth(String auth) {
         this.auth = auth;
     }

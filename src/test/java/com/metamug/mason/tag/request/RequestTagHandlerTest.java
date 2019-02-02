@@ -50,7 +50,7 @@ public class RequestTagHandlerTest {
     private JspWriter writer;
 
     @InjectMocks
-    RequestTagHandler requestTag = new RequestTagHandler();
+    RequestTagHandler requestTag = new RequestTagHandler(); //needs to initialized here 
 
     @InjectMocks
     ResourceTagHandler resourceTag = new ResourceTagHandler();
