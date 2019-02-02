@@ -504,31 +504,25 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.tag;
 
-import com.github.wnameless.json.flattener.JsonFlattener;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import com.metamug.mason.io.mpath.MPathUtil;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
 import com.metamug.mason.service.ConnectionProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
@@ -547,9 +541,10 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     private String className;
     private String onError;
     private Object param;
-    private Boolean isVerbose;
-    private Boolean isPersist;
-    private Boolean isCollect;
+    private String var;
+    //private Boolean isVerbose;
+    //private Boolean isPersist;
+    //private Boolean isCollect;
     private List<Object> parameters;
     private DataSource ds;
 
@@ -562,22 +557,19 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         className = null;
         param = null;
         parameters = null;
+        var = null;
     }
 
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        MasonRequest mtgReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        try {
-            ds = ConnectionProvider.getMasonDatasource();
-        } catch (NamingException ex) {
-            Logger.getLogger(CodeTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
-        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
-                ResourceTagHandler.MASON_OUTPUT, PageContext.REQUEST_SCOPE);
-        int mapSize = map.size();
+        //MasonRequest mtgReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
+
+        String acceptHeadr = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null ? ""
+                : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
+        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : MasonOutput.HEADER_JSON;
+        //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(ResourceTagHandler.MASON_OUTPUT, PageContext.REQUEST_SCOPE);
+        //int mapSize = map.size();
         Object result;
         try {
             Class cls = Class.forName((String) className);
@@ -588,30 +580,32 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 resProcessable = (ResultProcessable) newInstance;
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
-                    //same for xreq
+
                     result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
                     if (result instanceof List) {
-                        if (acceptHeader.equals("application/json")) {
+                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
                             JSONArray outputArray = new JSONArray();
                             for (Object object : (List) result) {
                                 outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
-                            map.put("dexecute" + (mapSize + 1), outputArray);
+                            //map.put("dexecute" + (mapSize + 1), outputArray);
+                            pageContext.setAttribute(var, outputArray);
                         } else {
                             StringBuilder outputXml = new StringBuilder();
                             for (Object object : (List) result) {
                                 outputXml.append(ObjectReturn.convert(object, acceptHeader));
                             }
-                            map.put("dexecute" + (mapSize + 1), outputXml.toString());
+                            //map.put("dexecute" + (mapSize + 1), outputXml.toString());
+                            pageContext.setAttribute(var, outputXml.toString());
                         }
                     } else {
                         Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        if (acceptHeader.equals("application/json")) {
+                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
                             try {
                                 JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                map.put("dexecute" + (mapSize + 1), jsonOutput);
-
-                                if (isPersist != null && isPersist) {
+                                //map.put("dexecute" + (mapSize + 1), jsonOutput);
+                                pageContext.setAttribute(var, jsonOutput);
+                                /*if (isPersist != null && isPersist) {
                                     MasonRequest mtg = (MasonRequest) param;
                                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                                     mtg.getParams().entrySet().forEach((entry) -> {
@@ -627,15 +621,14 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         mtgReq.getParams().put(key, String.valueOf(value));
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
-
-                                    pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-                                }
+                                }*/
                             } catch (JSONException jx) {
-                                map.put("dexecute" + (mapSize + 1), processedResult);
+                                //map.put("dexecute" + (mapSize + 1), processedResult);
+                                pageContext.setAttribute(var, processedResult);
                             }
                         } else {
                             //application/xml
-                            map.put("dexecute" + (mapSize + 1), processedResult);
+                            pageContext.setAttribute(var, processedResult);
                         }
                     }
                 }
@@ -655,44 +648,47 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));
                     }
+                    ds = ConnectionProvider.getMasonDatasource();
                     result = reqProcessable.process(requestParameters, ds, requestHeaders);
 
                     if (result instanceof List) {
-                        if (acceptHeader.equals("application/json")) {
+                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
                             JSONArray outputArray = new JSONArray();
                             for (Object object : (List) result) {
                                 outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                             }
-                            if (isVerbose != null && isVerbose) {
+                            /*if (isVerbose != null && isVerbose) {
                                 if (isCollect != null && isCollect) {
                                     map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
                                 } else {
                                     map.put("dexecute" + (mapSize + 1), outputArray);
                                 }
-                            }
+                            }*/
+                            pageContext.setAttribute(var, outputArray);
                         } else {
                             StringBuilder outputXml = new StringBuilder();
                             for (Object object : (List) result) {
                                 outputXml.append(ObjectReturn.convert(object, acceptHeader));
                             }
-                            if (isVerbose != null && isVerbose) {
+                            /*if (isVerbose != null && isVerbose) {
                                 map.put("dexecute" + (mapSize + 1), outputXml.toString());
-                            }
+                            }*/
+                            pageContext.setAttribute(var, outputXml.toString());
                         }
                     } else {
                         Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        if (acceptHeader.equals("application/json")) {
+                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
                             try {
                                 JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                if (isVerbose != null && isVerbose) {
+                                /*if (isVerbose != null && isVerbose) {
                                     if (isCollect != null && isCollect) {
                                         map.put("dexecute" + (mapSize + 1), MPathUtil.collect(new JSONArray(jsonOutput)));
                                     } else {
                                         map.put("dexecute" + (mapSize + 1), jsonOutput);
                                     }
-                                }
-
-                                if (isPersist != null && isPersist) {
+                                }*/
+                                pageContext.setAttribute(var, jsonOutput);
+                                /*if (isPersist != null && isPersist) {
                                     Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
                                     jsonMap.entrySet().forEach((entry) -> {
                                         String key = entry.getKey();
@@ -700,19 +696,19 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         mtgReq.getParams().put(key, String.valueOf(value));
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
-
-                                    pageContext.getRequest().setAttribute("mtgReq", mtgReq);
-                                }
+                                }*/
                             } catch (JSONException jx) {
-                                if (isVerbose != null && isVerbose) {
+                                /*if (isVerbose != null && isVerbose) {
                                     map.put("dexecute" + (mapSize + 1), processedResult);
-                                }
+                                }*/
+                                pageContext.setAttribute(var, processedResult);
                             }
                         } //application/xml
                         else {
-                            if (isVerbose != null && isVerbose) {
+                            /*if (isVerbose != null && isVerbose) {
                                 map.put("dexecute" + (mapSize + 1), processedResult);
-                            }
+                            }*/
+                            pageContext.setAttribute(var, processedResult);
                         }
                     }
                 }
@@ -737,6 +733,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
         this.param = param;
     }
 
+    /*
     public void setIsVerbose(Boolean isVerbose) {
         this.isVerbose = isVerbose;
     }
@@ -748,7 +745,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
     public void setIsCollect(Boolean isCollect) {
         this.isCollect = isCollect;
     }
-
+     */
     /**
      * Just re-throws the Throwable.
      *
@@ -774,5 +771,9 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
             parameters = new ArrayList<>();
         }
         parameters.add(obj);
+    }
+
+    public void setVar(String var) {
+        this.var = var;
     }
 }

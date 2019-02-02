@@ -533,6 +533,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -547,15 +548,14 @@ public class Router implements Filter {
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
-
     public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
-    private FilterConfig filterConfig = null;
+    //private FilterConfig filterConfig = null;
     private String encoding;
-    private String dataSource = "jdbc/mason";
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY = "masonQuery";
+    private static final String DATA_SOURCE = "datasource";
 
     public Router() {
     }
@@ -628,6 +628,7 @@ public class Router implements Filter {
             String appName = req.getServletContext().getContextPath();
             String version = tokens[versionTokenIndex];
             String resourceName;
+
             if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {
                 resourceName = tokens[versionTokenIndex + 3];
             } else {
@@ -640,9 +641,12 @@ public class Router implements Filter {
                     + resourceName + ".jsp").exists()) {
                 MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
                 req.setAttribute("mtgReq", mtgReq);
-                req.setAttribute("datasource", dataSource);
+
+                //Adding to request, otherwise the user has to write ${applicationScope.datasource}
+                req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
+
                 //save method as attribute because jsp only accepts GET and POST
-                req.setAttribute("mtgMethod", req.getMethod());
+                //req.setAttribute("mtgMethod", req.getMethod()); method is already in masonrequest
                 req.setAttribute(MASON_QUERY, queryMap);
                 req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp")
                         .forward(new HttpServletRequestWrapper(req) {
@@ -654,6 +658,17 @@ public class Router implements Filter {
                                 } else {
                                     return method;
                                 }
+                            }
+                            //Returning null, since request passing via this filter won't be using Sessions
+
+                            @Override
+                            public HttpSession getSession() {
+                                return null;
+                            }
+
+                            @Override
+                            public HttpSession getSession(boolean create) {
+                                return null;
                             }
                         }, res);
             } else {
@@ -697,24 +712,6 @@ public class Router implements Filter {
     }
 
     /**
-     * Return the filter configuration object for this filter.
-     *
-     * @return
-     */
-    public FilterConfig getFilterConfig() {
-        return filterConfig;
-    }
-
-    /**
-     * Set the filter configuration object for this filter.
-     *
-     * @param config The filter configuration object
-     */
-    public void setFilterConfig(FilterConfig config) {
-        filterConfig = config;
-    }
-
-    /**
      * Destroy method for this filter
      */
     @Override
@@ -733,46 +730,29 @@ public class Router implements Filter {
      */
     @Override
     public void init(FilterConfig config) {
-        filterConfig = config;
+
         encoding = config.getInitParameter("requestEncoding");
         if (encoding == null) {
             encoding = "UTF-8";
+
+            if (config.getInitParameter("datasource") != null) {
+                config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
+            } else {
+                config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
+            }
+
+            ConnectionProvider.setMasonDatasource((String) config.getServletContext().getAttribute(DATA_SOURCE));
+
+            InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
+            QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
+            try {
+                config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
+                queryFileInputStream.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            } catch (NullPointerException nx) {
+                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
+            }
         }
-
-        if (config.getInitParameter("datasource") != null) {
-            dataSource = config.getInitParameter("datasource");
-        }
-
-        ConnectionProvider.setMasonDatasource(dataSource);
-
-        InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
-        QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
-        try {
-            config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
-            queryFileInputStream.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (NullPointerException nx) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
-        }
-    }
-
-    /**
-     *
-     * @return String representation of this object.
-     */
-    @Override
-    public String toString() {
-        if (filterConfig == null) {
-            return ("RestRouter()");
-        }
-        StringBuilder sb = new StringBuilder("RestRouter(");
-        sb.append(filterConfig);
-        sb.append(")");
-        return sb.toString();
-    }
-
-    public void log(String msg) {
-        filterConfig.getServletContext().log(msg);
     }
 }

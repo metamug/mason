@@ -504,53 +504,155 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers.xrequest;
+package com.metamug.mason.tag.xrequest;
 
+import com.metamug.mason.entity.response.MasonOutput;
+import com.metamug.mason.entity.xrequest.XResponse;
+import com.metamug.mason.service.XRequestService;
+import com.metamug.mason.tag.ResourceTagHandler;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
+import javax.servlet.jsp.tagext.TryCatchFinally;
+import org.json.JSONObject;
 
 /**
  *
  * @author anishhirlekar
  */
-public class ParamTagHandler extends BodyTagSupport {
+public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinally {
 
-    private String name;
-    private String value;
+    private Map<String, String> headers;
+    private Map<String, String> parameters;
 
-    public ParamTagHandler() {
+    private String var;
+    private String url;
+    private String method;
+    private String requestBody;
+
+    public XRequestTagHandler() {
         super();
-        name = null;
-        value = null;
+        init();
+    }
+
+    private void init() {
+        var = null;
+        url = null;
+        method = null;
+        headers = new HashMap<>();
+        parameters = new HashMap<>();
+        requestBody = null;
     }
 
     @Override
     public int doEndTag() throws JspException {
-
-        XRequestTagHandler parent = (XRequestTagHandler) findAncestorWithClass(this, XRequestTagHandler.class);
-        if (parent == null) {
-            throw new JspTagException("X Param Tag outside X Request Tag");
+        //Accept header of mtg request
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String acceptHeader = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null
+                ? MasonOutput.HEADER_JSON : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
+        //Accept type of XRequest
+        String xAcceptType = "json";
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            if (entry.getKey().equals(ResourceTagHandler.HEADER_ACCEPT) && entry.getValue().equals("application/xml")) {
+                //if Accept header of XRequest is application/xml 
+                xAcceptType = "xml";
+            }
         }
 
-        if (value == null) {
-            value = getBodyContent().getString().trim();
+        XRequestService xRequestService = new XRequestService();
+        XResponse xresponse = null;
+
+        switch (method) {
+            case "GET":
+                xresponse = xRequestService.get(url, headers, parameters);
+                break;
+            case "POST":
+                xresponse = xRequestService.post(url, headers, parameters, requestBody);
+                break;
+            case "PUT":
+                xresponse = xRequestService.put(url, headers, parameters, requestBody);
+                break;
+            case "DELETE":
+                xresponse = xRequestService.delete(url, parameters);
+                break;
+            default:
+                throw new JspTagException("Unsupported method \"" + method + "\".");
         }
 
-        if (value.length() > 0) {
-            parent.addParameter(name, value);
+        //if Accept header "application/xml"
+        if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
+            String xResponseXml;
+            if (xAcceptType.equals("xml")) {
+                xResponseXml = xresponse.getXmlForXmlXResponse();
+            } else {
+                xResponseXml = xresponse.getXmlForJsonXResponse();
+            }
+
+            pageContext.setAttribute(var, xResponseXml);
+
+        } else {
+            //if Accept header "application/json"
+            JSONObject xResponseJson;
+            if (xAcceptType.equals("xml")) {
+                xResponseJson = xresponse.getJsonForXmlXResponse();
+            } else {
+                xResponseJson = xresponse.getJsonForJsonXResponse();
+            }
+
+            pageContext.setAttribute(var, xResponseJson);
         }
 
         return EVAL_PAGE;
     }
 
-    public void setName(String n) {
-        name = n;
+    public void setVar(String var) {
+        this.var = var;
     }
 
-    public void setValue(String v) {
-        value = v;
+    public void setUrl(String u) {
+        url = u;
+    }
+
+    public void setMethod(String m) {
+        method = m;
+    }
+
+    /*
+    public void setIsPersist(Boolean isPersist) {
+        this.isPersist = isPersist;
+    }
+     */
+    public void setRequestBody(String b) {
+        requestBody = b;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+    }
+
+    public void addHeader(String name, String value) {
+        headers.put(name, value);
+    }
+
+    public void addParameter(String name, String value) {
+        parameters.put(name, value);
+    }
+
+    @Override
+    public void doCatch(Throwable throwable) throws Throwable {
+        throw throwable;
+    }
+
+    @Override
+    public void doFinally() {
     }
 }

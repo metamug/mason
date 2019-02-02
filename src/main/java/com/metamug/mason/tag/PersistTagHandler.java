@@ -504,29 +504,31 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.tag;
 
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.SortedMap;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 
 /**
  *
  * @author Kaisteel
  */
-public class ValidateQueryTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally {
 
-    private String onError;
+    private Object value;
+    private String onBlank;
 
     /**
      * Creates new instance of tag handler
      */
-    public ValidateQueryTagHandler() {
+    public PersistTagHandler() {
         super();
     }
 
@@ -539,17 +541,40 @@ public class ValidateQueryTagHandler extends BodyTagSupport implements TryCatchF
      */
     @Override
     public int doEndTag() throws JspException {
+        ResultImpl resultImpl = (ResultImpl) value;
+        SortedMap[] rows = resultImpl.getRows();
+        String[] columnNames = resultImpl.getColumnNames();
+        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
+        if (rows.length > 0) {
+            for (SortedMap row : rows) {
+                for (int i = 0; i < columnNames.length; i++) {
+                    String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+                    String rowValue = String.valueOf(row.get(columnName));
+                    if (rowValue != null && !rowValue.trim().isEmpty() && !rowValue.trim().equalsIgnoreCase("null")) {
+                        mtg.getParams().put(columnName, String.valueOf((row.get(columnName))));
+                    }
+                }
+            }
+        } else {
+            if (onBlank != null && onBlank.length() > 0) {
+                throw new JspException("", new MetamugException(MetamugError.EMPTY_PERSIST_ERROR, onBlank));
+            }
+        }
+        pageContext.getRequest().setAttribute("mtgReq", mtg);
         return EVAL_PAGE;
     }
 
-    public void setOnError(String onError) {
-        this.onError = onError;
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    public void setOnBlank(String onBlank) {
+        this.onBlank = onBlank;
     }
 
     @Override
-    public void doCatch(Throwable t) throws Throwable {
-        Logger.getLogger(ValidateQueryTagHandler.class.getName()).log(Level.SEVERE, onError, t);
-        throw new JspException(t.getMessage(), new MetamugException(MetamugError.SQL_ERROR, onError));
+    public void doCatch(Throwable throwable) throws Throwable {
+        throw throwable;
     }
 
     @Override

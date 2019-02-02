@@ -504,261 +504,51 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.tag.xrequest;
 
-import com.metamug.mason.entity.request.MasonRequest;
-import com.metamug.mason.exception.MetamugError;
-import com.metamug.mason.exception.MetamugException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
  *
- * @author Kaisteel
+ * @author anishhirlekar
  */
-public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class HeaderTagHandler extends BodyTagSupport {
 
     private String name;
-    private String type;
-    private Boolean isRequired;
-    private Double max;
-    private Double min;
-    private Integer maxLen;
-    private Integer minLen;
-    private String pattern;
-    private String defaultValue;
     private String value;
 
-    /**
-     * Creates new instance of tag handler
-     */
-    public ParamTagHandler() {
+    public HeaderTagHandler() {
         super();
+        name = null;
+        value = null;
     }
 
-    /**
-     * This method is called after the JSP engine finished processing the tag.
-     *
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
-     * methods that this method calls.
-     * @throws javax.servlet.jsp.JspException
-     */
     @Override
     public int doEndTag() throws JspException {
-        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        if (value == null && isRequired != null && isRequired) {
-            if (defaultValue == null) {
-                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-            } else {
-                mtg.setDefault(name, defaultValue);
-                release();
-                return EVAL_PAGE;
-            }
+
+        XRequestTagHandler parent = (XRequestTagHandler) findAncestorWithClass(this, XRequestTagHandler.class);
+        if (parent == null) {
+            throw new JspTagException("X Header Tag outside X Request Tag");
         }
-        //continue validation if value != null
-        if (pattern != null) {
-            try {
-                if (!value.matches(pattern)) {
-                    throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Input value doesn't match with specified pattern of " + name + " parameter"));
-                }
-            } catch (PatternSyntaxException ex) {
-                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Incorrect pattern syntax of " + name + " parameter"));
-            } catch (NullPointerException ex) {
-                if (isRequired != null) {
-                    throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                }
-            }
+
+        if (value == null) {
+            value = getBodyContent().getString().trim();
         }
-        if (type != null) {
-            Pattern regexPattern;
-            Matcher matcher;
-            switch (type.toLowerCase()) {
-                case "date":
-                    if (pattern == null) {
-                        try {
-                            validateDateTime(value, "yyyy-MM-dd");
-                        } catch (ParseException ex) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                        }
-                    }
-                    break;
-                case "datetime":
-                    if (pattern == null) {
-                        try {
-                            validateDateTime(value, "yyyy-MM-dd HH:mm:ss");
-                        } catch (ParseException ex) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Incorrect datetime pattern of " + name + " parameter"));
-                        }
-                    }
-                    break;
-                case "email":
-                    String emailPattern
-                            = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-                            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-                    regexPattern = Pattern.compile(emailPattern);
-                    try {
-                        matcher = regexPattern.matcher(value);
-                        if (!matcher.matches()) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Invalid email input"));
-                        }
-                    } catch (NullPointerException ex) {
-                        if (isRequired != null) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                        }
-                    }
-                    break;
-                case "number":
-                    try {
-                        double val = Double.parseDouble(value);
-                        if (max != null) {
-                            double maxVal = max;
-                            if (val > maxVal) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Max value allowed for " + name + " is " + maxVal));
-                            }
-                        }
-                        if (min != null) {
-                            double minVal = min;
-                            if (val < minVal) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Min value allowed for " + name + " is " + minVal));
-                            }
-                        }
-                    } catch (NumberFormatException ex) {
-                        throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Empty or invalid parameter \'" + name + "\' value"));
-                    } catch (NullPointerException ex) {
-                        if (isRequired != null) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                        }
-                    }
-                    break;
-                case "text":
-                    if (maxLen != null) {
-                        double maxLength = maxLen;
-                        try {
-                            if (value.length() > maxLength) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Input " + value + " can be " + maxLength + " character long for " + name + " parameter"));
-                            }
-                        } catch (NullPointerException ex) {
-                            if (isRequired != null) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                            }
-                        }
-                    }
-                    if (minLen != null) {
-                        double minLength = minLen;
-                        try {
-                            if (value.length() < minLength) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Input value must be " + minLength + " character long for " + name + " parameter"));
-                            }
-                        } catch (NullPointerException ex) {
-                            if (isRequired != null) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                            }
-                        }
-                    }
-                    break;
-                case "time":
-                    if (pattern == null) {
-                        try {
-                            validateDateTime(value, "HH:mm:ss");
-                        } catch (ParseException ex) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Incorrect time pattern of " + name + " parameter"));
-                        }
-                    }
-                    break;
-                case "url":
-                    String urlPattern = "(?:(?:https?|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?!10(?:\\.\\d{1,3}){3})(?!127(?:\\.\\d{1,3}){3})(?!169\\.254(?:\\.\\d{1,3}){2})(?!192\\.168(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\x{00a1}-\\x{ffff}0-9]+-?)*[a-z\\x{00a1}-\\x{ffff}0-9]+)(?:\\.(?:[a-z\\x{00a1}-\\x{ffff}0-9]+-?)*[a-z\\x{00a1}-\\x{ffff}0-9]+)*(?:\\.(?:[a-z\\x{00a1}-\\x{ffff}]{2,})))(?::\\d{2,5})?(?:/[^\\s]*)?";
-                    regexPattern = Pattern.compile(urlPattern);
-                    try {
-                        matcher = regexPattern.matcher(value);
-                        if (!matcher.matches()) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Invalid URL input"));
-                        }
-                    } catch (NullPointerException ex) {
-                        if (isRequired != null) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                        }
-                    }
-                    break;
-                default:
-            }
+
+        if (value.length() > 0) {
+            parent.addHeader(name, value);
         }
-        release();
+
         return EVAL_PAGE;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String n) {
+        name = n;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setIsRequired(boolean required) {
-        this.isRequired = required;
-    }
-
-    public void setMax(String max) {
-        this.max = Double.parseDouble(max);
-    }
-
-    public void setMin(String min) {
-        this.min = Double.parseDouble(min);
-    }
-
-    public void setMaxLen(String maxLen) {
-        this.maxLen = Integer.parseInt(maxLen);
-    }
-
-    public void setMinLen(String minLen) {
-        this.minLen = Integer.parseInt(minLen);
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
-    }
-
-    public void setValue(String value) {
-        if (value.isEmpty()) {
-            this.value = null;
-        } else {
-            this.value = value;
-        }
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        if (defaultValue.isEmpty()) {
-            this.defaultValue = null;
-        } else {
-            this.defaultValue = defaultValue;
-        }
-    }
-
-    private void validateDateTime(String value, String format) throws ParseException, JspException {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat(format);
-            sdf.setLenient(false);
-            sdf.parse(value);
-        } catch (NullPointerException ex) {
-            if (isRequired != null) {
-                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-            }
-        }
-    }
-
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    @Override
-    public void doFinally() {
+    public void setValue(String v) {
+        value = v;
     }
 }

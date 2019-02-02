@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.tag;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
@@ -12,14 +12,12 @@ import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.AuthService;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 
@@ -56,7 +54,6 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             processAuth(request);
         }
-        pageContext.setAttribute(MASON_OUTPUT, new LinkedHashMap<>(), PageContext.REQUEST_SCOPE);
         return EVAL_BODY_INCLUDE;
     }
 
@@ -91,7 +88,7 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
                         + STATUS_METHOD_NOT_ALLOWED + "}");
             }
         } catch (IOException ex) {
-            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

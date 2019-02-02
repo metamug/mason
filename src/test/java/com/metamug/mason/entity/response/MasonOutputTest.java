@@ -16,14 +16,16 @@ import org.json.XML;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  *
  * @author anishhirlekar
  */
+@RunWith(MockitoJUnitRunner.class)
 public class MasonOutputTest {
 
     private Map<String, Object> outputMap;
@@ -33,12 +35,13 @@ public class MasonOutputTest {
             + "    { \"name\":\"BMW\", \"models\":[ \"320\", \"X3\", \"X5\" ] },\n"
             + "    { \"name\":\"Fiat\", \"models\":[ \"500\", \"Panda\" ] }\n"
             + "  ]";
+
     @Mock
     private ResultImpl sampleResult;
 
     @Before
     public void setup() {
-        sampleResult = mock(ResultImpl.class);
+
         String[] colNames = {"name", "age", "car"};
         SortedMap[] rows = getSampleRows();
 
