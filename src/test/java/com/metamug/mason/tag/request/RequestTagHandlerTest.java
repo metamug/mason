@@ -5,18 +5,20 @@
  */
 package com.metamug.mason.tag.request;
 
-import com.metamug.mason.RouterTest;
-import com.metamug.mason.tag.request.RequestTagHandler;
+import com.metamug.mason.entity.request.MasonRequest;
+import java.util.LinkedHashMap;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
@@ -24,27 +26,45 @@ import org.mockito.runners.MockitoJUnitRunner;
  * @author user
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RequestTagHandlerTest{
+public class RequestTagHandlerTest {
+
+    @Mock
+    private HttpServletRequest request;
+    @Mock
+    private HttpServletResponse response;
     
     @Mock
+    private MasonRequest masonRequest;
+
+    @Mock
     private PageContext context;
+
+    @Mock
+    private LinkedHashMap<String, Object> resultMap;
+
+   
     
-    
+    @InjectMocks
+    RequestTagHandler instance = new RequestTagHandler();
+
     public RequestTagHandlerTest() {
     }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    
-    
-    @After
-    public void tearDown() {
+
+    @Before
+    public void setup() {
+
+        String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
+        String sampleArray = "[\n"
+                + "    { \"name\":\"Ford\", \"models\":[ \"Fiesta\", \"Focus\", \"Mustang\" ] },\n"
+                + "    { \"name\":\"BMW\", \"models\":[ \"320\", \"X3\", \"X5\" ] },\n"
+                + "    { \"name\":\"Fiat\", \"models\":[ \"500\", \"Panda\" ] }\n"
+                + "  ]";
+        String[] colNames = {"name", "age", "car"};
+        resultMap = new LinkedHashMap<>();
+        resultMap.put("res1", new JSONObject(sampleObj));
+        resultMap.put("res2", new JSONArray(sampleArray));
+        resultMap.put("res3", "Hello World");
+        
     }
 
     /**
@@ -52,27 +72,19 @@ public class RequestTagHandlerTest{
      */
     @Test
     public void testDoStartTag() throws Exception {
-        System.out.println("doStartTag");
-        RequestTagHandler instance = new RequestTagHandler();
-        int expResult = 0;
-        int result = instance.doStartTag();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        when(context.getRequest()).thenReturn(request);
+        when(context.getResponse()).thenReturn(response);
+        
+        when(request.getAttribute("mtgReq")).thenReturn(masonRequest);
+        when(masonRequest.getMethod()).thenReturn("GET");
+
+        instance.setMethod("GET");
+        instance.setItem(false);
+        assertEquals(1, instance.doStartTag());
+        assertEquals(5, instance.doEndTag());
+       
     }
 
-    /**
-     * Test of doEndTag method, of class RequestTagHandler.
-     */
-    @Test
-    public void testDoEndTag() throws Exception {
-        System.out.println("doEndTag");
-        RequestTagHandler instance = new RequestTagHandler();
-        int expResult = 0;
-        int result = instance.doEndTag();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
+
 }

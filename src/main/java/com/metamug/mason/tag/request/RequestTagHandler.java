@@ -18,8 +18,10 @@ import com.metamug.mason.tag.RestTag;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -31,43 +33,50 @@ import javax.servlet.jsp.PageContext;
  * @author anishhirlekar
  */
 public class RequestTagHandler extends RestTag {
-    
+
     private String method;
     private boolean item;
     private boolean processOutput;
- 
-    @Override
-    public int doStartTag() throws JspException {
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
-        String reqMethod = (String)request.getAttribute("mtgMethod");
-        
-        if(method.equalsIgnoreCase(reqMethod)) {
-            processOutput = (masonReq.getId() != null) == item;
-            if(processOutput) {
-                pageContext.setAttribute(MASON_OUTPUT, new LinkedHashMap<>(), PageContext.REQUEST_SCOPE);
-                return EVAL_BODY_INCLUDE;                 
-            }
-        }
-        
-        return SKIP_BODY;
-    }   
+    
+    @Resource
+    private LinkedHashMap<String, Object> resultMap;
     
     @Override
+    public int doStartTag() throws JspException {
+        
+        HttpServletRequest request = (HttpServletRequest) context.getRequest();
+        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
+
+        if (method.equalsIgnoreCase(masonReq.getMethod())) {
+            processOutput = (masonReq.getId() != null) == item;
+            if (processOutput) {
+                resultMap = new LinkedHashMap<>();
+                context.setAttribute(MASON_OUTPUT, resultMap, PageContext.PAGE_SCOPE); 
+                //changed from request scope to page scope
+                return EVAL_BODY_INCLUDE;
+            }
+        }
+
+        return SKIP_BODY;
+    }
+
+    @Override
     public int doEndTag() throws JspException {
-        if(processOutput) {
-            HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-            processOutput(request,response,pageContext.getOut());
+        if (processOutput) {
+            processOutput();
             return SKIP_PAGE;
         } else {
             return EVAL_PAGE;
         }
     }
-    
-    private void processOutput(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
-        LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) 
-                                        pageContext.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE); 
+
+    private void processOutput() {
+        HttpServletRequest request = (HttpServletRequest) context.getRequest();
+        HttpServletResponse response = (HttpServletResponse) context.getResponse();
+        
+        //added as an instance variable. Faster than pulling back from the map
+        //LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) context.getAttribute(MASON_OUTPUT, PageContext.REQUEST_SCOPE);
+        
         if (resultMap.isEmpty()) {
             response.setStatus(204);
             return;
@@ -75,32 +84,33 @@ public class RequestTagHandler extends RestTag {
 
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         MasonOutput output;
-        if (Arrays.asList(header.split("/")).contains("xml")) { //Accept: application/xml, text/xml
+        List list = Arrays.asList(header.split("/"));
+        if (list.contains("xml")) { //Accept: application/xml, text/xml
             output = new XMLOutput(resultMap);
-        } else if (Arrays.asList(header.split("/")).contains("json+dataset")) { //Accept: application/json+dataset
+        } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
             output = new DatasetOutput(resultMap);
         } else { //Accept: application/json OR default
             output = new JSONOutput(resultMap);
         }
-        
+
         String op = output.toString();
         response.setContentType(output.getContentType());
-        pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
+        context.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
         try {
-            out.print(op);
+            context.getOut().print(op);
         } catch (IOException ex) {
             Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void setMethod(String m) {
         method = m;
     }
-    
-    public void setItem(boolean i){
+
+    public void setItem(boolean i) {
         item = i;
     }
-    
+
     @Override
     public void doCatch(Throwable throwable) throws Throwable {
         throw throwable;
@@ -108,5 +118,5 @@ public class RequestTagHandler extends RestTag {
 
     @Override
     public void doFinally() {
-    } 
+    }
 }

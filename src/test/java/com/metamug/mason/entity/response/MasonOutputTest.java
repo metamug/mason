@@ -17,7 +17,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -38,7 +37,7 @@ public class MasonOutputTest {
 
     @Before
     public void setup() {
-        sampleResult = mock(ResultImpl.class);
+
         String[] colNames = {"name", "age", "car"};
         SortedMap[] rows = getSampleRows();
 

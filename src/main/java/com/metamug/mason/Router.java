@@ -644,7 +644,8 @@ public class Router implements Filter {
                 req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE)); 
                 
                 //save method as attribute because jsp only accepts GET and POST
-                req.setAttribute("mtgMethod", req.getMethod());
+                //req.setAttribute("mtgMethod", req.getMethod()); method is already in masonrequest
+                
                 req.setAttribute(MASON_QUERY, queryMap);
                 req.getRequestDispatcher("/WEB-INF/resources/"+version.toLowerCase()+"/"+resourceName+".jsp")
                         .forward(new HttpServletRequestWrapper(req) {
