@@ -504,154 +504,109 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers.xrequest;
+package com.metamug.mason.tag;
 
-import com.metamug.mason.entity.response.MasonOutput;
-import com.metamug.mason.entity.xrequest.XResponse;
-import com.metamug.mason.service.XRequestService;
-import com.metamug.mason.taghandlers.ResourceTagHandler;
+import com.metamug.mason.entity.request.MasonRequest;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import com.metamug.mason.exception.MetamugError;
+import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.service.AuthService;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.servlet.jsp.tagext.TryCatchFinally;
-import org.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author anishhirlekar
  */
-public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class ResourceTagHandler extends RestTag {
 
-    private Map<String, String> headers;
-    private Map<String, String> parameters;
+    private String auth;
+    
+    @Resource
+    private transient AuthService authService;
 
-    private String var;
-    private String url;
-    private String method;
-    private String requestBody;
-
-    public XRequestTagHandler() {
-        super();
-        init();
+    public static final int STATUS_METHOD_NOT_ALLOWED = 405;
+    public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";
+    public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
+    public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
+    public static final String BEARER_ = "Bearer ";
+    
+    public void setAuth(String auth) {
+        this.auth = auth;
     }
 
-    private void init() {
-        var = null;
-        url = null;
-        method = null;
-        headers = new HashMap<>();
-        parameters = new HashMap<>();
-        requestBody = null;
+    @Override
+    public int doStartTag() throws JspException {
+        super.doStartTag();
+        request = (HttpServletRequest) context.getRequest();
+        response = (HttpServletResponse) context.getResponse();
+        if (StringUtils.isNotBlank(auth)) {
+            processAuth();
+        }
+        return EVAL_BODY_INCLUDE;
     }
 
     @Override
     public int doEndTag() throws JspException {
-        //Accept header of mtg request
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeader = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null ?
-                MasonOutput.HEADER_JSON : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
-        //Accept type of XRequest
-        String xAcceptType = "json";
-        for (Map.Entry<String, String> entry: headers.entrySet()) {
-            if (entry.getKey().equals(ResourceTagHandler.HEADER_ACCEPT) && entry.getValue().equals("application/xml")) {
-                //if Accept header of XRequest is application/xml 
-                xAcceptType = "xml";
-            }
-        }
+        process405();
+        return SKIP_PAGE;
+    }
 
-        XRequestService xRequestService = new XRequestService();
-        XResponse xresponse = null;
-
-        switch (method) {
-            case "GET":
-                xresponse = xRequestService.get(url, headers, parameters);
-                break;
-            case "POST":
-                xresponse = xRequestService.post(url, headers, parameters, requestBody);
-                break;
-            case "PUT":
-                xresponse = xRequestService.put(url, headers, parameters, requestBody);
-                break;
-            case "DELETE":
-                xresponse = xRequestService.delete(url, parameters);
-                break;
-            default:
-                throw new JspTagException("Unsupported method \"" + method + "\".");
-        }
-
-        //if Accept header "application/xml"
-        if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
-            String xResponseXml;
-            if (xAcceptType.equals("xml")) {
-                xResponseXml = xresponse.getXmlForXmlXResponse();
+    private void process405() {
+        
+        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+        response.setContentType(header);
+        response.setStatus(STATUS_METHOD_NOT_ALLOWED);
+        try {
+            if (Arrays.asList(header.split("/")).contains("xml")) {
+                StringBuilder xmlBuilder = new StringBuilder();
+                xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+                xmlBuilder.append("<response>");
+                xmlBuilder.append("\n\t<status>");
+                xmlBuilder.append(STATUS_METHOD_NOT_ALLOWED);
+                xmlBuilder.append("</status>");
+                xmlBuilder.append("\n\t<message>");
+                xmlBuilder.append(MSG_METHOD_NOT_ALLOWED);
+                xmlBuilder.append("</message>");
+                xmlBuilder.append("\n</response>");
+                context.getOut().print(xmlBuilder.toString());
             } else {
-                xResponseXml = xresponse.getXmlForJsonXResponse();
+                context.getOut().print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
+                        + STATUS_METHOD_NOT_ALLOWED + "}");
             }
-
-            pageContext.setAttribute(var, xResponseXml);
-
-        } else {
-            //if Accept header "application/json"
-            JSONObject xResponseJson;
-            if (xAcceptType.equals("xml")) {
-                xResponseJson = xresponse.getJsonForXmlXResponse();
-            } else {
-                xResponseJson = xresponse.getJsonForJsonXResponse();
-            }
-
-            pageContext.setAttribute(var, xResponseJson);
+        } catch (IOException ex) {
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        return EVAL_PAGE;
     }
 
-    public void setVar(String var) {
-        this.var = var;
+    private void processAuth() throws JspException {
+        String header = request.getHeader("Authorization");
+        if (header == null) {
+            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+        }
+        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
+        authService = new AuthService();
+        try {
+            if (header.contains("Basic ")) {
+                masonReq.setUid(authService.validateBasic(header, auth));
+            } else if (header.contains(BEARER_)) {
+                String bearerToken = header.replaceFirst(BEARER_, "");
+                //check jwt format
+                //validateJwt - check aud against val, exp
+                masonReq.setUid(authService.validateBearer(bearerToken.trim(), auth));
+            } else {
+                throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            }
+        } catch (IllegalArgumentException ex) {
+            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+        }
     }
 
-    public void setUrl(String u) {
-        url = u;
-    }
-
-    public void setMethod(String m) {
-        method = m;
-    }
-/*
-    public void setIsPersist(Boolean isPersist) {
-        this.isPersist = isPersist;
-    }
-*/
-    public void setRequestBody(String b) {
-        requestBody = b;
-    }
-
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
-    }
-
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
-    }
-
-    public void addParameter(String name, String value) {
-        parameters.put(name, value);
-    }
-
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    @Override
-    public void doFinally() {
-    }
 }

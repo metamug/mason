@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers.xrequest;
+package com.metamug.mason.tag.xrequest;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
@@ -515,15 +515,8 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
  * @author anishhirlekar
  */
 public class HeaderTagHandler extends BodyTagSupport {
-
     private String name;
     private String value;
-
-    public HeaderTagHandler() {
-        super();
-        name = null;
-        value = null;
-    }
 
     @Override
     public int doEndTag() throws JspException {

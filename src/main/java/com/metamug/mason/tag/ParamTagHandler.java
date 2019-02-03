@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.tag;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
@@ -524,7 +524,6 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  * @author Kaisteel
  */
 public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
-
     private String name;
     private String type;
     private Boolean isRequired;
@@ -535,13 +534,6 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
     private String pattern;
     private String defaultValue;
     private String value;
-
-    /**
-     * Creates new instance of tag handler
-     */
-    public ParamTagHandler() {
-        super();
-    }
 
     /**
      * This method is called after the JSP engine finished processing the tag.
@@ -583,7 +575,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 case "date":
                     if (pattern == null) {
                         try {
-                            validateDateTime(value, "yyyy-MM-dd");                            
+                            validateDateTime(value, "yyyy-MM-dd");
                         } catch (ParseException ex) {
                             throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
                         }
@@ -592,7 +584,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 case "datetime":
                     if (pattern == null) {
                         try {
-                            validateDateTime(value,"yyyy-MM-dd HH:mm:ss");                   
+                            validateDateTime(value, "yyyy-MM-dd HH:mm:ss");
                         } catch (ParseException ex) {
                             throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Incorrect datetime pattern of " + name + " parameter"));
                         }
@@ -740,8 +732,8 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
             this.defaultValue = defaultValue;
         }
     }
-    
-    private void validateDateTime(String value, String format) throws ParseException,JspException {
+
+    private void validateDateTime(String value, String format) throws ParseException, JspException {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(format);
             sdf.setLenient(false);

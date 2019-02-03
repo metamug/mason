@@ -504,101 +504,262 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.service;
+package com.metamug.mason.tag;
 
-import com.metamug.mason.dao.AuthDAO;
-import com.metamug.mason.entity.auth.JWebToken;
+import com.metamug.exec.RequestProcessable;
+import com.metamug.exec.ResultProcessable;
+import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import com.metamug.mason.tag.ResourceTagHandler;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.naming.NamingException;
+import com.metamug.mason.io.objectreturn.ObjectReturn;
+import com.metamug.mason.service.ConnectionProvider;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import javax.servlet.jsp.tagext.TryCatchFinally;
+import javax.sql.DataSource;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  *
- * @author Kaisteel
+ * @author Kainix
  */
-public class AuthService {
+public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
+    private String className;
+    private String onError;
+    private Object param;
+    private String var;
+    //private Boolean isVerbose;
+    //private Boolean isPersist;
+    //private Boolean isCollect;
+    private List<Object> parameters;
+    private DataSource ds;
 
-    private AuthDAO dao;
+    @Override
+    public int doEndTag() throws JspException {
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        //MasonRequest mtgReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
 
-    public AuthService() {
+        String acceptHeadr = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null ? ""
+                : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
+        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : MasonOutput.HEADER_JSON;
+        //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(ResourceTagHandler.MASON_OUTPUT, PageContext.REQUEST_SCOPE);
+        //int mapSize = map.size();
+        Object result;
         try {
-            this.dao = new AuthDAO(ConnectionProvider.getInstance());
-        } catch (SQLException | NamingException ex) {
-            Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
-            this.dao = null;
+            Class cls = Class.forName((String) className);
+            Object newInstance = cls.newInstance();
+            ResultProcessable resProcessable;
+            RequestProcessable reqProcessable;
+            if (ResultProcessable.class.isAssignableFrom(cls)) {
+                resProcessable = (ResultProcessable) newInstance;
+                if (param instanceof ResultImpl) {
+                    ResultImpl ri = (ResultImpl) param;
+
+                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                    if (result instanceof List) {
+                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
+                            JSONArray outputArray = new JSONArray();
+                            for (Object object : (List) result) {
+                                outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
+                            }
+                            //map.put("dexecute" + (mapSize + 1), outputArray);
+                            pageContext.setAttribute(var, outputArray);
+                        } else {
+                            StringBuilder outputXml = new StringBuilder();
+                            for (Object object : (List) result) {
+                                outputXml.append(ObjectReturn.convert(object, acceptHeader));
+                            }
+                            //map.put("dexecute" + (mapSize + 1), outputXml.toString());
+                            pageContext.setAttribute(var, outputXml.toString());
+                        }
+                    } else {
+                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
+                            try {
+                                JSONObject jsonOutput = new JSONObject((String) processedResult);
+                                //map.put("dexecute" + (mapSize + 1), jsonOutput);
+                                pageContext.setAttribute(var, jsonOutput);
+                                /*if (isPersist != null && isPersist) {
+                                    MasonRequest mtg = (MasonRequest) param;
+                                    Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                                    mtg.getParams().entrySet().forEach((entry) -> {
+                                        String key = entry.getKey();
+                                        String value = entry.getValue();
+                                        requestParameters.put(key, value);
+                                    });
+
+                                    Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
+                                    jsonMap.entrySet().forEach((entry) -> {
+                                        String key = entry.getKey();
+                                        Object value = entry.getValue();
+                                        mtgReq.getParams().put(key, String.valueOf(value));
+                                    });
+                                    mtgReq.getParams().putAll(requestParameters);
+                                }*/
+                            } catch (JSONException jx) {
+                                //map.put("dexecute" + (mapSize + 1), processedResult);
+                                pageContext.setAttribute(var, processedResult);
+                            }
+                        } else {
+                            //application/xml
+                            pageContext.setAttribute(var, processedResult);
+                        }
+                    }
+                }
+            } else if (RequestProcessable.class.isAssignableFrom(cls)) {
+                reqProcessable = (RequestProcessable) newInstance;
+                if (param instanceof MasonRequest) {
+                    MasonRequest mtg = (MasonRequest) param;
+                    Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                    mtg.getParams().entrySet().forEach((entry) -> {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        requestParameters.put(key, value);
+                    });
+                    Enumeration<String> headerNames = request.getHeaderNames();
+                    Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                    while (headerNames.hasMoreElements()) {
+                        String header = headerNames.nextElement();
+                        requestHeaders.put(header, request.getHeader(header));
+                    }
+                    ds = ConnectionProvider.getMasonDatasource();
+                    result = reqProcessable.process(requestParameters, ds, requestHeaders);
+
+                    if (result instanceof List) {
+                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
+                            JSONArray outputArray = new JSONArray();
+                            for (Object object : (List) result) {
+                                outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
+                            }
+                            /*if (isVerbose != null && isVerbose) {
+                                if (isCollect != null && isCollect) {
+                                    map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
+                                } else {
+                                    map.put("dexecute" + (mapSize + 1), outputArray);
+                                }
+                            }*/
+                            pageContext.setAttribute(var, outputArray);
+                        } else {
+                            StringBuilder outputXml = new StringBuilder();
+                            for (Object object : (List) result) {
+                                outputXml.append(ObjectReturn.convert(object, acceptHeader));
+                            }
+                            /*if (isVerbose != null && isVerbose) {
+                                map.put("dexecute" + (mapSize + 1), outputXml.toString());
+                            }*/
+                            pageContext.setAttribute(var, outputXml.toString());
+                        }
+                    } else {
+                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
+                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
+                            try {
+                                JSONObject jsonOutput = new JSONObject((String) processedResult);
+                                /*if (isVerbose != null && isVerbose) {
+                                    if (isCollect != null && isCollect) {
+                                        map.put("dexecute" + (mapSize + 1), MPathUtil.collect(new JSONArray(jsonOutput)));
+                                    } else {
+                                        map.put("dexecute" + (mapSize + 1), jsonOutput);
+                                    }
+                                }*/
+                                pageContext.setAttribute(var, jsonOutput);
+                                /*if (isPersist != null && isPersist) {
+                                    Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
+                                    jsonMap.entrySet().forEach((entry) -> {
+                                        String key = entry.getKey();
+                                        Object value = entry.getValue();
+                                        mtgReq.getParams().put(key, String.valueOf(value));
+                                    });
+                                    mtgReq.getParams().putAll(requestParameters);
+                                }*/
+                            } catch (JSONException jx) {
+                                /*if (isVerbose != null && isVerbose) {
+                                    map.put("dexecute" + (mapSize + 1), processedResult);
+                                }*/
+                                pageContext.setAttribute(var, processedResult);
+                            }
+                        } //application/xml
+                        else {
+                            /*if (isVerbose != null && isVerbose) {
+                                map.put("dexecute" + (mapSize + 1), processedResult);
+                            }*/
+                            pageContext.setAttribute(var, processedResult);
+                        }
+                    }
+                }
+            } else {
+                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't processable"));
+            }
+        } catch (Exception ex) {
+            throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onError));
         }
+        return EVAL_PAGE;
     }
 
-    public AuthService(AuthDAO dao) {
-        this.dao = dao;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
-    public String validateBasic(String header, String roleName) throws JspException {
+    public void setOnError(String onError) {
+        this.onError = onError;
+    }
 
-        String authHeader = header.replaceFirst("Basic ", "");
+    public void setParam(Object param) {
+        this.param = param;
+    }
 
-        String userCred = new String(Base64.getDecoder().decode(authHeader.getBytes()));
-        String[] split = userCred.split(":");
-        String user = split[0];
-        String password = split[1];
+    /*
+    public void setIsVerbose(Boolean isVerbose) {
+        this.isVerbose = isVerbose;
+    }
 
-        if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
-            throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-        }
+    public void setIsPersist(Boolean isPersist) {
+        this.isPersist = isPersist;
+    }
 
-        JSONObject status = dao.validateBasic(user, password, roleName);
-        switch (status.getInt("status")) {
-            case 0:
-                throw new JspException(ResourceTagHandler.ACCESS_DENIED,
-                        new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
-            case 1:
-                return status.getString("user_id");
-            default:
-                throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
-        }
+    public void setIsCollect(Boolean isCollect) {
+        this.isCollect = isCollect;
+    }
+     */
+    /**
+     * Just re-throws the Throwable.
+     *
+     * @param throwable
+     * @throws java.lang.Throwable
+     */
+    @Override
+    public void doCatch(Throwable throwable) throws Throwable {
+        throw throwable;
     }
 
     /**
-     * Returns user and auth values to verify
-     *
-     * @param bearerToken
-     * @param roleName
-     * @return
-     * @throws javax.servlet.jsp.JspException
+     * Close the <code>Connection</code>, unless this action is used as part of a transaction.
      */
-    public String validateBearer(String bearerToken, String roleName) throws JspException {
-        try {
-            //verify and use
-            JWebToken incomingToken = new JWebToken(bearerToken);
-            if (!incomingToken.isValid()) {
-                throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
-            }
-            if (!roleName.equals(incomingToken.getAudience())) {
-                throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
-            }
-            return (incomingToken.getSubject());
-        } catch (NoSuchAlgorithmException ex) {
-            throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
-        }
+    @Override
+    public void doFinally() {
+//      Don't set ds to null because in subsequent call to code execution it causes NPE
+//      ds = null;
     }
 
-    /**
-     * Create Bearer token with username and password. Uses JWT Scheme
-     *
-     * @param user
-     * @param pass
-     * @return
-     */
-    public String createBearer(String user, String pass) {
-        JSONObject payload = dao.getBearerDetails(user, pass);
-        return new JWebToken(payload).toString();
+    public void addParameter(Object obj) {
+        if (parameters == null) {
+            parameters = new ArrayList<>();
+        }
+        parameters.add(obj);
+    }
+
+    public void setVar(String var) {
+        this.var = var;
     }
 }

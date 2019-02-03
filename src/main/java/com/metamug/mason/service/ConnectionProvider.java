@@ -522,20 +522,21 @@ import javax.sql.DataSource;
  * @author Kainix
  */
 public class ConnectionProvider {
+
     private static String masonDatasource;
     private final Connection con;
-    
+
     public static void setMasonDatasource(String ds) {
         masonDatasource = ds;
     }
-    
+
     public static DataSource getMasonDatasource() throws NamingException {
         Context initialContext = new InitialContext();
         Context envContext = (Context) initialContext.lookup("java:/comp/env");
         return (DataSource) envContext.lookup(masonDatasource);
     }
 
-    private ConnectionProvider() throws SQLException, NamingException { 
+    private ConnectionProvider() throws SQLException, NamingException {
         con = getMasonDatasource().getConnection();
     }
 

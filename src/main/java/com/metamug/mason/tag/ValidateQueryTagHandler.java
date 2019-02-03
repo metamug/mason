@@ -504,37 +504,47 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.tag;
 
-import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
  *
  * @author Kaisteel
  */
-public class ParentTagHandler extends BodyTagSupport {
+public class ValidateQueryTagHandler extends BodyTagSupport implements TryCatchFinally {
+    private String onError;
 
-    private String value;
-
+    /**
+     * This method is called after the JSP engine finished processing the tag.
+     *
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
+     * methods that this method calls.
+     * @throws javax.servlet.jsp.JspException
+     */
     @Override
     public int doEndTag() throws JspException {
-        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        if (mtg.getParent() != null && !mtg.getParent().equalsIgnoreCase(value)) {
-            throw new JspException("Parent resource not found", new MetamugException(MetamugError.PARENT_RESOURCE_MISSING));
-        }
         return EVAL_PAGE;
     }
 
-    public void setValue(String value) {
-        if (value.isEmpty()) {
-            this.value = null;
-        } else {
-            this.value = value;
-        }
+    public void setOnError(String onError) {
+        this.onError = onError;
+    }
+
+    @Override
+    public void doCatch(Throwable t) throws Throwable {
+        Logger.getLogger(ValidateQueryTagHandler.class.getName()).log(Level.SEVERE, onError, t);
+        throw new JspException(t.getMessage(), new MetamugException(MetamugError.SQL_ERROR, onError));
+    }
+
+    @Override
+    public void doFinally() {
     }
 }

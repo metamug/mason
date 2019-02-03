@@ -34,14 +34,8 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String HEADER_ACCEPT = "Accept";
-    public static final String BEARER_ = "Bearer ";
-    
+    public static final String BEARER_ = "Bearer ";   
     public static final String MASON_OUTPUT = "masonOutput";
-    
-    public ResourceTagHandler(){
-        super();
-        auth = null;
-    }
     
     public void setAuth(String a){
         auth = a;

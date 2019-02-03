@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
+package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
 import com.metamug.event.UploadEvent;
@@ -514,7 +514,7 @@ import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.taghandlers.ResourceTagHandler.MASON_OUTPUT;
+import static com.metamug.mason.tag.ResourceTagHandler.MASON_OUTPUT;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -557,13 +557,6 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
     private DataSource ds;
 
     /**
-     * Creates new instance of tag handler
-     */
-    public UploadEventTagHandler() {
-        super();
-    }
-
-    /**
      * This method is called after the JSP engine finished processing the tag.
      *
      * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
@@ -582,7 +575,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         String contentType = request.getContentType() == null ? "" : request.getContentType();
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
-                                                                    MASON_OUTPUT, PageContext.REQUEST_SCOPE);
+                MASON_OUTPUT, PageContext.REQUEST_SCOPE);
         int mapSize = map.size();
         MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
         if (contentType.contains("multipart/form-data")) {
@@ -646,7 +639,6 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
                                             map.put("dupload" + (mapSize + 1), jsonOutput);
                                         }
                                     } catch (JSONException jx) {
-                                        //System.out.println("MasonRequest: Not a JSONObject");
                                         map.put("dupload" + (mapSize + 1), processedResult);
                                     }
                                 } //application/xml

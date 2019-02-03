@@ -504,275 +504,100 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.taghandlers;
 
-import com.metamug.exec.RequestProcessable;
-import com.metamug.exec.ResultProcessable;
+package com.metamug.mason.tag.request;
+
 import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.entity.response.DatasetOutput;
+import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
-import com.metamug.mason.exception.MetamugError;
-import com.metamug.mason.exception.MetamugException;
-import com.metamug.mason.io.objectreturn.ObjectReturn;
-import com.metamug.mason.service.ConnectionProvider;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import com.metamug.mason.entity.response.XMLOutput;
+import com.metamug.mason.tag.ResourceTagHandler;
+import com.metamug.mason.tag.RestTag;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import javax.servlet.http.HttpServletRequest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.servlet.jsp.tagext.TryCatchFinally;
-import javax.sql.DataSource;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import javax.servlet.jsp.PageContext;
 
 /**
  *
- * @author Kainix
+ * @author anishhirlekar
  */
-public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class RequestTagHandler extends RestTag {
+    private String method;
+    private boolean item;
+    private boolean processOutput;
+    @Resource
+    private MasonRequest masonReq;
+    @Resource
+    private LinkedHashMap<String, Object> resultMap;
 
-    private String className;
-    private String onError;
-    private Object param;
-    private String var;
-    //private Boolean isVerbose;
-    //private Boolean isPersist;
-    //private Boolean isCollect;
-    private List<Object> parameters;
-    private DataSource ds;
+    @Override
+    public int doStartTag() throws JspException {
+        super.doStartTag();
+        masonReq = (MasonRequest) request.getAttribute("mtgReq");
+        
+        if (method.equalsIgnoreCase(masonReq.getMethod())) {
+            processOutput = (masonReq.getId() != null) == item;
+            if (processOutput) {
+                resultMap = new LinkedHashMap<>();
+                pageContext.setAttribute(MASON_OUTPUT, resultMap, PageContext.PAGE_SCOPE); 
+                //changed from request scope to page scope
+                return EVAL_BODY_INCLUDE;
+            }
+        }
 
-    public CodeTagHandler() throws NoSuchAlgorithmException {
-        super();
-        init();
-    }
-
-    private void init() {
-        className = null;
-        param = null;
-        parameters = null;
-        var = null;
+        return SKIP_BODY;
     }
 
     @Override
     public int doEndTag() throws JspException {
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        //MasonRequest mtgReq = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        
-        String acceptHeadr = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null ? "" :
-                request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
-        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : MasonOutput.HEADER_JSON;
-        //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(ResourceTagHandler.MASON_OUTPUT, PageContext.REQUEST_SCOPE);
-        //int mapSize = map.size();
-        Object result;
+        if (processOutput) {
+            processOutput();
+            return SKIP_PAGE;
+        } else {
+            return EVAL_PAGE;
+        }
+    }
+
+    private void processOutput() {     
+        if (resultMap.isEmpty()) {
+            response.setStatus(204);
+            return;
+        }
+
+        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+        MasonOutput output;
+        List list = Arrays.asList(header.split("/"));
+        if (list.contains("xml")) { //Accept: application/xml, text/xml
+            output = new XMLOutput(resultMap);
+        } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
+            output = new DatasetOutput(resultMap);
+        } else { //Accept: application/json OR default
+            output = new JSONOutput(resultMap);
+        }
+
+        String op = output.toString();
+        response.setContentType(output.getContentType());
+        context.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
         try {
-            Class cls = Class.forName((String) className);
-            Object newInstance = cls.newInstance();
-            ResultProcessable resProcessable;
-            RequestProcessable reqProcessable;
-            if (ResultProcessable.class.isAssignableFrom(cls)) {
-                resProcessable = (ResultProcessable) newInstance;
-                if (param instanceof ResultImpl) {
-                    ResultImpl ri = (ResultImpl) param;
-                    
-                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                    if (result instanceof List) {
-                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
-                            JSONArray outputArray = new JSONArray();
-                            for (Object object : (List) result) {
-                                outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
-                            }
-                            //map.put("dexecute" + (mapSize + 1), outputArray);
-                            pageContext.setAttribute(var, outputArray);
-                        } else {
-                            StringBuilder outputXml = new StringBuilder();
-                            for (Object object : (List) result) {
-                                outputXml.append(ObjectReturn.convert(object, acceptHeader));
-                            }
-                            //map.put("dexecute" + (mapSize + 1), outputXml.toString());
-                            pageContext.setAttribute(var, outputXml.toString());
-                        }
-                    } else {
-                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
-                            try {
-                                JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                //map.put("dexecute" + (mapSize + 1), jsonOutput);
-                                pageContext.setAttribute(var, jsonOutput);
-                                /*if (isPersist != null && isPersist) {
-                                    MasonRequest mtg = (MasonRequest) param;
-                                    Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                                    mtg.getParams().entrySet().forEach((entry) -> {
-                                        String key = entry.getKey();
-                                        String value = entry.getValue();
-                                        requestParameters.put(key, value);
-                                    });
-
-                                    Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
-                                    jsonMap.entrySet().forEach((entry) -> {
-                                        String key = entry.getKey();
-                                        Object value = entry.getValue();
-                                        mtgReq.getParams().put(key, String.valueOf(value));
-                                    });
-                                    mtgReq.getParams().putAll(requestParameters);
-                                }*/
-                            } catch (JSONException jx) {
-                                //map.put("dexecute" + (mapSize + 1), processedResult);
-                                pageContext.setAttribute(var, processedResult);
-                            }
-                        } else {
-                            //application/xml
-                            pageContext.setAttribute(var, processedResult);
-                        }
-                    }
-                }
-            } else if (RequestProcessable.class.isAssignableFrom(cls)) {
-                reqProcessable = (RequestProcessable) newInstance;
-                if (param instanceof MasonRequest) {
-                    MasonRequest mtg = (MasonRequest) param;
-                    Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    mtg.getParams().entrySet().forEach((entry) -> {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        requestParameters.put(key, value);
-                    });
-                    Enumeration<String> headerNames = request.getHeaderNames();
-                    Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    while (headerNames.hasMoreElements()) {
-                        String header = headerNames.nextElement();
-                        requestHeaders.put(header, request.getHeader(header));
-                    }
-                    ds = ConnectionProvider.getMasonDatasource();
-                    result = reqProcessable.process(requestParameters, ds, requestHeaders);
-
-                    if (result instanceof List) {
-                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
-                            JSONArray outputArray = new JSONArray();
-                            for (Object object : (List) result) {
-                                outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
-                            }
-                            /*if (isVerbose != null && isVerbose) {
-                                if (isCollect != null && isCollect) {
-                                    map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
-                                } else {
-                                    map.put("dexecute" + (mapSize + 1), outputArray);
-                                }
-                            }*/
-                            pageContext.setAttribute(var, outputArray);
-                        } else {
-                            StringBuilder outputXml = new StringBuilder();
-                            for (Object object : (List) result) {
-                                outputXml.append(ObjectReturn.convert(object, acceptHeader));
-                            }
-                            /*if (isVerbose != null && isVerbose) {
-                                map.put("dexecute" + (mapSize + 1), outputXml.toString());
-                            }*/
-                            pageContext.setAttribute(var, outputXml.toString());
-                        }
-                    } else {
-                        Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                        if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
-                            try {
-                                JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                /*if (isVerbose != null && isVerbose) {
-                                    if (isCollect != null && isCollect) {
-                                        map.put("dexecute" + (mapSize + 1), MPathUtil.collect(new JSONArray(jsonOutput)));
-                                    } else {
-                                        map.put("dexecute" + (mapSize + 1), jsonOutput);
-                                    }
-                                }*/
-                                pageContext.setAttribute(var, jsonOutput);
-                                /*if (isPersist != null && isPersist) {
-                                    Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
-                                    jsonMap.entrySet().forEach((entry) -> {
-                                        String key = entry.getKey();
-                                        Object value = entry.getValue();
-                                        mtgReq.getParams().put(key, String.valueOf(value));
-                                    });
-                                    mtgReq.getParams().putAll(requestParameters);
-                                }*/
-                            } catch (JSONException jx) {
-                                /*if (isVerbose != null && isVerbose) {
-                                    map.put("dexecute" + (mapSize + 1), processedResult);
-                                }*/
-                                pageContext.setAttribute(var, processedResult);
-                            }
-                        } //application/xml
-                        else {
-                            /*if (isVerbose != null && isVerbose) {
-                                map.put("dexecute" + (mapSize + 1), processedResult);
-                            }*/
-                            pageContext.setAttribute(var, processedResult);
-                        }
-                    }
-                }
-            } else {
-                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't processable"));
-            }
-        } catch (Exception ex) {
-            throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onError));
+            context.getOut().print(op);
+        } catch (IOException ex) {
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return EVAL_PAGE;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    public void setMethod(String m) {
+        method = m;
     }
 
-    public void setOnError(String onError) {
-        this.onError = onError;
-    }
-
-    public void setParam(Object param) {
-        this.param = param;
-    }
-/*
-    public void setIsVerbose(Boolean isVerbose) {
-        this.isVerbose = isVerbose;
-    }
-
-    public void setIsPersist(Boolean isPersist) {
-        this.isPersist = isPersist;
-    }
-
-    public void setIsCollect(Boolean isCollect) {
-        this.isCollect = isCollect;
-    }
-*/
-    /**
-     * Just re-throws the Throwable.
-     *
-     * @param throwable
-     * @throws java.lang.Throwable
-     */
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    /**
-     * Close the <code>Connection</code>, unless this action is used as part of a transaction.
-     */
-    @Override
-    public void doFinally() {
-//      Don't set ds to null because in subsequent call to code execution it causes NPE
-//      ds = null;
-    }
-
-    public void addParameter(Object obj) {
-        if (parameters == null) {
-            parameters = new ArrayList<>();
-        }
-        parameters.add(obj);
-    }
-    
-    public void setVar(String var) {
-        this.var = var;
-    }
+    public void setItem(boolean i) {
+        item = i;
+    }  
 }

@@ -12,11 +12,13 @@ import java.util.Collection;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
+
 /**
  *
  * @author anishhirlekar
  */
 public class MultipartFormStrategy extends ParamExtractStrategy {
+
     /**
      *
      * @param request
@@ -24,14 +26,15 @@ public class MultipartFormStrategy extends ParamExtractStrategy {
      * @throws javax.servlet.ServletException
      */
     public MultipartFormStrategy(HttpServletRequest request) throws IOException, ServletException {
-        super(request);     
+        super(request);
         Collection<Part> parts = request.getParts();
-        for (Part part: parts) {
+        for (Part part : parts) {
             String line;
             StringBuilder data = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
-                while ((line = br.readLine()) != null)
+                while ((line = br.readLine()) != null) {
                     data.append(line);
+                }
             }
             params.put(part.getName(), data.toString());
         }
