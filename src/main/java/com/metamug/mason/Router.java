@@ -533,7 +533,6 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -644,7 +643,7 @@ public class Router implements Filter {
                 req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
 
                 //save method as attribute because jsp only accepts GET and POST
-                //req.setAttribute("mtgMethod", req.getMethod()); method is already in masonrequest
+                req.setAttribute("mtgMethod", req.getMethod());
                 req.setAttribute(MASON_QUERY, queryMap);
                 req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp")
                         .forward(new HttpServletRequestWrapper(req) {
@@ -659,7 +658,7 @@ public class Router implements Filter {
                             }
                             //Returning null, since request passing via this filter won't be using Sessions
 
-                            @Override
+                            /*@Override
                             public HttpSession getSession() {
                                 return null;
                             }
@@ -667,7 +666,7 @@ public class Router implements Filter {
                             @Override
                             public HttpSession getSession(boolean create) {
                                 return null;
-                            }
+                            }*/
                         }, res);
             } else {
                 writeError(res, 404, "Resource doesn't exist");
@@ -684,7 +683,6 @@ public class Router implements Filter {
                 writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                 Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
             }
-
         }
     }
 

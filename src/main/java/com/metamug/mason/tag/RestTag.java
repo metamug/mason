@@ -523,12 +523,12 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public static final String HEADER_ACCEPT = "Accept";
     public static final String MASON_OUTPUT = "masonOutput";
 
-    @Resource
+    //@Resource
     protected HttpServletRequest request;
-    @Resource
+    //@Resource
     protected HttpServletResponse response;
 
-    @Resource
+    //@Resource
     protected PageContext context; //For Mocking https://stackoverflow.com/a/17474381/1097600
 
     public RestTag() {
@@ -538,8 +538,8 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
 
     @Override
     public int doStartTag() throws JspException {
-        request = (HttpServletRequest) context.getRequest();
-        response = (HttpServletResponse) context.getResponse();
+        request = (HttpServletRequest) pageContext.getRequest();
+        response = (HttpServletResponse) pageContext.getResponse();
         return 0;
     }
 

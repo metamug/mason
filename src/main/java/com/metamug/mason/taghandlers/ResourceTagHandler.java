@@ -27,7 +27,7 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  */
 public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinally{
     private String auth;
-    private transient AuthService authService;
+    private AuthService authService;
     
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
     public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";

@@ -533,9 +533,9 @@ public class RequestTagHandler extends RestTag {
     private String method;
     private boolean item;
     private boolean processOutput;
-    @Resource
+    //@Resource
     private MasonRequest masonReq;
-    @Resource
+    //@Resource
     private LinkedHashMap<String, Object> resultMap;
 
     @Override
@@ -585,9 +585,9 @@ public class RequestTagHandler extends RestTag {
 
         String op = output.toString();
         response.setContentType(output.getContentType());
-        context.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
+        pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
         try {
-            context.getOut().print(op);
+            pageContext.getOut().print(op);
         } catch (IOException ex) {
             Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }

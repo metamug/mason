@@ -623,7 +623,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                 if (param instanceof MasonRequest) {
                     MasonRequest mtg = (MasonRequest) param;
                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    mtg.getParams().entrySet().forEach((entry) -> {
+                    mtg.getParams().entrySet().forEach(entry -> {
                         String key = entry.getKey();
                         String value = entry.getValue();
                         requestParameters.put(key, value);
@@ -636,8 +636,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     }
                     ds = ConnectionProvider.getMasonDatasource();
                     result = reqProcessable.process(requestParameters, ds, requestHeaders);
-
-                    if (result instanceof List) {
+                    pageContext.setAttribute(var,result);
+                    /*if (result instanceof List) {
                         if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
                             JSONArray outputArray = new JSONArray();
                             for (Object object : (List) result) {
@@ -650,7 +650,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                     map.put("dexecute" + (mapSize + 1), outputArray);
                                 }
                             }*/
-                            pageContext.setAttribute(var, outputArray);
+                        /*    pageContext.setAttribute(var, outputArray);
                         } else {
                             StringBuilder outputXml = new StringBuilder();
                             for (Object object : (List) result) {
@@ -659,7 +659,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             /*if (isVerbose != null && isVerbose) {
                                 map.put("dexecute" + (mapSize + 1), outputXml.toString());
                             }*/
-                            pageContext.setAttribute(var, outputXml.toString());
+                        /*    pageContext.setAttribute(var, outputXml.toString());
                         }
                     } else {
                         Object processedResult = ObjectReturn.convert(result, acceptHeader);
@@ -673,8 +673,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         map.put("dexecute" + (mapSize + 1), jsonOutput);
                                     }
                                 }*/
-                                pageContext.setAttribute(var, jsonOutput);
-                                /*if (isPersist != null && isPersist) {
+                                /*pageContext.setAttribute(var, jsonOutput);
+                                if (isPersist != null && isPersist) {
                                     Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
                                     jsonMap.entrySet().forEach((entry) -> {
                                         String key = entry.getKey();
@@ -683,20 +683,20 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
                                 }*/
-                            } catch (JSONException jx) {
+                            /*} catch (JSONException jx) {
                                 /*if (isVerbose != null && isVerbose) {
                                     map.put("dexecute" + (mapSize + 1), processedResult);
                                 }*/
-                                pageContext.setAttribute(var, processedResult);
+                             /*   pageContext.setAttribute(var, processedResult);
                             }
                         } //application/xml
                         else {
                             /*if (isVerbose != null && isVerbose) {
                                 map.put("dexecute" + (mapSize + 1), processedResult);
                             }*/
-                            pageContext.setAttribute(var, processedResult);
+                        /*    pageContext.setAttribute(var, processedResult);
                         }
-                    }
+                    }*/
                 }
             } else {
                 throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't processable"));
