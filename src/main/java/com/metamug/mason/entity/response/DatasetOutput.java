@@ -7,6 +7,7 @@ package com.metamug.mason.entity.response;
 
 import java.util.Map;
 import java.util.SortedMap;
+import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,11 +16,14 @@ import org.json.JSONObject;
  * Dataset JSON output object
  */
 public class DatasetOutput extends JSONOutput {
+    public static String COLUMNS = "columns";
+    public static String DATASET = "dataset";
 
-    public DatasetOutput(Map<String, Object> outputMap) {
+    public DatasetOutput(Map<String, Object> outputMap) throws JAXBException {
         super(outputMap);
     }
 
+    @Override
     protected Object getJson(ResultImpl impl) {
         return resultSetToDataSet(impl);
     }
@@ -33,7 +37,7 @@ public class DatasetOutput extends JSONOutput {
             String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
             columnArray.put(columnName);
         }
-        object.put("columns", columnArray);
+        object.put(COLUMNS, columnArray);
         JSONArray dataSetArray = new JSONArray();
         for (SortedMap row : rows) {
             JSONArray rowArray = new JSONArray();
@@ -43,7 +47,7 @@ public class DatasetOutput extends JSONOutput {
             }
             dataSetArray.put(rowArray);
         }
-        object.put("dataset", dataSetArray);
+        object.put(DATASET, dataSetArray);
         return object;
     }
 

@@ -512,7 +512,6 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import com.metamug.mason.io.objectreturn.ObjectReturn;
 import com.metamug.mason.service.ConnectionProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -527,9 +526,6 @@ import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  *
@@ -568,7 +564,8 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     ResultImpl ri = (ResultImpl) param;
 
                     result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                    if (result instanceof List) {
+                    pageContext.setAttribute(var,result);
+                    /*if (result instanceof List) {
                         if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
                             JSONArray outputArray = new JSONArray();
                             for (Object object : (List) result) {
@@ -608,7 +605,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
                                 }*/
-                            } catch (JSONException jx) {
+                           /* } catch (JSONException jx) {
                                 //map.put("dexecute" + (mapSize + 1), processedResult);
                                 pageContext.setAttribute(var, processedResult);
                             }
@@ -616,7 +613,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             //application/xml
                             pageContext.setAttribute(var, processedResult);
                         }
-                    }
+                    }*/
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;

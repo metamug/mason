@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -56,7 +57,7 @@ public class MasonOutputTest {
     }
 
     @Test
-    public void testJson() {
+    public void testJson() throws JAXBException {
         String dataType = MasonOutput.HEADER_JSON;
         MasonOutput output = getOutput(dataType);
         String outStr = output.toString();
@@ -66,7 +67,7 @@ public class MasonOutputTest {
     }
 
     @Test
-    public void testJsonSingleResult() {
+    public void testJsonSingleResult() throws JAXBException {
         Map<String, Object> singleMap = new LinkedHashMap<>();
         singleMap.put("res2", new JSONArray(sampleArray));
         MasonOutput output = new JSONOutput(singleMap);
@@ -79,7 +80,7 @@ public class MasonOutputTest {
     }
 
     @Test
-    public void testDataSet() {
+    public void testDataSet() throws JAXBException {
         String dataType = MasonOutput.HEADER_DATASET;
         MasonOutput output = getOutput(dataType);
         String outStr = output.toString();
@@ -89,7 +90,7 @@ public class MasonOutputTest {
     }
 
     @Test
-    public void testXml() {
+    public void testXml() throws JAXBException {
         String dataType = MasonOutput.HEADER_XML;
         MasonOutput output = getOutput(dataType);
         String outStr = output.toString();
@@ -99,7 +100,7 @@ public class MasonOutputTest {
         //Assert.assertTrue(outStr.length()>1);
     }
 
-    private MasonOutput getOutput(String dataType) {
+    private MasonOutput getOutput(String dataType) throws JAXBException {
         MasonOutput output = new JSONOutput(new LinkedHashMap<>());
         Assert.assertEquals("{}", output.toString());
 

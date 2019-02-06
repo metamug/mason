@@ -507,6 +507,7 @@
 package com.metamug.mason.entity.response;
 
 import java.util.Map;
+import javax.xml.bind.JAXBException;
 import org.json.JSONObject;
 import org.json.XML;
 
@@ -515,7 +516,7 @@ import org.json.XML;
  */
 public class XMLOutput extends JSONOutput {
 
-    public XMLOutput(Map<String, Object> outputMap) {
+    public XMLOutput(Map<String, Object> outputMap) throws JAXBException {
         super(outputMap);
     }
 

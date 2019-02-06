@@ -507,8 +507,11 @@
 package com.metamug.mason.entity.response;
 
 import com.metamug.mason.io.mpath.MPathUtil;
+import com.metamug.mason.io.objectreturn.ObjectReturn;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -520,19 +523,28 @@ public class JSONOutput extends MasonOutput {
 
     protected JSONObject responseJson = new JSONObject();
 
-    public JSONOutput(Map<String, Object> outputMap) {
+    public JSONOutput(Map<String, Object> outputMap) throws JAXBException {
         super(outputMap);
-        /*if (outputMap.isEmpty()) {
-            responseJson.put("response", new JSONArray());
-        }*/
 
         for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
             Object obj = entry.getValue();
             String key = entry.getKey();
+            
             if (obj instanceof ResultImpl) {
                 responseJson.put(key, getJson((ResultImpl) obj));
+            } else if (obj instanceof JSONObject) {
+                responseJson.put(key, (JSONObject)obj);
+            } else if (obj instanceof String) {
+                responseJson.put(key, (String)obj);
+            } else if(obj instanceof List) {
+                JSONArray array = new JSONArray();
+                for (Object o : (List) obj) 
+                    array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
+                
+                responseJson.put(key, array);
             } else {
-                responseJson.put(key, obj);
+                //obj is POJO
+                responseJson.put(key, new JSONObject(ObjectReturn.convert(obj,HEADER_JSON)));
             }
         }
     }

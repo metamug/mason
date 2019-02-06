@@ -523,15 +523,16 @@ public class ObjectReturn {
     public static final String TYPE_XML = "application/xml";
 
     /**
-     * @param returnObject The object to be converted. if object is of type String, the object will be returned as it is and acceptHeader will be ignored
+     * @param returnObject The object to be converted. if object is of type String,
+     * the object will be returned as it is and acceptHeader will be ignored
      * @param acceptHeader Used to determine whether to convert into JSON or XML
      * @return Json object or XML converted form of the returnObject as String
      * @throws javax.xml.bind.JAXBException
      */
     public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
-        if (returnObject instanceof String) {
+        if (returnObject instanceof String) 
             return (String) returnObject;
-        }
+        
         StringWriter marshalledResult = new StringWriter();
         JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
 

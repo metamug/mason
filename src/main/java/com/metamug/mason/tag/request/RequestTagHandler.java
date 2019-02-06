@@ -521,9 +521,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Resource;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
+import javax.xml.bind.JAXBException;
 
 /**
  *
@@ -574,21 +574,22 @@ public class RequestTagHandler extends RestTag {
 
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         MasonOutput output;
-        List list = Arrays.asList(header.split("/"));
-        if (list.contains("xml")) { //Accept: application/xml, text/xml
-            output = new XMLOutput(resultMap);
-        } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
-            output = new DatasetOutput(resultMap);
-        } else { //Accept: application/json OR default
-            output = new JSONOutput(resultMap);
-        }
-
-        String op = output.toString();
-        response.setContentType(output.getContentType());
-        pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
+        
         try {
+            List list = Arrays.asList(header.split("/"));
+            if (list.contains("xml")) { //Accept: application/xml, text/xml
+                output = new XMLOutput(resultMap);
+            } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
+                output = new DatasetOutput(resultMap);
+            } else { //Accept: application/json OR default
+                output = new JSONOutput(resultMap);
+            }
+
+            String op = output.toString();
+            response.setContentType(output.getContentType());
+            pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);  
             pageContext.getOut().print(op);
-        } catch (IOException ex) {
+        } catch (IOException | JAXBException ex) {
             Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
