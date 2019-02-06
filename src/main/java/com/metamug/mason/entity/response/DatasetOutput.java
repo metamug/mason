@@ -16,8 +16,8 @@ import org.json.JSONObject;
  * Dataset JSON output object
  */
 public class DatasetOutput extends JSONOutput {
-    public static String COLUMNS = "columns";
-    public static String DATASET = "dataset";
+    public static final String COLUMNS = "columns";
+    public static final String DATASET = "dataset";
 
     public DatasetOutput(Map<String, Object> outputMap) throws JAXBException {
         super(outputMap);
