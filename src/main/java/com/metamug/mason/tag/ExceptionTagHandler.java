@@ -531,6 +531,7 @@ import javax.sql.DataSource;
  * @author Kaisteel
  */
 public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private Object value;
     private DataSource ds;
 
@@ -543,11 +544,11 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
      */
     @Override
     public int doEndTag() throws JspException {
-        Exception ex = (Exception) value;
+        Exception exception = (Exception) value;
         try {
             ds = ConnectionProvider.getMasonDatasource();
-        } catch (NamingException ex1) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, null, ex1);
+        } catch (NamingException ex) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
@@ -557,22 +558,22 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             if (Arrays.asList(header.split("/")).contains("xml")) {
                 response.setContentType("application/xml");
                 out.println("<response>\n");
-                if (ex.getCause() != null) {
-                    String cause = ex.getCause().toString();
+                if (exception.getCause() != null) {
+                    String cause = exception.getCause().toString();
                     if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
                         response.setStatus(512);
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
-                        logError(errorId, request, ex);
+                        logError(errorId, request, exception);
                         out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
                                 + "\n<message>API Error. Please contact your API administrator.</message>");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
                     } else if (cause.contains("MetamugException")) {
-                        MetamugException mtgCause = (MetamugException) ex.getCause();
+                        MetamugException mtgCause = (MetamugException) exception.getCause();
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
@@ -615,7 +616,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                                 break;
                             case SQL_ERROR:
                                 response.setStatus(512);
-                                logError(errorId, request, ex);
+                                logError(errorId, request, exception);
                                 out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
                                         + "\n<error>" + mtgCause.getMessage() + "</error>"
                                         + "\n<message>API Error. Please contact your API administrator.</message>");
@@ -638,7 +639,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
-                        logError(errorId, request, ex);
+                        logError(errorId, request, exception);
                         out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
                                 + "\n<message>API Error. Please contact your API administrator.</message>");
                     }
@@ -647,29 +648,29 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     String timestamp = String.valueOf(System.currentTimeMillis());
                     long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                     String errorId = String.valueOf(Math.abs(hash));
-                    logError(errorId, request, ex);
+                    logError(errorId, request, exception);
                     out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
                             + "\n<message>API Error. Please contact your API administrator.</message>");
                 }
                 out.println("\n</response>");
             } else {
                 response.setContentType("application/json");
-                if (ex.getCause() != null) {
-                    String cause = ex.getCause().toString();
+                if (exception.getCause() != null) {
+                    String cause = exception.getCause().toString();
                     if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException")) {
                         response.setStatus(512);
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
-                        logError(errorId, request, ex);
+                        logError(errorId, request, exception);
                         out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ""
                                 + "\"message\": \"API Error. Please contact your API administrator.\"}");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);
                         out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
-                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
                     } else if (cause.contains("MetamugException")) {
-                        MetamugException mtgCause = (MetamugException) ex.getCause();
+                        MetamugException mtgCause = (MetamugException) exception.getCause();
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
@@ -745,7 +746,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
-                        logError(errorId, request, ex);
+                        logError(errorId, request, exception);
                         out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ","
                                 + "\"message\": \"API Error. Please contact your API administrator.\"}");
                     }
@@ -754,13 +755,13 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     String timestamp = String.valueOf(System.currentTimeMillis());
                     long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                     String errorId = String.valueOf(Math.abs(hash));
-                    logError(errorId, request, ex);
+                    logError(errorId, request, exception);
                     out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ","
                             + "\"message\": \"API Error. Please contact your API administrator.\"}");
                 }
             }
-        } catch (IOException ex1) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex1.getMessage(), ex1);
+        } catch (IOException ex) {
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return SKIP_PAGE;
     }

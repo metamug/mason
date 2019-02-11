@@ -34,7 +34,7 @@ public class JsonStrategy extends ParamExtractStrategy {
                 jsonData.append(line);
             }
         } catch (IOException ex) {
-            Logger.getLogger(JsonStrategy.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonStrategy.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
         flattenAsMap.entrySet().forEach(entry -> {

@@ -521,6 +521,7 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  * @author Kaisteel
  */
 public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private Object value;
     private String onBlank;
 

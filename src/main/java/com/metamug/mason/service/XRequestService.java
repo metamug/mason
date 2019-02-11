@@ -571,7 +571,7 @@ public class XRequestService {
                     queryParams.append("&");
                 }
             } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
         Request request = reqBuilder.url(url + "?" + queryParams.toString()).build();
@@ -664,7 +664,7 @@ public class XRequestService {
                     queryParams.append("&");
                 }
             } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
         Request request = new Request.Builder().url(url + "?" + queryParams.toString()).delete().build();

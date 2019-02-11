@@ -529,22 +529,23 @@ public class JSONOutput extends MasonOutput {
         for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
             Object obj = entry.getValue();
             String key = entry.getKey();
-            
+
             if (obj instanceof ResultImpl) {
                 responseJson.put(key, getJson((ResultImpl) obj));
             } else if (obj instanceof JSONObject) {
-                responseJson.put(key, (JSONObject)obj);
+                responseJson.put(key, (JSONObject) obj);
             } else if (obj instanceof String) {
-                responseJson.put(key, (String)obj);
-            } else if(obj instanceof List) {
+                responseJson.put(key, (String) obj);
+            } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
-                for (Object o : (List) obj) 
+                for (Object o : (List) obj) {
                     array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
-                
+                }
+
                 responseJson.put(key, array);
             } else {
                 //obj is POJO
-                responseJson.put(key, new JSONObject(ObjectReturn.convert(obj,HEADER_JSON)));
+                responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, HEADER_JSON)));
             }
         }
     }

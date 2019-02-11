@@ -520,6 +520,7 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  * @author Kaisteel
  */
 public class ValidateQueryTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private String onError;
 
     /**

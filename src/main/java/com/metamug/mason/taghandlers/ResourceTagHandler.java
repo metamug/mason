@@ -25,41 +25,42 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  *
  * @author anishhirlekar
  */
-public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinally{
+public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private String auth;
     private AuthService authService;
-    
+
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
     public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String HEADER_ACCEPT = "Accept";
-    public static final String BEARER_ = "Bearer ";   
+    public static final String BEARER_ = "Bearer ";
     public static final String MASON_OUTPUT = "masonOutput";
-    
-    public void setAuth(String a){
+
+    public void setAuth(String a) {
         auth = a;
     }
-    
+
     @Override
     public int doStartTag() throws JspException {
-        if(auth != null) {
+        if (auth != null) {
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            processAuth(request);    
+            processAuth(request);
         }
         return EVAL_BODY_INCLUDE;
     }
-    
+
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         process405(request, response, pageContext.getOut());
-        
+
         return SKIP_PAGE;
     }
-    
-    private void process405(HttpServletRequest request, HttpServletResponse response, JspWriter out){
+
+    private void process405(HttpServletRequest request, HttpServletResponse response, JspWriter out) {
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(header);
         response.setStatus(STATUS_METHOD_NOT_ALLOWED);
@@ -75,39 +76,39 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
                 xmlBuilder.append(MSG_METHOD_NOT_ALLOWED);
                 xmlBuilder.append("</message>");
                 xmlBuilder.append("\n</response>");
-                out.print(xmlBuilder.toString());                       
-            } else { 
+                out.print(xmlBuilder.toString());
+            } else {
                 out.print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
                         + STATUS_METHOD_NOT_ALLOWED + "}");
             }
         } catch (IOException ex) {
-            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
-    
+
     private void processAuth(HttpServletRequest request) throws JspException {
         String header = request.getHeader("Authorization");
         if (header == null) {
-            throw new JspException(ACCESS_DENIED,new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
-        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");      
+        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
         authService = new AuthService();
         try {
             if (header.contains("Basic ")) {
-                masonReq.setUid(authService.validateBasic(header,auth));
+                masonReq.setUid(authService.validateBasic(header, auth));
             } else if (header.contains(BEARER_)) {
                 String bearerToken = header.replaceFirst(BEARER_, "");
                 //check jwt format
                 //validateJwt - check aud against val, exp
-                masonReq.setUid(authService.validateBearer(bearerToken.trim(),auth));
+                masonReq.setUid(authService.validateBearer(bearerToken.trim(), auth));
             } else {
                 throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
             }
         } catch (IllegalArgumentException ex) {
-            throw new JspException(ACCESS_DENIED,new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
     }
-    
+
     @Override
     public void doCatch(Throwable throwable) throws Throwable {
         throw throwable;
@@ -115,5 +116,5 @@ public class ResourceTagHandler extends BodyTagSupport implements TryCatchFinall
 
     @Override
     public void doFinally() {
-    } 
+    }
 }

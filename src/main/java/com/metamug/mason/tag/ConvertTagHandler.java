@@ -17,25 +17,26 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  * @author anishhirlekar
  */
 public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private Object result;
     private Object target;
-    
+
     @Override
     public int doEndTag() throws JspException {
         LinkedHashMap<String, Object> targetMap = (LinkedHashMap<String, Object>) target;
-        ResultImpl resultSet = (ResultImpl)result;
-        
+        ResultImpl resultSet = (ResultImpl) result;
+
         ConvertService cs = new ConvertService();
         cs.convertResultToMap(resultSet, targetMap);
-        
+
         return EVAL_PAGE;
     }
-    
-    public void setResult(Object r){
+
+    public void setResult(Object r) {
         result = r;
     }
-    
-    public void setTarget(Object t){
+
+    public void setTarget(Object t) {
         target = t;
     }
 

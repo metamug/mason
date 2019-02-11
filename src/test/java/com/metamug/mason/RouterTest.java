@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -73,7 +72,7 @@ public class RouterTest {
         try {
             when(response.getWriter()).thenReturn(writer);
         } catch (IOException ex) {
-            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
     }
@@ -89,7 +88,7 @@ public class RouterTest {
         when(request.getMethod()).thenReturn("POST");
         String[] params = new String[]{"name"};
         when(request.getParameterNames()).thenReturn(Collections.enumeration(Arrays.asList(params)));
-        when(request.getParameterValues("name")).thenReturn(new String[]{"anish","deepak", "kaustubh"});
+        when(request.getParameterValues("name")).thenReturn(new String[]{"anish", "deepak", "kaustubh"});
         when(request.getContentType()).thenReturn(APPLICATION_FORM_URLENCODED);
         Router router = new Router();
 
