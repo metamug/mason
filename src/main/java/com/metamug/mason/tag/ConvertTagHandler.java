@@ -5,6 +5,7 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.mason.service.ConvertService;
 import java.util.LinkedHashMap;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
@@ -18,13 +19,14 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally {
     private Object result;
     private Object target;
-    private String property;
     
     @Override
     public int doEndTag() throws JspException {
         LinkedHashMap<String, Object> targetMap = (LinkedHashMap<String, Object>) target;
         ResultImpl resultSet = (ResultImpl)result;
-        //todo convert resultimpl to map
+        
+        ConvertService cs = new ConvertService();
+        cs.convertResultToMap(resultSet, targetMap);
         
         return EVAL_PAGE;
     }
@@ -35,10 +37,6 @@ public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally
     
     public void setTarget(Object t){
         target = t;
-    }
-    
-    public void setProperty(String p){
-        property = p;
     }
 
     @Override
