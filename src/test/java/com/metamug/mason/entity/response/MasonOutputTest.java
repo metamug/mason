@@ -118,7 +118,7 @@ public class MasonOutputTest {
         return output;
     }
 
-    private SortedMap[] getSampleRows() {
+    public static SortedMap[] getSampleRows() {
         SortedMap<String, String> row1 = new TreeMap<>();
         row1.put("name", "John");
         row1.put("age", "30");

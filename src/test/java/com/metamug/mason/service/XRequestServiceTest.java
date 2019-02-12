@@ -18,7 +18,6 @@
  */
 package com.metamug.mason.service;
 
-import com.metamug.mason.service.XRequestService;
 import com.metamug.mason.entity.xrequest.XResponse;
 import java.util.HashMap;
 import java.util.Map;

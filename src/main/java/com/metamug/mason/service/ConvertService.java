@@ -23,11 +23,14 @@ public class ConvertService {
             convertResultToMap((ResultImpl)res,map,propName);
         else if(res instanceof JSONObject)
             convertJsonObjectToMap((JSONObject)res,map,propName);
+        else if(res instanceof String)
+            map.put(propName,(String)res);
     }
      
     private void convertResultToMap(ResultImpl resultImpl, LinkedHashMap<String,Object> map, String propName){
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
+        
         if (rows.length > 0) {
             for (SortedMap row : rows) {
                 for (int i = 0; i < columnNames.length; i++) {
