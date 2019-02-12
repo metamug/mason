@@ -532,7 +532,7 @@ public class AuthService {
         try {
             this.dao = new AuthDAO(ConnectionProvider.getInstance());
         } catch (SQLException | NamingException ex) {
-            Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             this.dao = null;
         }
     }

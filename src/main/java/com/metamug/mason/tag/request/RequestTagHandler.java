@@ -504,7 +504,6 @@
  *
  * That's all there is to it!
  */
-
 package com.metamug.mason.tag.request;
 
 import com.metamug.mason.entity.request.MasonRequest;
@@ -530,6 +529,7 @@ import javax.xml.bind.JAXBException;
  * @author anishhirlekar
  */
 public class RequestTagHandler extends RestTag {
+
     private String method;
     private boolean item;
     private boolean processOutput;
@@ -542,12 +542,12 @@ public class RequestTagHandler extends RestTag {
     public int doStartTag() throws JspException {
         super.doStartTag();
         masonReq = (MasonRequest) request.getAttribute("mtgReq");
-        
+
         if (method.equalsIgnoreCase(masonReq.getMethod())) {
             processOutput = (masonReq.getId() != null) == item;
             if (processOutput) {
                 resultMap = new LinkedHashMap<>();
-                pageContext.setAttribute(MASON_OUTPUT, resultMap, PageContext.PAGE_SCOPE); 
+                pageContext.setAttribute(MASON_OUTPUT, resultMap, PageContext.PAGE_SCOPE);
                 //changed from request scope to page scope
                 return EVAL_BODY_INCLUDE;
             }
@@ -566,7 +566,7 @@ public class RequestTagHandler extends RestTag {
         }
     }
 
-    private void processOutput() {     
+    private void processOutput() {
         if (resultMap.isEmpty()) {
             response.setStatus(204);
             return;
@@ -574,7 +574,7 @@ public class RequestTagHandler extends RestTag {
 
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         MasonOutput output;
-        
+
         try {
             List list = Arrays.asList(header.split("/"));
             if (list.contains("xml")) { //Accept: application/xml, text/xml
@@ -587,10 +587,10 @@ public class RequestTagHandler extends RestTag {
 
             String op = output.toString();
             response.setContentType(output.getContentType());
-            pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);  
+            pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
             pageContext.getOut().print(op);
         } catch (IOException | JAXBException ex) {
-            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
@@ -600,5 +600,5 @@ public class RequestTagHandler extends RestTag {
 
     public void setItem(boolean i) {
         item = i;
-    }  
+    }
 }

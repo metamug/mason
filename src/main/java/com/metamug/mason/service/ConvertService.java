@@ -14,6 +14,7 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  * @author anishhirlekar
  */
 public class ConvertService {
+    
     public void convertResultToMap(ResultImpl resultImpl, LinkedHashMap<String,Object> map, String propName){
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
@@ -22,8 +23,10 @@ public class ConvertService {
                 for (int i = 0; i < columnNames.length; i++) {
                     String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
                     String rowValue = String.valueOf(row.get(columnName));
+
                     if (rowValue != null && !rowValue.trim().isEmpty() && !rowValue.trim().equalsIgnoreCase("null")) 
                         map.put(propName+"."+columnName, String.valueOf((row.get(columnName))));                 
+
                 }
             }
         }

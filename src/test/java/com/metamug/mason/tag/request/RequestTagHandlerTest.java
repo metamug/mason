@@ -504,13 +504,11 @@
  *
  * That's all there is to it!
  */
-
 package com.metamug.mason.tag.request;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
-import com.metamug.mason.tag.RestTag;
 import java.util.LinkedHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

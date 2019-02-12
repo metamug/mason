@@ -514,7 +514,7 @@ import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.tag.ResourceTagHandler.MASON_OUTPUT;
+import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -554,6 +554,7 @@ import org.json.JSONObject;
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private DataSource ds;
 
     /**
@@ -568,7 +569,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
         try {
             ds = ConnectionProvider.getMasonDatasource();
         } catch (NamingException ex) {
-            Logger.getLogger(UploadEventTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UploadEventTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");

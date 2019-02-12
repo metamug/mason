@@ -513,7 +513,6 @@ import com.metamug.mason.entity.request.MasonRequestFactory;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -543,10 +542,10 @@ import org.json.JSONObject;
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
+
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
-    public static final String WEBAPPS_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -622,7 +621,6 @@ public class Router implements Filter {
         //requesting a REST resource
 
         try {
-            String appName = req.getServletContext().getContextPath();
             String version = tokens[versionTokenIndex];
             String resourceName;
 
@@ -633,44 +631,27 @@ public class Router implements Filter {
             }
             //get queries
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
-            if (new File(WEBAPPS_DIR + appName + File.separator + "WEB-INF" + File.separator
-                    + "resources" + File.separator + version.toLowerCase() + File.separator
-                    + resourceName + ".jsp").exists()) {
-                MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
-                req.setAttribute("mtgReq", mtgReq);
+            MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
+            req.setAttribute("mtgReq", mtgReq);
 
-                //Adding to request, otherwise the user has to write ${applicationScope.datasource}
-                req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
+            //Adding to request, otherwise the user has to write ${applicationScope.datasource}
+            req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
 
-                //save method as attribute because jsp only accepts GET and POST
-                req.setAttribute("mtgMethod", req.getMethod());
-                req.setAttribute(MASON_QUERY, queryMap);
-                req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp")
-                        .forward(new HttpServletRequestWrapper(req) {
-                            @Override
-                            public String getMethod() {
-                                String method = super.getMethod();
-                                if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                                    return "POST";
-                                } else {
-                                    return method;
-                                }
+            //save method as attribute because jsp only accepts GET and POST
+            req.setAttribute("mtgMethod", req.getMethod());
+            req.setAttribute(MASON_QUERY, queryMap);
+            req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp")
+                    .forward(new HttpServletRequestWrapper(req) {
+                        @Override
+                        public String getMethod() {
+                            String method = super.getMethod();
+                            if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
+                                return "POST";
+                            } else {
+                                return method;
                             }
-                            //Returning null, since request passing via this filter won't be using Sessions
-
-                            /*@Override
-                            public HttpSession getSession() {
-                                return null;
-                            }
-
-                            @Override
-                            public HttpSession getSession(boolean create) {
-                                return null;
-                            }*/
-                        }, res);
-            } else {
-                writeError(res, 404, "Resource doesn't exist");
-            }
+                        }
+                    }, res);
         } catch (IOException | ServletException | JSONException | ParseException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
@@ -683,6 +664,9 @@ public class Router implements Filter {
                 writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                 Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
             }
+        } catch (NullPointerException ex) {
+            //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
+            writeError(res, 404, "Resource doesn't exist.");
         }
     }
 

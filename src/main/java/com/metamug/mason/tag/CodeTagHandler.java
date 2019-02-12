@@ -532,6 +532,7 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  * @author Kainix
  */
 public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private String className;
     private String onError;
     private Object param;
@@ -564,7 +565,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     ResultImpl ri = (ResultImpl) param;
 
                     result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                    pageContext.setAttribute(var,result);
+                    pageContext.setAttribute(var, result);
                     /*if (result instanceof List) {
                         if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
                             JSONArray outputArray = new JSONArray();
@@ -605,7 +606,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
                                 }*/
-                           /* } catch (JSONException jx) {
+ /* } catch (JSONException jx) {
                                 //map.put("dexecute" + (mapSize + 1), processedResult);
                                 pageContext.setAttribute(var, processedResult);
                             }
@@ -633,7 +634,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                     }
                     ds = ConnectionProvider.getMasonDatasource();
                     result = reqProcessable.process(requestParameters, ds, requestHeaders);
-                    pageContext.setAttribute(var,result);
+                    pageContext.setAttribute(var, result);
                     /*if (result instanceof List) {
                         if (acceptHeader.equals(MasonOutput.HEADER_JSON)) {
                             JSONArray outputArray = new JSONArray();
@@ -647,7 +648,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                     map.put("dexecute" + (mapSize + 1), outputArray);
                                 }
                             }*/
-                        /*    pageContext.setAttribute(var, outputArray);
+ /*    pageContext.setAttribute(var, outputArray);
                         } else {
                             StringBuilder outputXml = new StringBuilder();
                             for (Object object : (List) result) {
@@ -656,7 +657,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                             /*if (isVerbose != null && isVerbose) {
                                 map.put("dexecute" + (mapSize + 1), outputXml.toString());
                             }*/
-                        /*    pageContext.setAttribute(var, outputXml.toString());
+ /*    pageContext.setAttribute(var, outputXml.toString());
                         }
                     } else {
                         Object processedResult = ObjectReturn.convert(result, acceptHeader);
@@ -670,7 +671,7 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                         map.put("dexecute" + (mapSize + 1), jsonOutput);
                                     }
                                 }*/
-                                /*pageContext.setAttribute(var, jsonOutput);
+ /*pageContext.setAttribute(var, jsonOutput);
                                 if (isPersist != null && isPersist) {
                                     Map<String, Object> jsonMap = JsonFlattener.flattenAsMap(jsonOutput.toString());
                                     jsonMap.entrySet().forEach((entry) -> {
@@ -680,18 +681,18 @@ public class CodeTagHandler extends BodyTagSupport implements TryCatchFinally {
                                     });
                                     mtgReq.getParams().putAll(requestParameters);
                                 }*/
-                            /*} catch (JSONException jx) {
+ /*} catch (JSONException jx) {
                                 /*if (isVerbose != null && isVerbose) {
                                     map.put("dexecute" + (mapSize + 1), processedResult);
                                 }*/
-                             /*   pageContext.setAttribute(var, processedResult);
+ /*   pageContext.setAttribute(var, processedResult);
                             }
                         } //application/xml
                         else {
                             /*if (isVerbose != null && isVerbose) {
                                 map.put("dexecute" + (mapSize + 1), processedResult);
                             }*/
-                        /*    pageContext.setAttribute(var, processedResult);
+ /*    pageContext.setAttribute(var, processedResult);
                         }
                     }*/
                 }

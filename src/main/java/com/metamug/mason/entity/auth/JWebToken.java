@@ -615,7 +615,7 @@ public class JWebToken {
             sha256Hmac.init(secretKey);
             return new String(Base64.getEncoder().encode(sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8))));
         } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
-            Logger.getLogger(JWebToken.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JWebToken.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }

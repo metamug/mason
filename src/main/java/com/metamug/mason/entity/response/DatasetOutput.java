@@ -16,6 +16,7 @@ import org.json.JSONObject;
  * Dataset JSON output object
  */
 public class DatasetOutput extends JSONOutput {
+
     public static final String COLUMNS = "columns";
     public static final String DATASET = "dataset";
 

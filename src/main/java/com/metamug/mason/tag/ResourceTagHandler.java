@@ -528,7 +528,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ResourceTagHandler extends RestTag {
 
     private String auth;
-    
+
     @Resource
     private transient AuthService authService;
 
@@ -537,7 +537,7 @@ public class ResourceTagHandler extends RestTag {
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String BEARER_ = "Bearer ";
-    
+
     public void setAuth(String auth) {
         this.auth = auth;
     }
@@ -560,7 +560,7 @@ public class ResourceTagHandler extends RestTag {
     }
 
     private void process405() {
-        
+
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(header);
         response.setStatus(STATUS_METHOD_NOT_ALLOWED);
@@ -582,7 +582,7 @@ public class ResourceTagHandler extends RestTag {
                         + STATUS_METHOD_NOT_ALLOWED + "}");
             }
         } catch (IOException ex) {
-            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
