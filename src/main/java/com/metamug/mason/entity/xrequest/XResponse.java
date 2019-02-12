@@ -506,9 +506,6 @@
  */
 package com.metamug.mason.entity.xrequest;
 
-import com.github.wnameless.json.flattener.JsonFlattener;
-import java.util.HashMap;
-import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -544,13 +541,6 @@ public class XResponse {
         return obj;
     }
 
-    private Map<String, String> getErrorJsonMap(String xRequestId) {
-        Map<String, String> map = new HashMap<>();
-        map.put(xRequestId + ".statusCode", Integer.toString(statusCode));
-        map.put(xRequestId + ".body", body);
-        return map;
-    }
-
     private String getErrorXml() {
         return XML.toString(getErrorJson());
     }
@@ -565,36 +555,6 @@ public class XResponse {
         obj.put("body", body);
 
         return obj;
-    }
-
-    public Map<String, String> getMapForJsonXResponse(String xRequestId) {
-        if (error) {
-            return getErrorJsonMap(xRequestId);
-        }
-
-        Map<String, String> map = new HashMap<>();
-        map.put(xRequestId + ".statusCode", Integer.toString(statusCode));
-
-        try {
-            //test whether body is json object
-            JSONObject bodyObject = new JSONObject(body);
-            Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
-            flatMap.entrySet().forEach(entry -> {
-                map.put(xRequestId + ".body." + entry.getKey(), entry.getValue().toString());
-            });
-        } catch (JSONException jx) {
-            try {
-                //test whether body is json array
-                JSONArray bodyArray = new JSONArray(body);
-                Map<String, Object> flatMap = JsonFlattener.flattenAsMap(body);
-                flatMap.entrySet().forEach(entry -> {
-                    map.put(xRequestId + ".body" + entry.getKey(), entry.getValue().toString());
-                });
-            } catch (JSONException jx1) {
-                map.put(xRequestId + ".body", "Could not parse json response.");
-            }
-        }
-        return map;
     }
 
     public JSONObject getJsonForJsonXResponse() {

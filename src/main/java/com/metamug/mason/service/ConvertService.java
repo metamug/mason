@@ -5,9 +5,12 @@
  */
 package com.metamug.mason.service;
 
+import com.github.wnameless.json.flattener.JsonFlattener;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONObject;
 
 /**
  *
@@ -15,7 +18,14 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  */
 public class ConvertService {
     
-    public void convertResultToMap(ResultImpl resultImpl, LinkedHashMap<String,Object> map, String propName){
+    public void convertToMap(Object res, LinkedHashMap<String,Object> map, String propName) {
+        if(res instanceof ResultImpl)
+            convertResultToMap((ResultImpl)res,map,propName);
+        else if(res instanceof JSONObject)
+            convertJsonObjectToMap((JSONObject)res,map,propName);
+    }
+     
+    private void convertResultToMap(ResultImpl resultImpl, LinkedHashMap<String,Object> map, String propName){
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
         if (rows.length > 0) {
@@ -30,5 +40,12 @@ public class ConvertService {
                 }
             }
         }
+    }
+    
+    private void convertJsonObjectToMap(JSONObject jsonObject, LinkedHashMap<String,Object> map, String propName){
+        Map<String, Object> flatMap = JsonFlattener.flattenAsMap(jsonObject.toString());
+        flatMap.entrySet().forEach(entry -> {
+            map.put(propName+"."+entry.getKey(), entry.getValue().toString());
+        });
     }
 }

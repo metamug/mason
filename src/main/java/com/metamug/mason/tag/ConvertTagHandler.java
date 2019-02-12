@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.TryCatchFinally;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 
 /**
  *
@@ -25,11 +24,10 @@ public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally
     @Override
     public int doEndTag() throws JspException {
         LinkedHashMap<String, Object> targetMap = (LinkedHashMap<String, Object>) target;
-        ResultImpl resultSet = (ResultImpl) result;
 
         ConvertService cs = new ConvertService();
 
-        cs.convertResultToMap(resultSet, targetMap, property);
+        cs.convertToMap(result, targetMap, property);
         
         return EVAL_PAGE;
     }
