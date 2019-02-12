@@ -19,6 +19,7 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally {
     private Object result;
     private Object target;
+    private String property;
     
     @Override
     public int doEndTag() throws JspException {
@@ -26,9 +27,13 @@ public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally
         ResultImpl resultSet = (ResultImpl)result;
         
         ConvertService cs = new ConvertService();
-        cs.convertResultToMap(resultSet, targetMap);
+        cs.convertResultToMap(resultSet, targetMap, property);
         
         return EVAL_PAGE;
+    }
+    
+    public void setProperty(String p){
+        property = p;
     }
     
     public void setResult(Object r){
