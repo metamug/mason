@@ -144,7 +144,7 @@
     </tag>
     <tag>
         <name>execute</name>
-        <tag-class>com.metamug.mason.tag.CodeTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.ExecuteTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>className</name>
@@ -165,16 +165,10 @@
             <type>java.lang.String</type>
         </attribute>
         <attribute>
-            <name>isVerbose</name>
+            <name>persistParam</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
-        </attribute>
-        <attribute>
-            <name>isPersist</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
+            <type>java.lang.Object</type>
         </attribute>
         <attribute>
             <name>isCollect</name>

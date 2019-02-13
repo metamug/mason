@@ -9,14 +9,11 @@ import com.metamug.mason.io.mpath.TestData;
 import java.util.LinkedHashMap;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  *
  * @author anishhirlekar
  */
-@RunWith(MockitoJUnitRunner.class)
 public class ConvertServiceTest {
     private ConvertService cs;
     LinkedHashMap<String,Object> map;
@@ -39,4 +36,6 @@ public class ConvertServiceTest {
         cs.convertToMap("Hello World!", map, "testStr");
         System.out.println(map);
     }
+    
+    //todo: test resultimpl to map using mockito
 }
