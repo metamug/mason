@@ -124,7 +124,7 @@
         <tag-class>com.metamug.mason.tag.ConvertTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
-            <name>result</name>
+            <name>value</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>

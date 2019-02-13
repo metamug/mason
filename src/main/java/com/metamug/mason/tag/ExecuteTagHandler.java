@@ -509,12 +509,10 @@ package com.metamug.mason.tag;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.entity.request.MasonRequest;
-import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -533,7 +531,6 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  * @author Kainix
  */
 public class ExecuteTagHandler extends BodyTagSupport implements TryCatchFinally {
-
     private String className;
     private String onError;
     private Object param;

@@ -16,8 +16,7 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  * @author anishhirlekar
  */
 public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally {
-
-    private Object result;
+    private Object value;
     private Object target;
     private String property;
 
@@ -27,7 +26,7 @@ public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally
 
         ConvertService cs = new ConvertService();
 
-        cs.convertToMap(result, targetMap, property);
+        cs.convertToMap(value, targetMap, property);
         
         return EVAL_PAGE;
     }
@@ -36,8 +35,8 @@ public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally
         property = p;
     }
     
-    public void setResult(Object r){
-        result = r;
+    public void setValue(Object v){
+        value = v;
     }
 
     public void setTarget(Object t) {
