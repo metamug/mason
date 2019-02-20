@@ -713,25 +713,25 @@ public class Router implements Filter {
         encoding = config.getInitParameter("requestEncoding");
         if (encoding == null) {
             encoding = "UTF-8";
+        }
+            
+        if (config.getInitParameter("datasource") != null) {
+            config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
+        } else {
+            config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
+        }
 
-            if (config.getInitParameter("datasource") != null) {
-                config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
-            } else {
-                config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
-            }
+        ConnectionProvider.setMasonDatasource((String) config.getServletContext().getAttribute(DATA_SOURCE));
 
-            ConnectionProvider.setMasonDatasource((String) config.getServletContext().getAttribute(DATA_SOURCE));
-
-            InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
-            QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
-            try {
-                config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
-                queryFileInputStream.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            } catch (NullPointerException nx) {
-                //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
-            }
+        InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
+        QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
+        try {
+            config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
+            queryFileInputStream.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        } catch (NullPointerException nx) {
+            //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
         }
     }
 }
