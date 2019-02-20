@@ -584,7 +584,7 @@ public class Router implements Filter {
             }
         }
         //check auth request
-        if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post")) {
+        if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post") && !path.contains("query")) {
             RootResource rootResource = new RootResource(req, res);
             rootResource.processAuth(new AuthService());
             return;
@@ -699,7 +699,7 @@ public class Router implements Filter {
         try {
             ConnectionProvider.shutdown();
         } catch (SQLException | NamingException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
@@ -730,7 +730,7 @@ public class Router implements Filter {
             } catch (IOException ex) {
                 Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             } catch (NullPointerException nx) {
-                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
+                //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
             }
         }
     }
