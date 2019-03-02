@@ -15,27 +15,28 @@ import org.junit.Test;
  * @author anishhirlekar
  */
 public class ConvertServiceTest {
+
     private ConvertService cs;
-    LinkedHashMap<String,Object> map;
-    
+    LinkedHashMap<String, Object> map;
+
     @Before
-    public void init(){
-        map = new LinkedHashMap<>();   
+    public void init() {
+        map = new LinkedHashMap<>();
     }
-    
+
     @Test
-    public void convertJsonToMap(){
+    public void convertJsonToMap() {
         cs = new ConvertService();
         cs.convertToMap(TestData.TEST_JSON3, map, "testJson");
         System.out.println(map);
     }
-   
+
     @Test
-    public void convertStringToMap(){
+    public void convertStringToMap() {
         cs = new ConvertService();
         cs.convertToMap("Hello World!", map, "testStr");
         System.out.println(map);
     }
-    
+
     //todo: test resultimpl to map using mockito
 }
