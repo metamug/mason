@@ -714,7 +714,7 @@ public class Router implements Filter {
         if (encoding == null) {
             encoding = "UTF-8";
         }
-            
+
         if (config.getInitParameter("datasource") != null) {
             config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
         } else {

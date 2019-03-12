@@ -531,6 +531,7 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  * @author Kainix
  */
 public class ExecuteTagHandler extends BodyTagSupport implements TryCatchFinally {
+
     private String className;
     private String onError;
     private Object param;
@@ -545,49 +546,49 @@ public class ExecuteTagHandler extends BodyTagSupport implements TryCatchFinally
     @Override
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        
+
         Object result = null;
         try {
             Class cls = Class.forName((String) className);
             Object newInstance = cls.newInstance();
             ResultProcessable resProcessable;
             RequestProcessable reqProcessable;
-            
+
             if (ResultProcessable.class.isAssignableFrom(cls)) {
                 resProcessable = (ResultProcessable) newInstance;
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
 
-                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());         
+                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
                 if (param instanceof MasonRequest) {
                     MasonRequest mtg = (MasonRequest) param;
-                    
+
                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     mtg.getParams().entrySet().forEach(entry -> {
                         String key = entry.getKey();
                         String value = entry.getValue();
                         requestParameters.put(key, value);
                     });
-                    if(null != persistParam){
+                    if (null != persistParam) {
                         LinkedHashMap<String, Object> pMap = (LinkedHashMap<String, Object>) persistParam;
                         pMap.entrySet().forEach(entry -> {
                             requestParameters.put(entry.getKey(), entry.getValue().toString());
                         });
-                    }                
-                    
+                    }
+
                     Enumeration<String> headerNames = request.getHeaderNames();
                     Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     while (headerNames.hasMoreElements()) {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));
                     }
-                    
+
                     ds = ConnectionProvider.getMasonDatasource();
-                    
-                    result = reqProcessable.process(requestParameters, ds, requestHeaders);             
+
+                    result = reqProcessable.process(requestParameters, ds, requestHeaders);
                     /*
                             /*if (isVerbose != null && isVerbose) {
                                 if (isCollect != null && isCollect) {
@@ -598,16 +599,16 @@ public class ExecuteTagHandler extends BodyTagSupport implements TryCatchFinally
                             }*/
                 }
             } else {
-                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, 
+                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED,
                         "Class " + cls + " isn't processable"));
             }
-            
+
             pageContext.setAttribute(var, result);
-            
+
         } catch (Exception ex) {
             throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onError));
         }
-        
+
         return EVAL_PAGE;
     }
 
@@ -623,9 +624,10 @@ public class ExecuteTagHandler extends BodyTagSupport implements TryCatchFinally
         this.param = param;
     }
 
-    public void setPersistParam(Object persistParam){
+    public void setPersistParam(Object persistParam) {
         this.persistParam = persistParam;
     }
+
     /**
      * Just re-throws the Throwable.
      *
