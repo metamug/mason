@@ -512,6 +512,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.MarshalException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -541,12 +542,16 @@ public class JSONOutput extends MasonOutput {
                 for (Object o : (List) obj) {
                     array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
                 }
-
                 responseJson.put(key, array);
             } else {
                 //obj is POJO
-                responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, HEADER_JSON)));
-            }
+                try{
+                    //try if object of JAXB class
+                    responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, HEADER_JSON)));
+                } catch (MarshalException mex){
+                    responseJson.put(key, obj);
+                }
+            } 
         }
     }
 
