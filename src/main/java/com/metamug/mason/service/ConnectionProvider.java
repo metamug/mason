@@ -524,38 +524,43 @@ import javax.sql.DataSource;
 public class ConnectionProvider {
 
     private static String masonDatasource;
-    private final Connection con;
 
-    public static void setMasonDatasource(String ds) {
-        masonDatasource = ds;
+    public static DataSource getMasonDatasource() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    private final DataSource ds;
 
-    public static DataSource getMasonDatasource() throws NamingException {
+    public static DataSource setMasonDatasource(String ds) throws NamingException {
         Context initialContext = new InitialContext();
         Context envContext = (Context) initialContext.lookup("java:/comp/env");
-        return (DataSource) envContext.lookup(masonDatasource);
+       return (DataSource) envContext.lookup(ds);
     }
 
-    private ConnectionProvider() throws SQLException, NamingException {
-        con = getMasonDatasource().getConnection();
+  
+    public ConnectionProvider() throws SQLException, NamingException {
+        ds = setMasonDatasource(masonDatasource);
     }
 
-    public static ConnectionProvider getInstance() throws SQLException, NamingException {
-        return new ConnectionProvider();
-    }
-
+//    public static ConnectionProvider getInstance() throws SQLException, NamingException {
+//        return new ConnectionProvider();
+//    }
     public Connection getConnection() {
-        return this.con;
+        try {
+            return ds.getConnection();
+        } catch (SQLException ex) {
+            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
-    public static void shutdown() throws SQLException, NamingException {
+    public void shutdown() throws SQLException, NamingException {
         String driver = "";
-        try (Connection con = ConnectionProvider.getInstance().getConnection()) {
-            DatabaseMetaData dbMetaData = con.getMetaData();
-            driver = dbMetaData.getDriverName().toLowerCase().trim();
-        } catch (SQLException ex) {
-            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        //try (Connection con = getConnection()) {
+        //    DatabaseMetaData dbMetaData = con.getMetaData();
+        //    driver = dbMetaData.getDriverName().toLowerCase().trim();
+        //} catch (SQLException ex) {
+        //    Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        //}
         if (driver.contains("hsql")) {
         } else if (driver.contains("mysql")) {
             //set this for mysql driver

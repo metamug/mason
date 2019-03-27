@@ -509,6 +509,8 @@ package com.metamug.mason.entity.auth;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -545,7 +547,7 @@ public class JWebToken {
         payload.put("sub", sub);
         payload.put("aud", aud);
         payload.put("exp", expires);
-        payload.put("iat", System.currentTimeMillis());
+        payload.put("iat", LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
         payload.put("iss", ISSUER);
         payload.put("jti", UUID.randomUUID().toString()); //how do we use this?
         signature = hmacSha256(encodedHeader + "." + encode(payload));
@@ -585,7 +587,7 @@ public class JWebToken {
     }
 
     public boolean isValid() {
-        return payload.getLong("exp") > (System.currentTimeMillis() / 1000) //token not expired
+        return payload.getLong("exp") > (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)) //token not expired
                 && signature.equals(hmacSha256(encodedHeader + "." + encode(payload))); //signature matched
     }
 

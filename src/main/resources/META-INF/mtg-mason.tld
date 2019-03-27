@@ -5,7 +5,7 @@
     <uri>mtg-mason.tld</uri>
     <tag>
         <name>resource</name>
-        <tag-class>com.metamug.mason.taghandlers.ResourceTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.ResourceTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>auth</name>

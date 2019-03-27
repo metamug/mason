@@ -566,11 +566,7 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
      */
     @Override
     public int doEndTag() throws JspException {
-        try {
-            ds = ConnectionProvider.getMasonDatasource();
-        } catch (NamingException ex) {
-            Logger.getLogger(UploadEventTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        ds = ConnectionProvider.getMasonDatasource();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
