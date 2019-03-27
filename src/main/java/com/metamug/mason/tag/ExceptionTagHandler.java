@@ -545,11 +545,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     @Override
     public int doEndTag() throws JspException {
         Exception exception = (Exception) value;
-        try {
-            ds = ConnectionProvider.getMasonDatasource();
-        } catch (NamingException ex) {
-            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        ds = ConnectionProvider.getMasonDatasource();
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();

@@ -507,11 +507,20 @@
 package com.metamug.mason.tag.request;
 
 import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import org.json.JSONArray;
@@ -521,6 +530,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -555,6 +565,17 @@ public class RequestTagHandlerTest {
     @InjectMocks
     ResourceTagHandler resourceTag = new ResourceTagHandler();
 
+    @Mock
+    private ConnectionProvider provider;
+    
+    @Mock
+    Connection connection;
+    @Mock
+    private PreparedStatement statement;
+
+    @Mock
+    private ResultSet resultSet;
+    
     public RequestTagHandlerTest() {
 
     }
@@ -562,22 +583,40 @@ public class RequestTagHandlerTest {
     @Before
     public void setup() {
 
-        String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
-        String sampleArray = "[\n"
-                + "    { \"name\":\"Ford\", \"models\":[ \"Fiesta\", \"Focus\", \"Mustang\" ] },\n"
-                + "    { \"name\":\"BMW\", \"models\":[ \"320\", \"X3\", \"X5\" ] },\n"
-                + "    { \"name\":\"Fiat\", \"models\":[ \"500\", \"Panda\" ] }\n"
-                + "  ]";
-        String[] colNames = {"name", "age", "car"};
-        resultMap = new LinkedHashMap<>();
-        resultMap.put("res1", new JSONObject(sampleObj));
-        resultMap.put("res2", new JSONArray(sampleArray));
-        resultMap.put("res3", "Hello World");
-
-        when(context.getRequest()).thenReturn(request);
-        when(context.getResponse()).thenReturn(response);
-        when(context.getOut()).thenReturn(writer);
-
+        try {
+            String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
+            String sampleArray = "[\n"
+                    + "    { \"name\":\"Ford\", \"models\":[ \"Fiesta\", \"Focus\", \"Mustang\" ] },\n"
+                    + "    { \"name\":\"BMW\", \"models\":[ \"320\", \"X3\", \"X5\" ] },\n"
+                    + "    { \"name\":\"Fiat\", \"models\":[ \"500\", \"Panda\" ] }\n"
+                    + "  ]";
+            String[] colNames = {"name", "age", "car"};
+            resultMap = new LinkedHashMap<>();
+            resultMap.put("res1", new JSONObject(sampleObj));
+            resultMap.put("res2", new JSONArray(sampleArray));
+            resultMap.put("res3", "Hello World");
+            
+            when(context.getRequest()).thenReturn(request);
+            when(context.getResponse()).thenReturn(response);
+            when(context.getOut()).thenReturn(writer);
+            when(request.getAttribute("mtgReq")).thenReturn(masonRequest);
+            
+            when(request.getParameter("auth")).thenReturn("bearer");
+            when(request.getParameter("userid")).thenReturn("1234");
+            when(request.getParameter("password")).thenReturn("pass");
+            //when(provider.getInstance()).thenReturn(provider);
+            when(provider.getConnection()).thenReturn(connection);
+            when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
+            when(statement.executeQuery()).thenReturn(resultSet);
+            //result set should return true for config function to give auth query
+            //second time inside createBearer function and then it should return false.
+            when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
+            when(resultSet.getString("auth_query")).thenReturn("some query mocked");
+            when(resultSet.getString(1)).thenReturn("1234");
+            when(resultSet.getString(2)).thenReturn("admin");
+        } catch (SQLException ex) {
+            Logger.getLogger(RequestTagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -587,7 +626,7 @@ public class RequestTagHandlerTest {
     public void requestTag() throws Exception {
 
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(request.getAttribute("mtgReq")).thenReturn(masonRequest);
+
         when(masonRequest.getMethod()).thenReturn("GET");
 
         requestTag.setMethod("GET");
@@ -597,9 +636,11 @@ public class RequestTagHandlerTest {
 
     }
 
-    @Test
+    @Test(expected = JspException.class)
     public void resourceTag() throws Exception {
-
+        resourceTag.setAuth("supplier");
+        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjoiYWRtaW4iLCJpc3MiOiJtYXNvbi5tZXRhbXVnLm5ldCIsImV4cCI6MTU2MTQ1ODkzMSwiaWF0IjoxNTUzNjgyOTMxLCJqdGkiOiJiYzE4MTRjMy1lOWRiLTQ5YzgtYmEzMi1iODQwMWNkNGE4MjEifQ==.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
+        when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(1, resourceTag.doStartTag());
         assertEquals(5, resourceTag.doEndTag());
 

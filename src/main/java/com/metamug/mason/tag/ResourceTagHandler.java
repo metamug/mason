@@ -506,16 +506,20 @@
  */
 package com.metamug.mason.tag;
 
+import static com.metamug.mason.Router.CONNECTION_PROVIDER;
 import com.metamug.mason.entity.request.MasonRequest;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.AuthService;
+import com.metamug.mason.service.ConnectionProvider;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -528,8 +532,6 @@ import org.apache.commons.lang3.StringUtils;
 public class ResourceTagHandler extends RestTag {
 
     private String auth;
-
-    @Resource
     private transient AuthService authService;
 
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
@@ -592,7 +594,7 @@ public class ResourceTagHandler extends RestTag {
             throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
         MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
-        authService = new AuthService();
+        authService = new AuthService((ConnectionProvider) context.getAttribute(CONNECTION_PROVIDER));
         try {
             if (header.contains("Basic ")) {
                 masonReq.setUid(authService.validateBasic(header, auth));

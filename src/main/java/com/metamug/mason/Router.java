@@ -552,8 +552,11 @@ public class Router implements Filter {
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY = "masonQuery";
     private static final String DATA_SOURCE = "datasource";
+    private ConnectionProvider connectionProvider;
+    public static final String CONNECTION_PROVIDER = "connectionProvider";
 
     public Router() {
+
     }
 
     /**
@@ -586,7 +589,7 @@ public class Router implements Filter {
         //check auth request
         if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post") && !path.contains("query")) {
             RootResource rootResource = new RootResource(req, res);
-            rootResource.processAuth(new AuthService());
+            rootResource.processAuth(new AuthService(connectionProvider));
             return;
         }
         if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
@@ -597,7 +600,8 @@ public class Router implements Filter {
     }
 
     /**
-     * Servlet version of the request handling. Cast objects to handle REST request
+     * Servlet version of the request handling. Cast objects to handle REST
+     * request
      *
      * @param req
      * @param res
@@ -697,7 +701,7 @@ public class Router implements Filter {
     @Override
     public void destroy() {
         try {
-            ConnectionProvider.shutdown();
+            connectionProvider.shutdown();
         } catch (SQLException | NamingException ex) {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -711,6 +715,7 @@ public class Router implements Filter {
     @Override
     public void init(FilterConfig config) {
         encoding = config.getInitParameter("requestEncoding");
+
         if (encoding == null) {
             encoding = "UTF-8";
         }
@@ -721,17 +726,23 @@ public class Router implements Filter {
             config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
         }
 
-        ConnectionProvider.setMasonDatasource((String) config.getServletContext().getAttribute(DATA_SOURCE));
-
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
         QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
+
         try {
+            connectionProvider = new ConnectionProvider();
+            connectionProvider.setMasonDatasource((String) config.getServletContext().getAttribute(DATA_SOURCE));
             config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
+            config.getServletContext().setAttribute(CONNECTION_PROVIDER, connectionProvider);
             queryFileInputStream.close();
         } catch (IOException ex) {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (NullPointerException nx) {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
+        } catch (SQLException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NamingException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

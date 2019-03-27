@@ -527,14 +527,9 @@ import org.json.JSONObject;
 public class AuthService {
 
     private AuthDAO dao;
-
-    public AuthService() {
-        try {
-            this.dao = new AuthDAO(ConnectionProvider.getInstance());
-        } catch (SQLException | NamingException ex) {
-            Logger.getLogger(AuthService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            this.dao = null;
-        }
+    
+    public AuthService(ConnectionProvider instance) {
+        this.dao = new AuthDAO(instance);
     }
 
     public AuthService(AuthDAO dao) {
