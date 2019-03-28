@@ -578,9 +578,9 @@ public class ResourceTagHandler extends RestTag {
                 xmlBuilder.append(MSG_METHOD_NOT_ALLOWED);
                 xmlBuilder.append("</message>");
                 xmlBuilder.append("\n</response>");
-                context.getOut().print(xmlBuilder.toString());
+                pageContext.getOut().print(xmlBuilder.toString());
             } else {
-                context.getOut().print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
+                pageContext.getOut().print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
                         + STATUS_METHOD_NOT_ALLOWED + "}");
             }
         } catch (IOException ex) {
@@ -594,7 +594,7 @@ public class ResourceTagHandler extends RestTag {
             throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
         MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
-        authService = new AuthService((ConnectionProvider) context.getAttribute(CONNECTION_PROVIDER));
+        authService = new AuthService((ConnectionProvider) pageContext.getAttribute(CONNECTION_PROVIDER));
         try {
             if (header.contains("Basic ")) {
                 masonReq.setUid(authService.validateBasic(header, auth));
