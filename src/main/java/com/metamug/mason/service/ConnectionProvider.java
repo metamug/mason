@@ -525,20 +525,23 @@ public class ConnectionProvider {
 
     private static String masonDatasource;
 
-    public static DataSource getMasonDatasource() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     private final DataSource ds;
 
-    public static DataSource setMasonDatasource(String ds) throws NamingException {
-        Context initialContext = new InitialContext();
-        Context envContext = (Context) initialContext.lookup("java:/comp/env");
-       return (DataSource) envContext.lookup(ds);
+    public static DataSource getMasonDatasource(){
+        try {
+            Context initialContext = new InitialContext();
+            Context envContext = (Context) initialContext.lookup("java:/comp/env");
+            return (DataSource) envContext.lookup(masonDatasource);
+        } catch (NamingException ex) {
+            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
   
-    public ConnectionProvider() throws SQLException, NamingException {
-        ds = setMasonDatasource(masonDatasource);
+    public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
+        this.masonDatasource = masonDatasource;
+        ds = getMasonDatasource();
     }
 
 //    public static ConnectionProvider getInstance() throws SQLException, NamingException {

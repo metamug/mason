@@ -533,7 +533,8 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
 
     public RestTag() {
         super();
-        this.context = pageContext;
+        this.context = super.pageContext;
+        
     }
 
     @Override

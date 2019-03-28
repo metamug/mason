@@ -547,8 +547,8 @@ public class ResourceTagHandler extends RestTag {
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-        request = (HttpServletRequest) context.getRequest();
-        response = (HttpServletResponse) context.getResponse();
+        //request = (HttpServletRequest) context.getRequest();
+        //response = (HttpServletResponse) context.getResponse();
         if (StringUtils.isNotBlank(auth)) {
             processAuth();
         }

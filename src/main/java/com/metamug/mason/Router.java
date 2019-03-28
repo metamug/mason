@@ -730,8 +730,8 @@ public class Router implements Filter {
         QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
 
         try {
-            connectionProvider = new ConnectionProvider();
-            connectionProvider.setMasonDatasource((String) config.getServletContext().getAttribute(DATA_SOURCE));
+            connectionProvider = new ConnectionProvider((String) config.getServletContext().getAttribute(DATA_SOURCE));
+            //connectionProvider.getMasonDatasource();
             config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
             config.getServletContext().setAttribute(CONNECTION_PROVIDER, connectionProvider);
             queryFileInputStream.close();
