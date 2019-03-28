@@ -596,13 +596,8 @@ public class MasonRequest {
         return params;
     }
 
-    /**
-     * To make the request parameters immutable
-     *
-     * @param params
-     */
     public void setParams(Map<String, String> params) {
-        this.params = Collections.unmodifiableMap(params);
+        this.params = params;
     }
 
     public int getStatusCode() {

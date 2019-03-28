@@ -546,7 +546,7 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
     @Override
     public int doEndTag() throws JspException {
         MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
-        if (value == null && isRequired != null && isRequired) {
+        /*if (value == null && isRequired != null && isRequired) {
             if (defaultValue == null) {
                 throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
             } else {
@@ -554,7 +554,20 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 release();
                 return EVAL_PAGE;
             }
+        }*/
+            
+        if(value == null){
+            if(defaultValue != null){
+                mtg.setDefault(name, defaultValue);
+                release();
+                return EVAL_PAGE;
+            } else{
+                if(isRequired != null && isRequired) {
+                    throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
+                }
+            }
         }
+            
         //continue validation if value != null
         if (pattern != null) {
             try {
