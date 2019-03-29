@@ -636,9 +636,9 @@ public class RequestTagHandlerTest {
 
     }
 
-    @Test(expected = JspException.class)
+    @Test //(expected = JspException.class)
     public void resourceTag() throws Exception {
-        resourceTag.setAuth("supplier");
+        resourceTag.setAuth("admin");
         String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjoiYWRtaW4iLCJpc3MiOiJtYXNvbi5tZXRhbXVnLm5ldCIsImV4cCI6MTU2MTQ1ODkzMSwiaWF0IjoxNTUzNjgyOTMxLCJqdGkiOiJiYzE4MTRjMy1lOWRiLTQ5YzgtYmEzMi1iODQwMWNkNGE4MjEifQ==.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(1, resourceTag.doStartTag());
