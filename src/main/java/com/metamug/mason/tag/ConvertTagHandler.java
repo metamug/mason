@@ -8,14 +8,12 @@ package com.metamug.mason.tag;
 import com.metamug.mason.service.ConvertService;
 import java.util.LinkedHashMap;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
  *
  * @author anishhirlekar
  */
-public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class ConvertTagHandler extends RestTag {
 
     private Object value;
     private Object target;
@@ -42,14 +40,5 @@ public class ConvertTagHandler extends BodyTagSupport implements TryCatchFinally
 
     public void setTarget(Object t) {
         target = t;
-    }
-
-    @Override
-    public void doCatch(Throwable thrwbl) throws Throwable {
-        throw thrwbl;
-    }
-
-    @Override
-    public void doFinally() {
     }
 }

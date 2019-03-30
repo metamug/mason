@@ -508,6 +508,7 @@ package com.metamug.mason.tag.request;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.service.ConnectionProvider;
+import com.metamug.mason.tag.ConvertTagHandler;
 import com.metamug.mason.tag.ExecuteTagHandler;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
@@ -518,6 +519,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.NamingException;
@@ -568,13 +570,16 @@ public class TagHandlerTest {
 
     @InjectMocks
     ResourceTagHandler resourceTag = new ResourceTagHandler();
-    
+
     @InjectMocks
     XRequestTagHandler xrequestTag = new XRequestTagHandler();
-    
+
     @InjectMocks
     ExecuteTagHandler executeTag = new ExecuteTagHandler();
-    
+
+    @InjectMocks
+    ConvertTagHandler convertTag = new ConvertTagHandler();
+
     @Mock
     private ConnectionProvider provider;
 
@@ -655,25 +660,35 @@ public class TagHandlerTest {
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
 
     }
-    
+
     @Test //(expected = JspException.class)
     public void xrequestTag() throws Exception {
         xrequestTag.addParameter("foo1", "bar1");
         xrequestTag.addParameter("foo2", "bar2");
         xrequestTag.setVar("xrequestOutput");
         xrequestTag.setUrl("https://postman-echo.com/get");
-        xrequestTag.setMethod("GET");        
+        xrequestTag.setMethod("GET");
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
         System.out.println(context.getAttribute("xrequestOutput"));
 
     }
-    
-    @Test (expected = JspException.class)
+
+    @Test(expected = JspException.class)
     public void executeTag() throws Exception {
         executeTag.setVar("executeOutput");
+        
         executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+    }
+
+    @Test
+    public void convertTag() throws Exception {
+        Map<String, Object> map = new LinkedHashMap();
+        convertTag.setProperty("happy");
+        convertTag.setTarget(map);
+        assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
     }
 }
