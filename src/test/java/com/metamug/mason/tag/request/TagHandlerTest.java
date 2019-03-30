@@ -508,8 +508,10 @@ package com.metamug.mason.tag.request;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.service.ConnectionProvider;
+import com.metamug.mason.tag.ExecuteTagHandler;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
+import com.metamug.mason.tag.RestTag;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -569,7 +571,10 @@ public class TagHandlerTest {
     
     @InjectMocks
     XRequestTagHandler xrequestTag = new XRequestTagHandler();
-
+    
+    @InjectMocks
+    ExecuteTagHandler executeTag = new ExecuteTagHandler();
+    
     @Mock
     private ConnectionProvider provider;
 
@@ -662,5 +667,13 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
         System.out.println(context.getAttribute("xrequestOutput"));
 
+    }
+    
+    @Test (expected = JspException.class)
+    public void executeTag() throws Exception {
+        executeTag.setVar("executeOutput");
+        executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
+        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }
 }

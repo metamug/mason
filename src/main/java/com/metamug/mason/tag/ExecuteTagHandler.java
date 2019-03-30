@@ -520,9 +520,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 
@@ -530,7 +528,7 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  *
  * @author Kainix
  */
-public class ExecuteTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class ExecuteTagHandler extends RestTag {
 
     private String className;
     private String onError;
@@ -545,7 +543,7 @@ public class ExecuteTagHandler extends BodyTagSupport implements TryCatchFinally
 
     @Override
     public int doEndTag() throws JspException {
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        
 
         Object result = null;
         try {
@@ -626,26 +624,6 @@ public class ExecuteTagHandler extends BodyTagSupport implements TryCatchFinally
 
     public void setPersistParam(Object persistParam) {
         this.persistParam = persistParam;
-    }
-
-    /**
-     * Just re-throws the Throwable.
-     *
-     * @param throwable
-     * @throws java.lang.Throwable
-     */
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    /**
-     * Close the <code>Connection</code>, unless this action is used as part of a transaction.
-     */
-    @Override
-    public void doFinally() {
-//      Don't set ds to null because in subsequent call to code execution it causes NPE
-//      ds = null;
     }
 
     public void addParameter(Object obj) {
