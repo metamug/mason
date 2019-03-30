@@ -510,6 +510,7 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
+import com.metamug.mason.tag.xrequest.XRequestTagHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -523,6 +524,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.Tag;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import static org.junit.Assert.*;
@@ -540,7 +542,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * @author user
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RequestTagHandlerTest {
+public class TagHandlerTest {
 
     @Mock
     private HttpServletRequest request;
@@ -564,10 +566,13 @@ public class RequestTagHandlerTest {
 
     @InjectMocks
     ResourceTagHandler resourceTag = new ResourceTagHandler();
+    
+    @InjectMocks
+    XRequestTagHandler xrequestTag = new XRequestTagHandler();
 
     @Mock
     private ConnectionProvider provider;
-    
+
     @Mock
     Connection connection;
     @Mock
@@ -575,8 +580,8 @@ public class RequestTagHandlerTest {
 
     @Mock
     private ResultSet resultSet;
-    
-    public RequestTagHandlerTest() {
+
+    public TagHandlerTest() {
 
     }
 
@@ -595,12 +600,12 @@ public class RequestTagHandlerTest {
             resultMap.put("res1", new JSONObject(sampleObj));
             resultMap.put("res2", new JSONArray(sampleArray));
             resultMap.put("res3", "Hello World");
-            
+
             when(context.getRequest()).thenReturn(request);
             when(context.getResponse()).thenReturn(response);
             when(context.getOut()).thenReturn(writer);
             when(request.getAttribute("mtgReq")).thenReturn(masonRequest);
-            
+
             when(request.getParameter("auth")).thenReturn("bearer");
             when(request.getParameter("userid")).thenReturn("1234");
             when(request.getParameter("password")).thenReturn("pass");
@@ -615,7 +620,7 @@ public class RequestTagHandlerTest {
             when(resultSet.getString(1)).thenReturn("1234");
             when(resultSet.getString(2)).thenReturn("admin");
         } catch (SQLException ex) {
-            Logger.getLogger(RequestTagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -631,8 +636,8 @@ public class RequestTagHandlerTest {
 
         requestTag.setMethod("GET");
         requestTag.setItem(false);
-        assertEquals(1, requestTag.doStartTag());
-        assertEquals(5, requestTag.doEndTag());
+        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
 
     }
 
@@ -641,8 +646,21 @@ public class RequestTagHandlerTest {
         resourceTag.setAuth("admin");
         String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjoiYWRtaW4iLCJpc3MiOiJtYXNvbi5tZXRhbXVnLm5ldCIsImV4cCI6MTU2MTQ1ODkzMSwiaWF0IjoxNTUzNjgyOTMxLCJqdGkiOiJiYzE4MTRjMy1lOWRiLTQ5YzgtYmEzMi1iODQwMWNkNGE4MjEifQ==.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
         when(request.getHeader("Authorization")).thenReturn(bearer);
-        assertEquals(1, resourceTag.doStartTag());
-        assertEquals(5, resourceTag.doEndTag());
+        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+
+    }
+    
+    @Test //(expected = JspException.class)
+    public void xrequestTag() throws Exception {
+        xrequestTag.addParameter("foo1", "bar1");
+        xrequestTag.addParameter("foo2", "bar2");
+        xrequestTag.setVar("xrequestOutput");
+        xrequestTag.setUrl("https://postman-echo.com/get");
+        xrequestTag.setMethod("GET");        
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+        System.out.println(context.getAttribute("xrequestOutput"));
 
     }
 }

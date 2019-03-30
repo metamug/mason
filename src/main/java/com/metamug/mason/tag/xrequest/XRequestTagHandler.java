@@ -510,22 +510,20 @@ import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
 import com.metamug.mason.tag.ResourceTagHandler;
+import com.metamug.mason.tag.RestTag;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.servlet.jsp.tagext.TryCatchFinally;
 import org.json.JSONObject;
 
 /**
  *
  * @author anishhirlekar
  */
-public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class XRequestTagHandler extends RestTag {
 
     private Map<String, String> headers;
     private Map<String, String> parameters;
@@ -544,7 +542,7 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
     @Override
     public int doEndTag() throws JspException {
         //Accept header of mtg request
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        //HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeader = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null
                 ? MasonOutput.HEADER_JSON : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
         //Accept type of XRequest
@@ -637,14 +635,5 @@ public class XRequestTagHandler extends BodyTagSupport implements TryCatchFinall
 
     public void addParameter(String name, String value) {
         parameters.put(name, value);
-    }
-
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    @Override
-    public void doFinally() {
     }
 }

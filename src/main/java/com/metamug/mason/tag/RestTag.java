@@ -541,7 +541,7 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public int doStartTag() throws JspException {
         request = (HttpServletRequest) pageContext.getRequest();
         response = (HttpServletResponse) pageContext.getResponse();
-        return 0;
+        return EVAL_BODY_INCLUDE;
     }
 
     @Override
