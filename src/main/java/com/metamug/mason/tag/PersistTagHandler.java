@@ -511,16 +511,14 @@ import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import java.util.SortedMap;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.servlet.jsp.tagext.TryCatchFinally;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 
 /**
  *
  * @author Kaisteel
  */
-public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class PersistTagHandler extends RestTag {
 
     private Object value;
     private String onBlank;
@@ -565,12 +563,4 @@ public class PersistTagHandler extends BodyTagSupport implements TryCatchFinally
         this.onBlank = onBlank;
     }
 
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    @Override
-    public void doFinally() {
-    }
 }

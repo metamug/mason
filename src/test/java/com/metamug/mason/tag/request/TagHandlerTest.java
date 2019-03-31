@@ -511,6 +511,8 @@ import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.tag.ConvertTagHandler;
 import com.metamug.mason.tag.ExecuteTagHandler;
 import com.metamug.mason.tag.ParamTagHandler;
+import com.metamug.mason.tag.ParentTagHandler;
+import com.metamug.mason.tag.PersistTagHandler;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
 import com.metamug.mason.tag.RestTag;
@@ -521,6 +523,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.NamingException;
@@ -530,6 +534,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import static org.junit.Assert.*;
@@ -583,6 +588,12 @@ public class TagHandlerTest {
 
     @InjectMocks
     ParamTagHandler paramTag = new ParamTagHandler();
+    
+    @InjectMocks
+    PersistTagHandler persistTag = new PersistTagHandler();
+    
+    @InjectMocks
+    ParentTagHandler parentTag = new ParentTagHandler();
 
     @Mock
     private ConnectionProvider provider;
@@ -594,6 +605,9 @@ public class TagHandlerTest {
 
     @Mock
     private ResultSet resultSet;
+
+    @Mock
+    private ResultImpl resultImpl;
 
     public TagHandlerTest() {
 
@@ -633,6 +647,13 @@ public class TagHandlerTest {
             when(resultSet.getString("auth_query")).thenReturn("some query mocked");
             when(resultSet.getString(1)).thenReturn("1234");
             when(resultSet.getString(2)).thenReturn("admin");
+
+            //mock resultimpl
+            SortedMap row = new TreeMap();
+            row.put("Name", "Anish");
+            row.put("Age", "26");
+            when(resultImpl.getRows()).thenReturn(new SortedMap[]{row});
+            when(resultImpl.getColumnNames()).thenReturn(new String[]{"Name", "Age"});
         } catch (SQLException ex) {
             Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -696,11 +717,24 @@ public class TagHandlerTest {
         convertTag.setValue(jsonObj);
         assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
-        //ResultImpl result = new ResultImpl(resultSet);        
-        //convertTag.setValue(result);
-        //assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
-        //assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
+        
+        convertTag.setValue(resultImpl);
+        assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
 
+    }
+
+    @Test
+    public void persistTag() throws JspException {
+        persistTag.setValue(resultImpl);
+        assertEquals(Tag.EVAL_PAGE, persistTag.doEndTag());
+    }
+    
+    @Test
+    public void parentTag() throws JspException {
+        when(masonRequest.getParent()).thenReturn("mother");
+        parentTag.setValue("mother");
+        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
     }
 
     @Test
@@ -712,7 +746,7 @@ public class TagHandlerTest {
         paramTag.setMin("0");
         paramTag.setMax("100");
         paramTag.setValue("12");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("offset");
@@ -720,13 +754,13 @@ public class TagHandlerTest {
         paramTag.setMin("0");
         paramTag.setMax("900");
         paramTag.setValue("40");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("startDate");
         paramTag.setType("date");
         paramTag.setValue("2018-11-10");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("name");
@@ -734,19 +768,19 @@ public class TagHandlerTest {
         paramTag.setValue("hirlekar");
         paramTag.setMaxLen("20");
         paramTag.setMinLen("7");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("link");
         paramTag.setType("url");
         paramTag.setValue("https://metamug.com");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
         
+        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
         paramTag.setName("mail");
         paramTag.setType("email");
         paramTag.setValue("hi@metamug.com");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
     }
