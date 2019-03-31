@@ -539,8 +539,10 @@ public class ParamTagHandler extends RestTag {
     /**
      * This method is called after the JSP engine finished processing the tag.
      *
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
-     * methods that this method calls.
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP
+     * page, otherwise return SKIP_PAGE. This method is automatically generated.
+     * Do not modify this method. Instead, modify the methods that this method
+     * calls.
      * @throws javax.servlet.jsp.JspException
      */
     @Override
@@ -555,19 +557,19 @@ public class ParamTagHandler extends RestTag {
                 return EVAL_PAGE;
             }
         }*/
-            
-        if(value == null){
-            if(defaultValue != null){
+
+        if (value == null) {
+            if (defaultValue != null) {
                 mtg.setDefault(name, defaultValue);
                 release();
                 return EVAL_PAGE;
-            } else{
-                if(isRequired != null && isRequired) {
+            } else {
+                if (isRequired != null && isRequired) {
                     throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
                 }
             }
         }
-            
+
         //continue validation if value != null
         if (pattern != null) {
             try {
@@ -576,10 +578,6 @@ public class ParamTagHandler extends RestTag {
                 }
             } catch (PatternSyntaxException ex) {
                 throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Incorrect pattern syntax of " + name + " parameter"));
-            } catch (NullPointerException ex) {
-                if (isRequired != null) {
-                    throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                }
             }
         }
         if (type != null) {
@@ -609,15 +607,10 @@ public class ParamTagHandler extends RestTag {
                             = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
                             + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
                     regexPattern = Pattern.compile(emailPattern);
-                    try {
-                        matcher = regexPattern.matcher(value);
-                        if (!matcher.matches()) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Invalid email input"));
-                        }
-                    } catch (NullPointerException ex) {
-                        if (isRequired != null) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                        }
+
+                    matcher = regexPattern.matcher(value);
+                    if (!matcher.matches()) {
+                        throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Invalid email input"));
                     }
                     break;
                 case "number":
@@ -637,10 +630,6 @@ public class ParamTagHandler extends RestTag {
                         }
                     } catch (NumberFormatException ex) {
                         throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Empty or invalid parameter \'" + name + "\' value"));
-                    } catch (NullPointerException ex) {
-                        if (isRequired != null) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                        }
                     }
                     break;
                 case "text":
@@ -658,14 +647,8 @@ public class ParamTagHandler extends RestTag {
                     }
                     if (minLen != null) {
                         double minLength = minLen;
-                        try {
-                            if (value.length() < minLength) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Input value must be " + minLength + " character long for " + name + " parameter"));
-                            }
-                        } catch (NullPointerException ex) {
-                            if (isRequired != null) {
-                                throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                            }
+                        if (value.length() < minLength) {
+                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Input value must be " + minLength + " character long for " + name + " parameter"));
                         }
                     }
                     break;
@@ -681,15 +664,9 @@ public class ParamTagHandler extends RestTag {
                 case "url":
                     String urlPattern = "(?:(?:https?|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?!10(?:\\.\\d{1,3}){3})(?!127(?:\\.\\d{1,3}){3})(?!169\\.254(?:\\.\\d{1,3}){2})(?!192\\.168(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\x{00a1}-\\x{ffff}0-9]+-?)*[a-z\\x{00a1}-\\x{ffff}0-9]+)(?:\\.(?:[a-z\\x{00a1}-\\x{ffff}0-9]+-?)*[a-z\\x{00a1}-\\x{ffff}0-9]+)*(?:\\.(?:[a-z\\x{00a1}-\\x{ffff}]{2,})))(?::\\d{2,5})?(?:/[^\\s]*)?";
                     regexPattern = Pattern.compile(urlPattern);
-                    try {
-                        matcher = regexPattern.matcher(value);
-                        if (!matcher.matches()) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Invalid URL input"));
-                        }
-                    } catch (NullPointerException ex) {
-                        if (isRequired != null) {
-                            throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
-                        }
+                    matcher = regexPattern.matcher(value);
+                    if (!matcher.matches()) {
+                        throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, "Invalid URL input"));
                     }
                     break;
                 default:

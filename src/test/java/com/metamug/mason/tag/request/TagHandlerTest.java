@@ -732,6 +732,8 @@ public class TagHandlerTest {
         paramTag.setName("name");
         paramTag.setType("text");
         paramTag.setValue("hirlekar");
+        paramTag.setMaxLen("20");
+        paramTag.setMinLen("7");
         assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
