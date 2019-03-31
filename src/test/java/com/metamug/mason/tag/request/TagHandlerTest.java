@@ -510,6 +510,7 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.tag.ConvertTagHandler;
 import com.metamug.mason.tag.ExecuteTagHandler;
+import com.metamug.mason.tag.ParamTagHandler;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
 import com.metamug.mason.tag.RestTag;
@@ -580,6 +581,9 @@ public class TagHandlerTest {
     @InjectMocks
     ConvertTagHandler convertTag = new ConvertTagHandler();
 
+    @InjectMocks
+    ParamTagHandler paramTag = new ParamTagHandler();
+
     @Mock
     private ConnectionProvider provider;
 
@@ -638,7 +642,7 @@ public class TagHandlerTest {
      * Test of doStartTag method, of class RequestTagHandler.
      */
     @Test
-    public void requestTag() throws Exception {
+    public void requestTag() throws JspException {
 
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
 
@@ -652,7 +656,7 @@ public class TagHandlerTest {
     }
 
     @Test //(expected = JspException.class)
-    public void resourceTag() throws Exception {
+    public void resourceTag() throws JspException {
         resourceTag.setAuth("admin");
         String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjoiYWRtaW4iLCJpc3MiOiJtYXNvbi5tZXRhbXVnLm5ldCIsImV4cCI6MTU2MTQ1ODkzMSwiaWF0IjoxNTUzNjgyOTMxLCJqdGkiOiJiYzE4MTRjMy1lOWRiLTQ5YzgtYmEzMi1iODQwMWNkNGE4MjEifQ==.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
         when(request.getHeader("Authorization")).thenReturn(bearer);
@@ -662,7 +666,7 @@ public class TagHandlerTest {
     }
 
     @Test //(expected = JspException.class)
-    public void xrequestTag() throws Exception {
+    public void xrequestTag() throws JspException {
         xrequestTag.addParameter("foo1", "bar1");
         xrequestTag.addParameter("foo2", "bar2");
         xrequestTag.setVar("xrequestOutput");
@@ -675,20 +679,54 @@ public class TagHandlerTest {
     }
 
     @Test(expected = JspException.class)
-    public void executeTag() throws Exception {
+    public void executeTag() throws JspException {
         executeTag.setVar("executeOutput");
-        
+
         executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }
 
     @Test
-    public void convertTag() throws Exception {
-        Map<String, Object> map = new LinkedHashMap();
+    public void convertTag() throws JspException {
+
         convertTag.setProperty("happy");
-        convertTag.setTarget(map);
+        convertTag.setTarget(resultMap);
+        JSONObject jsonObj = new JSONObject("{\"phonetype\":\"N95\",\"cat\":\"WP\"}");
+        convertTag.setValue(jsonObj);
         assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
+        //ResultImpl result = new ResultImpl(resultSet);        
+        //convertTag.setValue(result);
+        //assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
+        //assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
+
+    }
+
+    @Test
+    public void paramTag() throws JspException {
+        //<Param name="limit" type="number" min="0" max="100"/>
+        //<Param name="offset" type="number" min="0" max="900"/>
+        paramTag.setName("limit");
+        paramTag.setType("number");
+        paramTag.setMin("0");
+        paramTag.setMax("100");
+        paramTag.setValue("12");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+        
+        paramTag.setName("offset");
+        paramTag.setType("number");
+        paramTag.setMin("0");
+        paramTag.setMax("900");
+        paramTag.setValue("40");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+        
+        paramTag.setName("startDate");
+        paramTag.setType("date");
+        paramTag.setValue("2018-11-10");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
     }
 }

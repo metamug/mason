@@ -523,7 +523,7 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
  *
  * @author Kaisteel
  */
-public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class ParamTagHandler extends RestTag {
 
     private String name;
     private String type;
@@ -757,14 +757,5 @@ public class ParamTagHandler extends BodyTagSupport implements TryCatchFinally {
                 throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
             }
         }
-    }
-
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    @Override
-    public void doFinally() {
     }
 }
