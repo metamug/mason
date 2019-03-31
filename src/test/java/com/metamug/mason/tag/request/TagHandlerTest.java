@@ -714,7 +714,7 @@ public class TagHandlerTest {
         paramTag.setValue("12");
         assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-        
+
         paramTag.setName("offset");
         paramTag.setType("number");
         paramTag.setMin("0");
@@ -722,11 +722,30 @@ public class TagHandlerTest {
         paramTag.setValue("40");
         assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-        
+
         paramTag.setName("startDate");
         paramTag.setType("date");
         paramTag.setValue("2018-11-10");
         assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
+        paramTag.setName("name");
+        paramTag.setType("text");
+        paramTag.setValue("hirlekar");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
+        paramTag.setName("link");
+        paramTag.setType("url");
+        paramTag.setValue("https://metamug.com");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+        
+        paramTag.setName("mail");
+        paramTag.setType("email");
+        paramTag.setValue("hi@metamug.com");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, paramTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
     }
 }
