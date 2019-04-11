@@ -642,6 +642,7 @@ public class Router implements Filter {
             req.setAttribute("mtgReq", mtgReq);
             //Adding to request, otherwise the user has to write ${applicationScope.datasource}
             req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
+            req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
             //save method as attribute because jsp only accepts GET and POST
             req.setAttribute("mtgMethod", req.getMethod());
             req.setAttribute(MASON_QUERY, queryMap);
