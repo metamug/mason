@@ -512,11 +512,7 @@ import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.tag.ResourceTagHandler;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.naming.NamingException;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
 
@@ -536,7 +532,7 @@ public class AuthService {
         this.dao = dao;
     }
 
-    public String validateBasic(String header, String roleName) throws JspException {
+    public String validateBasic(String header, String roleName, String authQuery) throws JspException {
 
         String authHeader = header.replaceFirst("Basic ", "");
 
@@ -549,11 +545,10 @@ public class AuthService {
             throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
 
-        JSONObject status = dao.validateBasic(user, password, roleName);
+        JSONObject status = dao.validateBasic(user, password, roleName, authQuery);
         switch (status.getInt("status")) {
             case 0:
-                throw new JspException(ResourceTagHandler.ACCESS_DENIED,
-                        new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
+                throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
             case 1:
                 return status.getString("user_id");
             default:
@@ -590,10 +585,11 @@ public class AuthService {
      *
      * @param user
      * @param pass
+     * @param authQuery
      * @return
      */
-    public String createBearer(String user, String pass) {
-        JSONObject payload = dao.getBearerDetails(user, pass);
+    public String createBearer(String user, String pass, String authQuery) {
+        JSONObject payload = dao.getBearerDetails(user, pass, authQuery);
         return new JWebToken(payload).toString();
     }
 }

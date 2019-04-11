@@ -529,11 +529,11 @@ public class AuthDAO {
         this.provider = provider;
     }
 
-    public JSONObject validateBasic(String userName, String password, String roleName) {
+    public JSONObject validateBasic(String userName, String password, String roleName, String authQuery) {
         JSONObject status = new JSONObject();
         status.put("status", 0);
         try (Connection con = provider.getConnection()) {
-            String authQuery = getConfigValue(con, "Basic");
+            //String authQuery = getConfigValue(con, "Basic");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, userName);
@@ -558,11 +558,11 @@ public class AuthDAO {
         return status;
     }
 
-    public JSONObject getBearerDetails(String user, String pass) {
+    public JSONObject getBearerDetails(String user, String pass, String authQuery) {
         JSONObject jwtPayload = new JSONObject();
         jwtPayload.put("status", 0);
         try (Connection con = provider.getConnection()) {
-            String authQuery = getConfigValue(con, "Bearer");
+            //String authQuery = getConfigValue(con, "Bearer");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, user);
@@ -589,7 +589,7 @@ public class AuthDAO {
      * @param key
      * @return empty string if no query
      */
-    private String getConfigValue(Connection con, String key) {
+    /*private String getConfigValue(Connection con, String key) {
 
         try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower(?)");) {
             basicAuthQueryStmnt.setString(1, key);
@@ -604,6 +604,6 @@ public class AuthDAO {
             Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             return "";
         }
-    }
+    }*/
 
 }

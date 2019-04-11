@@ -500,6 +500,7 @@
  */
 package com.metamug.mason.entity;
 
+import com.metamug.mason.Router;
 import com.metamug.mason.service.AuthService;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -544,7 +545,9 @@ public class RootResource {
             //auth=bearer&userid=foo&password=pass
             String user = request.getParameter("userid");
             String pass = request.getParameter("password");
-            token = service.createBearer(user, pass);
+            
+            String authQuery = (String)request.getServletContext().getAttribute(Router.MTG_AUTH_BEARER);
+            token = service.createBearer(user, pass, authQuery);
             try (PrintWriter out = response.getWriter();) {
                 if (contentType.contains("application/xml")) {
                     out.print("<token>" + token + "</token>");

@@ -551,7 +551,10 @@ public class Router implements Filter {
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY = "masonQuery";
-    private static final String DATA_SOURCE = "datasource";
+    public static final String DATA_SOURCE = "datasource";
+    public static final String MTG_AUTH_BASIC = "MTG_AUTH_BASIC";
+    public static final String MTG_AUTH_BEARER = "MTG_AUTH_BEARER";
+    
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
 
@@ -637,10 +640,8 @@ public class Router implements Filter {
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
             MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
             req.setAttribute("mtgReq", mtgReq);
-
             //Adding to request, otherwise the user has to write ${applicationScope.datasource}
             req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
-
             //save method as attribute because jsp only accepts GET and POST
             req.setAttribute("mtgMethod", req.getMethod());
             req.setAttribute(MASON_QUERY, queryMap);
@@ -715,15 +716,21 @@ public class Router implements Filter {
     @Override
     public void init(FilterConfig config) {
         encoding = config.getInitParameter("requestEncoding");
-
         if (encoding == null) {
             encoding = "UTF-8";
         }
-
+        
         if (config.getInitParameter("datasource") != null) {
             config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
         } else {
             config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
+        }
+
+        if(config.getInitParameter(MTG_AUTH_BASIC)!=null){
+            config.getServletContext().setAttribute(MTG_AUTH_BASIC,config.getInitParameter(MTG_AUTH_BASIC));
+        }
+        if(config.getInitParameter(MTG_AUTH_BEARER)!=null){
+            config.getServletContext().setAttribute(MTG_AUTH_BEARER,config.getInitParameter(MTG_AUTH_BEARER));
         }
 
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
