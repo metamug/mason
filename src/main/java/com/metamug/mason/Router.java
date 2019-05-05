@@ -546,6 +546,7 @@ public class Router implements Filter {
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+    public static final String MULTIPART_FORM_DATA = "multipart/form-data";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -616,7 +617,7 @@ public class Router implements Filter {
         String method = req.getMethod().toLowerCase();
 
         boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
-                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON);
+                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON)||contentType.contains(MULTIPART_FORM_DATA);
 
         if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
             writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
