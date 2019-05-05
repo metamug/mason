@@ -523,7 +523,7 @@ import org.json.JSONObject;
 public class AuthService {
 
     private AuthDAO dao;
-    
+
     public AuthService(ConnectionProvider instance) {
         this.dao = new AuthDAO(instance);
     }

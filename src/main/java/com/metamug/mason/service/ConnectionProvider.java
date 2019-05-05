@@ -508,7 +508,6 @@ package com.metamug.mason.service;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -527,7 +526,7 @@ public class ConnectionProvider {
 
     private final DataSource ds;
 
-    public static DataSource getMasonDatasource(){
+    public static DataSource getMasonDatasource() {
         try {
             Context initialContext = new InitialContext();
             Context envContext = (Context) initialContext.lookup("java:/comp/env");
@@ -538,7 +537,6 @@ public class ConnectionProvider {
         return null;
     }
 
-  
     public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
         this.masonDatasource = masonDatasource;
         ds = getMasonDatasource();

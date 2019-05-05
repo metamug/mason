@@ -515,19 +515,16 @@ import com.metamug.mason.tag.ParentTagHandler;
 import com.metamug.mason.tag.PersistTagHandler;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
-import com.metamug.mason.tag.RestTag;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -588,10 +585,10 @@ public class TagHandlerTest {
 
     @InjectMocks
     ParamTagHandler paramTag = new ParamTagHandler();
-    
+
     @InjectMocks
     PersistTagHandler persistTag = new PersistTagHandler();
-    
+
     @InjectMocks
     ParentTagHandler parentTag = new ParentTagHandler();
 
@@ -717,7 +714,7 @@ public class TagHandlerTest {
         convertTag.setValue(jsonObj);
         assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
-        
+
         convertTag.setValue(resultImpl);
         assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
@@ -729,7 +726,7 @@ public class TagHandlerTest {
         persistTag.setValue(resultImpl);
         assertEquals(Tag.EVAL_PAGE, persistTag.doEndTag());
     }
-    
+
     @Test
     public void parentTag() throws JspException {
         when(masonRequest.getParent()).thenReturn("mother");
@@ -746,7 +743,7 @@ public class TagHandlerTest {
         paramTag.setMin("0");
         paramTag.setMax("100");
         paramTag.setValue("12");
-        
+
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("offset");
@@ -754,13 +751,13 @@ public class TagHandlerTest {
         paramTag.setMin("0");
         paramTag.setMax("900");
         paramTag.setValue("40");
-        
+
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("startDate");
         paramTag.setType("date");
         paramTag.setValue("2018-11-10");
-        
+
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("name");
@@ -768,19 +765,19 @@ public class TagHandlerTest {
         paramTag.setValue("hirlekar");
         paramTag.setMaxLen("20");
         paramTag.setMinLen("7");
-        
+
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("link");
         paramTag.setType("url");
         paramTag.setValue("https://metamug.com");
-        
+
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
         paramTag.setName("mail");
         paramTag.setType("email");
         paramTag.setValue("hi@metamug.com");
-        
+
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
 
     }

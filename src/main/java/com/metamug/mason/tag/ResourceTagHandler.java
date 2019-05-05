@@ -589,10 +589,10 @@ public class ResourceTagHandler extends RestTag {
             throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
         }
         MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
-        authService = new AuthService((ConnectionProvider)request.getAttribute(CONNECTION_PROVIDER));
+        authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));
         try {
-            if (header.contains("Basic ")) {                
-                String authQuery = (String)request.getServletContext().getAttribute(Router.MTG_AUTH_BASIC);
+            if (header.contains("Basic ")) {
+                String authQuery = (String) request.getServletContext().getAttribute(Router.MTG_AUTH_BASIC);
                 masonReq.setUid(authService.validateBasic(header, auth, authQuery.trim()));
             } else if (header.contains(BEARER_)) {
                 String bearerToken = header.replaceFirst(BEARER_, "");

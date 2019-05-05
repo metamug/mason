@@ -554,7 +554,7 @@ public class Router implements Filter {
     public static final String DATA_SOURCE = "datasource";
     public static final String MTG_AUTH_BASIC = "MTG_AUTH_BASIC";
     public static final String MTG_AUTH_BEARER = "MTG_AUTH_BEARER";
-    
+
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
 
@@ -603,8 +603,7 @@ public class Router implements Filter {
     }
 
     /**
-     * Servlet version of the request handling. Cast objects to handle REST
-     * request
+     * Servlet version of the request handling. Cast objects to handle REST request
      *
      * @param req
      * @param res
@@ -720,18 +719,18 @@ public class Router implements Filter {
         if (encoding == null) {
             encoding = "UTF-8";
         }
-        
+
         if (config.getInitParameter("datasource") != null) {
             config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
         } else {
             config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
         }
 
-        if(config.getInitParameter(MTG_AUTH_BASIC)!=null){
-            config.getServletContext().setAttribute(MTG_AUTH_BASIC,config.getInitParameter(MTG_AUTH_BASIC));
+        if (config.getInitParameter(MTG_AUTH_BASIC) != null) {
+            config.getServletContext().setAttribute(MTG_AUTH_BASIC, config.getInitParameter(MTG_AUTH_BASIC));
         }
-        if(config.getInitParameter(MTG_AUTH_BEARER)!=null){
-            config.getServletContext().setAttribute(MTG_AUTH_BEARER,config.getInitParameter(MTG_AUTH_BEARER));
+        if (config.getInitParameter(MTG_AUTH_BEARER) != null) {
+            config.getServletContext().setAttribute(MTG_AUTH_BEARER, config.getInitParameter(MTG_AUTH_BEARER));
         }
 
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);

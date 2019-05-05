@@ -515,9 +515,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
  *
@@ -539,10 +537,8 @@ public class ParamTagHandler extends RestTag {
     /**
      * This method is called after the JSP engine finished processing the tag.
      *
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP
-     * page, otherwise return SKIP_PAGE. This method is automatically generated.
-     * Do not modify this method. Instead, modify the methods that this method
-     * calls.
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
+     * methods that this method calls.
      * @throws javax.servlet.jsp.JspException
      */
     @Override

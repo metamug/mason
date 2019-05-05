@@ -518,7 +518,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
@@ -543,7 +542,6 @@ public class ExecuteTagHandler extends RestTag {
 
     @Override
     public int doEndTag() throws JspException {
-        
 
         Object result = null;
         try {
