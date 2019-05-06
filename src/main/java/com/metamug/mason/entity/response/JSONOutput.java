@@ -545,13 +545,13 @@ public class JSONOutput extends MasonOutput {
                 responseJson.put(key, array);
             } else {
                 //obj is POJO
-                try{
+                try {
                     //try if object of JAXB class
                     responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, HEADER_JSON)));
-                } catch (MarshalException mex){
+                } catch (MarshalException mex) {
                     responseJson.put(key, obj);
                 }
-            } 
+            }
         }
     }
 

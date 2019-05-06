@@ -506,7 +506,6 @@
  */
 package com.metamug.mason.tag;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -534,7 +533,7 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public RestTag() {
         super();
         this.context = super.pageContext;
-        
+
     }
 
     @Override

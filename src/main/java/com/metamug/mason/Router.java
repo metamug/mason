@@ -546,6 +546,7 @@ public class Router implements Filter {
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_HTML = "application/html";
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+    public static final String MULTIPART_FORM_DATA = "multipart/form-data";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -554,7 +555,7 @@ public class Router implements Filter {
     public static final String DATA_SOURCE = "datasource";
     public static final String MTG_AUTH_BASIC = "MTG_AUTH_BASIC";
     public static final String MTG_AUTH_BEARER = "MTG_AUTH_BEARER";
-    
+
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
 
@@ -603,8 +604,7 @@ public class Router implements Filter {
     }
 
     /**
-     * Servlet version of the request handling. Cast objects to handle REST
-     * request
+     * Servlet version of the request handling. Cast objects to handle REST request
      *
      * @param req
      * @param res
@@ -617,7 +617,7 @@ public class Router implements Filter {
         String method = req.getMethod().toLowerCase();
 
         boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
-                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON);
+                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON)||contentType.contains(MULTIPART_FORM_DATA);
 
         if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
             writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
@@ -720,18 +720,18 @@ public class Router implements Filter {
         if (encoding == null) {
             encoding = "UTF-8";
         }
-        
+
         if (config.getInitParameter("datasource") != null) {
             config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
         } else {
             config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
         }
 
-        if(config.getInitParameter(MTG_AUTH_BASIC)!=null){
-            config.getServletContext().setAttribute(MTG_AUTH_BASIC,config.getInitParameter(MTG_AUTH_BASIC));
+        if (config.getInitParameter(MTG_AUTH_BASIC) != null) {
+            config.getServletContext().setAttribute(MTG_AUTH_BASIC, config.getInitParameter(MTG_AUTH_BASIC));
         }
-        if(config.getInitParameter(MTG_AUTH_BEARER)!=null){
-            config.getServletContext().setAttribute(MTG_AUTH_BEARER,config.getInitParameter(MTG_AUTH_BEARER));
+        if (config.getInitParameter(MTG_AUTH_BEARER) != null) {
+            config.getServletContext().setAttribute(MTG_AUTH_BEARER, config.getInitParameter(MTG_AUTH_BEARER));
         }
 
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);

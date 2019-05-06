@@ -545,8 +545,8 @@ public class RootResource {
             //auth=bearer&userid=foo&password=pass
             String user = request.getParameter("userid");
             String pass = request.getParameter("password");
-            
-            String authQuery = (String)request.getServletContext().getAttribute(Router.MTG_AUTH_BEARER);
+
+            String authQuery = (String) request.getServletContext().getAttribute(Router.MTG_AUTH_BEARER);
             token = service.createBearer(user, pass, authQuery.trim());
             try (PrintWriter out = response.getWriter();) {
                 if (contentType.contains("application/xml")) {
