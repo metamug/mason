@@ -111,8 +111,8 @@ can be changed but the information returned by the query should be consistent fo
 	   <param-name>MTG_AUTH_BASIC</param-name>
 	   <param-value>
 	   <![CDATA[
-	       select r.user_id,r.role_name
-	       from usr_role r inner join usr u on r.user_id=u.user_id
+	       SELECT r.user_id, r.role_name
+	       FROM usr_role r INNER JOIN usr u ON r.user_id=u.user_id
 	       WHERE u.user_name=$user AND u.pass_word=$pass
 	   ]]>
 	   </param-value>
@@ -121,8 +121,8 @@ can be changed but the information returned by the query should be consistent fo
 	   <param-name>MTG_AUTH_BEARER</param-name>
 	   <param-value>
 	   <![CDATA[
-	       SELECT r.user_id as sub,r.role_name as aud
-	       FROM usr_role r inner join usr u on  r.user_id=u.user_id
+	       SELECT r.user_id as sub,r.role_name AS aud
+	       FROM usr_role r INNER JOIN usr u ON r.user_id=u.user_id
 	       WHERE u.user_name=$user AND u.pass_word=$pass
 	   ]]>
 	   </param-value>
