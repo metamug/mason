@@ -94,6 +94,42 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 </filter-mapping>
 ```
 
+### Basic and JWT Auth
+
+Queries for Basic and JWT auth can be passed a `init-param` to the router. Tables given below in the example
+can be changed but the information returned by the query should be consistent for auth to work.
+
+```xml
+<filter>
+	<filter-name>Router</filter-name>
+	<filter-class>com.metamug.mason.Router</filter-class>
+	<init-param>
+	   <param-name>datasource</param-name>
+	   <param-value>jdbc/mason</param-value>
+	</init-param>
+	<init-param>
+	   <param-name>MTG_AUTH_BASIC</param-name>
+	   <param-value>
+	   <![CDATA[
+	       select r.user_id,r.role_name
+	       from usr_role r inner join usr u on r.user_id=u.user_id
+	       WHERE u.user_name=$user AND u.pass_word=$pass
+	   ]]>
+	   </param-value>
+	</init-param>
+	<init-param>
+	   <param-name>MTG_AUTH_BEARER</param-name>
+	   <param-value>
+	   <![CDATA[
+	       SELECT r.user_id as sub,r.role_name as aud
+	       FROM usr_role r inner join usr u on  r.user_id=u.user_id
+	       WHERE u.user_name=$user AND u.pass_word=$pass
+	   ]]>
+	   </param-value>
+	</init-param>
+</filter>
+```
+
 All requests made to the jsp resources are routed through this filter.
 
 6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
