@@ -587,8 +587,10 @@ public class RequestTagHandler extends RestTag {
 
             String op = output.toString();
             response.setContentType(output.getContentType());
-            pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
-            pageContext.getOut().print(op);
+            //pageContext.setAttribute("Content-Length", op.length(), PageContext.REQUEST_SCOPE);
+            //pageContext.getOut().print(op);
+            response.setContentLength(op.length());
+            response.getOutputStream().print(op);
         } catch (IOException | JAXBException ex) {
             Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }

@@ -743,14 +743,10 @@ public class Router implements Filter {
             config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
             config.getServletContext().setAttribute(CONNECTION_PROVIDER, connectionProvider);
             queryFileInputStream.close();
-        } catch (IOException ex) {
+        } catch (IOException | SQLException | NamingException ex) {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (NullPointerException nx) {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
-        } catch (SQLException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NamingException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
