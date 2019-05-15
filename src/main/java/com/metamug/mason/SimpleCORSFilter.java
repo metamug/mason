@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.filters;
+package com.metamug.mason;
 
 import java.io.IOException;
 import javax.servlet.Filter;
