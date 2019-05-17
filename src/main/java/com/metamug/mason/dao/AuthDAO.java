@@ -515,6 +515,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -558,22 +559,32 @@ public class AuthDAO {
         return status;
     }
 
+    /**
+     * This is used by to generate the token.
+     *
+     * @param user username to be matched in the auth query
+     * @param pass password to be matched in auth query
+     * @param authQuery The Bearer Auth query in web.xml
+     * @return
+     */
     public JSONObject getBearerDetails(String user, String pass, String authQuery) {
         JSONObject jwtPayload = new JSONObject();
         jwtPayload.put("status", 0);
         try (Connection con = provider.getConnection()) {
             //String authQuery = getConfigValue(con, "Bearer");
             if (!authQuery.isEmpty()) {
-                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    basicStmnt.setString(1, user);
-                    basicStmnt.setString(2, pass);
-                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
-                        while (basicResult.next()) {
-                            jwtPayload.put("sub", basicResult.getString(1));
-                            jwtPayload.put("aud", basicResult.getString(2));
-                            LocalDateTime ldt = LocalDateTime.now().plusDays(90);
-                            jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //thsi needs to be configured
+                try (PreparedStatement stmt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
+                    stmt.setString(1, user);
+                    stmt.setString(2, pass);
+                    try (ResultSet result = stmt.executeQuery()) {
+                        JSONArray audArray = new JSONArray();
+                        while (result.next()) {
+                            jwtPayload.put("sub", result.getString(1));
+                            audArray.put(result.getString(2));
                         }
+                        jwtPayload.put("aud", audArray);
+                        LocalDateTime ldt = LocalDateTime.now().plusDays(EXPIRY_DAYS);
+                        jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //thsi needs to be configured
                     }
                 }
             }
@@ -605,4 +616,6 @@ public class AuthDAO {
             return "";
         }
     }*/
+    private static final int EXPIRY_DAYS = 90;
+
 }

@@ -571,7 +571,7 @@ public class AuthService {
             if (!incomingToken.isValid()) {
                 throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
-            if (!roleName.equals(incomingToken.getAudience())) {
+            if (incomingToken.getAudience().contains("'"+roleName+"'")) {
                 throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
             }
             return (incomingToken.getSubject());

@@ -511,12 +511,15 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -539,10 +542,10 @@ public class JWebToken {
     }
 
     public JWebToken(JSONObject payload) {
-        this(payload.getString("sub"), payload.getString("aud"), payload.getLong("exp"));
+        this(payload.getString("sub"), payload.getJSONArray("aud"), payload.getLong("exp"));
     }
 
-    public JWebToken(String sub, String aud, long expires) {
+    public JWebToken(String sub, JSONArray aud, long expires) {
         this();
         payload.put("sub", sub);
         payload.put("aud", aud);
@@ -595,8 +598,13 @@ public class JWebToken {
         return payload.getString("sub");
     }
 
-    public String getAudience() {
-        return payload.getString("aud");
+    public List<String> getAudience() {
+        JSONArray arr = payload.getJSONArray("aud");
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) {
+            list.add(arr.getString(i));
+        }
+        return list;
     }
 
     private static String encode(JSONObject obj) {

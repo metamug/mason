@@ -9,6 +9,7 @@ import com.metamug.mason.entity.auth.JWebToken;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -24,7 +25,7 @@ import org.junit.BeforeClass;
 public class JWebTokenTest {
 
     LocalDateTime ldt;
-
+     JSONObject payload;
     public JWebTokenTest() {
     }
 
@@ -39,6 +40,8 @@ public class JWebTokenTest {
     @Before
     public void setUp() {
         ldt = LocalDateTime.now().plusDays(90);
+         payload = new JSONObject("{\"sub\":\"1234\",\"aud\":[\"admin\"],"
+                + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
     }
 
     @After
@@ -52,7 +55,7 @@ public class JWebTokenTest {
     public void testWithData() {
         //generate JWT
         long exp = ldt.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
-        String token = new JWebToken("1234", "admin", exp).toString();
+        String token = new JWebToken("1234", new JSONArray("['admin']"), exp).toString();
         //verify and use
         JWebToken incomingToken;
         System.out.println(token);
@@ -60,7 +63,7 @@ public class JWebTokenTest {
             incomingToken = new JWebToken(token);
             if (incomingToken.isValid()) {
                 Assert.assertEquals("1234", incomingToken.getSubject());
-                Assert.assertEquals("admin", incomingToken.getAudience());
+                Assert.assertEquals("admin", incomingToken.getAudience().get(0));
             }
         } catch (NoSuchAlgorithmException ex) {
             fail("Invalid Token" + ex.getMessage());
@@ -70,8 +73,7 @@ public class JWebTokenTest {
 
     @org.junit.Test
     public void testWithJson() {
-        JSONObject payload = new JSONObject("{\"sub\":\"1234\",\"aud\":\"admin\","
-                + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
+       
         String token = new JWebToken(payload).toString();
         //verify and use
         JWebToken incomingToken;
@@ -79,7 +81,7 @@ public class JWebTokenTest {
             incomingToken = new JWebToken(token);
             if (incomingToken.isValid()) {
                 Assert.assertEquals("1234", incomingToken.getSubject());
-                Assert.assertEquals("admin", incomingToken.getAudience());
+                Assert.assertEquals("admin", incomingToken.getAudience().get(0));
             }
         } catch (NoSuchAlgorithmException ex) {
             fail("Invalid Token" + ex.getMessage());
@@ -88,8 +90,7 @@ public class JWebTokenTest {
 
     @org.junit.Test(expected = IllegalArgumentException.class)
     public void testBadHeaderFormat() {
-        JSONObject payload = new JSONObject("{\"sub\":\"1234\",\"aud\":\"admin\","
-                + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
+     
         String token = new JWebToken(payload).toString();
         token = token.replaceAll("\\.", "X");
         //verify and use
@@ -98,7 +99,7 @@ public class JWebTokenTest {
             incomingToken = new JWebToken(token);
             if (incomingToken.isValid()) {
                 Assert.assertEquals("1234", incomingToken.getSubject());
-                Assert.assertEquals("admin", incomingToken.getAudience());
+                Assert.assertEquals("admin", incomingToken.getAudience().get(0));
             }
         } catch (NoSuchAlgorithmException ex) {
             fail("Invalid Token" + ex.getMessage());
@@ -107,8 +108,7 @@ public class JWebTokenTest {
 
     @org.junit.Test(expected = NoSuchAlgorithmException.class)
     public void testIncorrectHeader() throws NoSuchAlgorithmException {
-        JSONObject payload = new JSONObject("{\"sub\":\"1234\",\"aud\":\"admin\","
-                + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
+     
         String token = new JWebToken(payload).toString();
         token = token.replaceAll("[^.]", "X");
         //verify and use
@@ -117,7 +117,7 @@ public class JWebTokenTest {
         incomingToken = new JWebToken(token);
         if (incomingToken.isValid()) {
             Assert.assertEquals("1234", incomingToken.getSubject());
-            Assert.assertEquals("admin", incomingToken.getAudience());
+            Assert.assertEquals("admin", incomingToken.getAudience().get(0));
         }
     }
 }

@@ -673,15 +673,27 @@ public class TagHandlerTest {
 
     }
 
-    @Test //(expected = JspException.class)
+    @Test (expected = JspException.class)
     public void resourceTag() throws JspException {
         resourceTag.setAuth("admin");
-        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjoiYWRtaW4iLCJpc3MiOiJtYXNvbi5tZXRhbXVnLm5ldCIsImV4cCI6MTU2MTQ1ODkzMSwiaWF0IjoxNTUzNjgyOTMxLCJqdGkiOiJiYzE4MTRjMy1lOWRiLTQ5YzgtYmEzMi1iODQwMWNkNGE4MjEifQ==.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
+        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTYxNDU4OTMxLCJpYXQiOjE1NTM2ODI5MzEsImp0aSI6ImJjMTgxNGMzLWU5ZGItNDljOC1iYTMyLWI4NDAxY2Q0YTgyMSJ9.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
 
     }
+    
+    @Test //(expected = JspException.class)
+    public void resourceTagAuth() throws JspException {
+        resourceTag.setAuth("admin");
+        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTY1ODUxODIxLCJpYXQiOjE1NTgwNzU4MjEsImp0aSI6ImRmMDA3YzU0LWI3ODUtNGVmZC1hMzkxLThiNmM5YzliY2JlMiJ9.3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
+        when(request.getHeader("Authorization")).thenReturn(bearer);
+        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+
+    }
+    
+    
 
     @Test //(expected = JspException.class)
     public void xrequestTag() throws JspException {
