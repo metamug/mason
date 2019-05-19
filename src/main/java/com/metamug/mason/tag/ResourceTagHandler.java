@@ -586,7 +586,7 @@ public class ResourceTagHandler extends RestTag {
     private void processAuth() throws JspException {
         String header = request.getHeader("Authorization");
         if (header == null) {
-            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
         }
         MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
         authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));
