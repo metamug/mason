@@ -532,11 +532,11 @@ public class RequestTagHandler extends RestTag {
 
     private String method;
     private boolean item;
-    private boolean processOutput;
+    private boolean evaluate;
     //@Resource
     private MasonRequest masonReq;
     //@Resource
-    private LinkedHashMap<String, Object> resultMap;
+    private LinkedHashMap<String, Object> masonOutput;
 
     @Override
     public int doStartTag() throws JspException {
@@ -544,10 +544,10 @@ public class RequestTagHandler extends RestTag {
         masonReq = (MasonRequest) request.getAttribute("mtgReq");
 
         if (method.equalsIgnoreCase(masonReq.getMethod())) {
-            processOutput = (masonReq.getId() != null) == item;
-            if (processOutput) {
-                resultMap = new LinkedHashMap<>();
-                pageContext.setAttribute(MASON_OUTPUT, resultMap, PageContext.PAGE_SCOPE);
+            evaluate = (masonReq.getId() != null) == item; //evaluate
+            if (evaluate) {
+                masonOutput = new LinkedHashMap<>();
+                pageContext.setAttribute(MASON_OUTPUT, masonOutput, PageContext.PAGE_SCOPE);
                 //changed from request scope to page scope
                 return EVAL_BODY_INCLUDE;
             }
@@ -558,7 +558,7 @@ public class RequestTagHandler extends RestTag {
 
     @Override
     public int doEndTag() throws JspException {
-        if (processOutput) {
+        if (evaluate) {
             processOutput();
             return SKIP_PAGE;
         } else {
@@ -567,7 +567,7 @@ public class RequestTagHandler extends RestTag {
     }
 
     private void processOutput() {
-        if (resultMap.isEmpty()) {
+        if (masonOutput.isEmpty()) {
             response.setStatus(204);
             return;
         }
@@ -578,11 +578,11 @@ public class RequestTagHandler extends RestTag {
         try {
             List list = Arrays.asList(header.split("/"));
             if (list.contains("xml")) { //Accept: application/xml, text/xml
-                output = new XMLOutput(resultMap);
+                output = new XMLOutput(masonOutput);
             } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
-                output = new DatasetOutput(resultMap);
+                output = new DatasetOutput(masonOutput);
             } else { //Accept: application/json OR default
-                output = new JSONOutput(resultMap);
+                output = new JSONOutput(masonOutput);
             }
 
             String op = output.toString();

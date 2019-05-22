@@ -512,12 +512,20 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
+import groovy.lang.Binding;
+import groovy.util.GroovyScriptEngine;
+import groovy.util.ResourceException;
+import groovy.util.ScriptException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
@@ -560,10 +568,10 @@ public class ExecuteTagHandler extends RestTag {
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
                 if (param instanceof MasonRequest) {
-                    MasonRequest mtg = (MasonRequest) param;
+                    MasonRequest masonReq = (MasonRequest) param;
 
                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    mtg.getParams().entrySet().forEach(entry -> {
+                    masonReq.getParams().entrySet().forEach(entry -> {
                         String key = entry.getKey();
                         String value = entry.getValue();
                         requestParameters.put(key, value);
@@ -599,6 +607,7 @@ public class ExecuteTagHandler extends RestTag {
                         "Class " + cls + " isn't processable"));
             }
 
+            //output to variable
             pageContext.setAttribute(var, result);
 
         } catch (Exception ex) {
@@ -606,6 +615,20 @@ public class ExecuteTagHandler extends RestTag {
         }
 
         return EVAL_PAGE;
+    }
+
+    public void runScript(String className) {
+        try {
+            GroovyScriptEngine engine = new GroovyScriptEngine(".");
+            Binding binding = new Binding();
+            MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
+            binding.setVariable("request", masonReq);
+            LinkedHashMap<String, Object> masonOutput = (LinkedHashMap<String, Object>) request.getAttribute(MASON_OUTPUT);
+            binding.setVariable("response", masonOutput);
+            engine.run("src/main/java/" + className, binding);
+        } catch (IOException | SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
+            Logger.getLogger(ExecuteTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
     }
 
     public void setClassName(String className) {
