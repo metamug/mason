@@ -547,11 +547,13 @@ public class Router implements Filter {
     public static final String APPLICATION_HTML = "application/html";
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
     public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+    private static final String RESOURCE_EXTN = ".jsp";
+    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String QUERY_FILE_NAME = "query.properties";
-    public static final String MASON_QUERY = "masonQuery";
+    public static final String MASON_QUERY = "masonQuery"; //to hold queries from properties file
     public static final String DATA_SOURCE = "datasource";
     public static final String MTG_AUTH_BASIC = "MTG_AUTH_BASIC";
     public static final String MTG_AUTH_BEARER = "MTG_AUTH_BEARER";
@@ -604,7 +606,8 @@ public class Router implements Filter {
     }
 
     /**
-     * Servlet version of the request handling. Cast objects to handle REST request
+     * Servlet version of the request handling. Cast objects to handle REST
+     * request
      *
      * @param req
      * @param res
@@ -617,7 +620,7 @@ public class Router implements Filter {
         String method = req.getMethod().toLowerCase();
 
         boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
-                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON)||contentType.contains(MULTIPART_FORM_DATA);
+                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON) || contentType.contains(MULTIPART_FORM_DATA);
 
         if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
             writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
@@ -645,8 +648,8 @@ public class Router implements Filter {
             req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
             //save method as attribute because jsp only accepts GET and POST
             req.setAttribute("mtgMethod", req.getMethod());
-            req.setAttribute(MASON_QUERY, queryMap);
-            req.getRequestDispatcher("/WEB-INF/resources/" + version.toLowerCase() + "/" + resourceName + ".jsp")
+//            req.setAttribute(MASON_QUERY, queryMap);
+            req.getRequestDispatcher(RESOURCES_FOLDER + version.toLowerCase() + "/" + resourceName + RESOURCE_EXTN)
                     .forward(new HttpServletRequestWrapper(req) {
                         @Override
                         public String getMethod() {
@@ -671,8 +674,10 @@ public class Router implements Filter {
                 Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
             }
         } catch (NullPointerException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
+            ex.printStackTrace();
             //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
-            writeError(res, 404, "Resource doesn't exist.");
+            writeError(res, 404, "Resource doesn't exist." + ex.getMessage());
         }
     }
 

@@ -617,20 +617,6 @@ public class ExecuteTagHandler extends RestTag {
         return EVAL_PAGE;
     }
 
-    public void runScript(String className) {
-        try {
-            GroovyScriptEngine engine = new GroovyScriptEngine(".");
-            Binding binding = new Binding();
-            MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
-            binding.setVariable("request", masonReq);
-            LinkedHashMap<String, Object> masonOutput = (LinkedHashMap<String, Object>) request.getAttribute(MASON_OUTPUT);
-            binding.setVariable("response", masonOutput);
-            engine.run("src/main/java/" + className, binding);
-        } catch (IOException | SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
-            Logger.getLogger(ExecuteTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-    }
-
     public void setClassName(String className) {
         this.className = className;
     }

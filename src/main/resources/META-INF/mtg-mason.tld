@@ -143,6 +143,17 @@
         </attribute>
     </tag>
     <tag>
+        <name>script</name>
+        <tag-class>com.metamug.mason.tag.ScriptTagHandler</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>file</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>execute</name>
         <tag-class>com.metamug.mason.tag.ExecuteTagHandler</tag-class>
         <body-content>scriptless</body-content>
@@ -157,12 +168,6 @@
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
-        </attribute>
-        <attribute>
-            <name>script</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>persistParam</name>
