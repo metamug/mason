@@ -6,9 +6,15 @@
 package com.metamug.mason.service;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import com.metamug.mason.io.objectreturn.ObjectReturn;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.MarshalException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONObject;
 
@@ -18,13 +24,24 @@ import org.json.JSONObject;
  */
 public class ConvertService {
 
-    public void convertToMap(Object res, LinkedHashMap<String, Object> map, String propName) {
-        if (res instanceof ResultImpl) {
-            convertResultToMap((ResultImpl) res, map, propName);
-        } else if (res instanceof JSONObject) {
-            convertJsonObjectToMap((JSONObject) res, map, propName);
-        } else if (res instanceof String) {
-            map.put(propName, (String) res);
+    public void convertToMap(Object value, LinkedHashMap<String, Object> targetMap, String propName) {
+        if (value instanceof ResultImpl) {
+            convertResultToMap((ResultImpl) value, targetMap, propName);
+        } else if (value instanceof JSONObject) {
+            convertJsonObjectToMap((JSONObject) value, targetMap, propName);
+        } else if (value instanceof String) {
+            targetMap.put(propName, (String) value);
+        } else{
+            //obj is POJO
+            try {
+                //try if object of JAXB class
+                JSONObject valueJson = new JSONObject(ObjectReturn.convert(value, HEADER_JSON));        
+                convertJsonObjectToMap(valueJson, targetMap, propName);
+            } catch (MarshalException mex) {
+                Logger.getLogger(ConvertService.class.getName()).log(Level.SEVERE, null, mex);
+            } catch (JAXBException ex) {
+                Logger.getLogger(ConvertService.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -41,7 +58,6 @@ public class ConvertService {
                     if (rowValue != null && !rowValue.trim().isEmpty() && !rowValue.trim().equalsIgnoreCase("null")) {
                         map.put(propName + "." + columnName, String.valueOf((row.get(columnName))));
                     }
-
                 }
             }
         }
