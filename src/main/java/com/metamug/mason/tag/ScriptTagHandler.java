@@ -6,20 +6,20 @@
 package com.metamug.mason.tag;
 
 import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.exception.MetamugError;
+import com.metamug.mason.exception.MetamugException;
+import static com.metamug.mason.tag.ResourceTagHandler.ACCESS_DENIED;
 import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
-import static javax.servlet.jsp.tagext.Tag.EVAL_BODY_INCLUDE;
-import static javax.servlet.jsp.tagext.Tag.SKIP_PAGE;
 
 /**
  *
@@ -27,10 +27,10 @@ import static javax.servlet.jsp.tagext.Tag.SKIP_PAGE;
  */
 public class ScriptTagHandler extends RestTag {
 
-    private String scriptPath;
+    private String file;
 
-    public void setScriptPath(String file) {
-        this.scriptPath = file;
+    public void setFile(String file) {
+        this.file = file;
     }
 
     @Override
@@ -40,20 +40,22 @@ public class ScriptTagHandler extends RestTag {
         return SKIP_BODY;
     }
 
-    public void runScript() {
+    public void runScript() throws JspException{
         try {
-            GroovyScriptEngine engine = new GroovyScriptEngine(".");
+            //file:/C:/tomcat9/webapps/mason-sample/WEB-INF/classes//WEB_INF/scripts/test.groovy
+            GroovyScriptEngine engine = new GroovyScriptEngine(new URL[]{ScriptTagHandler.class.getClassLoader().getResource("..")});
             Binding binding = new Binding();
             MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
             binding.setVariable("request", masonReq);
-            LinkedHashMap<String, Object> masonOutput = (LinkedHashMap<String, Object>) request.getAttribute(MASON_OUTPUT);
+            LinkedHashMap<String, Object> masonOutput = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT);
             binding.setVariable("response", masonOutput);
-            engine.run(SCRIPT_ROOT + scriptPath, binding);
-        } catch (IOException | SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
+            engine.run(SCRIPT_ROOT + file, binding);
+        } catch (SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
             Logger.getLogger(ExecuteTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            throw new JspException("", new MetamugException(MetamugError.SCRIPT_ERROR));
         }
     }
     
-    private static final String SCRIPT_ROOT = "/WEB_INF/scripts/";
+    private static final String SCRIPT_ROOT = "scripts/";
 
 }

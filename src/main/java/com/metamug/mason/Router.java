@@ -673,6 +673,7 @@ public class Router implements Filter {
                 writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                 Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
             }
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (NullPointerException ex) {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
             ex.printStackTrace();
@@ -690,6 +691,7 @@ public class Router implements Filter {
      * @throws IOException
      */
     private void writeError(HttpServletResponse res, int status, String message) throws IOException {
+        
         try (PrintWriter writer = res.getWriter()) {
             res.setContentType("application/json;charset=UTF-8");
             res.setCharacterEncoding("UTF-8");
@@ -710,7 +712,7 @@ public class Router implements Filter {
         try {
             connectionProvider.shutdown();
         } catch (SQLException | NamingException ex) {
-            //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 

@@ -511,6 +511,7 @@ package com.metamug.mason.exception;
  * @author Kaisteel
  */
 public enum MetamugError {
+    SCRIPT_ERROR("Error in script."),
     BEARER_TOKEN_MISMATCH("Token doesn't belong to specified user."),
     CLASS_NOT_IMPLEMENTED("Did not implement any of the processable interface."),
     CODE_ERROR("Error occured during code execution."),
