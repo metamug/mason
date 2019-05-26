@@ -533,10 +533,10 @@ public class RequestTagHandler extends RestTag {
     private String method;
     private boolean item;
     private boolean evaluate;
-    //@Resource
+    
     private MasonRequest masonReq;
-    //@Resource
     private LinkedHashMap<String, Object> masonOutput;
+    private LinkedHashMap<String, Object> bus; //Carrier intermediate object
 
     @Override
     public int doStartTag() throws JspException {

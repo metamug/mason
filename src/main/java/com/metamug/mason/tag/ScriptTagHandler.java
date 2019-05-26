@@ -8,15 +8,11 @@ package com.metamug.mason.tag;
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import static com.metamug.mason.tag.ResourceTagHandler.ACCESS_DENIED;
-import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
-import java.io.IOException;
 import java.net.URL;
-import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
@@ -27,10 +23,14 @@ import javax.servlet.jsp.JspException;
  */
 public class ScriptTagHandler extends RestTag {
 
-    private String file;
+    private String file, var;
 
     public void setFile(String file) {
         this.file = file;
+    }
+    
+    public void setVar(String var) {
+        this.var = var;
     }
 
     @Override
@@ -46,10 +46,13 @@ public class ScriptTagHandler extends RestTag {
             GroovyScriptEngine engine = new GroovyScriptEngine(new URL[]{ScriptTagHandler.class.getClassLoader().getResource("..")});
             Binding binding = new Binding();
             MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
-            binding.setVariable("request", masonReq);
-            LinkedHashMap<String, Object> masonOutput = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT);
-            binding.setVariable("response", masonOutput);
+            binding.setVariable("_request", masonReq);
+            //LinkedHashMap<String, Object> masonOutput = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT);
+            Object object = null;
+            binding.setVariable(var, object);
             engine.run(SCRIPT_ROOT + file, binding);
+            //output to variable
+            pageContext.setAttribute(var, object);
         } catch (SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
             Logger.getLogger(ExecuteTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new JspException("", new MetamugException(MetamugError.SCRIPT_ERROR));

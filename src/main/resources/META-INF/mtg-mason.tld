@@ -148,7 +148,13 @@
         <body-content>scriptless</body-content>
         <attribute>
             <name>file</name>
-            <required>false</required>
+            <required>true</required>
+            <elexprvalue>true</elexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
