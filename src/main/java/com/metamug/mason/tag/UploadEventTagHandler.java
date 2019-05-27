@@ -514,7 +514,6 @@ import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -537,9 +536,9 @@ import javax.servlet.http.Part;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
+
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.servlet.jsp.tagext.TryCatchFinally;
+
 import javax.sql.DataSource;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -550,7 +549,7 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
-public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFinally {
+public class UploadEventTagHandler extends RestTag{
 
     private DataSource ds;
 
@@ -725,14 +724,5 @@ public class UploadEventTagHandler extends BodyTagSupport implements TryCatchFin
             throw new JspTagException("No implementation of UploadListener was found.", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
         }
         return null;
-    }
-
-    @Override
-    public void doCatch(Throwable throwable) throws Throwable {
-        throw throwable;
-    }
-
-    @Override
-    public void doFinally() {
     }
 }

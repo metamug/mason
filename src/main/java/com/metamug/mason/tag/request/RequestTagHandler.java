@@ -516,8 +516,10 @@ import com.metamug.mason.tag.ResourceTagHandler;
 import com.metamug.mason.tag.RestTag;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
@@ -530,13 +532,14 @@ import javax.xml.bind.JAXBException;
  */
 public class RequestTagHandler extends RestTag {
 
+    
     private String method;
     private boolean item;
     private boolean evaluate;
     
     private MasonRequest masonReq;
-    private LinkedHashMap<String, Object> masonOutput;
-    private LinkedHashMap<String, Object> bus; //Carrier intermediate object
+    private Map<String, Object> masonOutput;
+    private Map<String, Object> masonBus; //Carrier intermediate object
 
     @Override
     public int doStartTag() throws JspException {
@@ -545,8 +548,11 @@ public class RequestTagHandler extends RestTag {
 
         if (method.equalsIgnoreCase(masonReq.getMethod())) {
             evaluate = (masonReq.getId() != null) == item; //evaluate
-            if (evaluate) {
-                masonOutput = new LinkedHashMap<>();
+            if (evaluate) { 
+                //initialize only when this request is executed.
+                masonBus = new HashMap<>();
+                pageContext.setAttribute(MASON_BUS, masonBus, PageContext.PAGE_SCOPE);
+                masonOutput = new LinkedHashMap<>(); //to maintain the order of insertion
                 pageContext.setAttribute(MASON_OUTPUT, masonOutput, PageContext.PAGE_SCOPE);
                 //changed from request scope to page scope
                 return EVAL_BODY_INCLUDE;
@@ -555,7 +561,7 @@ public class RequestTagHandler extends RestTag {
 
         return SKIP_BODY;
     }
-
+    
     @Override
     public int doEndTag() throws JspException {
         if (evaluate) {

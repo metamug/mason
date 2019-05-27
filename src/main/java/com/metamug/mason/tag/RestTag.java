@@ -520,6 +520,7 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 public class RestTag extends BodyTagSupport implements TryCatchFinally {
 
     public static final String HEADER_ACCEPT = "Accept";
+    public static final String MASON_BUS = "MASON_BUS";
     public static final String MASON_OUTPUT = "masonOutput";
 
     //@Resource

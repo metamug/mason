@@ -13,6 +13,7 @@ import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import java.net.URL;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
@@ -47,9 +48,10 @@ public class ScriptTagHandler extends RestTag {
             Binding binding = new Binding();
             MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
             binding.setVariable("_request", masonReq);
-            //LinkedHashMap<String, Object> masonOutput = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT);
+            Map<String, Object> masonBus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS);
+            binding.setVariable("_bus", masonBus);
             Object object = null;
-            binding.setVariable(var, object);
+            binding.setVariable(var, object); //for the output
             engine.run(SCRIPT_ROOT + file, binding);
             //output to variable
             pageContext.setAttribute(var, object);
