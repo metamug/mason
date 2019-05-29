@@ -558,26 +558,26 @@ public class ResourceTagHandler extends RestTag {
     }
 
     private void process405() {
-        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
-        response.setContentType(header);
+//        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+        response.setContentType(HEADER_JSON);
         response.setStatus(STATUS_METHOD_NOT_ALLOWED);
         try {
-            if (Arrays.asList(header.split("/")).contains("xml")) {
-                StringBuilder xmlBuilder = new StringBuilder();
-                xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-                xmlBuilder.append("<response>");
-                xmlBuilder.append("\n\t<status>");
-                xmlBuilder.append(STATUS_METHOD_NOT_ALLOWED);
-                xmlBuilder.append("</status>");
-                xmlBuilder.append("\n\t<message>");
-                xmlBuilder.append(MSG_METHOD_NOT_ALLOWED);
-                xmlBuilder.append("</message>");
-                xmlBuilder.append("\n</response>");
-                pageContext.getOut().print(xmlBuilder.toString());
-            } else {
-                pageContext.getOut().print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
-                        + STATUS_METHOD_NOT_ALLOWED + "}");
-            }
+//            if (Arrays.asList(header.split("/")).contains("xml")) {
+//                StringBuilder xmlBuilder = new StringBuilder();
+//                xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+//                xmlBuilder.append("<response>");
+//                xmlBuilder.append("\n\t<status>");
+//                xmlBuilder.append(STATUS_METHOD_NOT_ALLOWED);
+//                xmlBuilder.append("</status>");
+//                xmlBuilder.append("\n\t<message>");
+//                xmlBuilder.append(MSG_METHOD_NOT_ALLOWED);
+//                xmlBuilder.append("</message>");
+//                xmlBuilder.append("\n</response>");
+//                pageContext.getOut().print(xmlBuilder.toString());
+//            } else {
+            pageContext.getOut().print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
+                    + STATUS_METHOD_NOT_ALLOWED + "}");
+//            }
         } catch (IOException ex) {
             Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }

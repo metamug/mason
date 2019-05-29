@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.tag.request;
+package com.metamug.mason.tag;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.service.ConnectionProvider;
@@ -515,6 +515,7 @@ import com.metamug.mason.tag.ParentTagHandler;
 import com.metamug.mason.tag.PersistTagHandler;
 import com.metamug.mason.tag.ResourceTagHandler;
 import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
+import com.metamug.mason.tag.request.RequestTagHandler;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -579,7 +580,10 @@ public class TagHandlerTest {
 
     @InjectMocks
     ExecuteTagHandler executeTag = new ExecuteTagHandler();
-
+    
+    @InjectMocks
+    ScriptTagHandler scriptTag = new ScriptTagHandler();
+    
     @InjectMocks
     ConvertTagHandler convertTag = new ConvertTagHandler();
 
@@ -605,6 +609,7 @@ public class TagHandlerTest {
 
     @Mock
     private ResultImpl resultImpl;
+   
 
     public TagHandlerTest() {
 
@@ -713,6 +718,15 @@ public class TagHandlerTest {
         executeTag.setVar("executeOutput");
 
         executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
+        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+    }
+    
+    @Test (expected = JspException.class)
+    public void scriptTag() throws JspException {
+        scriptTag.setVar("executeOutput");
+
+        scriptTag.setFile("test.groovy"); //should be from test package
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }

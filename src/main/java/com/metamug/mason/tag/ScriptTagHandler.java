@@ -13,6 +13,7 @@ import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import java.net.URL;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +31,10 @@ public class ScriptTagHandler extends RestTag {
         this.file = file;
     }
     
+    /**
+     * 
+     * @param var 
+     */
     public void setVar(String var) {
         this.var = var;
     }
@@ -40,7 +45,8 @@ public class ScriptTagHandler extends RestTag {
         runScript();
         return SKIP_BODY;
     }
-
+    
+    
     public void runScript() throws JspException{
         try {
             //file:/C:/tomcat9/webapps/mason-sample/WEB-INF/classes//WEB_INF/scripts/test.groovy
@@ -50,7 +56,7 @@ public class ScriptTagHandler extends RestTag {
             binding.setVariable("_request", masonReq);
             Map<String, Object> masonBus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS);
             binding.setVariable("_bus", masonBus);
-            Object object = null;
+            Map<String, Object> object = new LinkedHashMap<>();
             binding.setVariable(var, object); //for the output
             engine.run(SCRIPT_ROOT + file, binding);
             //output to variable
