@@ -508,13 +508,7 @@ package com.metamug.mason.tag;
 
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.service.ConnectionProvider;
-import com.metamug.mason.tag.ConvertTagHandler;
-import com.metamug.mason.tag.ExecuteTagHandler;
-import com.metamug.mason.tag.ParamTagHandler;
-import com.metamug.mason.tag.ParentTagHandler;
-import com.metamug.mason.tag.PersistTagHandler;
-import com.metamug.mason.tag.ResourceTagHandler;
-import static com.metamug.mason.tag.ResourceTagHandler.HEADER_ACCEPT;
+import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
 import com.metamug.mason.tag.request.RequestTagHandler;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
 import java.sql.Connection;
@@ -580,10 +574,10 @@ public class TagHandlerTest {
 
     @InjectMocks
     ExecuteTagHandler executeTag = new ExecuteTagHandler();
-    
+
     @InjectMocks
     ScriptTagHandler scriptTag = new ScriptTagHandler();
-    
+
     @InjectMocks
     ConvertTagHandler convertTag = new ConvertTagHandler();
 
@@ -609,7 +603,6 @@ public class TagHandlerTest {
 
     @Mock
     private ResultImpl resultImpl;
-   
 
     public TagHandlerTest() {
 
@@ -678,7 +671,7 @@ public class TagHandlerTest {
 
     }
 
-    @Test (expected = JspException.class)
+    @Test(expected = JspException.class)
     public void resourceTag() throws JspException {
         resourceTag.setAuth("admin");
         String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTYxNDU4OTMxLCJpYXQiOjE1NTM2ODI5MzEsImp0aSI6ImJjMTgxNGMzLWU5ZGItNDljOC1iYTMyLWI4NDAxY2Q0YTgyMSJ9.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
@@ -687,7 +680,7 @@ public class TagHandlerTest {
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
 
     }
-    
+
     @Test //(expected = JspException.class)
     public void resourceTagAuth() throws JspException {
         resourceTag.setAuth("admin");
@@ -697,8 +690,6 @@ public class TagHandlerTest {
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
 
     }
-    
-    
 
     @Test //(expected = JspException.class)
     public void xrequestTag() throws JspException {
@@ -721,8 +712,8 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }
-    
-    @Test (expected = JspException.class)
+
+    @Test(expected = JspException.class)
     public void scriptTag() throws JspException {
         scriptTag.setVar("executeOutput");
 

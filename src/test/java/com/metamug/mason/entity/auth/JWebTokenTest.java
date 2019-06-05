@@ -5,7 +5,6 @@
  */
 package com.metamug.mason.entity.auth;
 
-import com.metamug.mason.entity.auth.JWebToken;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -25,7 +24,8 @@ import org.junit.BeforeClass;
 public class JWebTokenTest {
 
     LocalDateTime ldt;
-     JSONObject payload;
+    JSONObject payload;
+
     public JWebTokenTest() {
     }
 
@@ -40,7 +40,7 @@ public class JWebTokenTest {
     @Before
     public void setUp() {
         ldt = LocalDateTime.now().plusDays(90);
-         payload = new JSONObject("{\"sub\":\"1234\",\"aud\":[\"admin\"],"
+        payload = new JSONObject("{\"sub\":\"1234\",\"aud\":[\"admin\"],"
                 + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
     }
 
@@ -73,7 +73,7 @@ public class JWebTokenTest {
 
     @org.junit.Test
     public void testWithJson() {
-       
+
         String token = new JWebToken(payload).toString();
         //verify and use
         JWebToken incomingToken;
@@ -90,7 +90,7 @@ public class JWebTokenTest {
 
     @org.junit.Test(expected = IllegalArgumentException.class)
     public void testBadHeaderFormat() {
-     
+
         String token = new JWebToken(payload).toString();
         token = token.replaceAll("\\.", "X");
         //verify and use
@@ -108,7 +108,7 @@ public class JWebTokenTest {
 
     @org.junit.Test(expected = NoSuchAlgorithmException.class)
     public void testIncorrectHeader() throws NoSuchAlgorithmException {
-     
+
         String token = new JWebToken(payload).toString();
         token = token.replaceAll("[^.]", "X");
         //verify and use

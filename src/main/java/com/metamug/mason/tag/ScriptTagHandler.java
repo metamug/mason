@@ -30,10 +30,10 @@ public class ScriptTagHandler extends RestTag {
     public void setFile(String file) {
         this.file = file;
     }
-    
+
     /**
-     * 
-     * @param var 
+     *
+     * @param var
      */
     public void setVar(String var) {
         this.var = var;
@@ -45,9 +45,8 @@ public class ScriptTagHandler extends RestTag {
         runScript();
         return SKIP_BODY;
     }
-    
-    
-    public void runScript() throws JspException{
+
+    public void runScript() throws JspException {
         try {
             //file:/C:/tomcat9/webapps/mason-sample/WEB-INF/classes//WEB_INF/scripts/test.groovy
             GroovyScriptEngine engine = new GroovyScriptEngine(new URL[]{ScriptTagHandler.class.getClassLoader().getResource("..")});
@@ -66,7 +65,7 @@ public class ScriptTagHandler extends RestTag {
             throw new JspException("", new MetamugException(MetamugError.SCRIPT_ERROR));
         }
     }
-    
+
     private static final String SCRIPT_ROOT = "scripts/";
 
 }

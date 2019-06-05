@@ -606,8 +606,7 @@ public class Router implements Filter {
     }
 
     /**
-     * Servlet version of the request handling. Cast objects to handle REST
-     * request
+     * Servlet version of the request handling. Cast objects to handle REST request
      *
      * @param req
      * @param res
@@ -691,7 +690,7 @@ public class Router implements Filter {
      * @throws IOException
      */
     private void writeError(HttpServletResponse res, int status, String message) throws IOException {
-        
+
         try (PrintWriter writer = res.getWriter()) {
             res.setContentType("application/json;charset=UTF-8");
             res.setCharacterEncoding("UTF-8");

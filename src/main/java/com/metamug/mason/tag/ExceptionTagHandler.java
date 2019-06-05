@@ -516,7 +516,6 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -659,7 +658,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
                         logError(errorId, request, exception);
-                        out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ""
+                        out.println("{\"errorId\":" + errorId + ",\"status\":" + 512 + ","
                                 + "\"message\": \"API Error. Please contact your API administrator.\"}");
                     } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                         response.setStatus(422);

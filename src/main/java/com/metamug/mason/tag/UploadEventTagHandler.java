@@ -536,9 +536,7 @@ import javax.servlet.http.Part;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
-
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-
 import javax.sql.DataSource;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -549,7 +547,7 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
-public class UploadEventTagHandler extends RestTag{
+public class UploadEventTagHandler extends RestTag {
 
     private DataSource ds;
 

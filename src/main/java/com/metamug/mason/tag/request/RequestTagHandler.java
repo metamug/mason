@@ -532,11 +532,10 @@ import javax.xml.bind.JAXBException;
  */
 public class RequestTagHandler extends RestTag {
 
-    
     private String method;
     private boolean item;
     private boolean evaluate;
-    
+
     private MasonRequest masonReq;
     private Map<String, Object> masonOutput;
     private Map<String, Object> masonBus; //Carrier intermediate object
@@ -548,7 +547,7 @@ public class RequestTagHandler extends RestTag {
 
         if (method.equalsIgnoreCase(masonReq.getMethod())) {
             evaluate = (masonReq.getId() != null) == item; //evaluate
-            if (evaluate) { 
+            if (evaluate) {
                 //initialize only when this request is executed.
                 masonBus = new HashMap<>();
                 pageContext.setAttribute(MASON_BUS, masonBus, PageContext.PAGE_SCOPE);
@@ -561,7 +560,7 @@ public class RequestTagHandler extends RestTag {
 
         return SKIP_BODY;
     }
-    
+
     @Override
     public int doEndTag() throws JspException {
         if (evaluate) {
