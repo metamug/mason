@@ -574,7 +574,10 @@ public class XRequestService {
                 Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
-        Request request = reqBuilder.url(url + "?" + queryParams.toString()).build();
+        if(queryParams.length() > 0){
+            url += "?" + queryParams.toString();
+        }
+        Request request = reqBuilder.url(url).build();
         return makeRequest(request);
     }
 
@@ -667,7 +670,10 @@ public class XRequestService {
                 Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
-        Request request = new Request.Builder().url(url + "?" + queryParams.toString()).delete().build();
+        if(queryParams.length() > 0){
+            url += "?" + queryParams.toString();
+        }
+        Request request = new Request.Builder().url(url).delete().build();
         return makeRequest(request);
     }
 }
