@@ -574,7 +574,7 @@ public class XRequestService {
                 Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
-        if(queryParams.length() > 0){
+        if (queryParams.length() > 0) {
             url += "?" + queryParams.toString();
         }
         Request request = reqBuilder.url(url).build();
@@ -584,7 +584,13 @@ public class XRequestService {
     public XResponse post(String url, Map<String, String> headers,
             Map<String, String> params, String body) {
         Request.Builder reqBuilder = null;
+        
+        if (headers.get(CONTENT_TYPE) == null) {
+            headers.put(CONTENT_TYPE, APP_FORM_URLENCODED);
+        }
+        
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
+        
         if (contentType.equals(APP_FORM_URLENCODED)) {
             FormBody.Builder formBuilder = new FormBody.Builder();
             for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -670,7 +676,7 @@ public class XRequestService {
                 Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
-        if(queryParams.length() > 0){
+        if (queryParams.length() > 0) {
             url += "?" + queryParams.toString();
         }
         Request request = new Request.Builder().url(url).delete().build();
