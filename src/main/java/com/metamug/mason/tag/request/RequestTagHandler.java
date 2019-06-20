@@ -512,7 +512,6 @@ import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
-import com.metamug.mason.tag.ResourceTagHandler;
 import com.metamug.mason.tag.RestTag;
 import java.io.IOException;
 import java.util.Arrays;
@@ -596,7 +595,7 @@ public class RequestTagHandler extends RestTag {
             response.setCharacterEncoding("UTF-8");
             response.getWriter().print(op);
         } catch (IOException | JAXBException ex) {
-            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
