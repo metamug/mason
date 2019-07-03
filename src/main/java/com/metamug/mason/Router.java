@@ -647,7 +647,7 @@ public class Router implements Filter {
             req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
             //save method as attribute because jsp only accepts GET and POST
             req.setAttribute("mtgMethod", req.getMethod());
-//            req.setAttribute(MASON_QUERY, queryMap);
+            req.setAttribute(MASON_QUERY, queryMap);
             req.getRequestDispatcher(RESOURCES_FOLDER + version.toLowerCase() + "/" + resourceName + RESOURCE_EXTN)
                     .forward(new HttpServletRequestWrapper(req) {
                         @Override

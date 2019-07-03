@@ -588,12 +588,12 @@ public class RequestTagHandler extends RestTag {
             } else { //Accept: application/json OR default
                 output = new JSONOutput(masonOutput);
             }
-
+      
             String op = output.toString();
             response.setContentType(output.getContentType());
             response.setContentLength(op.length());
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().print(op);
+            response.getOutputStream().write(op.getBytes("UTF-8"));
+           
         } catch (IOException | JAXBException ex) {
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
