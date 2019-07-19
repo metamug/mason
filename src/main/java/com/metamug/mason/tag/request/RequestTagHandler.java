@@ -591,7 +591,7 @@ public class RequestTagHandler extends RestTag {
       
             String op = output.toString();
             response.setContentType(output.getContentType());
-            response.setContentLength(op.length());
+            response.setContentLength(op.getBytes("UTF-8").length);
             response.getOutputStream().write(op.getBytes("UTF-8"));
            
         } catch (IOException | JAXBException ex) {
