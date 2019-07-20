@@ -4,31 +4,34 @@
     <short-name>mtg-mason</short-name>
     <uri>mtg-mason.tld</uri>
     <tag>
-        <name>out</name>
-        <tag-class>com.metamug.api.taghandlers.OutputTagHandler</tag-class>
+        <name>resource</name>
+        <tag-class>com.metamug.mason.tag.ResourceTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.util.LinkedHashMap</type>
-        </attribute>
-        <attribute>
-            <name>type</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>tableName</name>
-            <required>true</required>
+            <name>auth</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
     </tag>
     <tag>
+        <name>request</name>
+        <tag-class>com.metamug.mason.tag.request.RequestTagHandler</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>method</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>item</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>persist</name>
-        <tag-class>com.metamug.api.taghandlers.PersistTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.PersistTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>value</name>
@@ -38,36 +41,13 @@
         </attribute>
     </tag>
     <tag>
-        <name>header</name>
-        <tag-class>com.metamug.api.taghandlers.HeaderTagHandler</tag-class>
+        <name>upload</name>
+        <tag-class>com.metamug.mason.tag.UploadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-    </tag>
-    <tag>
-        <name>status</name>
-        <tag-class>com.metamug.api.taghandlers.StatusTagHandler</tag-class>
-        <body-content>JSP</body-content>
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>message</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
     </tag>
     <tag>
         <name>exception</name>
-        <tag-class>com.metamug.api.taghandlers.ExceptionTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.ExceptionTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>value</name>
@@ -78,7 +58,7 @@
     </tag>
     <tag>
         <name>param</name>
-        <tag-class>com.metamug.api.taghandlers.ParamTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.ParamTagHandler</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>name</name>
@@ -140,8 +120,48 @@
         </attribute>
     </tag>
     <tag>
+        <name>convert</name>
+        <tag-class>com.metamug.mason.tag.ConvertTagHandler</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute>
+            <name>target</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute>
+            <name>property</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
+        <name>script</name>
+        <tag-class>com.metamug.mason.tag.ScriptTagHandler</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>file</name>
+            <required>true</required>
+            <elexprvalue>true</elexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>execute</name>
-        <tag-class>com.metamug.api.taghandlers.CodeTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.ExecuteTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>className</name>
@@ -156,15 +176,33 @@
             <type>java.lang.Object</type>
         </attribute>
         <attribute>
-            <name>script</name>
+            <name>persistParam</name>
             <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute>
+            <name>isCollect</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <name>onError</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
     </tag>
     <tag>
         <name>parent</name>
-        <tag-class>com.metamug.api.taghandlers.ParentTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.ParentTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>value</name>
@@ -174,19 +212,18 @@
         </attribute>
     </tag>
     <tag>
-        <name>group</name>
-        <tag-class>com.metamug.api.taghandlers.GroupTagHandler</tag-class>
-        <body-content>empty</body-content>
+        <name>validate</name>
+        <tag-class>com.metamug.mason.tag.ValidateQueryTagHandler</tag-class>
+        <body-content>JSP</body-content>
         <attribute>
-            <name>value</name>
-            <required>true</required>
+            <name>onError</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
     </tag>
     <tag>
         <name>xheader</name>
-        <tag-class>com.metamug.api.taghandlers.xrequest.HeaderTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.xrequest.HeaderTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
@@ -203,7 +240,7 @@
     </tag>
     <tag>
         <name>xparam</name>
-        <tag-class>com.metamug.api.taghandlers.xrequest.ParamTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.xrequest.ParamTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
@@ -220,27 +257,21 @@
     </tag>
     <tag>
         <name>xbody</name>
-        <tag-class>com.metamug.api.taghandlers.xrequest.BodyTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.xrequest.BodyTagHandler</tag-class>
         <body-content>JSP</body-content>
     </tag> 
     <tag>
         <name>xrequest</name>
-        <tag-class>com.metamug.api.taghandlers.xrequest.XRequestTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.xrequest.XRequestTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
-            <name>id</name>
-            <required>false</required>
-            <rtexprvalue>false</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>url</name>
+            <name>var</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
-            <name>type</name>
+            <name>url</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
@@ -256,18 +287,6 @@
             <required>true</required>
             <rtexprvalue>false</rtexprvalue>
             <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>isVerbose</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
-        </attribute>
-        <attribute>
-            <name>isPersist</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
         </attribute>
     </tag>
 </taglib>
