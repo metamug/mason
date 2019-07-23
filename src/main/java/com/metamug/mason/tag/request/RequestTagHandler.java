@@ -571,11 +571,6 @@ public class RequestTagHandler extends RestTag {
     }
 
     private void processOutput() {
-        if (masonOutput.isEmpty()) {
-            response.setStatus(204);
-            return;
-        }
-
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         MasonOutput output;
 
