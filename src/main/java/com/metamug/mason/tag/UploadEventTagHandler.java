@@ -561,14 +561,13 @@ public class UploadEventTagHandler extends RestTag {
     @Override
     public int doEndTag() throws JspException {
         ds = ConnectionProvider.getMasonDatasource();
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         String contentType = request.getContentType() == null ? "" : request.getContentType();
         LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
                 MASON_OUTPUT, PageContext.PAGE_SCOPE);
         int mapSize = map.size();
-        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
+        MasonRequest mtg = (MasonRequest) request.getAttribute("mtgReq");
         if (contentType.contains("multipart/form-data")) {
             String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
             try {
@@ -641,7 +640,6 @@ public class UploadEventTagHandler extends RestTag {
                         mtg.getParams().put("filename", file.getName());
                         mtg.getParams().put("filesize", String.valueOf(file.length()));
                     }
-                    //pageContext.getRequest().setAttribute("mtgReq", mtg);
                 }
             } catch (IllegalStateException ex) {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {

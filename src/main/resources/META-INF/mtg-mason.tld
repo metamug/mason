@@ -289,4 +289,9 @@
             <type>java.lang.String</type>
         </attribute>
     </tag>
+    <tag>
+        <name>download</name>
+        <tag-class>com.metamug.mason.tag.DownloadEventTagHandler</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
 </taglib>
