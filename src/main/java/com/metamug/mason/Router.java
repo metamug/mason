@@ -640,14 +640,17 @@ public class Router implements Filter {
             }
             //get queries
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
-            MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
+            MasonRequest mtgReq = null;
             req.setAttribute("mtgReq", mtgReq);
+            
             //Adding to request, otherwise the user has to write ${applicationScope.datasource}
             req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
             req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
-            //save method as attribute because jsp only accepts GET and POST
-            req.setAttribute("mtgMethod", req.getMethod());
             req.setAttribute(MASON_QUERY, queryMap);
+            
+            //save method as attribute because jsp only accepts GET and POST
+            //https://stackoverflow.com/a/46489035
+            req.setAttribute("mtgMethod", req.getMethod());
             req.getRequestDispatcher(RESOURCES_FOLDER + version.toLowerCase() + "/" + resourceName + RESOURCE_EXTN)
                     .forward(new HttpServletRequestWrapper(req) {
                         @Override
