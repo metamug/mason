@@ -640,7 +640,7 @@ public class Router implements Filter {
             }
             //get queries
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
-            MasonRequest mtgReq = null;
+            MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
             req.setAttribute("mtgReq", mtgReq);
             
             //Adding to request, otherwise the user has to write ${applicationScope.datasource}
