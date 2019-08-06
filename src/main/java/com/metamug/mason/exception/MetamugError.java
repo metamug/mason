@@ -520,10 +520,12 @@ public enum MetamugError {
     INCORRECT_STATUS_CODE("Incorrect status code"),
     INPUT_VALIDATION_ERROR("Param value failed validation"),
     NO_UPLOAD_LISTENER("No implementation of UploadListener was found."),
+    NO_DOWNLOAD_LISTENER("No implementation of DownloadListener was found."),
     PARENT_RESOURCE_MISSING("Parent resource missing"),
     ROLE_ACCESS_DENIED("Forbidden access to resource"),
     SQL_ERROR("SQL error occurred."),
     UPLOAD_CODE_ERROR("Error occured in upload event."),
+    DOWNLOAD_CODE_ERROR("Error occured in download event."),
     UPLOAD_SIZE_EXCEEDED("File size exceeds limit."),
     XRESPONSE_PARSE_ERROR("Unable to parse XRequest response");
 
