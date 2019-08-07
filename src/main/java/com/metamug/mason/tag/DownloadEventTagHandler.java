@@ -31,7 +31,7 @@ import javax.sql.DataSource;
  */
 public class DownloadEventTagHandler extends RestTag {
     
-    private DataSource ds;
+    private DataSource ds; 
     
     public static final String TYPE_OCTET_STREAM = "application/octet-stream";
     
@@ -39,7 +39,7 @@ public class DownloadEventTagHandler extends RestTag {
     public int doEndTag() throws JspException {
         ds = ConnectionProvider.getMasonDatasource();
         String accept = request.getHeader("Accept");
-    
+        
         if(accept.contains(TYPE_OCTET_STREAM)) {
             String listenerClass;
             Properties prop = new Properties();
@@ -49,16 +49,18 @@ public class DownloadEventTagHandler extends RestTag {
                 
                 if (listenerClass != null) {
                     InputStream inputStream = callDownloadEvent(listenerClass,request);
-                    try (OutputStream out = response.getOutputStream()) {
-                        response.setContentType(TYPE_OCTET_STREAM);
-                        //response.setContentLength((int) fileLength);
-                        //response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+                    if(inputStream != null) {
+                        try (OutputStream out = response.getOutputStream()) {
+                            response.setContentType(TYPE_OCTET_STREAM);
+                            //response.setContentLength((int) fileLength);
+                            //response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
-                        int i;
-                        while ((i = inputStream.read()) != -1) {
-                            out.write(i);
+                            int i;
+                            while ((i = inputStream.read()) != -1) {
+                                out.write(i);
+                            }
+                            out.flush();                        
                         }
-                        out.flush();                        
                     }
                 }
             } catch (ClassNotFoundException ex) {
