@@ -57,6 +57,23 @@
         </attribute>
     </tag>
     <tag>
+        <name>header</name>
+        <tag-class>com.metamug.mason.tag.HeaderTagHandler</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>param</name>
         <tag-class>com.metamug.mason.tag.ParamTagHandler</tag-class>
         <body-content>empty</body-content>
