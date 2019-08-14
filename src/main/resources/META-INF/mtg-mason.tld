@@ -137,6 +137,29 @@
         </attribute>
     </tag>
     <tag>
+        <name>read</name>
+        <tag-class>com.metamug.mason.tag.ReadTagHandler</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>source</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute>
+            <name>mpath</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>convert</name>
         <tag-class>com.metamug.mason.tag.ConvertTagHandler</tag-class>
         <body-content>scriptless</body-content>
