@@ -5,35 +5,36 @@
  */
 package com.metamug.mason.tag;
 
-import com.metamug.mason.service.ReadService;
+import com.metamug.mason.io.mpath.MPathUtil;
+import com.metamug.mason.service.ResolveService;
 import javax.servlet.jsp.JspException;
 
 /**
  *
  * @author anishhirlekar
  */
-public class ReadTagHandler extends RestTag {
-    private Object source;
-    private String mpath;
+public class ResolveTagHandler extends RestTag {
+    private String path;
     private String var;
     
     @Override
     public int doEndTag() throws JspException {
-        ReadService readService = new ReadService();
         
-        Object value = readService.read(source, mpath);
+        String objectName = MPathUtil.getObjectNameFromMPath(path);
+        
+        Object responseObject = pageContext.getAttribute(objectName);
+        
+        ResolveService readService = new ResolveService();
+        
+        String value = readService.read(responseObject, path);
         
         pageContext.setAttribute(var, value);
         
         return EVAL_PAGE;
     }
-    
-    public void setSource(Object source) {
-        this.source = source;
-    }
 
-    public void setMpath(String mpath) {
-        this.mpath = mpath;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public void setVar(String var) {

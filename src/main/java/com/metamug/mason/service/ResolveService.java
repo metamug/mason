@@ -13,15 +13,16 @@ import org.json.JSONObject;
  *
  * @author anishhirlekar
  */
-public class ReadService {
-    public Object read(Object source, String mpath){
+public class ResolveService {
+    public String read(Object source, String path){
         if(source instanceof ResultSet){
             //System.out.println("ResultSet");
         }else if(source instanceof JSONObject){
-            mpath = "$"+mpath;
-            Object value = JsonPath.parse(source.toString()).read(mpath);
-            return value;
+            path = "$"+path;
+            Object value = JsonPath.parse(source.toString()).read(path);
+            return value.toString();
         }
         return null;
     }
+    
 }

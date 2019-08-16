@@ -137,17 +137,11 @@
         </attribute>
     </tag>
     <tag>
-        <name>read</name>
-        <tag-class>com.metamug.mason.tag.ReadTagHandler</tag-class>
+        <name>resolve</name>
+        <tag-class>com.metamug.mason.tag.ResolveTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
-            <name>source</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-        <attribute>
-            <name>mpath</name>
+            <name>path</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
