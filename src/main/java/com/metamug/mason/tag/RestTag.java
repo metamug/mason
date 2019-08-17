@@ -506,6 +506,9 @@
  */
 package com.metamug.mason.tag;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -535,7 +538,6 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public RestTag() {
         super();
         this.context = super.pageContext;
-
     }
 
     @Override
@@ -554,4 +556,13 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public void doFinally() {
     }
 
+    protected void addToOutput(String var){
+        LinkedList<String> masonOutput = (LinkedList)pageContext.getAttribute(MASON_OUTPUT,PageContext.PAGE_SCOPE);
+        masonOutput.add(var);
+    }
+    
+    protected void addToBus(String var, Object result){
+        Map<String, Object> bus = (HashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
+        bus.put(var, result);
+    }
 }

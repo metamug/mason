@@ -176,7 +176,7 @@
             <type>java.lang.Object</type>
         </attribute>
         <attribute>
-            <name>isCollect</name>
+            <name>output</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Boolean</type>
@@ -281,6 +281,12 @@
             <required>true</required>
             <rtexprvalue>false</rtexprvalue>
             <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>output</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
         </attribute>
     </tag>
     <tag>

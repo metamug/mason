@@ -516,7 +516,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import org.json.JSONObject;
 
@@ -533,11 +532,14 @@ public class XRequestTagHandler extends RestTag {
     private String url;
     private String method;
     private String requestBody;
+    
+    private Boolean output;
 
     public XRequestTagHandler() {
         super();
         headers = new HashMap<>();
         parameters = new HashMap<>();
+        output = false; //default value
     }
 
     @Override
@@ -575,8 +577,6 @@ public class XRequestTagHandler extends RestTag {
                 throw new JspTagException("Unsupported method \"" + method + "\".");
         }
 
-        Map<String, Object> bus = (HashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
-        
         //if Accept header "application/xml"
         if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
             String xResponseXml;
@@ -586,8 +586,8 @@ public class XRequestTagHandler extends RestTag {
                 xResponseXml = xresponse.getXmlForJsonXResponse();
             }
 
-            bus.put(var, xResponseXml);
-
+            addToBus(var,xResponseXml);
+            
         } else {
             //if Accept header "application/json"
             JSONObject xResponseJson;
@@ -597,7 +597,11 @@ public class XRequestTagHandler extends RestTag {
                 xResponseJson = xresponse.getJsonForJsonXResponse();
             }
 
-            bus.put(var, xResponseJson);
+            addToBus(var, xResponseJson);
+        }
+        
+        if(output){
+            addToOutput(var);
         }
 
         return EVAL_PAGE;
@@ -617,6 +621,10 @@ public class XRequestTagHandler extends RestTag {
 
     public void setRequestBody(String b) {
         requestBody = b;
+    }
+    
+    public void setOutput(Boolean output){
+        this.output = output;
     }
 
     public void setHeaders(Map<String, String> headers) {
