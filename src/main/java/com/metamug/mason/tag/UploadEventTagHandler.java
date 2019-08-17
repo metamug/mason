@@ -564,8 +564,8 @@ public class UploadEventTagHandler extends RestTag {
         String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         String contentType = request.getContentType() == null ? "" : request.getContentType();
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(
-                MASON_OUTPUT, PageContext.PAGE_SCOPE);
+        //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
+        LinkedHashMap<String, Object> map = (LinkedHashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
         int mapSize = map.size();
         MasonRequest mtg = (MasonRequest) request.getAttribute("mtgReq");
         if (contentType.contains("multipart/form-data")) {

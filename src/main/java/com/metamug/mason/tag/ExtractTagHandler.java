@@ -7,7 +7,10 @@ package com.metamug.mason.tag;
 
 import com.metamug.mason.io.mpath.MPathUtil;
 import com.metamug.mason.service.ExtractService;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 
 /**
  *
@@ -27,7 +30,8 @@ public class ExtractTagHandler extends RestTag {
         
         String value = readService.extract(responseObject, path);
         
-        pageContext.setAttribute(path.replace("$", ""), value);
+        Map<String, Object> extracted = (HashMap)pageContext.getAttribute(EXTRACTED,PageContext.PAGE_SCOPE);
+        extracted.put(path.replace("$", ""), value);
         
         return EVAL_PAGE;
     }

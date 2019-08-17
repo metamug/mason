@@ -538,6 +538,7 @@ public class RequestTagHandler extends RestTag {
     private MasonRequest masonReq;
     private LinkedList<String> masonOutput; //Holds var names to be printed in output
     private Map<String, Object> masonBus; //Carrier of response objects 
+    private Map<String, Object> extracted; //Holds values extracted using mpath notation
 
     @Override
     public int doStartTag() throws JspException {
@@ -553,6 +554,9 @@ public class RequestTagHandler extends RestTag {
                 
                 masonOutput = new LinkedList<>(); //to maintain the order of insertion
                 pageContext.setAttribute(MASON_OUTPUT, masonOutput, PageContext.PAGE_SCOPE);
+                
+                extracted = new HashMap<>();
+                pageContext.setAttribute(EXTRACTED,extracted,PageContext.PAGE_SCOPE);
                 
                 //changed from request scope to page scope
                 return EVAL_BODY_INCLUDE;
@@ -595,9 +599,9 @@ public class RequestTagHandler extends RestTag {
             String op = output.toString();
             response.setContentType(output.getContentType());
             
-            byte[] utf8bytes = op.getBytes("UTF-8");
-            response.setContentLength(utf8bytes.length);
-            response.getOutputStream().write(utf8bytes);
+            byte[] stream = op.getBytes("UTF-8");
+            response.setContentLength(stream.length);
+            response.getOutputStream().write(stream);
            
         } catch (IOException | JAXBException ex) {
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);

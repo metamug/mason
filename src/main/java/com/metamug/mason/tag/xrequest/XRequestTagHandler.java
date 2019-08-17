@@ -516,6 +516,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.PageContext;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import org.json.JSONObject;
 
@@ -574,6 +575,8 @@ public class XRequestTagHandler extends RestTag {
                 throw new JspTagException("Unsupported method \"" + method + "\".");
         }
 
+        Map<String, Object> bus = (HashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
+        
         //if Accept header "application/xml"
         if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
             String xResponseXml;
@@ -583,7 +586,7 @@ public class XRequestTagHandler extends RestTag {
                 xResponseXml = xresponse.getXmlForJsonXResponse();
             }
 
-            pageContext.setAttribute(var, xResponseXml);
+            bus.put(var, xResponseXml);
 
         } else {
             //if Accept header "application/json"
@@ -594,7 +597,7 @@ public class XRequestTagHandler extends RestTag {
                 xResponseJson = xresponse.getJsonForJsonXResponse();
             }
 
-            pageContext.setAttribute(var, xResponseJson);
+            bus.put(var, xResponseJson);
         }
 
         return EVAL_PAGE;
@@ -612,11 +615,6 @@ public class XRequestTagHandler extends RestTag {
         method = m;
     }
 
-    /*
-    public void setIsPersist(Boolean isPersist) {
-        this.isPersist = isPersist;
-    }
-     */
     public void setRequestBody(String b) {
         requestBody = b;
     }
