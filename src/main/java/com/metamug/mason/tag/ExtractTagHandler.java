@@ -6,16 +6,15 @@
 package com.metamug.mason.tag;
 
 import com.metamug.mason.io.mpath.MPathUtil;
-import com.metamug.mason.service.ResolveService;
+import com.metamug.mason.service.ExtractService;
 import javax.servlet.jsp.JspException;
 
 /**
  *
  * @author anishhirlekar
  */
-public class ResolveTagHandler extends RestTag {
+public class ExtractTagHandler extends RestTag {
     private String path;
-    private String var;
     
     @Override
     public int doEndTag() throws JspException {
@@ -24,20 +23,16 @@ public class ResolveTagHandler extends RestTag {
         
         Object responseObject = pageContext.getAttribute(objectName);
         
-        ResolveService readService = new ResolveService();
+        ExtractService readService = new ExtractService();
         
         String value = readService.read(responseObject, path);
         
-        pageContext.setAttribute(var, value);
+        pageContext.setAttribute(path.replace("$", ""), value);
         
         return EVAL_PAGE;
     }
 
     public void setPath(String path) {
         this.path = path;
-    }
-
-    public void setVar(String var) {
-        this.var = var;
     }
 }

@@ -579,13 +579,7 @@ public class TagHandlerTest {
     ScriptTagHandler scriptTag = new ScriptTagHandler();
 
     @InjectMocks
-    ConvertTagHandler convertTag = new ConvertTagHandler();
-
-    @InjectMocks
     ParamTagHandler paramTag = new ParamTagHandler();
-
-    @InjectMocks
-    PersistTagHandler persistTag = new PersistTagHandler();
 
     @InjectMocks
     ParentTagHandler parentTag = new ParentTagHandler();
@@ -720,28 +714,6 @@ public class TagHandlerTest {
         scriptTag.setFile("test.groovy"); //should be from test package
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
-    }
-
-    @Test
-    public void convertTag() throws JspException {
-
-        convertTag.setProperty("happy");
-        convertTag.setTarget(resultMap);
-        JSONObject jsonObj = new JSONObject("{\"phonetype\":\"N95\",\"cat\":\"WP\"}");
-        convertTag.setValue(jsonObj);
-        assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
-
-        convertTag.setValue(resultImpl);
-        assertEquals(Tag.EVAL_BODY_INCLUDE, convertTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, convertTag.doEndTag());
-
-    }
-
-    @Test
-    public void persistTag() throws JspException {
-        persistTag.setValue(resultImpl);
-        assertEquals(Tag.EVAL_PAGE, persistTag.doEndTag());
     }
 
     @Test

@@ -13,7 +13,7 @@ import org.json.JSONObject;
  *
  * @author anishhirlekar
  */
-public class ResolveService {
+public class ExtractService {
     public String read(Object source, String path){
         if(source instanceof ResultSet){
             //System.out.println("ResultSet");

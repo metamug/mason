@@ -30,17 +30,6 @@
         </attribute>
     </tag>
     <tag>
-        <name>persist</name>
-        <tag-class>com.metamug.mason.tag.PersistTagHandler</tag-class>
-        <body-content>JSP</body-content>
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-    </tag>
-    <tag>
         <name>upload</name>
         <tag-class>com.metamug.mason.tag.UploadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
@@ -137,40 +126,11 @@
         </attribute>
     </tag>
     <tag>
-        <name>resolve</name>
-        <tag-class>com.metamug.mason.tag.ResolveTagHandler</tag-class>
+        <name>extract</name>
+        <tag-class>com.metamug.mason.tag.ExtractTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>path</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>var</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-    </tag>
-    <tag>
-        <name>convert</name>
-        <tag-class>com.metamug.mason.tag.ConvertTagHandler</tag-class>
-        <body-content>scriptless</body-content>
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-        <attribute>
-            <name>target</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-        <attribute>
-            <name>property</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
