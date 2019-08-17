@@ -25,7 +25,7 @@ public class ExtractTagHandler extends RestTag {
         
         ExtractService readService = new ExtractService();
         
-        String value = readService.read(responseObject, path);
+        String value = readService.extract(responseObject, path);
         
         pageContext.setAttribute(path.replace("$", ""), value);
         
