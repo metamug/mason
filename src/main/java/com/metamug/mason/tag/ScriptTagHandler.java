@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 
 /**
  *
@@ -53,13 +54,13 @@ public class ScriptTagHandler extends RestTag {
             Binding binding = new Binding();
             MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
             binding.setVariable("_request", masonReq);
-            Map<String, Object> masonBus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS);
+            Map<String, Object> masonBus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
             binding.setVariable("_bus", masonBus);
             Map<String, Object> object = new LinkedHashMap<>();
             binding.setVariable(var, object); //for the output
             engine.run(SCRIPT_ROOT + file, binding);
-            //output to variable
-            pageContext.setAttribute(var, object);
+            //output to bus
+            masonBus.put(var, object);
         } catch (SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
             Logger.getLogger(ExecuteTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new JspException("", new MetamugException(MetamugError.SCRIPT_ERROR));

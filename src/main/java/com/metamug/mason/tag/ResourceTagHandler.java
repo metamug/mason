@@ -515,7 +515,6 @@ import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;

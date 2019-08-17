@@ -515,7 +515,6 @@ import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -526,6 +525,7 @@ import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.MultipartConfig;
@@ -694,7 +694,7 @@ public class Router implements Filter {
      */
     private void writeError(HttpServletResponse res, int status, String message) throws IOException {
 
-        try (PrintWriter writer = res.getWriter()) {
+        try (ServletOutputStream writer = res.getOutputStream()) {
             res.setContentType("application/json;charset=UTF-8");
             res.setCharacterEncoding("UTF-8");
             res.setStatus(status);

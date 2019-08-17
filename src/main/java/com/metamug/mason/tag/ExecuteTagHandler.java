@@ -512,13 +512,16 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
+import static com.metamug.mason.tag.RestTag.MASON_BUS;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
@@ -533,9 +536,6 @@ public class ExecuteTagHandler extends RestTag {
     private String onError;
     private Object param;
     private String var;
-    //private Boolean isVerbose;
-    //private Boolean isPersist;
-    //private Boolean isCollect;
     private List<Object> parameters;
     private Object persistParam;
     private DataSource ds;
@@ -599,8 +599,9 @@ public class ExecuteTagHandler extends RestTag {
                         "Class " + cls + " isn't processable"));
             }
 
-            //output to variable
-            pageContext.setAttribute(var, result);
+            //output to bus
+            Map<String, Object> bus = (HashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
+            bus.put(var, result);
 
         } catch (Exception ex) {
             throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onError));

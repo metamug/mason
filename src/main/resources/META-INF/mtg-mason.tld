@@ -30,17 +30,6 @@
         </attribute>
     </tag>
     <tag>
-        <name>persist</name>
-        <tag-class>com.metamug.mason.tag.PersistTagHandler</tag-class>
-        <body-content>JSP</body-content>
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-    </tag>
-    <tag>
         <name>upload</name>
         <tag-class>com.metamug.mason.tag.UploadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
@@ -54,6 +43,23 @@
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
+        </attribute>
+    </tag>
+    <tag>
+        <name>header</name>
+        <tag-class>com.metamug.mason.tag.HeaderTagHandler</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
         </attribute>
     </tag>
     <tag>
@@ -120,23 +126,11 @@
         </attribute>
     </tag>
     <tag>
-        <name>convert</name>
-        <tag-class>com.metamug.mason.tag.ConvertTagHandler</tag-class>
+        <name>extract</name>
+        <tag-class>com.metamug.mason.tag.ExtractTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-        <attribute>
-            <name>target</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-        <attribute>
-            <name>property</name>
+            <name>path</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
@@ -288,5 +282,10 @@
             <rtexprvalue>false</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
+    </tag>
+    <tag>
+        <name>download</name>
+        <tag-class>com.metamug.mason.tag.DownloadEventTagHandler</tag-class>
+        <body-content>JSP</body-content>
     </tag>
 </taglib>

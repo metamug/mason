@@ -516,7 +516,7 @@ import com.metamug.mason.tag.RestTag;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -536,8 +536,9 @@ public class RequestTagHandler extends RestTag {
     private boolean evaluate;
 
     private MasonRequest masonReq;
-    private Map<String, Object> masonOutput;
-    private Map<String, Object> masonBus; //Carrier intermediate object
+    private LinkedList<String> masonOutput; //Holds var names to be printed in output
+    private Map<String, Object> masonBus; //Carrier of response objects 
+    private Map<String, Object> extracted; //Holds values extracted using mpath notation
 
     @Override
     public int doStartTag() throws JspException {
@@ -550,8 +551,13 @@ public class RequestTagHandler extends RestTag {
                 //initialize only when this request is executed.
                 masonBus = new HashMap<>();
                 pageContext.setAttribute(MASON_BUS, masonBus, PageContext.PAGE_SCOPE);
-                masonOutput = new LinkedHashMap<>(); //to maintain the order of insertion
+                
+                masonOutput = new LinkedList<>(); //to maintain the order of insertion
                 pageContext.setAttribute(MASON_OUTPUT, masonOutput, PageContext.PAGE_SCOPE);
+                
+                extracted = new HashMap<>();
+                pageContext.setAttribute(EXTRACTED,extracted,PageContext.PAGE_SCOPE);
+                
                 //changed from request scope to page scope
                 return EVAL_BODY_INCLUDE;
             }
@@ -571,28 +577,31 @@ public class RequestTagHandler extends RestTag {
     }
 
     private void processOutput() {
-        if (masonOutput.isEmpty()) {
-            response.setStatus(204);
-            return;
-        }
-
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         MasonOutput output;
 
+        Map<String,Object> responses = new HashMap<>();
+        //get response objects to be printed in output
+        masonOutput.forEach( var -> {
+            responses.put(var, masonBus.get(var));
+        });
+        
         try {
             List list = Arrays.asList(header.split("/"));
             if (list.contains("xml")) { //Accept: application/xml, text/xml
-                output = new XMLOutput(masonOutput);
+                output = new XMLOutput(responses);
             } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
-                output = new DatasetOutput(masonOutput);
+                output = new DatasetOutput(responses);
             } else { //Accept: application/json OR default
-                output = new JSONOutput(masonOutput);
+                output = new JSONOutput(responses);
             }
       
             String op = output.toString();
             response.setContentType(output.getContentType());
-            response.setContentLength(op.getBytes("UTF-8").length);
-            response.getOutputStream().write(op.getBytes("UTF-8"));
+            
+            byte[] stream = op.getBytes("UTF-8");
+            response.setContentLength(stream.length);
+            response.getOutputStream().write(stream);
            
         } catch (IOException | JAXBException ex) {
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
