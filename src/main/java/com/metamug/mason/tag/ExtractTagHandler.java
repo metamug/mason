@@ -22,13 +22,13 @@ public class ExtractTagHandler extends RestTag {
     @Override
     public int doEndTag() throws JspException {
         
-        String objectName = MPathUtil.getObjectNameFromMPath(path);
+        String var = MPathUtil.getVarFromPath(path);
         
-        Object responseObject = pageContext.getAttribute(objectName);
+        Object target = getFromBus(var);
         
-        ExtractService readService = new ExtractService();
+        ExtractService extractService = new ExtractService();
         
-        String value = readService.extract(responseObject, path);
+        String value = extractService.extract(target, path);
         
         Map<String, Object> extracted = (HashMap)pageContext.getAttribute(EXTRACTED,PageContext.PAGE_SCOPE);
         extracted.put(path.replace("$", ""), value);

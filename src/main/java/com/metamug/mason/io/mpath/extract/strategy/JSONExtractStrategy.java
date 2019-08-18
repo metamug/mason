@@ -513,7 +513,9 @@ the names:
 That's all there is to it!
 
 */
-package com.metamug.mason.io.mpath;
+package com.metamug.mason.io.mpath.extract.strategy;
+
+import com.jayway.jsonpath.JsonPath;
 
 /**
  *
@@ -522,8 +524,11 @@ package com.metamug.mason.io.mpath;
 public class JSONExtractStrategy implements ExtractStrategy{
 
     @Override
-    public String extract(String path) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String extract(String path, Object target) {
+        //path = "$"+path;
+        //Object value = JsonPath.parse(target.toString()).read(path);
+        //return value.toString();
+        return null;
     }
     
 }

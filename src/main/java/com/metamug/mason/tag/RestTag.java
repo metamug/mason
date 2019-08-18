@@ -556,6 +556,11 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public void doFinally() {
     }
 
+    protected Object getFromBus(String var){
+        Map<String, Object> bus = (HashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
+        return bus.get(var);
+    }
+    
     protected void addToOutput(String var){
         LinkedList<String> masonOutput = (LinkedList)pageContext.getAttribute(MASON_OUTPUT,PageContext.PAGE_SCOPE);
         masonOutput.add(var);

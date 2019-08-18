@@ -17,7 +17,7 @@ public class MPathTest {
     public void objectNameTest(){
         String mpath = "$['xreq'].body.arr[1].title";
         
-        MPathUtil.getObjectNameFromMPath(mpath);
+        MPathUtil.getVarFromPath(mpath);
     }
     
 }

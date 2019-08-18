@@ -644,12 +644,12 @@ public class MPathUtil {
     }  
     
     /**
-     * Method takes MPath value and returns var object name
+     * Method takes MPath value and returns var name
      *
      * @param path MPath string
      * @return var object name
      */
-    public static String getObjectNameFromMPath(String path){
+    public static String getVarFromPath(String path){
         Pattern p = Pattern.compile("\\['(.*?)'\\]");
         Matcher m = p.matcher(path);
         String name = null;
