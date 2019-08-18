@@ -1,3 +1,5 @@
+package com.metamug.mason.io.mpath;
+
 /*
                     GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
@@ -513,7 +515,7 @@ the names:
 That's all there is to it!
 
 */
-package com.metamug.mason.io.mpath.extract.strategy;
+
 
 import com.jayway.jsonpath.JsonPath;
 

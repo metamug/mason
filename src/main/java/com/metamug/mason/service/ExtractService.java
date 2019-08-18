@@ -5,11 +5,11 @@
  */
 package com.metamug.mason.service;
 
-import com.metamug.mason.io.mpath.extract.Extractor;
-import com.metamug.mason.io.mpath.extract.strategy.BeanObjectExtractStrategy;
-import com.metamug.mason.io.mpath.extract.strategy.ExtractStrategy;
-import com.metamug.mason.io.mpath.extract.strategy.JSONExtractStrategy;
-import com.metamug.mason.io.mpath.extract.strategy.ResultSetExtractStrategy;
+import com.metamug.mason.io.mpath.Extractor;
+import com.metamug.mason.io.mpath.BeanObjectExtractStrategy;
+import com.metamug.mason.io.mpath.ExtractStrategy;
+import com.metamug.mason.io.mpath.JSONExtractStrategy;
+import com.metamug.mason.io.mpath.ResultSetExtractStrategy;
 import java.sql.ResultSet;
 import org.json.JSONObject;
 

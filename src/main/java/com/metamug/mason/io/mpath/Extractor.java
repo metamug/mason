@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.metamug.mason.io.mpath.extract;
+package com.metamug.mason.io.mpath;
 
-import com.metamug.mason.io.mpath.extract.strategy.ExtractStrategy;
+import com.metamug.mason.io.mpath.ExtractStrategy;
 
 /**
  * Extract value based on mpath 
