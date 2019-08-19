@@ -18,25 +18,24 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  *
  * @author anishhirlekar
  */
-public class ResultExtractStrategy extends ExtractStrategy{
+public class ResultExtractStrategy extends ExtractStrategy<ResultImpl>{
 
     @Override
-    public String extract(String path, Object target) {
-        ResultImpl ri = (ResultImpl)target;
-  
+    public String extract(String path, ResultImpl target) {
+        
         int rowIndex = Integer.parseInt( getRow(path) );
         //throw exception if given row index is greater than row count
-        if( (rowIndex+1) > ri.getRowCount() ) {
+        if( (rowIndex+1) > target.getRowCount() ) {
             throw new ArrayIndexOutOfBoundsException("Given row index [" + rowIndex + "] is greater"
-                    + " than number of records ("+ri.getRowCount()+") in SQL result.");
+                    + " than number of records ("+target.getRowCount()+") in SQL result.");
         }
         //throw exception if given column name not found in result
         String colName = getColumn(path);
-        if(!Arrays.asList(ri.getColumnNames()).contains(colName)){
+        if(!Arrays.asList(target.getColumnNames()).contains(colName)){
             throw new NoSuchElementException("Column name \""+colName+"\" not found in SQL result.");
         }
         
-        SortedMap row = ri.getRows()[rowIndex];
+        SortedMap row = target.getRows()[rowIndex];
         return row.get(colName).toString();
     }
     

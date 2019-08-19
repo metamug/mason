@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
  *
  * @author pc
  */
-public abstract class ExtractStrategy {
-    public abstract String extract(String path, Object target);
+public abstract class ExtractStrategy<T> {
+    public abstract String extract(String path, T target);
     
     /**
      * Method takes MPath value and returns locator string

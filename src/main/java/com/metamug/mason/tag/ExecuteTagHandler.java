@@ -506,6 +506,9 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.entity.Request;
+import com.metamug.entity.Resource;
+import com.metamug.entity.Response;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.entity.request.MasonRequest;
@@ -542,7 +545,7 @@ public class ExecuteTagHandler extends RestTag {
     @Override
     public int doEndTag() throws JspException {
 
-        Object result = null;
+        Response result = null;
         try {
             Class cls = Class.forName((String) className);
             Object newInstance = cls.newInstance();
@@ -582,8 +585,10 @@ public class ExecuteTagHandler extends RestTag {
                     }
 
                     ds = ConnectionProvider.getMasonDatasource();
-
-                    result = reqProcessable.process(requestParameters, ds, requestHeaders);
+                    Request req = new Request(requestParameters, requestHeaders,
+                            request.getMethod(), 
+                            null);
+                    result = reqProcessable.process(req, ds, null, null); //@TODO add actual args and resource
                     
                 }
             } else {
