@@ -19,6 +19,8 @@ public class ResultSetExtractStrategy implements ExtractStrategy{
     public String extract(String path, Object target) {
         ResultSet result = (ResultSet)target;
         
+        String row = MPathUtil.getRow(path);
+        
         
         return null;
     }

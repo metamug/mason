@@ -678,7 +678,7 @@ public class MPathUtil {
      */
     public static String getRow(String path){
         String l = getLocator(path);
-        Pattern p = Pattern.compile("\\[(.*?)\\]");// [1],[2],...
+        Pattern p = Pattern.compile("^\\[(.*?)\\]");// [1],[2],...
         Matcher m = p.matcher(l);
         String r = null;
         
@@ -698,6 +698,8 @@ public class MPathUtil {
      * @return var column name
      */
     public static String getColumn(String path){
-        return getLocator(path).replaceFirst("\\[(.*?)\\]", "");   
+        String col = getLocator(path).replaceFirst("\\[(.*?)\\]\\.", "");  
+        col = col.startsWith(".") ? col.substring(1) : col;
+        return col;
     }
 }

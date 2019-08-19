@@ -12,7 +12,7 @@ import org.junit.Test;
  *
  * @author anishhirlekar
  */
-public class MPathTest {
+public class MPathExtractionTest {
     
     @Test
     public void varNameTest(){
@@ -60,12 +60,20 @@ public class MPathTest {
     }
     
     @Test
+    public void rowTest3(){
+        String path = "$['getCustomers'][14].enterprise[11].address";
+        
+        String rowIndex = MPathUtil.getRow(path);
+        System.out.println(rowIndex);
+        Assert.assertEquals("14", rowIndex);
+    }
+    
+    @Test
     public void columnTest1(){
         String path = "$['getCustomers'][1].name";
         
         String col = MPathUtil.getColumn(path);
-        
-        Assert.assertEquals(".name",col);
+        Assert.assertEquals("name",col);
     }
     
     @Test
@@ -73,7 +81,14 @@ public class MPathTest {
         String path = "$['getCustomers'].name";
         
         String col = MPathUtil.getColumn(path);
+        Assert.assertEquals("name",col);
+    }
+    @Test
+    public void columnTest3(){
+        String path = "$['getCustomers'][1].enterprise[11].address";
         
-        Assert.assertEquals(".name",col);
+        String col = MPathUtil.getColumn(path);
+        
+        Assert.assertEquals("enterprise[11].address",col);
     }
 }
