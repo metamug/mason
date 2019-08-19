@@ -9,8 +9,8 @@ import com.metamug.mason.io.mpath.Extractor;
 import com.metamug.mason.io.mpath.BeanObjectExtractStrategy;
 import com.metamug.mason.io.mpath.ExtractStrategy;
 import com.metamug.mason.io.mpath.JSONExtractStrategy;
-import com.metamug.mason.io.mpath.ResultSetExtractStrategy;
-import java.sql.ResultSet;
+import com.metamug.mason.io.mpath.ResultExtractStrategy;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONObject;
 
 /**
@@ -21,8 +21,8 @@ public class ExtractService {
     public String extract(Object target, String path){
         ExtractStrategy strategy;
         
-        if(target instanceof ResultSet){
-            strategy = new ResultSetExtractStrategy();
+        if(target instanceof ResultImpl){
+            strategy = new ResultExtractStrategy();
         }else if(target instanceof JSONObject){
             strategy = new JSONExtractStrategy();
         }else{

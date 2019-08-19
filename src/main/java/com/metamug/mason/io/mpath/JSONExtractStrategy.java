@@ -527,10 +527,12 @@ public class JSONExtractStrategy implements ExtractStrategy{
 
     @Override
     public String extract(String path, Object target) {
-        //path = "$"+path;
-        //Object value = JsonPath.parse(target.toString()).read(path);
-        //return value.toString();
-        return null;
+        String jsonPath = path.replaceFirst("\\$\\['(.*?)'\\]","$");
+        Object output = JsonPath.parse(target.toString()).read(jsonPath);
+     
+        String value = output.toString();
+        return value;
+     
     }
     
 }
