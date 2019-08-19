@@ -6,46 +6,26 @@
 package com.metamug.mason.io.mpath;
 
 import junit.framework.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  *
  * @author anishhirlekar
  */
-public class MPathExtractionTest {
+public class ResultExtractStrategyText {
+    ResultExtractStrategy st;
     
-    @Test
-    public void varNameTest(){
-        String path = "$['xreq'].body.arr[1].title";
-        
-        String var = MPathUtil.getVarName(path);
-        
-        Assert.assertEquals("xreq", var);
-    }
-    
-    @Test
-    public void locatorTest1(){
-        String path = "$['xreq'].body.arr[1].title";
-        
-        String l = MPathUtil.getLocator(path);
-        
-        Assert.assertEquals(".body.arr[1].title",l);
-    }
-    
-    @Test
-    public void locatorTest2(){
-        String path = "$['getCustomers'][1].name";
-        
-        String rowIndex = MPathUtil.getLocator(path);
-        
-        Assert.assertEquals("[1].name", rowIndex);
+    @Before
+    public void init(){
+        st = new ResultExtractStrategy();
     }
     
     @Test
     public void rowTest1(){
         String path = "$['getCustomers'][1].name";
         
-        String rowIndex = MPathUtil.getRow(path);
+        String rowIndex = st.getRow(path);
         
         Assert.assertEquals("1", rowIndex);
     }
@@ -54,7 +34,7 @@ public class MPathExtractionTest {
     public void rowTest2(){
         String path = "$['getCustomers'].name";
         
-        String rowIndex = MPathUtil.getRow(path);
+        String rowIndex = st.getRow(path);
         
         Assert.assertEquals("0", rowIndex);
     }
@@ -63,7 +43,7 @@ public class MPathExtractionTest {
     public void rowTest3(){
         String path = "$['getCustomers'][14].enterprise[11].address";
         
-        String rowIndex = MPathUtil.getRow(path);
+        String rowIndex = st.getRow(path);
         
         Assert.assertEquals("14", rowIndex);
     }
@@ -72,7 +52,7 @@ public class MPathExtractionTest {
     public void columnTest1(){
         String path = "$['getCustomers'][1].name";
         
-        String col = MPathUtil.getColumn(path);
+        String col = st.getColumn(path);
         Assert.assertEquals("name",col);
     }
     
@@ -80,14 +60,14 @@ public class MPathExtractionTest {
     public void columnTest2(){
         String path = "$['getCustomers'].name";
         
-        String col = MPathUtil.getColumn(path);
+        String col = st.getColumn(path);
         Assert.assertEquals("name",col);
     }
     @Test
     public void columnTest3(){
         String path = "$['getCustomers'][1].enterprise[11].address";
         
-        String col = MPathUtil.getColumn(path);
+        String col = st.getColumn(path);
         
         Assert.assertEquals("enterprise[11].address",col);
     }

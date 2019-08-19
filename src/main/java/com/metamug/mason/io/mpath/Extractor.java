@@ -5,8 +5,6 @@
  */
 package com.metamug.mason.io.mpath;
 
-import com.metamug.mason.io.mpath.ExtractStrategy;
-
 /**
  * Extract value based on mpath 
  * @author themetamug

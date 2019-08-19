@@ -510,8 +510,6 @@ import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import java.io.IOException;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.json.JSONArray;
@@ -641,63 +639,4 @@ public class MPathUtil {
         }
         return null;
     }  
-    
-    /**
-     * Method takes MPath value and returns locator string
-     *
-     * @param path MPath string
-     * @return locator string
-     */
-    public static String getLocator(String path){
-        return path.replaceFirst("\\$\\['(.*?)'\\]","");
-    }
-    
-    /**
-     * Method takes MPath value and returns var name
-     *
-     * @param path MPath string
-     * @return var object name
-     */
-    public static String getVarName(String path){
-        Pattern p = Pattern.compile("\\['(.*?)'\\]");//['str1'],['str2'],...
-        Matcher m = p.matcher(path);
-        String name = null;
-        
-        while(m.find()) {
-            name = m.group(1);
-        }
-        
-        return name;
-    }
-    
-    /**
-     * Method takes MPath value and returns row index
-     *
-     * @param path MPath string
-     * @return row index
-     */
-    public static String getRow(String path){
-        String l = getLocator(path);
-        Pattern p = Pattern.compile("^\\[(.*?)\\]");// [1],[2],...
-        Matcher m = p.matcher(l);
-        //if row notation not given, default to [0]
-        String r = "0";
-        
-        while(m.find()) {
-            r = m.group(1);
-        }
-   
-        return r;
-    }
-    /**
-     * Method takes MPath value and returns column name
-     *
-     * @param path MPath string
-     * @return var column name
-     */
-    public static String getColumn(String path){
-        String col = getLocator(path).replaceFirst("\\[(.*?)\\]\\.", "");  
-        col = col.startsWith(".") ? col.substring(1) : col;
-        return col;
-    }
 }

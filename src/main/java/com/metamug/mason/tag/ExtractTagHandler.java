@@ -5,7 +5,7 @@
  */
 package com.metamug.mason.tag;
 
-import com.metamug.mason.io.mpath.MPathUtil;
+import com.metamug.mason.io.mpath.ExtractStrategy;
 import com.metamug.mason.service.ExtractService;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class ExtractTagHandler extends RestTag {
     @Override
     public int doEndTag() throws JspException {
         //get var name from path notation
-        String var = MPathUtil.getVarName(path);
+        String var = ExtractStrategy.getVarName(path);
         //get target result object from bus
         Object target = getFromBus(var);
         

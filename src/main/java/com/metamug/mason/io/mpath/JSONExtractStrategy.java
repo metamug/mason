@@ -523,7 +523,7 @@ import com.jayway.jsonpath.JsonPath;
  *
  * @author pc
  */
-public class JSONExtractStrategy implements ExtractStrategy{
+public class JSONExtractStrategy extends ExtractStrategy{
 
     @Override
     public String extract(String path, Object target) {
@@ -531,8 +531,7 @@ public class JSONExtractStrategy implements ExtractStrategy{
         Object output = JsonPath.parse(target.toString()).read(jsonPath);
      
         String value = output.toString();
-        return value;
-     
+        return value;    
     }
     
 }

@@ -11,7 +11,7 @@ package com.metamug.mason.io.mpath;
  *
  * @author anishhirlekar
  */
-public class BeanObjectExtractStrategy implements ExtractStrategy {
+public class BeanObjectExtractStrategy extends ExtractStrategy {
 
     @Override
     public String extract(String path, Object target) {
