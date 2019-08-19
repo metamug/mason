@@ -1,3 +1,5 @@
+package com.metamug.mason.io.mpath;
+
 /*
                     GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
@@ -513,17 +515,28 @@ the names:
 That's all there is to it!
 
 */
-package com.metamug.mason.io.mpath;
+
+
+import com.jayway.jsonpath.JsonPath;
+import org.json.JSONObject;
 
 /**
  *
  * @author pc
  */
-public class JSONExtractStrategy implements ExtractStrategy{
+public class JSONExtractStrategy extends ExtractStrategy<JSONObject>{
 
     @Override
-    public String extract(String path) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String extract(String path, JSONObject target) {
+        
+        //System.out.println(json);
+        String jsonPath = path.replaceFirst("\\$\\[(.*?)\\]","\\$");
+        //System.out.println(jsonPath);
+        Object output = JsonPath.parse(target.toString()).read(jsonPath);
+     
+        String value = output.toString();
+        return value;    
+        //return "";
     }
     
 }

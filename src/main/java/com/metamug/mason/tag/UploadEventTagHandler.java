@@ -565,9 +565,10 @@ public class UploadEventTagHandler extends RestTag {
         String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
         String contentType = request.getContentType() == null ? "" : request.getContentType();
         //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
-        LinkedHashMap<String, Object> map = (LinkedHashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
-        int mapSize = map.size();
+        LinkedHashMap<String, Object> bus = (LinkedHashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
+        int size = bus.size();
         MasonRequest mtg = (MasonRequest) request.getAttribute("mtgReq");
+        
         if (contentType.contains("multipart/form-data")) {
             String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
             try {
@@ -607,13 +608,15 @@ public class UploadEventTagHandler extends RestTag {
                                     for (Object object : (List) result) {
                                         outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                                     }
-                                    map.put("dupload" + (mapSize + 1), outputArray);
+                                    bus.put("dupload" + (size + 1), outputArray);
+                                    addToOutput("dupload" + (size + 1));
                                 } else {
                                     StringBuilder outputXml = new StringBuilder();
                                     for (Object object : (List) result) {
                                         outputXml.append(ObjectReturn.convert(object, acceptHeader));
                                     }
-                                    map.put("dupload" + (mapSize + 1), outputXml.toString());
+                                    bus.put("dupload" + (size + 1), outputXml.toString());
+                                    addToOutput("dupload" + (size + 1));
                                 }
                             } else {
                                 Object processedResult = ObjectReturn.convert(result, acceptHeader);
@@ -626,14 +629,17 @@ public class UploadEventTagHandler extends RestTag {
                                             jsonResult.put(next, jsonOutput.get(next));
                                         }
                                         if (jsonResult.length() > 0) {
-                                            map.put("dupload" + (mapSize + 1), jsonOutput);
+                                            bus.put("dupload" + (size + 1), jsonOutput);
+                                            addToOutput("dupload" + (size + 1));
                                         }
                                     } catch (JSONException jx) {
-                                        map.put("dupload" + (mapSize + 1), processedResult);
+                                        bus.put("dupload" + (size + 1), processedResult);
+                                        addToOutput("dupload" + (size + 1));
                                     }
                                 } //application/xml
                                 else {
-                                    map.put("dupload" + (mapSize + 1), processedResult);
+                                    bus.put("dupload" + (size + 1), processedResult);
+                                    addToOutput("dupload" + (size + 1));
                                 }
                             }
                         }

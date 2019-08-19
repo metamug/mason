@@ -506,22 +506,22 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.entity.Request;
+import com.metamug.entity.Resource;
+import com.metamug.entity.Response;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.tag.RestTag.MASON_BUS;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
@@ -539,11 +539,13 @@ public class ExecuteTagHandler extends RestTag {
     private List<Object> parameters;
     private Object persistParam;
     private DataSource ds;
+    
+    private Boolean output = false; //default value
 
     @Override
     public int doEndTag() throws JspException {
 
-        Object result = null;
+        Response result = null;
         try {
             Class cls = Class.forName((String) className);
             Object newInstance = cls.newInstance();
@@ -583,26 +585,22 @@ public class ExecuteTagHandler extends RestTag {
                     }
 
                     ds = ConnectionProvider.getMasonDatasource();
-
-                    result = reqProcessable.process(requestParameters, ds, requestHeaders);
-                    /*
-                            /*if (isVerbose != null && isVerbose) {
-                                if (isCollect != null && isCollect) {
-                                    map.put("dexecute" + (mapSize + 1), MPathUtil.collect(outputArray));
-                                } else {
-                                    map.put("dexecute" + (mapSize + 1), outputArray);
-                                }
-                            }*/
+                    Request req = new Request(requestParameters, requestHeaders,
+                            request.getMethod(), 
+                            null);
+                    result = reqProcessable.process(req, ds, null, null); //@TODO add actual args and resource
+                    
                 }
             } else {
                 throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED,
                         "Class " + cls + " isn't processable"));
             }
 
-            //output to bus
-            Map<String, Object> bus = (HashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
-            bus.put(var, result);
-
+            addToBus(var, result);
+            
+            if(output){
+                addToOutput(var);
+            }
         } catch (Exception ex) {
             throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onError));
         }
@@ -635,5 +633,9 @@ public class ExecuteTagHandler extends RestTag {
 
     public void setVar(String var) {
         this.var = var;
+    }
+    
+    public void setOutput(Boolean output){
+        this.output = output;
     }
 }

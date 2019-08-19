@@ -510,8 +510,6 @@ import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import java.io.IOException;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.json.JSONArray;
@@ -525,7 +523,6 @@ import org.xml.sax.SAXException;
  * @author anishhirlekar
  */
 public class MPathUtil {
-
     /**
      *
      * @param inputJson the json body containing data
@@ -642,22 +639,4 @@ public class MPathUtil {
         }
         return null;
     }  
-    
-    /**
-     * Method takes MPath value and returns var object name
-     *
-     * @param path MPath string
-     * @return var object name
-     */
-    public static String getObjectNameFromMPath(String path){
-        Pattern p = Pattern.compile("\\['(.*?)'\\]");
-        Matcher m = p.matcher(path);
-        String name = null;
-        
-        while(m.find()) {
-            name = m.group(1);
-        }
-        
-        return name;
-    }
 }

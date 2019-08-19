@@ -537,7 +537,7 @@ public class RequestTagHandler extends RestTag {
 
     private MasonRequest masonReq;
     private LinkedList<String> masonOutput; //Holds var names to be printed in output
-    private Map<String, Object> masonBus; //Carrier of response objects 
+    private Map<String, Object> masonBus; //Carrier of result objects 
     private Map<String, Object> extracted; //Holds values extracted using mpath notation
 
     @Override

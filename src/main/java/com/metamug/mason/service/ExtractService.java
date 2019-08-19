@@ -5,8 +5,12 @@
  */
 package com.metamug.mason.service;
 
-import com.jayway.jsonpath.JsonPath;
-import java.sql.ResultSet;
+import com.metamug.mason.io.mpath.Extractor;
+import com.metamug.mason.io.mpath.BeanObjectExtractStrategy;
+import com.metamug.mason.io.mpath.ExtractStrategy;
+import com.metamug.mason.io.mpath.JSONExtractStrategy;
+import com.metamug.mason.io.mpath.ResultExtractStrategy;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONObject;
 
 /**
@@ -14,15 +18,19 @@ import org.json.JSONObject;
  * @author anishhirlekar
  */
 public class ExtractService {
-    public String extract(Object source, String path){
-        if(source instanceof ResultSet){
-            //System.out.println("ResultSet");
-        }else if(source instanceof JSONObject){
-            path = "$"+path;
-            Object value = JsonPath.parse(source.toString()).read(path);
-            return value.toString();
+    public String extract(Object target, String path){
+        ExtractStrategy strategy;
+        
+        if(target instanceof ResultImpl){
+            strategy = new ResultExtractStrategy();
+        }else if(target instanceof JSONObject){
+            strategy = new JSONExtractStrategy();
+        }else{
+            strategy = new BeanObjectExtractStrategy();
         }
-        return null;
+        
+        Extractor extractor = new Extractor(path, strategy, target);
+        return extractor.extract();
     }
     
 }

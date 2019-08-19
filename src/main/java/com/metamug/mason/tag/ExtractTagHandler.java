@@ -5,7 +5,7 @@
  */
 package com.metamug.mason.tag;
 
-import com.metamug.mason.io.mpath.MPathUtil;
+import com.metamug.mason.io.mpath.ExtractStrategy;
 import com.metamug.mason.service.ExtractService;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,14 +21,14 @@ public class ExtractTagHandler extends RestTag {
     
     @Override
     public int doEndTag() throws JspException {
+        //get var name from path notation
+        String var = ExtractStrategy.getVarName(path);
+        //get target result object from bus
+        Object target = getFromBus(var);
         
-        String objectName = MPathUtil.getObjectNameFromMPath(path);
+        ExtractService extractService = new ExtractService();
         
-        Object responseObject = pageContext.getAttribute(objectName);
-        
-        ExtractService readService = new ExtractService();
-        
-        String value = readService.extract(responseObject, path);
+        String value = extractService.extract(target, path);
         
         Map<String, Object> extracted = (HashMap)pageContext.getAttribute(EXTRACTED,PageContext.PAGE_SCOPE);
         extracted.put(path.replace("$", ""), value);

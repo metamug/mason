@@ -11,23 +11,25 @@ package com.metamug.mason.io.mpath;
  */
 public class Extractor {
 
-    private ExtractStrategy stategy;
+    private ExtractStrategy strategy;
     private String path;
+    private Object target;
     
     public Extractor(String path){
         this.path = path;
     }
     
-    public Extractor(String path, ExtractStrategy strategy){
+    public Extractor(String path, ExtractStrategy strategy, Object target){
         this.path = path;
-        this.stategy = strategy;
+        this.strategy = strategy;
+        this.target = target;
     }
     
     public void setStategy(ExtractStrategy strategy){
-        this.stategy = strategy;
+        this.strategy = strategy;
     }
     
     public String extract(){
-        return this.stategy.extract(path);
+        return this.strategy.extract(path, target);
     }
 }
