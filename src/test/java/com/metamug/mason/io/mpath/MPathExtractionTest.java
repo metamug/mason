@@ -64,7 +64,7 @@ public class MPathExtractionTest {
         String path = "$['getCustomers'][14].enterprise[11].address";
         
         String rowIndex = MPathUtil.getRow(path);
-        System.out.println(rowIndex);
+        
         Assert.assertEquals("14", rowIndex);
     }
     

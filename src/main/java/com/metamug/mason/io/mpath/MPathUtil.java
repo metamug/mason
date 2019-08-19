@@ -680,15 +680,13 @@ public class MPathUtil {
         String l = getLocator(path);
         Pattern p = Pattern.compile("^\\[(.*?)\\]");// [1],[2],...
         Matcher m = p.matcher(l);
-        String r = null;
+        //if row notation not given, default to [0]
+        String r = "0";
         
         while(m.find()) {
             r = m.group(1);
         }
-        
-        if(null == r)
-            return "0";
-            
+   
         return r;
     }
     /**
