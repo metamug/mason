@@ -23,7 +23,7 @@ public abstract class ExtractStrategy {
      * @param path MPath string
      * @return locator string
      */
-    public static String getLocator(String path){
+    protected static String getLocator(String path){
         return path.replaceFirst("\\$\\['(.*?)'\\]","");
     }
     

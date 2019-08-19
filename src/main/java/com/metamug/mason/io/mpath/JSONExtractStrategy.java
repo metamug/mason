@@ -518,6 +518,7 @@ That's all there is to it!
 
 
 import com.jayway.jsonpath.JsonPath;
+import org.json.JSONObject;
 
 /**
  *
@@ -527,11 +528,15 @@ public class JSONExtractStrategy extends ExtractStrategy{
 
     @Override
     public String extract(String path, Object target) {
-        String jsonPath = path.replaceFirst("\\$\\['(.*?)'\\]","$");
-        Object output = JsonPath.parse(target.toString()).read(jsonPath);
+        JSONObject json = (JSONObject)target;
+        //System.out.println(json);
+        String jsonPath = path.replaceFirst("\\$\\[(.*?)\\]","\\$");
+        //System.out.println(jsonPath);
+        Object output = JsonPath.parse(json.toString()).read(jsonPath);
      
         String value = output.toString();
         return value;    
+        //return "";
     }
     
 }
