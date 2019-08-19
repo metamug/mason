@@ -525,7 +525,6 @@ import org.xml.sax.SAXException;
  * @author anishhirlekar
  */
 public class MPathUtil {
-
     /**
      *
      * @param inputJson the json body containing data
@@ -644,13 +643,23 @@ public class MPathUtil {
     }  
     
     /**
+     * Method takes MPath value and returns locator string
+     *
+     * @param path MPath string
+     * @return locator string
+     */
+    public static String getLocator(String path){
+        return path.replaceFirst("\\$\\['(.*?)'\\]","");
+    }
+    
+    /**
      * Method takes MPath value and returns var name
      *
      * @param path MPath string
      * @return var object name
      */
-    public static String getVarFromPath(String path){
-        Pattern p = Pattern.compile("\\['(.*?)'\\]");
+    public static String getVarName(String path){
+        Pattern p = Pattern.compile("\\['(.*?)'\\]");//['str1'],['str2'],...
         Matcher m = p.matcher(path);
         String name = null;
         
@@ -659,5 +668,36 @@ public class MPathUtil {
         }
         
         return name;
+    }
+    
+    /**
+     * Method takes MPath value and returns row index
+     *
+     * @param path MPath string
+     * @return row index
+     */
+    public static String getRow(String path){
+        String l = getLocator(path);
+        Pattern p = Pattern.compile("\\[(.*?)\\]");// [1],[2],...
+        Matcher m = p.matcher(l);
+        String r = null;
+        
+        while(m.find()) {
+            r = m.group(1);
+        }
+        
+        if(null == r)
+            return "0";
+            
+        return r;
+    }
+    /**
+     * Method takes MPath value and returns column name
+     *
+     * @param path MPath string
+     * @return var column name
+     */
+    public static String getColumn(String path){
+        return getLocator(path).replaceFirst("\\[(.*?)\\]", "");   
     }
 }

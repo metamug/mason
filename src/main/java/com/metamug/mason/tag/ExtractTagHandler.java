@@ -21,9 +21,9 @@ public class ExtractTagHandler extends RestTag {
     
     @Override
     public int doEndTag() throws JspException {
-        
-        String var = MPathUtil.getVarFromPath(path);
-        
+        //get var name from path notation
+        String var = MPathUtil.getVarName(path);
+        //get target result object from bus
         Object target = getFromBus(var);
         
         ExtractService extractService = new ExtractService();

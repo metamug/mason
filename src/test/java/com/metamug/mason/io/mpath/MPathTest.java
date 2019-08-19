@@ -5,6 +5,7 @@
  */
 package com.metamug.mason.io.mpath;
 
+import junit.framework.Assert;
 import org.junit.Test;
 
 /**
@@ -14,10 +15,65 @@ import org.junit.Test;
 public class MPathTest {
     
     @Test
-    public void objectNameTest(){
-        String mpath = "$['xreq'].body.arr[1].title";
+    public void varNameTest(){
+        String path = "$['xreq'].body.arr[1].title";
         
-        MPathUtil.getVarFromPath(mpath);
+        String var = MPathUtil.getVarName(path);
+        
+        Assert.assertEquals("xreq", var);
     }
     
+    @Test
+    public void locatorTest1(){
+        String path = "$['xreq'].body.arr[1].title";
+        
+        String l = MPathUtil.getLocator(path);
+        
+        Assert.assertEquals(".body.arr[1].title",l);
+    }
+    
+    @Test
+    public void locatorTest2(){
+        String path = "$['getCustomers'][1].name";
+        
+        String rowIndex = MPathUtil.getLocator(path);
+        
+        Assert.assertEquals("[1].name", rowIndex);
+    }
+    
+    @Test
+    public void rowTest1(){
+        String path = "$['getCustomers'][1].name";
+        
+        String rowIndex = MPathUtil.getRow(path);
+        
+        Assert.assertEquals("1", rowIndex);
+    }
+    
+    @Test
+    public void rowTest2(){
+        String path = "$['getCustomers'].name";
+        
+        String rowIndex = MPathUtil.getRow(path);
+        
+        Assert.assertEquals("0", rowIndex);
+    }
+    
+    @Test
+    public void columnTest1(){
+        String path = "$['getCustomers'][1].name";
+        
+        String col = MPathUtil.getColumn(path);
+        
+        Assert.assertEquals(".name",col);
+    }
+    
+    @Test
+    public void columnTest2(){
+        String path = "$['getCustomers'].name";
+        
+        String col = MPathUtil.getColumn(path);
+        
+        Assert.assertEquals(".name",col);
+    }
 }
