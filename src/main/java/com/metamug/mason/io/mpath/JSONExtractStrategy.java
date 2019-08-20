@@ -529,14 +529,11 @@ public class JSONExtractStrategy extends ExtractStrategy<JSONObject>{
     @Override
     public String extract(String path, JSONObject target) {
         
-        //System.out.println(json);
         String jsonPath = path.replaceFirst("\\$\\[.+?\\]","\\$");
-        //System.out.println(jsonPath);
+        
         Object output = JsonPath.parse(target.toString()).read(jsonPath);
-     
-        String value = output.toString();
-        return value;    
-        //return "";
+        
+        return output.toString();
     }
     
 }
