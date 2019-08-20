@@ -507,7 +507,6 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
-import com.metamug.entity.Resource;
 import com.metamug.entity.Response;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;

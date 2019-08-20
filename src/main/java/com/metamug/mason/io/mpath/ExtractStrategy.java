@@ -24,7 +24,7 @@ public abstract class ExtractStrategy<T> {
      * @return locator string
      */
     protected static String getLocator(String path){
-        return path.replaceFirst("\\$\\['(.*?)'\\]","");
+        return path.replaceFirst("\\$\\[(.*?)\\]","");
     }
     
     /**
@@ -34,7 +34,7 @@ public abstract class ExtractStrategy<T> {
      * @return var object name
      */
     public static String getVarName(String path){
-        Pattern p = Pattern.compile("\\['(.*?)'\\]");//['str1'],['str2'],...
+        Pattern p = Pattern.compile("^\\$\\[(.*?)\\]");//['str1'],['str2'],...
         Matcher m = p.matcher(path);
         String name = null;
         
