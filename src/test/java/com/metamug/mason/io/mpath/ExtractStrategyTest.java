@@ -15,17 +15,24 @@ import org.junit.Test;
 public class ExtractStrategyTest {
     
     @Test
-    public void varNameTest(){
-        String path = "$['xreq'].body.arr[1].title";
+    public void varNameTest1(){
+        String path = "$[xreq].body.arr[1].title";
         
         String var = ExtractStrategy.getVarName(path);
         
         Assert.assertEquals("xreq", var);
     }
-    
+    @Test
+    public void varNameTest2(){
+        String path = "$[getCustomers][1].name";
+        
+        String var = ExtractStrategy.getVarName(path);
+        
+        Assert.assertEquals("getCustomers", var);
+    }
     @Test
     public void locatorTest1(){
-        String path = "$['xreq'].body.arr[1].title";
+        String path = "$[xreq].body.arr[1].title";
         
         String l = ExtractStrategy.getLocator(path);
         
@@ -34,7 +41,7 @@ public class ExtractStrategyTest {
     
     @Test
     public void locatorTest2(){
-        String path = "$['getCustomers'][1].name";
+        String path = "$[getCustomers][1].name";
         
         String rowIndex = ExtractStrategy.getLocator(path);
         

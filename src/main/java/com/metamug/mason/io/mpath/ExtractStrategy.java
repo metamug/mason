@@ -15,6 +15,13 @@ import java.util.regex.Pattern;
  * @author pc
  */
 public abstract class ExtractStrategy<T> {
+    
+    /**
+     * Extract value based on path provided
+     * @param path Path for look up
+     * @param target Target Object
+     * @return 
+     */
     public abstract String extract(String path, T target);
     
     /**
@@ -24,7 +31,7 @@ public abstract class ExtractStrategy<T> {
      * @return locator string
      */
     protected static String getLocator(String path){
-        return path.replaceFirst("\\$\\['(.*?)'\\]","");
+        return path.replaceFirst("\\$\\[(.*?)\\]","");
     }
     
     /**
@@ -34,7 +41,8 @@ public abstract class ExtractStrategy<T> {
      * @return var object name
      */
     public static String getVarName(String path){
-        Pattern p = Pattern.compile("\\['(.*?)'\\]");//['str1'],['str2'],...
+        Pattern p = Pattern.compile("^\\$\\[(.*?)\\]");// $[varname]
+
         Matcher m = p.matcher(path);
         String name = null;
         

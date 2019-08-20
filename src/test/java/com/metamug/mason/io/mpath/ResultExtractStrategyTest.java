@@ -13,7 +13,7 @@ import org.junit.Test;
  *
  * @author anishhirlekar
  */
-public class ResultExtractStrategyText {
+public class ResultExtractStrategyTest {
     ResultExtractStrategy st;
     
     @Before
@@ -23,7 +23,7 @@ public class ResultExtractStrategyText {
     
     @Test
     public void rowTest1(){
-        String path = "$['getCustomers'][1].name";
+        String path = "$[getCustomers][1].name";
         
         String rowIndex = st.getRow(path);
         
@@ -32,7 +32,7 @@ public class ResultExtractStrategyText {
     
     @Test
     public void rowTest2(){
-        String path = "$['getCustomers'].name";
+        String path = "$[getCustomers].name";
         
         String rowIndex = st.getRow(path);
         
@@ -41,7 +41,7 @@ public class ResultExtractStrategyText {
     
     @Test
     public void rowTest3(){
-        String path = "$['getCustomers'][14].enterprise[11].address";
+        String path = "$[getCustomers][14].enterprise[11].address";
         
         String rowIndex = st.getRow(path);
         
@@ -50,7 +50,7 @@ public class ResultExtractStrategyText {
     
     @Test
     public void columnTest1(){
-        String path = "$['getCustomers'][1].name";
+        String path = "$[getCustomers][1].name";
         
         String col = st.getColumn(path);
         Assert.assertEquals("name",col);
@@ -58,14 +58,14 @@ public class ResultExtractStrategyText {
     
     @Test
     public void columnTest2(){
-        String path = "$['getCustomers'].name";
+        String path = "$[getCustomers].name";
         
         String col = st.getColumn(path);
         Assert.assertEquals("name",col);
     }
     @Test
     public void columnTest3(){
-        String path = "$['getCustomers'][1].enterprise[11].address";
+        String path = "$[getCustomers][1].enterprise[11].address";
         
         String col = st.getColumn(path);
         
