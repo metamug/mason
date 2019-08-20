@@ -5,9 +5,14 @@
  */
 package com.metamug.mason.io.mpath;
 
-import junit.framework.Assert;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -16,59 +21,33 @@ import org.junit.Test;
 public class ResultExtractStrategyTest {
     ResultExtractStrategy st;
     
+    private ResultImpl resultImpl;
+    
     @Before
     public void init(){
         st = new ResultExtractStrategy();
+        
+        SortedMap row1 = new TreeMap();
+        row1.put("name", "John");
+        row1.put("age", "26");
+        
+        SortedMap row2 = new TreeMap();
+        row1.put("name", "Robert");
+        row1.put("age", "66");
+        
+        SortedMap[] res = new SortedMap[]{row1,row2};
+        
+        resultImpl = mock(ResultImpl.class);
+        
+        when(resultImpl.getRows()).thenReturn(res);
+        when(resultImpl.getColumnNames()).thenReturn(new String[]{"name", "age"});
+        when(resultImpl.getRowCount()).thenReturn(2);
     }
     
     @Test
-    public void rowTest1(){
+    public void test(){
         String path = "$[getCustomers][1].name";
-        
-        String rowIndex = st.getRow(path);
-        
-        Assert.assertEquals("1", rowIndex);
-    }
-    
-    @Test
-    public void rowTest2(){
-        String path = "$[getCustomers].name";
-        
-        String rowIndex = st.getRow(path);
-        
-        Assert.assertEquals("0", rowIndex);
-    }
-    
-    @Test
-    public void rowTest3(){
-        String path = "$[getCustomers][14].enterprise[11].address";
-        
-        String rowIndex = st.getRow(path);
-        
-        Assert.assertEquals("14", rowIndex);
-    }
-    
-    @Test
-    public void columnTest1(){
-        String path = "$[getCustomers][1].name";
-        
-        String col = st.getColumn(path);
-        Assert.assertEquals("name",col);
-    }
-    
-    @Test
-    public void columnTest2(){
-        String path = "$[getCustomers].name";
-        
-        String col = st.getColumn(path);
-        Assert.assertEquals("name",col);
-    }
-    @Test
-    public void columnTest3(){
-        String path = "$[getCustomers][1].enterprise[11].address";
-        
-        String col = st.getColumn(path);
-        
-        Assert.assertEquals("enterprise[11].address",col);
+        String value = st.extract(path, resultImpl);
+        Assert.assertEquals("Robert", value);
     }
 }
