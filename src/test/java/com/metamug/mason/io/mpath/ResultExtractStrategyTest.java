@@ -13,7 +13,7 @@ import org.junit.Test;
  *
  * @author anishhirlekar
  */
-public class ResultExtractStrategyText {
+public class ResultExtractStrategyTest {
     ResultExtractStrategy st;
     
     @Before
