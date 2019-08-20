@@ -530,7 +530,7 @@ public class JSONExtractStrategy extends ExtractStrategy<JSONObject>{
     public String extract(String path, JSONObject target) {
         
         //System.out.println(json);
-        String jsonPath = path.replaceFirst("\\$\\[(.*?)\\]","\\$");
+        String jsonPath = path.replaceFirst("\\$\\[.+?\\]","\\$");
         //System.out.println(jsonPath);
         Object output = JsonPath.parse(target.toString()).read(jsonPath);
      

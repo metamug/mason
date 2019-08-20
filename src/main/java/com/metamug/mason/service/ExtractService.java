@@ -6,7 +6,7 @@
 package com.metamug.mason.service;
 
 import com.metamug.mason.io.mpath.Extractor;
-import com.metamug.mason.io.mpath.BeanObjectExtractStrategy;
+import com.metamug.mason.io.mpath.ExpressionExtractStrategy;
 import com.metamug.mason.io.mpath.ExtractStrategy;
 import com.metamug.mason.io.mpath.JSONExtractStrategy;
 import com.metamug.mason.io.mpath.ResultExtractStrategy;
@@ -26,7 +26,7 @@ public class ExtractService {
         }else if(target instanceof JSONObject){
             strategy = new JSONExtractStrategy();
         }else{
-            strategy = new BeanObjectExtractStrategy();
+            strategy = new ExpressionExtractStrategy();
         }
         
         Extractor extractor = new Extractor(path, strategy, target);
