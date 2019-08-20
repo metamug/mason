@@ -32,8 +32,8 @@ public class ResultExtractStrategyTest {
         row1.put("age", "26");
         
         SortedMap row2 = new TreeMap();
-        row1.put("name", "Robert");
-        row1.put("age", "66");
+        row2.put("name", "Robert");
+        row2.put("age", "66");
         
         SortedMap[] res = new SortedMap[]{row1,row2};
         
@@ -45,9 +45,16 @@ public class ResultExtractStrategyTest {
     }
     
     @Test
-    public void test(){
+    public void test1(){
         String path = "$[getCustomers][1].name";
         String value = st.extract(path, resultImpl);
         Assert.assertEquals("Robert", value);
+    }
+    
+    @Test
+    public void test2(){
+        String path = "$[getCustomers][0].age";
+        String value = st.extract(path, resultImpl);
+        Assert.assertEquals("26", value);
     }
 }

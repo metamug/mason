@@ -587,7 +587,7 @@ public class ExecuteTagHandler extends RestTag {
                     Request req = new Request(requestParameters, requestHeaders,
                             request.getMethod(), 
                             null);
-                    result = reqProcessable.process(req, ds, null); //@TODO add actual args and resource
+                    result = reqProcessable.process(req, ds, null, null); //@TODO add actual args and resource
                     
                 }
             } else {

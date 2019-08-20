@@ -46,6 +46,7 @@ public class ResultExtractStrategy extends ExtractStrategy<ResultImpl>{
         }
         
         SortedMap row = target.getRows()[rowIndex];
+        
         return row.get(colName).toString();
     }
     
