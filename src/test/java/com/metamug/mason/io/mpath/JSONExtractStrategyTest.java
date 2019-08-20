@@ -572,10 +572,24 @@ public class JSONExtractStrategyTest {
     }
     
     @Test
-    public void test1(){
+    public void testString(){
         String path = "$[xreq].store.book[0].title";
-        JSONObject j = new JSONObject(json.trim());
+        JSONObject j = new JSONObject(json);
         String val = st.extract(path,j);
         Assert.assertEquals("Sayings of the Century", val);
+    }
+    @Test
+    public void testObj(){
+        String path = "$[xreq].store.book[0]";
+        JSONObject j = new JSONObject(json.trim());
+        String val = st.extract(path,j);
+        Assert.assertEquals("{\"category\":\"reference\",\"title\":\"Sayings of the Century\",\"author\":\"Nigel Rees\",\"price\":8.95}", val);
+    }
+    @Test
+    public void testNumber(){
+        String path = "$[xreq].store.book[3].price";
+        JSONObject j = new JSONObject(json.trim());
+        String val = st.extract(path,j);
+        Assert.assertEquals("22.99", val);
     }
 }
