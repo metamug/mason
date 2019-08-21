@@ -539,7 +539,7 @@ public class ExecuteTagHandler extends RestTag {
     private Object persistParam;
     private DataSource ds;
     
-    private Boolean output = false; //default value
+    private Boolean output; //default value
 
     @Override
     public int doEndTag() throws JspException {
@@ -597,7 +597,7 @@ public class ExecuteTagHandler extends RestTag {
 
             addToBus(var, result);
             
-            if(output){
+            if(output != null && output){
                 addToOutput(var);
             }
         } catch (Exception ex) {
