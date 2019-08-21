@@ -541,17 +541,19 @@ public class ResultExtractStrategyTest {
         SortedMap row1 = new TreeMap();
         row1.put("name", "John");
         row1.put("age", "26");
+        row1.put("sur.name","Doe");
         
         SortedMap row2 = new TreeMap();
         row2.put("name", "Robert");
         row2.put("age", "66");
+        row2.put("sur.name","Kiyo");
         
         SortedMap[] res = new SortedMap[]{row1,row2};
         
         resultImpl = mock(ResultImpl.class);
         
         when(resultImpl.getRows()).thenReturn(res);
-        when(resultImpl.getColumnNames()).thenReturn(new String[]{"name", "age"});
+        when(resultImpl.getColumnNames()).thenReturn(new String[]{"name", "age", "sur.name"});
         when(resultImpl.getRowCount()).thenReturn(2);
     }
     
@@ -567,5 +569,12 @@ public class ResultExtractStrategyTest {
         String path = "$[getCustomers][0].age";
         String value = st.extract(path, resultImpl);
         Assert.assertEquals("26", value);
+    }
+    
+    @Test
+    public void test3(){
+        String path = "$[getCustomers][1].sur.name";
+        String value = st.extract(path, resultImpl);
+        Assert.assertEquals("Kiyo", value);
     }
 }
