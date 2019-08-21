@@ -62,7 +62,7 @@ public class ScriptTagHandler extends RestTag {
             //output to bus
             masonBus.put(var, object);
         } catch (SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
-            Logger.getLogger(ExecuteTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(ScriptTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new JspException("", new MetamugException(MetamugError.SCRIPT_ERROR));
         }
     }
