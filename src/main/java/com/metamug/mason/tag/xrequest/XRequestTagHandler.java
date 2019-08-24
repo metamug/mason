@@ -600,7 +600,7 @@ public class XRequestTagHandler extends RestTag {
             addToBus(var, xResponseJson);
         }
         
-        if(output){
+        if(output != null && output){
             addToOutput(var);
         }
 

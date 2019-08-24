@@ -529,10 +529,11 @@ public class ObjectReturn {
      * @throws javax.xml.bind.JAXBException
      */
     public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
+        
         if (returnObject instanceof String) {
             return (String) returnObject;
         }
-
+        
         StringWriter marshalledResult = new StringWriter();
         JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
 

@@ -506,12 +506,13 @@
  */
 package com.metamug.mason.entity.response;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
  * Generic Output Object
  */
-public abstract class MasonOutput {
+public abstract class MasonOutput<T> {
 
     public static final String HEADER_JSON = "application/json";
     public static final String HEADER_DATASET = "application/json+dataset";
@@ -523,4 +524,6 @@ public abstract class MasonOutput {
     }
 
     public abstract String getContentType();
+
+    public abstract T getContent();
 }

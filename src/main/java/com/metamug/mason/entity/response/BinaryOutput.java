@@ -1,7 +1,6 @@
-package com.metamug.mason.io.mpath;
-
 /*
-                    GNU LESSER GENERAL PUBLIC LICENSE
+
+                  GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
@@ -32,9 +31,7 @@ not price.  Our General Public Licenses are designed to make sure that
 you have the freedom to distribute copies of free software (and charge
 for this service if you wish); that you receive source code or can get
 it if you want it; that you can change the software and use pieces of
-it in new free programs; and 
-
-that you are informed that you can do
+it in new free programs; and that you are informed that you can do
 these things.
 
   To protect your rights, we need to make restrictions that forbid
@@ -141,8 +138,7 @@ included without limitation in the term "modification".)
   "Source code" for a work means the preferred form of the work for
 making modifications to it.  For a library, complete source code means
 all the source code for all modules it contains, plus any associated
-interface definition 
-files, plus the scripts used to control compilation
+interface definition files, plus the scripts used to control compilation
 and installation of the library.
 
   Activities other than copying, distribution and modification are not
@@ -292,9 +288,7 @@ of these things:
     a) Accompany the work with the complete corresponding
     machine-readable source code for the Library including whatever
     changes were used in the work (which must be distributed under
-    Sections 1 and 2 above); and
-
-, if the work is an executable linked
+    Sections 1 and 2 above); and, if the work is an executable linked
     with the Library, with the complete machine-readable "work that
     uses the Library", as object code and/or source code, so that the
     user can modify the Library and then relink to produce a modified
@@ -309,8 +303,7 @@ of these things:
     rather than copying library functions into the executable, and (2)
     will operate properly with a modified version of the library, if
     the user installs one, as long as the modified version is
-    interface
--compatible with the version that the work was made with.
+    interface-compatible with the version that the work was made with.
 
     c) Accompany the work with a written offer, valid for at
     least three years, to give the same user the materials
@@ -501,9 +494,7 @@ Also add information on how to contact you by electronic and paper mail.
 
 You should also get your employer (if you work as a programmer) or your
 school, if any, to sign a "copyright disclaimer" for the library, if
-necessary.  Here is a sample; alter 
-
-the names:
+necessary.  Here is a sample; alter the names:
 
   Yoyodyne, Inc., hereby disclaims all copyright interest in the
   library `Frob' (a library for tweaking knobs) written by James Random
@@ -514,30 +505,53 @@ the names:
 
 That's all there is to it!
 
-*/
+ */
+package com.metamug.mason.entity.response;
 
-
-import com.jayway.jsonpath.JsonPath;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import org.json.JSONObject;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import sun.misc.IOUtils;
 
 /**
  *
  * @author pc
  */
-public class JSONExtractStrategy extends ExtractStrategy<JSONObject>{
+public class BinaryOutput extends MasonOutput<InputStream> {
+
+    int BUFF_SIZE = 1024;
+    private InputStream content;
+
+    public BinaryOutput(Map<String, Object> outputMap) {
+        super(outputMap);
+
+        outputMap.forEach((key, value) -> {
+            //This is will match the last InputStream object matched.
+            if (value instanceof InputStream) {
+                content = (InputStream) value;
+                
+            }
+
+        });
+    }
 
     @Override
-    public String extract(String path, JSONObject target) {
-        
-        String jsonPath = path.replaceFirst("\\$\\[.+?\\]","\\$");
-        
-        Object output = JsonPath.parse(target.toString()).read(jsonPath);
-        if(output instanceof Map){
-            return new JSONObject((Map)output).toString();
-        }
-        
-        return output.toString();
+    public String getContentType() {
+        return OCTETSTREAM;
     }
-    
+
+    @Override
+    public InputStream getContent() {
+        return content;
+    }
+
+    private static final String OCTETSTREAM = "application/octet-stream";
+
 }

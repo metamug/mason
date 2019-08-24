@@ -508,6 +508,8 @@ package com.metamug.mason.entity.response;
 
 import com.metamug.mason.io.mpath.MPathUtil;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -520,7 +522,7 @@ import org.json.JSONObject;
 /**
  * JSONs Output Object
  */
-public class JSONOutput extends MasonOutput {
+public class JSONOutput extends MasonOutput<String> {
 
     protected JSONObject responseJson = new JSONObject();
 
@@ -589,12 +591,13 @@ public class JSONOutput extends MasonOutput {
     }
 
     @Override
-    public String toString() {
-        return responseJson.toString();
-    }
-
-    @Override
     public String getContentType() {
         return HEADER_JSON;
     }
+
+    @Override
+    public String getContent() {
+        return responseJson.toString();
+    }
+
 }

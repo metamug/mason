@@ -294,4 +294,33 @@
         <tag-class>com.metamug.mason.tag.DownloadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
     </tag>
+    <tag>
+        <name>sqlOut</name>
+        <tag-class>com.metamug.mason.tag.SqlOutTagHandler</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>result</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute>
+            <name>bus</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <name>output</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
+    </tag>
 </taglib>
