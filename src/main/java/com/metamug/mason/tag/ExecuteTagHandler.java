@@ -538,7 +538,7 @@ public class ExecuteTagHandler extends RestTag {
     private List<Object> parameters;
     private Object persistParam;
     private DataSource ds;
-    
+
     private Boolean output; //default value
 
     @Override
@@ -555,8 +555,8 @@ public class ExecuteTagHandler extends RestTag {
                 resProcessable = (ResultProcessable) newInstance;
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
-
-                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                    //@TODO remove cast
+                    result = (Response) resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
@@ -585,10 +585,11 @@ public class ExecuteTagHandler extends RestTag {
 
                     ds = ConnectionProvider.getMasonDatasource();
                     Request req = new Request(requestParameters, requestHeaders,
-                            request.getMethod(), 
+                            request.getMethod(),
                             null);
-                    result = reqProcessable.process(req, ds, null, null); //@TODO add actual args and resource
-                    
+                    //@TODO add correct params and remove response type
+                    result = (Response) reqProcessable.process(requestParameters, ds, null); //@TODO add actual args and resource
+
                 }
             } else {
                 throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED,
@@ -596,8 +597,8 @@ public class ExecuteTagHandler extends RestTag {
             }
 
             addToBus(var, result);
-            
-            if(output != null && output){
+
+            if (output != null && output) {
                 addToOutput(var);
             }
         } catch (Exception ex) {
@@ -633,8 +634,8 @@ public class ExecuteTagHandler extends RestTag {
     public void setVar(String var) {
         this.var = var;
     }
-    
-    public void setOutput(Boolean output){
+
+    public void setOutput(Boolean output) {
         this.output = output;
     }
 }
