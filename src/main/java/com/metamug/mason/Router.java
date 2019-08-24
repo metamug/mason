@@ -515,6 +515,7 @@ import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -690,7 +691,7 @@ public class Router implements Filter {
      */
     private void writeError(HttpServletResponse res, int status, String message) throws IOException {
 
-        try (ServletOutputStream writer = res.getOutputStream()) {
+        try (PrintWriter writer = res.getWriter()) {
             res.setContentType("application/json;charset=UTF-8");
             res.setCharacterEncoding("UTF-8");
             res.setStatus(status);

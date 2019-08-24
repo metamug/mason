@@ -508,17 +508,8 @@ That's all there is to it!
  */
 package com.metamug.mason.entity.response;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
-import sun.misc.IOUtils;
 
 /**
  *
@@ -536,7 +527,6 @@ public class BinaryOutput extends MasonOutput<InputStream> {
             //This is will match the last InputStream object matched.
             if (value instanceof InputStream) {
                 content = (InputStream) value;
-                
             }
 
         });

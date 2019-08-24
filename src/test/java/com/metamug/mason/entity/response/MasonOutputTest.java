@@ -102,7 +102,7 @@ public class MasonOutputTest {
 
     private MasonOutput getOutput(String dataType) throws JAXBException {
         MasonOutput output = new JSONOutput(new LinkedHashMap<>());
-        Assert.assertEquals("{}", output.toString());
+        Assert.assertEquals("{}", output.getContent());
 
         switch (dataType) {
             case MasonOutput.HEADER_JSON:

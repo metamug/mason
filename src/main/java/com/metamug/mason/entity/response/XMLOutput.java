@@ -530,8 +530,8 @@ public class XMLOutput extends JSONOutput {
     }
 
     @Override
-    public String toString() {
-        return getXml(super.toString());
+    public String getContent() {
+        return getXml(super.getContent());
     }
 
     @Override
