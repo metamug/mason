@@ -608,14 +608,14 @@ public class UploadEventTagHandler extends RestTag {
                                         outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                                     }
                                     bus.put("dupload" + (size + 1), outputArray);
-                                    addToOutput("dupload" + (size + 1));
+                                    addToOutput("dupload" + (size + 1), outputArray);
                                 } else {
                                     StringBuilder outputXml = new StringBuilder();
                                     for (Object object : (List) result) {
                                         outputXml.append(ObjectReturn.convert(object, acceptHeader));
                                     }
                                     bus.put("dupload" + (size + 1), outputXml.toString());
-                                    addToOutput("dupload" + (size + 1));
+                                    addToOutput("dupload" + (size + 1), outputXml.toString());
                                 }
                             } else {
                                 Object processedResult = ObjectReturn.convert(result, acceptHeader);
@@ -629,16 +629,16 @@ public class UploadEventTagHandler extends RestTag {
                                         }
                                         if (jsonResult.length() > 0) {
                                             bus.put("dupload" + (size + 1), jsonOutput);
-                                            addToOutput("dupload" + (size + 1));
+                                            addToOutput("dupload" + (size + 1), jsonOutput);
                                         }
                                     } catch (JSONException jx) {
                                         bus.put("dupload" + (size + 1), processedResult);
-                                        addToOutput("dupload" + (size + 1));
+                                        addToOutput("dupload" + (size + 1), processedResult);
                                     }
                                 } //application/xml
                                 else {
                                     bus.put("dupload" + (size + 1), processedResult);
-                                    addToOutput("dupload" + (size + 1));
+                                    addToOutput("dupload" + (size + 1), processedResult);
                                 }
                             }
                         }

@@ -592,7 +592,7 @@ public class XRequestTagHandler extends RequestTag {
         }
         
         if(output != null && output){
-            addToOutput(var);
+            addToOutput(var, getFromBus(var));
         }
 
         return EVAL_PAGE;

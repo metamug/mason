@@ -566,7 +566,6 @@ public class ExecuteTagHandler extends RequestTag {
                         String value = entry.getValue();
                         requestParameters.put(key, value);
                     });
-                    
 
                     Enumeration<String> headerNames = request.getHeaderNames();
                     Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -577,8 +576,8 @@ public class ExecuteTagHandler extends RequestTag {
 
                     ds = ConnectionProvider.getMasonDatasource();
 
-                    Map<String, Object> bus = (Map<String, Object>) context.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE);
-                    result = (Response) reqProcessable.process(masonReq, ds, bus, null); //@TODO add actual args and resource
+                    Map<String, Object> bus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE);
+                    result = (Response) reqProcessable.process(masonReq, ds, bus, parameters); //@TODO add actual args and resource
 
                 }
             } else {
@@ -589,7 +588,7 @@ public class ExecuteTagHandler extends RequestTag {
             addToBus(var, result);
 
             if (output != null && output) {
-                addToOutput(var);
+                addToOutput(var, result);
             }
         } catch (Exception ex) {
             throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onError));
@@ -609,7 +608,7 @@ public class ExecuteTagHandler extends RequestTag {
     public void setParam(Object param) {
         this.param = param;
     }
-   
+
     public void setVar(String var) {
         this.var = var;
     }

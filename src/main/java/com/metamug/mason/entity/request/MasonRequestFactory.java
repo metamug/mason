@@ -50,6 +50,6 @@ public class MasonRequestFactory {
         masonRequest.setMethod(method);
         masonRequest.setUri(tokens[versionTokenIndex + 1]);
 
-        return new ImmutableMtgRequest(masonRequest);
+        return new ImmutableRequest(masonRequest);
     }
 }

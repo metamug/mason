@@ -507,6 +507,7 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
+import com.metamug.entity.Response;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.entity.response.DatasetOutput;
 import com.metamug.mason.entity.response.JSONOutput;
@@ -531,6 +532,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -567,7 +569,7 @@ public class RequestTagHandler extends RequestTag {
 
                 //Holds var names to be printed in output
                 //to maintain the order of insertion
-                pageContext.setAttribute(MASON_OUTPUT, new LinkedList<>(), PageContext.PAGE_SCOPE);
+                pageContext.setAttribute(MASON_OUTPUT, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
 
                 extracted = new HashMap<>();
                 pageContext.setAttribute(EXTRACTED, extracted, PageContext.PAGE_SCOPE);
@@ -595,16 +597,17 @@ public class RequestTagHandler extends RequestTag {
 
         boolean hasFile = false;
 
-        Map<String, Object> responses = new LinkedHashMap<>();
-        List<String> outputList = (List<String>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
+        Map<String, Object> responses = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         //get response objects to be printed in output        
-        for (String tag : outputList) {
-            Object obj = getFromBus(tag);
+        for (Entry<String, Object> tag : responses.entrySet()) {
             //check for file
-            responses.put(tag, obj);
-            if (obj instanceof File) {
-                hasFile = true;
-                break;
+
+            if (tag.getValue() instanceof Response) {
+                Response res = (Response) tag.getValue();
+                if (res.getPayload() instanceof File) {
+                    hasFile = true;
+                    break;
+                }
             }
         }
 

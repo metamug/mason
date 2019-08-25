@@ -507,6 +507,7 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
+import com.metamug.entity.Response;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
@@ -523,9 +524,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -570,7 +573,7 @@ public class TagHandlerTest {
     @Mock
     private PageContext context;
 
-    @Mock
+    
     private LinkedHashMap<String, Object> resultMap;
 
     @Mock
@@ -678,9 +681,7 @@ public class TagHandlerTest {
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
         when(context.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
 
-        List<String> outList = new LinkedList<>();
-        outList.add("res3");
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(outList);
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
 
         when(masonRequest.getMethod()).thenReturn("GET");
 
@@ -707,12 +708,10 @@ public class TagHandlerTest {
 
         resultMap = new LinkedHashMap<>();
         resultMap.put("res3", "Hello World");
-        resultMap.put("file", temp); //this will be used a mason bus
-
-        List<String> outList = new LinkedList<>();
-        outList.add("file");
+        resultMap.put("file", new Response(temp)); //this will be used a mason bus
+       
         when(context.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(outList);
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
         when(masonRequest.getMethod()).thenReturn("GET");
 

@@ -508,6 +508,7 @@ That's all there is to it!
  */
 package com.metamug.mason.entity.response;
 
+import com.metamug.entity.Response;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
@@ -525,8 +526,8 @@ public class FileOutput extends MasonOutput<File> {
 
         outputMap.forEach((key, value) -> {
             //Takes the last matched file
-            if (value instanceof File) {
-                content = (File) value;
+            if (value instanceof Response) {
+                content = (File) ((Response) value).getPayload();
             }
 
         });

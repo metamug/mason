@@ -514,9 +514,9 @@ import java.util.Map;
  *
  * @author user
  */
-public final class ImmutableMtgRequest extends Request {
+public final class ImmutableRequest extends Request {
 
-    public ImmutableMtgRequest(Request mtgReq) {
+    public ImmutableRequest(Request mtgReq) {
         super(mtgReq);
     }
 
