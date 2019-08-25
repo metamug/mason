@@ -527,6 +527,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -548,8 +549,8 @@ public class RequestTagHandler extends RestTag {
     private boolean evaluate;
 
     private MasonRequest masonReq;
-    private LinkedList<String> masonOutput; //Holds var names to be printed in output
-    private Map<String, Object> masonBus; //Carrier of result objects 
+    
+    //private Map<String, Object> masonBus; 
     private Map<String, Object> extracted; //Holds values extracted using mpath notation
 
     @Override
@@ -561,11 +562,13 @@ public class RequestTagHandler extends RestTag {
             evaluate = (masonReq.getId() != null) == item; //evaluate
             if (evaluate) {
                 //initialize only when this request is executed.
-                masonBus = new HashMap<>();
-                pageContext.setAttribute(MASON_BUS, masonBus, PageContext.PAGE_SCOPE);
 
-                masonOutput = new LinkedList<>(); //to maintain the order of insertion
-                pageContext.setAttribute(MASON_OUTPUT, masonOutput, PageContext.PAGE_SCOPE);
+                //Carrier of result objects 
+                pageContext.setAttribute(MASON_BUS, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
+                
+                //Holds var names to be printed in output
+                //to maintain the order of insertion
+                pageContext.setAttribute(MASON_OUTPUT, new LinkedList<>(), PageContext.PAGE_SCOPE);
 
                 extracted = new HashMap<>();
                 pageContext.setAttribute(EXTRACTED, extracted, PageContext.PAGE_SCOPE);
@@ -593,20 +596,21 @@ public class RequestTagHandler extends RestTag {
 
         boolean hasFile = false;
 
-        Map<String, Object> responses = new HashMap<>();
-
+        Map<String, Object> responses = new LinkedHashMap<>();
+        List<String> outputList = (List<String>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         //get response objects to be printed in output        
-        for (Map.Entry<String, Object> entry : masonBus.entrySet()) {
-            Object obj = entry.getKey();
+        for (String tag : outputList) {
+            Object obj = getFromBus(tag);
             //check for file
-            if (obj instanceof InputStream) {
+            responses.put(tag, obj);
+            if (obj instanceof File) {
                 hasFile = true;
                 break;
             }
-
-            responses.put(entry.getKey(), entry.getValue());
         }
 
+        ReadableByteChannel in = null;
+        WritableByteChannel out = null;
         try (OutputStream outputStream = response.getOutputStream();) {
             if (!hasFile) {
 
@@ -636,10 +640,10 @@ public class RequestTagHandler extends RestTag {
                  * Don't set Content Length. Max buffer for output stream is 2KB
                  * and it is flushed
                  */
-                InputStream gzin = new GZIPInputStream(new FileInputStream(file));
-                ReadableByteChannel in = Channels.newChannel(gzin);
-                WritableByteChannel out = Channels.newChannel(response.getOutputStream());
-                ByteBuffer buffer = ByteBuffer.allocate(65536);
+                
+                in = Channels.newChannel(new FileInputStream(file));
+                out = Channels.newChannel(response.getOutputStream());
+                ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
                 while (in.read(buffer) != -1) {
                     buffer.flip();
                     out.write(buffer);
@@ -651,6 +655,17 @@ public class RequestTagHandler extends RestTag {
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JAXBException ex) {
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
     }

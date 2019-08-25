@@ -508,7 +508,6 @@ package com.metamug.mason.entity.auth;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -574,10 +573,10 @@ public class JWebToken {
         } else {
             throw new NoSuchAlgorithmException("JWT Header is Incorrect: " + parts[0]);
         }
-        String decodedPayload = new String(Base64.getDecoder().decode(parts[1]));
-        payload = new JSONObject(decodedPayload);
+
+        payload = new JSONObject(decode(parts[1]));
         if (payload.isEmpty()) {
-            throw new JSONException("Payload is Empty: " + decodedPayload);
+            throw new JSONException("Payload is Empty: ");
         }
         if (!payload.has("exp")) {
             throw new JSONException("Payload doesn't contain expiry " + payload);
@@ -616,6 +615,10 @@ public class JWebToken {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
+    private static String decode(String encodedString) {
+        return new String(Base64.getUrlDecoder().decode(encodedString));
+    }
+
     /**
      * Sign with HMAC SHA256 (HS256)
      *
@@ -632,7 +635,7 @@ public class JWebToken {
             Mac sha256Hmac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secretKey = new SecretKeySpec(hash, "HmacSHA256");
             sha256Hmac.init(secretKey);
-            
+
             byte[] signedBytes = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return encode(signedBytes);
         } catch (NoSuchAlgorithmException | InvalidKeyException ex) {

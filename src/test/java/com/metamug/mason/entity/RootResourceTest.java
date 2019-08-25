@@ -724,12 +724,7 @@ public class RootResourceTest {
             Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
-
-    @Test
-    public void helloWorldTest() {
-        assert (true);
-    }
-
+  
     @Ignore
     @Test
     public void testJwtAuthCall() {

@@ -507,18 +507,26 @@
 package com.metamug.mason.tag;
 
 import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
 import static com.metamug.mason.tag.RestTag.MASON_BUS;
+import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
 import com.metamug.mason.tag.request.RequestTagHandler;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -539,7 +547,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
+import static org.mockito.Matchers.eq;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -566,7 +576,7 @@ public class TagHandlerTest {
 
     @Mock
     private JspWriter writer;
-    
+
     @Mock
     private ServletOutputStream outputStream;
 
@@ -627,10 +637,9 @@ public class TagHandlerTest {
 
             when(context.getRequest()).thenReturn(request);
             when(context.getResponse()).thenReturn(response);
-            
+
             when(response.getOutputStream()).thenReturn(outputStream);
-            when(context.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-            
+
             when(context.getOut()).thenReturn(writer);
             when(request.getAttribute("mtgReq")).thenReturn(masonRequest);
 
@@ -668,13 +677,54 @@ public class TagHandlerTest {
     public void requestTag() throws JspException {
 
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+        when(context.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
+        List<String> outList = new LinkedList<>();
+        outList.add("res3");
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(outList);
 
         when(masonRequest.getMethod()).thenReturn("GET");
 
         requestTag.setMethod("GET");
         requestTag.setItem(false);
+
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
+
+    }
+
+    @Test
+    public void fileDownload() throws JspException, IOException {
+
+        File temp = File.createTempFile("test", ".txt");
+
+        // Delete temp file when program exits.
+        temp.deleteOnExit();
+
+        // Write to temp file
+        BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+        out.write("aString");
+        out.close();
+
+        resultMap = new LinkedHashMap<>();
+        resultMap.put("res3", "Hello World");
+        resultMap.put("file", temp); //this will be used a mason bus
+
+        List<String> outList = new LinkedList<>();
+        outList.add("file");
+        when(context.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(outList);
+        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+        when(masonRequest.getMethod()).thenReturn("GET");
+
+        requestTag.setMethod("GET");
+        requestTag.setItem(false);
+
+        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
+
+        verify(response).setContentType(FileOutput.OCTETSTREAM);
+        //verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
 
     }
 
@@ -707,6 +757,9 @@ public class TagHandlerTest {
         xrequestTag.setVar("xrequestOutput");
         xrequestTag.setUrl("https://postman-echo.com/get");
         xrequestTag.setMethod("GET");
+
+        when(context.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
         System.out.println(context.getAttribute("xrequestOutput"));

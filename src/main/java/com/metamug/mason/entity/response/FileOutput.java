@@ -542,6 +542,6 @@ public class FileOutput extends MasonOutput<File> {
         return content;
     }
 
-    private static final String OCTETSTREAM = "application/octet-stream";
+    public static final String OCTETSTREAM = "application/octet-stream";
 
 }
