@@ -553,7 +553,7 @@ public class ExecuteTagHandler extends RequestTag {
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
                     //@TODO remove cast
-                    result = (Response) resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                    //result = (Response) resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
@@ -577,7 +577,7 @@ public class ExecuteTagHandler extends RequestTag {
                     ds = ConnectionProvider.getMasonDatasource();
 
                     Map<String, Object> bus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE);
-                    result = (Response) reqProcessable.process(masonReq, ds, bus, parameters); //@TODO add actual args and resource
+                    //result = (Response) reqProcessable.process(masonReq, ds, bus, parameters); //@TODO add actual args and resource
 
                 }
             } else {
