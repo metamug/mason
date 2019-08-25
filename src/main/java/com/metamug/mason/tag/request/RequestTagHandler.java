@@ -522,6 +522,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -602,9 +603,9 @@ public class RequestTagHandler extends RestTag {
             responses.put(entry.getKey(), entry.getValue());
         }
 
-        if (!hasFile) {
-            try {
-                
+        try (OutputStream outputStream = response.getOutputStream();) {
+            if (!hasFile) {
+
                 MasonOutput<String> output = null;
                 List list = Arrays.asList(header.split("/"));
                 if (list.contains("xml")) { //Accept: application/xml, text/xml
@@ -615,23 +616,18 @@ public class RequestTagHandler extends RestTag {
                     output = new JSONOutput(responses);
                 }
                 //cannnot use print writer since it we are already using outputstream
-                byte[] stream = ((String) output.getContent()).getBytes("UTF-8");
+                byte[] stream = ((String) output.getContent()).getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(stream.length);
-                OutputStream out = response.getOutputStream();
-                out.write(stream);
-            } catch (IOException | JAXBException ex) {
-                Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            }
-        } else {
+                outputStream.write(stream);
 
-            //has file in response
-            MasonOutput<InputStream> output = new BinaryOutput(responses);
+            } else {
 
-            try {
+                //has file in response
+                MasonOutput<InputStream> output = new BinaryOutput(responses);
+
                 /**
                  * Don't set Content Length. Max buffer for output stream is 2KB
                  * and it is flushed
-                 *
                  */
                 InputStream gzin = new GZIPInputStream(output.getContent());
                 ReadableByteChannel in = Channels.newChannel(gzin);
@@ -642,14 +638,14 @@ public class RequestTagHandler extends RestTag {
                     out.write(buffer);
                     buffer.clear();
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-            }
 
-//            byte[] stream = ((String) output.getContent()).getBytes("UTF-8");
-//            response.setContentLength(stream.length);
-//            response.getOutputStream().write(stream);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JAXBException ex) {
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     public void setMethod(String m) {

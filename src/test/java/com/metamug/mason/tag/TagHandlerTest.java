@@ -691,7 +691,8 @@ public class TagHandlerTest {
     @Test //(expected = JspException.class)
     public void resourceTagAuth() throws JspException {
         resourceTag.setAuth("admin");
-        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTc0NTAyODIxLCJpYXQiOjE1NjY3MjY4MjEsImp0aSI6IjQ4MGM2ZDA4LWVlMDAtNGRkYy1iOWQyLTljNzIzZmY2OGIzYSJ9.rehuBejj/ercDqyafHAx5KIxVIcSvyIx7Erzg4A8BKc=";
+        //@TODO Change this every 3-4 months since it wont work after some time. Token expires
+        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTc0NTA5ODM0LCJpYXQiOjE1NjY3MzM4MzQsImp0aSI6IjI1NWM5Y2JiLWE4OTktNGYyYS04MjA3LTlhMzg2MWQ4MGEzZiJ9.5446gdZ7doGkUg9YIDg4FFYX2H3CBkVBD4itwJ3KMR8";
         //3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
