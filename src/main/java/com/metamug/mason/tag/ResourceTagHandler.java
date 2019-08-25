@@ -506,9 +506,9 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.entity.Request;
 import com.metamug.mason.Router;
 import static com.metamug.mason.Router.CONNECTION_PROVIDER;
-import com.metamug.mason.entity.request.MasonRequest;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
@@ -587,7 +587,7 @@ public class ResourceTagHandler extends RestTag {
         if (header == null) {
             throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
         }
-        MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
+        Request masonReq = (Request) request.getAttribute("mtgReq");
         authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));
         try {
             if (header.contains("Basic ")) {

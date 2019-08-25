@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.tag;
 
-import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.entity.Request;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import java.text.ParseException;
@@ -537,13 +537,15 @@ public class ParamTagHandler extends RestTag {
     /**
      * This method is called after the JSP engine finished processing the tag.
      *
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
-     * methods that this method calls.
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP
+     * page, otherwise return SKIP_PAGE. This method is automatically generated.
+     * Do not modify this method. Instead, modify the methods that this method
+     * calls.
      * @throws javax.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {
-        MasonRequest mtg = (MasonRequest) pageContext.getRequest().getAttribute("mtgReq");
+        Request mtgReq = (Request) pageContext.getRequest().getAttribute("mtgReq");
         /*if (value == null && isRequired != null && isRequired) {
             if (defaultValue == null) {
                 throw new JspException("", new MetamugException(MetamugError.INPUT_VALIDATION_ERROR, name + " parameter can't be null"));
@@ -556,7 +558,7 @@ public class ParamTagHandler extends RestTag {
 
         if (value == null) {
             if (defaultValue != null) {
-                mtg.setDefault(name, defaultValue);
+                mtgReq.setDefault(name, defaultValue);
                 release();
                 return EVAL_PAGE;
             } else {

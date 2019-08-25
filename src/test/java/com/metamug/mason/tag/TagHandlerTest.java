@@ -506,13 +506,12 @@
  */
 package com.metamug.mason.tag;
 
-import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.entity.Request;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
 import static com.metamug.mason.tag.RestTag.MASON_BUS;
 import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
-import com.metamug.mason.tag.request.RequestTagHandler;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -566,7 +565,7 @@ public class TagHandlerTest {
     private HttpServletResponse response;
 
     @Mock
-    private MasonRequest masonRequest;
+    private Request masonRequest;
 
     @Mock
     private PageContext context;

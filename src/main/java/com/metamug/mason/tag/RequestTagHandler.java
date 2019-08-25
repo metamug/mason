@@ -504,114 +504,172 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.entity.request;
+package com.metamug.mason.tag;
 
+import com.metamug.entity.Request;
+import com.metamug.mason.entity.response.FileOutput;
+import com.metamug.mason.entity.response.DatasetOutput;
+import com.metamug.mason.entity.response.JSONOutput;
+import com.metamug.mason.entity.response.MasonOutput;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import com.metamug.mason.entity.response.XMLOutput;
+import com.metamug.mason.tag.RestTag;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
+import javax.xml.bind.JAXBException;
 
 /**
  *
- * @author deepak
+ * @author anishhirlekar
  */
-public class MasonRequest {
+public class RequestTagHandler extends RequestTag {
 
-    private String uri, id, pid, uid, method, parent;
-    private int statusCode;
-    protected Map<String, String> params;
+    private boolean item;
+    private boolean evaluate;
 
-    public MasonRequest() {
+    private Request masonReq;
+
+    //private Map<String, Object> masonBus; 
+    private Map<String, Object> extracted; //Holds values extracted using mpath notation
+
+    @Override
+    public int doStartTag() throws JspException {
+        super.doStartTag();
+        masonReq = (Request) request.getAttribute("mtgReq");
+
+        if (method.equalsIgnoreCase(masonReq.getMethod())) {
+            evaluate = (masonReq.getId() != null) == item; //evaluate
+            if (evaluate) {
+                //initialize only when this request is executed.
+
+                //Carrier of result objects 
+                pageContext.setAttribute(MASON_BUS, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
+
+                //Holds var names to be printed in output
+                //to maintain the order of insertion
+                pageContext.setAttribute(MASON_OUTPUT, new LinkedList<>(), PageContext.PAGE_SCOPE);
+
+                extracted = new HashMap<>();
+                pageContext.setAttribute(EXTRACTED, extracted, PageContext.PAGE_SCOPE);
+
+                //changed from request scope to page scope
+                return EVAL_BODY_INCLUDE;
+            }
+        }
+
+        return SKIP_BODY;
     }
 
-    /**
-     * Copy Constructor
-     *
-     * @param request
-     */
-    public MasonRequest(MasonRequest request) {
-        this.uri = request.uri;
-        this.id = request.id;
-        this.pid = request.pid;
-        this.uid = request.uid;
-        this.method = request.method;
-        this.parent = request.parent;
-        this.statusCode = request.statusCode;
-        this.params = request.params;
-    }
-
-    public MasonRequest(String uri, String id, String method, Map<String, String> map) {
-        this.uri = uri;
-        this.id = id;
-        this.method = method;
-        this.params = map;
-    }
-
-    public void setDefault(String parameter, String defaultValue) {
-        if (StringUtils.isBlank(params.get(parameter))) {
-            params.put(parameter, defaultValue);
+    @Override
+    public int doEndTag() throws JspException {
+        if (evaluate) {
+            processOutput();
+            return SKIP_PAGE;
+        } else {
+            return EVAL_PAGE;
         }
     }
 
-    public String getUri() {
-        return uri;
+    private void processOutput() {
+        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+
+        boolean hasFile = false;
+
+        Map<String, Object> responses = new LinkedHashMap<>();
+        List<String> outputList = (List<String>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
+        //get response objects to be printed in output        
+        for (String tag : outputList) {
+            Object obj = getFromBus(tag);
+            //check for file
+            responses.put(tag, obj);
+            if (obj instanceof File) {
+                hasFile = true;
+                break;
+            }
+        }
+
+        ReadableByteChannel in = null;
+        WritableByteChannel out = null;
+        try (OutputStream outputStream = response.getOutputStream();) {
+            if (!hasFile) {
+
+                MasonOutput<String> output = null;
+                List list = Arrays.asList(header.split("/"));
+                if (list.contains("xml")) { //Accept: application/xml, text/xml
+                    output = new XMLOutput(responses);
+                } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
+                    output = new DatasetOutput(responses);
+                } else { //Accept: application/json OR default
+                    output = new JSONOutput(responses);
+                }
+                //cannnot use print writer since it we are already using outputstream
+                response.setContentType(output.getContentType());
+                byte[] stream = ((String) output.getContent()).getBytes(StandardCharsets.UTF_8);
+                response.setContentLength(stream.length);
+                outputStream.write(stream);
+
+            } else {
+
+                //has file in response
+                MasonOutput<File> output = new FileOutput(responses);
+                File file = output.getContent();
+                response.setContentType(output.getContentType());
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + file + "\"");
+                /**
+                 * Don't set Content Length. Max buffer for output stream is 2KB
+                 * and it is flushed
+                 */
+
+                in = Channels.newChannel(new FileInputStream(file));
+                out = Channels.newChannel(response.getOutputStream());
+                ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
+                while (in.read(buffer) != -1) {
+                    buffer.flip();
+                    out.write(buffer);
+                    buffer.clear();
+                }
+
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JAXBException ex) {
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getPid() {
-        return pid;
-    }
-
-    public void setPid(String pid) {
-        this.pid = pid;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public Map<String, String> getParams() {
-        return params;
-    }
-
-    public void setParams(Map<String, String> params) {
-        this.params = params;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-    public void setParent(String parent) {
-        this.parent = parent;
+    public void setItem(boolean i) {
+        item = i;
     }
 }

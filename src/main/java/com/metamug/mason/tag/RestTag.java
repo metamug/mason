@@ -527,12 +527,10 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public static final String MASON_OUTPUT = "masonOutput";
     public static final String EXTRACTED = "extracted";
 
-    //@Resource
     protected HttpServletRequest request;
-    //@Resource
     protected HttpServletResponse response;
 
-    //@Resource
+    
     protected PageContext context; //For Mocking https://stackoverflow.com/a/17474381/1097600
 
     public RestTag() {

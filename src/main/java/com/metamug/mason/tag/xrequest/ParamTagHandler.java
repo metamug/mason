@@ -506,45 +506,18 @@
  */
 package com.metamug.mason.tag.xrequest;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
+import com.metamug.mason.tag.HeaderTag;
 
 /**
  *
  * @author anishhirlekar
  */
-public class ParamTagHandler extends BodyTagSupport {
-
-    private String name;
-    private String value;
+public class ParamTagHandler extends HeaderTag {
 
     @Override
-    public int doEndTag() throws JspException {
-
-        XRequestTagHandler parent = (XRequestTagHandler) findAncestorWithClass(this, XRequestTagHandler.class);
-        if (parent == null) {
-            throw new JspTagException("X Param Tag outside X Request Tag");
-        }
-
-        if (value == null) {
-            value = getBodyContent().getString().trim();
-        }
-
-        if (value.length() > 0) {
-            parent.addParameter(name, value);
-        }
-
-        return EVAL_PAGE;
+    public void put(String key, String value) {
+        parent.addParameter(key, value);
     }
 
-    public void setName(String n) {
-        name = n;
-    }
-
-    public void setValue(String v) {
-        value = v;
-    }
+   
 }

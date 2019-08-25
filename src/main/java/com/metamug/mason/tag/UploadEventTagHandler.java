@@ -509,7 +509,6 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Request;
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
-import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
@@ -567,7 +566,7 @@ public class UploadEventTagHandler extends RestTag {
         //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         LinkedHashMap<String, Object> bus = (LinkedHashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
         int size = bus.size();
-        MasonRequest mtg = (MasonRequest) request.getAttribute("mtgReq");
+        Request mtg = (Request) request.getAttribute("mtgReq");
         
         if (contentType.contains("multipart/form-data")) {
             String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
@@ -669,7 +668,7 @@ public class UploadEventTagHandler extends RestTag {
             Class cls = Class.forName((String) listenerClass);
             Object newInstance = cls.newInstance();
             UploadListener listener;
-            MasonRequest mtg = (MasonRequest) req.getAttribute("mtgReq");
+            Request mtg = (Request) req.getAttribute("mtgReq");
             if (UploadListener.class.isAssignableFrom(cls)) {
                 listener = (UploadListener) newInstance;
                 //Add Request Header values
@@ -690,27 +689,9 @@ public class UploadEventTagHandler extends RestTag {
                         reqParams.put(param, req.getParameter(param));
                     }
                 }
+                
                 if (uploadedFile != null) {
-                    String resourceURI = (String) req.getAttribute("javax.servlet.forward.request_uri");
-                    String name = null, parent = null;
-                    float version = 1.0f;
-                    String[] tokens = resourceURI.split("/");
-                    //{appName}/v{versionNumber}/{resourceName}/{id}
-                    if (tokens.length >= 4) {
-                        try {
-                            version = Float.valueOf(tokens[2].replaceAll("v", ""));
-                        } catch (NumberFormatException ex) {
-                            version = 1.0f;
-                        }
-                        name = tokens[3];
-                    }
-                    //{appName}/v{versionNumber}/{parent}/{parentId}/{child}/{id}
-                    if (tokens.length >= 6) {
-                        parent = tokens[3];
-                        name = tokens[5];
-                    }
-                    Request uploadRequest = new Request(reqParams, reqHeaders, "POST", new com.metamug.entity.Resource(name, version, resourceURI, parent));
-                    Object result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), uploadRequest), ds);
+                    Object result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), mtg), ds);
                     //Sync params to HttpRequest params
                     reqParams.entrySet().forEach((entry) -> {
                         String key = entry.getKey();

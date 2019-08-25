@@ -510,17 +510,16 @@ import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
-import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
-import java.util.ArrayList;
+import static com.metamug.mason.tag.RestTag.MASON_BUS;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
@@ -529,14 +528,12 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  *
  * @author Kainix
  */
-public class ExecuteTagHandler extends RestTag {
+public class ExecuteTagHandler extends RequestTag {
 
     private String className;
     private String onError;
-    private Object param;
+    private Object param; //input for execution sql result(ResultProcessable) or http request(RequestProcessable)
     private String var;
-    private List<Object> parameters;
-    private Object persistParam;
     private DataSource ds;
 
     private Boolean output; //default value
@@ -560,8 +557,8 @@ public class ExecuteTagHandler extends RestTag {
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
-                if (param instanceof MasonRequest) {
-                    MasonRequest masonReq = (MasonRequest) param;
+                if (param instanceof Request) {
+                    Request masonReq = (Request) param;
 
                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     masonReq.getParams().entrySet().forEach(entry -> {
@@ -569,12 +566,7 @@ public class ExecuteTagHandler extends RestTag {
                         String value = entry.getValue();
                         requestParameters.put(key, value);
                     });
-                    if (null != persistParam) {
-                        LinkedHashMap<String, Object> pMap = (LinkedHashMap<String, Object>) persistParam;
-                        pMap.entrySet().forEach(entry -> {
-                            requestParameters.put(entry.getKey(), entry.getValue().toString());
-                        });
-                    }
+                    
 
                     Enumeration<String> headerNames = request.getHeaderNames();
                     Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -584,11 +576,9 @@ public class ExecuteTagHandler extends RestTag {
                     }
 
                     ds = ConnectionProvider.getMasonDatasource();
-                    Request req = new Request(requestParameters, requestHeaders,
-                            request.getMethod(),
-                            null);
-                    //@TODO add correct params and remove response type
-                    result = (Response) reqProcessable.process(requestParameters, ds, null); //@TODO add actual args and resource
+
+                    Map<String, Object> bus = (Map<String, Object>) context.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE);
+                    result = (Response) reqProcessable.process(masonReq, ds, bus, null); //@TODO add actual args and resource
 
                 }
             } else {
@@ -619,18 +609,7 @@ public class ExecuteTagHandler extends RestTag {
     public void setParam(Object param) {
         this.param = param;
     }
-
-    public void setPersistParam(Object persistParam) {
-        this.persistParam = persistParam;
-    }
-
-    public void addParameter(Object obj) {
-        if (parameters == null) {
-            parameters = new ArrayList<>();
-        }
-        parameters.add(obj);
-    }
-
+   
     public void setVar(String var) {
         this.var = var;
     }

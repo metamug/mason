@@ -509,6 +509,8 @@ package com.metamug.mason.tag.xrequest;
 import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
+import com.metamug.mason.tag.RequestTag;
+import com.metamug.mason.tag.RequestTagHandler;
 import com.metamug.mason.tag.ResourceTagHandler;
 import com.metamug.mason.tag.RestTag;
 import java.util.Arrays;
@@ -523,24 +525,13 @@ import org.json.JSONObject;
  *
  * @author anishhirlekar
  */
-public class XRequestTagHandler extends RestTag {
-
-    private Map<String, String> headers;
-    private Map<String, String> parameters;
+public class XRequestTagHandler extends RequestTag {
 
     private String var;
     private String url;
-    private String method;
-    private String requestBody;
-    
-    private Boolean output;
 
-    public XRequestTagHandler() {
-        super();
-        headers = new HashMap<>();
-        parameters = new HashMap<>();
-        output = false; //default value
-    }
+    private String requestBody;
+    private Boolean output;
 
     @Override
     public int doEndTag() throws JspException {
@@ -615,9 +606,7 @@ public class XRequestTagHandler extends RestTag {
         url = u;
     }
 
-    public void setMethod(String m) {
-        method = m;
-    }
+   
 
     public void setRequestBody(String b) {
         requestBody = b;
@@ -627,19 +616,5 @@ public class XRequestTagHandler extends RestTag {
         this.output = output;
     }
 
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
-    }
-
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
-    }
-
-    public void addParameter(String name, String value) {
-        parameters.put(name, value);
-    }
+   
 }

@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.entity.request;
 
+import com.metamug.entity.Request;
 import java.util.Map;
 
 /**
@@ -513,9 +514,9 @@ import java.util.Map;
  *
  * @author user
  */
-public final class ImmutableMtgRequest extends MasonRequest {
+public final class ImmutableMtgRequest extends Request {
 
-    public ImmutableMtgRequest(MasonRequest mtgReq) {
+    public ImmutableMtgRequest(Request mtgReq) {
         super(mtgReq);
     }
 

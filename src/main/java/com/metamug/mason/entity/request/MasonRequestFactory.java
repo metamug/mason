@@ -5,6 +5,7 @@
  */
 package com.metamug.mason.entity.request;
 
+import com.metamug.entity.Request;
 import com.metamug.mason.Router;
 import static com.metamug.mason.Router.APPLICATION_HTML;
 import static com.metamug.mason.Router.APPLICATION_JSON;
@@ -19,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class MasonRequestFactory {
 
-    public static MasonRequest create(HttpServletRequest request, String method,
+    public static Request create(HttpServletRequest request, String method,
             String[] tokens, int versionTokenIndex) throws IOException, ServletException {
 
         ParamExtractStrategy strategy;
@@ -36,7 +37,7 @@ public class MasonRequestFactory {
             strategy = new FormStrategy(request);
         }
 
-        MasonRequest masonRequest = strategy.getRequest();
+        Request masonRequest = strategy.getRequest();
 
         //Set parent value and pid
         if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {

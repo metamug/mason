@@ -507,8 +507,8 @@
 package com.metamug.mason;
 
 import com.eclipsesource.json.ParseException;
+import com.metamug.entity.Request;
 import com.metamug.mason.entity.RootResource;
-import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.entity.request.MasonRequestFactory;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
@@ -526,7 +526,6 @@ import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.MultipartConfig;
@@ -641,7 +640,7 @@ public class Router implements Filter {
             }
             //get queries
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
-            MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
+            Request mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
             req.setAttribute("mtgReq", mtgReq);
             //Adding to request, otherwise the user has to write ${applicationScope.datasource}
             req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
