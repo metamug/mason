@@ -516,6 +516,7 @@ import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.tag.RestTag;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -602,7 +603,8 @@ public class RequestTagHandler extends RestTag {
         }
 
         if (!hasFile) {
-            try (PrintWriter out = response.getWriter()) {
+            try {
+                
                 MasonOutput<String> output = null;
                 List list = Arrays.asList(header.split("/"));
                 if (list.contains("xml")) { //Accept: application/xml, text/xml
@@ -612,19 +614,24 @@ public class RequestTagHandler extends RestTag {
                 } else { //Accept: application/json OR default
                     output = new JSONOutput(responses);
                 }
-                out.write(output.getContentType());
+                //cannnot use print writer since it we are already using outputstream
+                byte[] stream = ((String) output.getContent()).getBytes("UTF-8");
+                response.setContentLength(stream.length);
+                OutputStream out = response.getOutputStream();
+                out.write(stream);
             } catch (IOException | JAXBException ex) {
                 Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
         } else {
-            
+
             //has file in response
             MasonOutput<InputStream> output = new BinaryOutput(responses);
 
             try {
                 /**
-                 * Don't set Content Length. Max buffer for output stream is 2KB and it is flushed
-                 * 
+                 * Don't set Content Length. Max buffer for output stream is 2KB
+                 * and it is flushed
+                 *
                  */
                 InputStream gzin = new GZIPInputStream(output.getContent());
                 ReadableByteChannel in = Channels.newChannel(gzin);

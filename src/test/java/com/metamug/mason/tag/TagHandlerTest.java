@@ -509,8 +509,11 @@ package com.metamug.mason.tag;
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.service.ConnectionProvider;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
+import static com.metamug.mason.tag.RestTag.MASON_BUS;
 import com.metamug.mason.tag.request.RequestTagHandler;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -520,6 +523,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -562,6 +566,9 @@ public class TagHandlerTest {
 
     @Mock
     private JspWriter writer;
+    
+    @Mock
+    private ServletOutputStream outputStream;
 
     @InjectMocks
     RequestTagHandler requestTag = new RequestTagHandler(); //needs to initialized here 
@@ -620,6 +627,10 @@ public class TagHandlerTest {
 
             when(context.getRequest()).thenReturn(request);
             when(context.getResponse()).thenReturn(response);
+            
+            when(response.getOutputStream()).thenReturn(outputStream);
+            when(context.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+            
             when(context.getOut()).thenReturn(writer);
             when(request.getAttribute("mtgReq")).thenReturn(masonRequest);
 
@@ -644,6 +655,8 @@ public class TagHandlerTest {
             when(resultImpl.getRows()).thenReturn(new SortedMap[]{row});
             when(resultImpl.getColumnNames()).thenReturn(new String[]{"Name", "Age"});
         } catch (SQLException ex) {
+            Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -678,7 +691,8 @@ public class TagHandlerTest {
     @Test //(expected = JspException.class)
     public void resourceTagAuth() throws JspException {
         resourceTag.setAuth("admin");
-        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTY1ODUxODIxLCJpYXQiOjE1NTgwNzU4MjEsImp0aSI6ImRmMDA3YzU0LWI3ODUtNGVmZC1hMzkxLThiNmM5YzliY2JlMiJ9.3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
+        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTc0NTAyODIxLCJpYXQiOjE1NjY3MjY4MjEsImp0aSI6IjQ4MGM2ZDA4LWVlMDAtNGRkYy1iOWQyLTljNzIzZmY2OGIzYSJ9.rehuBejj/ercDqyafHAx5KIxVIcSvyIx7Erzg4A8BKc=";
+        //3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
