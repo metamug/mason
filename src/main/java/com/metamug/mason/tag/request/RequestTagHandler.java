@@ -507,13 +507,15 @@
 package com.metamug.mason.tag.request;
 
 import com.metamug.mason.entity.request.MasonRequest;
-import com.metamug.mason.entity.response.BinaryOutput;
+import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.entity.response.DatasetOutput;
 import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.tag.RestTag;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -592,14 +594,16 @@ public class RequestTagHandler extends RestTag {
         boolean hasFile = false;
 
         Map<String, Object> responses = new HashMap<>();
-        //get response objects to be printed in output
-        masonOutput.forEach(var -> {
 
-        });
-
+        //get response objects to be printed in output        
         for (Map.Entry<String, Object> entry : masonBus.entrySet()) {
             Object obj = entry.getKey();
-            hasFile = obj instanceof InputStream;
+            //check for file
+            if (obj instanceof InputStream) {
+                hasFile = true;
+                break;
+            }
+
             responses.put(entry.getKey(), entry.getValue());
         }
 
@@ -616,6 +620,7 @@ public class RequestTagHandler extends RestTag {
                     output = new JSONOutput(responses);
                 }
                 //cannnot use print writer since it we are already using outputstream
+                response.setContentType(output.getContentType());
                 byte[] stream = ((String) output.getContent()).getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(stream.length);
                 outputStream.write(stream);
@@ -623,13 +628,15 @@ public class RequestTagHandler extends RestTag {
             } else {
 
                 //has file in response
-                MasonOutput<InputStream> output = new BinaryOutput(responses);
-
+                MasonOutput<File> output = new FileOutput(responses);
+                File file = output.getContent();
+                response.setContentType(output.getContentType());
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + file + "\"");
                 /**
                  * Don't set Content Length. Max buffer for output stream is 2KB
                  * and it is flushed
                  */
-                InputStream gzin = new GZIPInputStream(output.getContent());
+                InputStream gzin = new GZIPInputStream(new FileInputStream(file));
                 ReadableByteChannel in = Channels.newChannel(gzin);
                 WritableByteChannel out = Channels.newChannel(response.getOutputStream());
                 ByteBuffer buffer = ByteBuffer.allocate(65536);

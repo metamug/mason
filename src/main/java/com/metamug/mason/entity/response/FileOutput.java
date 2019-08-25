@@ -508,6 +508,7 @@ That's all there is to it!
  */
 package com.metamug.mason.entity.response;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -515,18 +516,17 @@ import java.util.Map;
  *
  * @author pc
  */
-public class BinaryOutput extends MasonOutput<InputStream> {
+public class FileOutput extends MasonOutput<File> {
 
-    int BUFF_SIZE = 1024;
-    private InputStream content;
+    private File content;
 
-    public BinaryOutput(Map<String, Object> outputMap) {
+    public FileOutput(Map<String, Object> outputMap) {
         super(outputMap);
 
         outputMap.forEach((key, value) -> {
-            //This is will match the last InputStream object matched.
-            if (value instanceof InputStream) {
-                content = (InputStream) value;
+            //Takes the last matched file
+            if (value instanceof File) {
+                content = (File) value;
             }
 
         });
@@ -538,7 +538,7 @@ public class BinaryOutput extends MasonOutput<InputStream> {
     }
 
     @Override
-    public InputStream getContent() {
+    public File getContent() {
         return content;
     }
 
