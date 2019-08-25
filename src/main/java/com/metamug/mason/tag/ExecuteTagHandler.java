@@ -531,12 +531,12 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 public class ExecuteTagHandler extends RequestTag {
 
     private String className;
-    private String onError;
     private Object param; //input for execution sql result(ResultProcessable) or http request(RequestProcessable)
     private String var;
     private DataSource ds;
 
     private Boolean output; //default value
+    private String onerror;
 
     @Override
     public int doEndTag() throws JspException {
@@ -591,7 +591,11 @@ public class ExecuteTagHandler extends RequestTag {
                 addToOutput(var, result);
             }
         } catch (Exception ex) {
-            throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onError));
+            if (onerror == null) {
+                throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, ex.getMessage()));
+            }else{
+                throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onerror));
+            }
         }
 
         return EVAL_PAGE;
@@ -601,8 +605,8 @@ public class ExecuteTagHandler extends RequestTag {
         this.className = className;
     }
 
-    public void setOnError(String onError) {
-        this.onError = onError;
+    public void setOnerror(String onError) {
+        this.onerror = onError;
     }
 
     public void setParam(Object param) {

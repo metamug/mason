@@ -176,7 +176,7 @@
             <type>java.lang.Boolean</type>
         </attribute>
         <attribute>
-            <name>onError</name>
+            <name>onerror</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>

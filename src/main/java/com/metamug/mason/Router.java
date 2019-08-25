@@ -665,11 +665,11 @@ public class Router implements Filter {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
             } else if (ex.getCause() != null) {
                 String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-                writeError(res, 422, cause);
+                writeError(res, 500, cause);
             } else if (ex.getMessage().contains("ELException")) {
                 writeError(res, 512, "Incorrect test condition in '" + tokens[versionTokenIndex + 1] + "' resource");
             } else {
-                writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                writeError(res, 500, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                 Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
             }
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
