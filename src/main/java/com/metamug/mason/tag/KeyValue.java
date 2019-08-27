@@ -1,5 +1,6 @@
 /*
-GNU LESSER GENERAL PUBLIC LICENSE
+
+                  GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
@@ -30,9 +31,7 @@ not price.  Our General Public Licenses are designed to make sure that
 you have the freedom to distribute copies of free software (and charge
 for this service if you wish); that you receive source code or can get
 it if you want it; that you can change the software and use pieces of
-it in new free programs; and 
-
-that you are informed that you can do
+it in new free programs; and that you are informed that you can do
 these things.
 
   To protect your rights, we need to make restrictions that forbid
@@ -139,150 +138,7 @@ included without limitation in the term "modification".)
   "Source code" for a work means the preferred form of the work for
 making modifications to it.  For a library, complete source code means
 all the source code for all modules it contains, plus any associated
-
-import org.junit.Test;
-LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
-[This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
-
-                            Preamble
-
-  The licenses for most software are designed to take away your
-freedom to share and change it.  By contrast, the GNU General Public
-Licenses are intended to guarantee your freedom to share and change
-free software--to make sure the software is free for all its users.
-
-  This license, the Lesser General Public License, applies to some
-specially designated software packages--typically libraries--of the
-Free Software Foundation and other authors who decide to use it.  You
-can use it too, but we suggest you first think carefully about whether
-this license or the ordinary General Public License is the better
-strategy to use in any particular case, based on the explanations below.
-
-  When we speak of free software, we are referring to freedom of use,
-not price.  Our General Public Licenses are designed to make sure that
-you have the freedom to distribute copies of free software (and charge
-for this service if you wish); that you receive source code or can get
-it if you want it; that you can change the software and use pieces of
-it in new free programs; and 
-
-that you are informed that you can do
-these things.
-
-  To protect your rights, we need to make restrictions that forbid
-distributors to deny you these rights or to ask you to surrender these
-rights.  These restrictions translate to certain responsibilities for
-you if you distribute copies of the library or if you modify it.
-
-  For example, if you distribute copies of the library, whether gratis
-or for a fee, you must give the recipients all the rights that we gave
-you.  You must make sure that they, too, receive or can get the source
-code.  If you link other code with the library, you must provide
-complete object files to the recipients, so that they can relink them
-with the library after making changes to the library and recompiling
-it.  And you must show them these terms so they know their rights.
-
-  We protect your rights with a two-step method: (1) we copyright the
-library, and (2) we offer you this license, which gives you legal
-permission to copy, distribute and/or modify the library.
-
-  To protect each distributor, we want to make it very clear that
-there is no warranty for the free library.  Also, if the library is
-modified by someone else and passed on, the recipients should know
-that what they have is not the original version, so that the original
-author's reputation will not be affected by problems that might be
-introduced by others.
-
-  Finally, software patents pose a constant threat to the existence of
-any free program.  We wish to make sure that a company cannot
-effectively restrict the users of a free program by obtaining a
-restrictive license from a patent holder.  Therefore, we insist that
-any patent license obtained for a version of the library must be
-consistent with the full freedom of use specified in this license.
-
-  Most GNU software, including some libraries, is covered by the
-ordinary GNU General Public License.  This license, the GNU Lesser
-General Public License, applies to certain designated libraries, and
-is quite different from the ordinary General Public License.  We use
-this license for certain libraries in order to permit linking those
-libraries into non-free programs.
-
-  When a program is linked with a library, whether statically or using
-a shared library, the combination of the two is legally speaking a
-combined work, a derivative of the original library.  The ordinary
-General Public License therefore permits such linking only if the
-entire combination fits its criteria of freedom.  The Lesser General
-Public License permits more lax criteria for linking other code with
-the library.
-
-  We call this license the "Lesser" General Public License because it
-does Less to protect the user's freedom than the ordinary General
-Public License.  It also provides other free software developers Less
-of an advantage over competing non-free programs.  These disadvantages
-are the reason we use the ordinary General Public License for many
-libraries.  However, the Lesser license provides advantages in certain
-special circumstances.
-
-  For example, on rare occasions, there may be a special need to
-encourage the widest possible use of a certain library, so that it becomes
-a de-facto standard.  To achieve this, non-free programs must be
-allowed to use the library.  A more frequent case is that a free
-library does the same job as widely used non-free libraries.  In this
-case, there is little to gain by limiting the free library to free
-software only, so we use the Lesser General Public License.
-
-  In other cases, permission to use a particular library in non-free
-programs enables a greater number of people to use a large body of
-free software.  For example, permission to use the GNU C Library in
-non-free programs enables many more people to use the whole GNU
-operating system, as well as its variant, the GNU/Linux operating
-system.
-
-  Although the Lesser General Public License is Less protective of the
-users' freedom, it does ensure that the user of a program that is
-linked with the Library has the freedom and the wherewithal to run
-that program using a modified version of the Library.
-
-  The precise terms and conditions for copying, distribution and
-modification follow.  Pay close attention to the difference between a
-"work based on the library" and a "work that uses the library".  The
-former contains code derived from the library, whereas the latter must
-be combined with the library in order to run.
-
-                  GNU LESSER GENERAL PUBLIC LICENSE
-   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-  0. This License Agreement applies to any software library or other
-program which contains a notice placed by the copyright holder or
-other authorized party saying it may be distributed under the terms of
-this Lesser General Public License (also called "this License").
-Each licensee is addressed as "you".
-
-  A "library" means a collection of software functions and/or data
-prepared so as to be conveniently linked with application programs
-(which use some of those functions and data) to form executables.
-
-  The "Library", below, refers to any such software library or work
-which has been distributed under these terms.  A "work based on the
-Library" means either the Library or any derivative work under
-copyright law: that is to say, a work containing the Library or a
-portion of it, either verbatim or with modifications and/or translated
-straightforwardly into another language.  (Hereinafter, translation is
-included without limitation in the term "modification".)
-
-  "Source code" for a work means the preferred form of the work for
-making modifications to it.  For a library, complete source code means
-all the source code for all modules it contains, plus any associated
-interface definition 
-files, plus the scripts used to control compilation
+interface definition files, plus the scripts used to control compilation
 and installation of the library.
 
   Activities other than copying, distribution and modification are not
@@ -432,9 +288,7 @@ of these things:
     a) Accompany the work with the complete corresponding
     machine-readable source code for the Library including whatever
     changes were used in the work (which must be distributed under
-    Sections 1 and 2 above); and
-
-, if the work is an executable linked
+    Sections 1 and 2 above); and, if the work is an executable linked
     with the Library, with the complete machine-readable "work that
     uses the Library", as object code and/or source code, so that the
     user can modify the Library and then relink to produce a modified
@@ -449,8 +303,7 @@ of these things:
     rather than copying library functions into the executable, and (2)
     will operate properly with a modified version of the library, if
     the user installs one, as long as the modified version is
-    interface
--compatible with the version that the work was made with.
+    interface-compatible with the version that the work was made with.
 
     c) Accompany the work with a written offer, valid for at
     least three years, to give the same user the materials
@@ -653,102 +506,13 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
-package com.metamug.mason.entity;
-
-import com.metamug.mason.RouterTest;
-import com.metamug.mason.dao.AuthDAO;
-import com.metamug.mason.service.AuthService;
-import com.metamug.mason.service.ConnectionProvider;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.mockito.runners.MockitoJUnitRunner;
+package com.metamug.mason.tag;
 
 /**
  *
- * @author GAURI
+ * @author pc
  */
-@RunWith(MockitoJUnitRunner.class)
-public class RootResourceTest {
+interface KeyValue {
 
-    @Mock
-    private HttpServletRequest request;
-    @Mock
-    private HttpServletResponse response;
-
-    private StringWriter stringWriter;
-    private PrintWriter writer;
-    @Mock
-    private ConnectionProvider provider;
-    @Mock
-    Connection connection;
-
-    @Mock
-    private PreparedStatement statement;
-
-    @Mock
-    private ResultSet resultSet;
-
-    @Before
-    public void setUp() {
-        request = mock(HttpServletRequest.class);
-        response = mock(HttpServletResponse.class);
-        ServletContext context = mock(ServletContext.class);
-        when(request.getServletContext()).thenReturn(context);
-        when(context.getContextPath()).thenReturn("backend");
-
-        //prepare String Writer
-        stringWriter = new StringWriter();
-        writer = new PrintWriter(stringWriter);
-        try {
-            when(response.getWriter()).thenReturn(writer);
-        } catch (IOException ex) {
-            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-    }
-  
-    @Ignore
-    @Test
-    public void testJwtAuthCall() {
-        try {
-            when(request.getParameter("auth")).thenReturn("bearer");
-            when(request.getParameter("userid")).thenReturn("1234");
-            when(request.getParameter("password")).thenReturn("pass");
-            when(provider.getConnection()).thenReturn(connection);
-            when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
-            when(statement.executeQuery()).thenReturn(resultSet);
-            //result set should return true for config function to give auth query
-            //second time inside createBearer function and then it should return false.
-            when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
-            when(resultSet.getString("auth_query")).thenReturn("some query mocked");
-            when(resultSet.getString(1)).thenReturn("1234");
-            when(resultSet.getString(2)).thenReturn("admin");
-
-            RootResource root = new RootResource(request, response);
-            root.processAuth(new AuthService(new AuthDAO(provider)));
-            //verify(statement.executeQuery())
-            System.out.println(stringWriter.toString());
-            assertTrue(stringWriter.toString().contains("token\":"));
-        } catch (SQLException ex) {
-            Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-    }
+    public void put(String key, String value);
 }

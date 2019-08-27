@@ -5,7 +5,7 @@
  */
 package com.metamug.mason.tag;
 
-import com.metamug.mason.entity.request.MasonRequest;
+import com.metamug.entity.Request;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import groovy.lang.Binding;
@@ -52,7 +52,7 @@ public class ScriptTagHandler extends RestTag {
             //file:/C:/tomcat9/webapps/mason-sample/WEB-INF/classes//WEB_INF/scripts/test.groovy
             GroovyScriptEngine engine = new GroovyScriptEngine(new URL[]{ScriptTagHandler.class.getClassLoader().getResource("..")});
             Binding binding = new Binding();
-            MasonRequest masonReq = (MasonRequest) request.getAttribute("mtgReq");
+            Request masonReq = (Request) request.getAttribute("mtgReq");
             binding.setVariable("_request", masonReq);
             Map<String, Object> masonBus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
             binding.setVariable("_bus", masonBus);

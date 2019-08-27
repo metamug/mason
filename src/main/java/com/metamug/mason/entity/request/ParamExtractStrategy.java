@@ -5,6 +5,7 @@
  */
 package com.metamug.mason.entity.request;
 
+import com.metamug.entity.Request;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
@@ -15,13 +16,13 @@ import javax.servlet.http.HttpServletRequest;
  */
 public abstract class ParamExtractStrategy {
 
-    protected MasonRequest masonRequest = new MasonRequest();
+    protected Request masonRequest = new Request();
     protected Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public ParamExtractStrategy(HttpServletRequest request) {
     }
 
-    public MasonRequest getRequest() {
+    public Request getRequest() {
         masonRequest.setParams(params);
         return masonRequest;
     }
@@ -33,7 +34,7 @@ public abstract class ParamExtractStrategy {
      * @param keyValue
      * @param params
      */
-    protected static void addKeyPair(MasonRequest masonRequest, String[] keyValue, Map params) {
+    protected static void addKeyPair(Request masonRequest, String[] keyValue, Map params) {
         if (keyValue[0].equalsIgnoreCase("id")) {
             masonRequest.setId(keyValue[1]);
         } else if (keyValue[0].equalsIgnoreCase("pid")) {

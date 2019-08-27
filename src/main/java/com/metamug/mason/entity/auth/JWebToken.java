@@ -553,7 +553,7 @@ public class JWebToken {
         payload.put("iat", LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
         payload.put("iss", ISSUER);
         payload.put("jti", UUID.randomUUID().toString()); //how do we use this?
-        signature = hmacSha256(encodedHeader + "." + encode(payload));
+        signature = hmacSha256(encodedHeader + "." + encode(payload), SECRET_KEY);
     }
 
     /**
@@ -573,10 +573,10 @@ public class JWebToken {
         } else {
             throw new NoSuchAlgorithmException("JWT Header is Incorrect: " + parts[0]);
         }
-        String decodedPayload = new String(Base64.getDecoder().decode(parts[1]));
-        payload = new JSONObject(decodedPayload);
+
+        payload = new JSONObject(decode(parts[1]));
         if (payload.isEmpty()) {
-            throw new JSONException("Payload is Empty: " + decodedPayload);
+            throw new JSONException("Payload is Empty: ");
         }
         if (!payload.has("exp")) {
             throw new JSONException("Payload doesn't contain expiry " + payload);
@@ -591,7 +591,7 @@ public class JWebToken {
 
     public boolean isValid() {
         return payload.getLong("exp") > (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)) //token not expired
-                && signature.equals(hmacSha256(encodedHeader + "." + encode(payload))); //signature matched
+                && signature.equals(hmacSha256(encodedHeader + "." + encode(payload), SECRET_KEY)); //signature matched
     }
 
     public String getSubject() {
@@ -608,7 +608,15 @@ public class JWebToken {
     }
 
     private static String encode(JSONObject obj) {
-        return new String(Base64.getEncoder().encode(obj.toString().getBytes(StandardCharsets.UTF_8)));
+        return encode(obj.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String encode(byte[] bytes) {
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    private static String decode(String encodedString) {
+        return new String(Base64.getUrlDecoder().decode(encodedString));
     }
 
     /**
@@ -618,26 +626,22 @@ public class JWebToken {
      * @return
      * @throws Exception
      */
-    private String hmacSha256(String data) {
+    private String hmacSha256(String data, String secret) {
         try {
+
+            //MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = secret.getBytes(StandardCharsets.UTF_8);//digest.digest(secret.getBytes(StandardCharsets.UTF_8));
+
             Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(hash, "HmacSHA256");
             sha256Hmac.init(secretKey);
-            return new String(Base64.getEncoder().encode(sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8))));
+
+            byte[] signedBytes = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return encode(signedBytes);
         } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
             Logger.getLogger(JWebToken.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
-    }
-
-    private static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 
 }

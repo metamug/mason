@@ -515,34 +515,38 @@ import javax.servlet.jsp.JspException;
  * @author anishhirlekar
  */
 public class SqlOutTagHandler extends RestTag {
+
     private String var;
     private Boolean bus;
     private Boolean output;
     private Object result;
-    
+
     @Override
     public int doEndTag() throws JspException {
-        if(output != null && output){
-            addToOutput(var);
+        if (output != null && output) {
+            addToOutput(var, result);
         }
-        
-        if(bus != null && bus){
+
+        if (bus != null && bus) {
             addToBus(var, result);
         }
-        
+
         return EVAL_PAGE;
     }
-    
+
     public void setVar(String var) {
         this.var = var;
     }
-    public void setBus(Boolean bus){
+
+    public void setBus(Boolean bus) {
         this.bus = bus;
     }
-    public void setOutput(Boolean output){
+
+    public void setOutput(Boolean output) {
         this.output = output;
     }
-    public void setResult(Object res){
+
+    public void setResult(Object res) {
         result = res;
     }
 }

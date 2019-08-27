@@ -507,14 +507,15 @@
 package com.metamug.mason;
 
 import com.eclipsesource.json.ParseException;
+import com.metamug.entity.Request;
 import com.metamug.mason.entity.RootResource;
-import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.entity.request.MasonRequestFactory;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -525,7 +526,6 @@ import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.MultipartConfig;
@@ -640,7 +640,7 @@ public class Router implements Filter {
             }
             //get queries
             Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
-            MasonRequest mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
+            Request mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
             req.setAttribute("mtgReq", mtgReq);
             
             //Adding to request, otherwise the user has to write ${applicationScope.datasource}
@@ -668,11 +668,11 @@ public class Router implements Filter {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
             } else if (ex.getCause() != null) {
                 String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-                writeError(res, 422, cause);
+                writeError(res, 500, cause);
             } else if (ex.getMessage().contains("ELException")) {
                 writeError(res, 512, "Incorrect test condition in '" + tokens[versionTokenIndex + 1] + "' resource");
             } else {
-                writeError(res, 512, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+                writeError(res, 500, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
                 Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
             }
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -693,7 +693,7 @@ public class Router implements Filter {
      */
     private void writeError(HttpServletResponse res, int status, String message) throws IOException {
 
-        try (ServletOutputStream writer = res.getOutputStream()) {
+        try (PrintWriter writer = res.getWriter()) {
             res.setContentType("application/json;charset=UTF-8");
             res.setCharacterEncoding("UTF-8");
             res.setStatus(status);

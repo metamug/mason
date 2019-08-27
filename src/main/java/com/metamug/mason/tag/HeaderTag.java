@@ -506,52 +506,55 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
-package com.metamug.mason.entity.response;
+package com.metamug.mason.tag;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
-import sun.misc.IOUtils;
+import com.metamug.mason.tag.RequestTag;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
 
 /**
  *
  * @author pc
  */
-public class BinaryOutput extends MasonOutput<InputStream> {
+public class HeaderTag extends BodyTagSupport implements KeyValue {
 
-    int BUFF_SIZE = 1024;
-    private InputStream content;
+    private String name;
+    private String value;
+    protected RequestTag parent;
 
-    public BinaryOutput(Map<String, Object> outputMap) {
-        super(outputMap);
+    @Override
+    public int doEndTag() throws JspException {
 
-        outputMap.forEach((key, value) -> {
-            //This is will match the last InputStream object matched.
-            if (value instanceof InputStream) {
-                content = (InputStream) value;
-                
-            }
+//        RequestTag parent = (RequestTag) findAncestorWithClass(this, RequestTag.class);
+        parent = (RequestTag) getParent();
+        if (parent == null) {
+            throw new JspTagException("Header Tag doesnt have a valid parent");
+        }
 
-        });
+        if (value == null) {
+            value = getBodyContent().getString().trim();
+        }
+
+        if (value.length() > 0) {
+            put(name, value);
+        }
+
+        return EVAL_PAGE;
+    }
+
+    public void setName(String n) {
+        name = n;
+    }
+
+    public void setValue(String v) {
+        value = v;
     }
 
     @Override
-    public String getContentType() {
-        return OCTETSTREAM;
+    public void put(String key, String value) {
+        parent.addHeader(key, value);
     }
-
-    @Override
-    public InputStream getContent() {
-        return content;
-    }
-
-    private static final String OCTETSTREAM = "application/octet-stream";
-
 }
