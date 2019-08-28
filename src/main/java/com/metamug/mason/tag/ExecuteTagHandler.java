@@ -515,7 +515,6 @@ import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
 import static com.metamug.mason.tag.RestTag.MASON_BUS;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.jsp.JspException;
@@ -585,10 +584,23 @@ public class ExecuteTagHandler extends RequestTag {
                         "Class " + cls + " isn't processable"));
             }
 
-            addToBus(var, result);
+            if(result instanceof Response){
+                // if Response object is returned, put payload in bus and mason output
+                Object payload = (Response)result.getPayload();
+                addToBus(var, payload);
+                
+                if (output != null && output) {
+                    addToOutput(var, payload);
+                }
+                
+                // TODO: add Response headers to http response
+            }else{
+                // put returned object in bus and mason output
+                addToBus(var, result);
 
-            if (output != null && output) {
-                addToOutput(var, result);
+                if (output != null && output) {
+                    addToOutput(var, result);
+                }
             }
         } catch (Exception ex) {
             if (onerror == null) {
