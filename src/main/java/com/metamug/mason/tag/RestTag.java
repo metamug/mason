@@ -522,9 +522,9 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 public class RestTag extends BodyTagSupport implements TryCatchFinally {
 
     public static final String HEADER_ACCEPT = "Accept";
-    public static final String MASON_BUS = "MASON_BUS";
-    public static final String MASON_OUTPUT = "masonOutput";
-    public static final String EXTRACTED = "extracted";
+    public static final String MASON_BUS = "bus";
+    public static final String MASON_OUTPUT = "output";
+    public static final String EXTRACTED = "extract";
 
     protected HttpServletRequest request;
     protected HttpServletResponse response;
