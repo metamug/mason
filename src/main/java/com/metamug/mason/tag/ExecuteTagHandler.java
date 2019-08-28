@@ -586,11 +586,10 @@ public class ExecuteTagHandler extends RequestTag {
 
             if(result instanceof Response){
                 // if Response object is returned, put payload in bus and mason output
-                Object payload = (Response)result.getPayload();
-                addToBus(var, payload);
+                addToBus(var, result.getPayload());
                 
                 if (output != null && output) {
-                    addToOutput(var, payload);
+                    addToOutput(var, result.getPayload());
                 }
                 
                 // TODO: add Response headers to http response
