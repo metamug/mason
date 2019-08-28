@@ -529,25 +529,34 @@ import javax.servlet.jsp.PageContext;
  */
 public class ExtractTagHandler extends RestTag {
     private String path;
+    private String var;
     
     @Override
     public int doEndTag() throws JspException {
-        //get var name from path notation
-        String var = ExtractStrategy.getVarName(path);
+        //get bus variable name from path notation
+        String busVariable = ExtractStrategy.getVarName(path);
         //get target result object from bus
-        Object target = getFromBus(var);
+        Object target = getFromBus(busVariable);
         
         ExtractService extractService = new ExtractService();
         
-        String value = extractService.extract(target, path);
+        String extractedValue = extractService.extract(target, path);
         
-        Map<String, Object> extracted = (HashMap)pageContext.getAttribute(EXTRACTED,PageContext.PAGE_SCOPE);
-        extracted.put(path.replace("$", ""), value);
+        Map<String, Object> extractMap = (HashMap)pageContext.getAttribute(EXTRACTED,PageContext.PAGE_SCOPE);
+        
+        //set extracted var if given var name, otherwise set name same as mpath
+        String extractedVariable = var != null ? var : path.replace("$", "");
+        
+        extractMap.put(extractedVariable, extractedValue);
         
         return EVAL_PAGE;
     }
 
     public void setPath(String path) {
         this.path = path;
+    }
+    
+    public void setVar(String var){
+        this.var = var;
     }
 }
