@@ -518,8 +518,8 @@ import org.json.JSONObject;
  */
 public class Extract {
     
-    public static String fromJson(String path, Object target){
-        return new JSONExtractStrategy().extract(path, (JSONObject)target);
+    public static String jsonPath(String jsonPath, Object target){
+        return new JSONExtractStrategy().extract(jsonPath, (JSONObject)target);
     }
     
 }

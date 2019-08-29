@@ -285,8 +285,8 @@
         <body-content>JSP</body-content>
     </tag>
     <function>
-        <name>extractFromJson</name>
+        <name>jsonPath</name>
         <function-class>com.metamug.mason.function.Extract</function-class>
-        <function-signature>java.lang.String fromJson(java.lang.String,java.lang.Object)</function-signature>
+        <function-signature>java.lang.String jsonPath(java.lang.String,java.lang.Object)</function-signature>
     </function>
 </taglib>
