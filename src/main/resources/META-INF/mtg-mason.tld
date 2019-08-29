@@ -284,4 +284,9 @@
         <tag-class>com.metamug.mason.tag.DownloadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
     </tag>
+    <function>
+        <name>extractFromJson</name>
+        <function-class>com.metamug.mason.function.Extract</function-class>
+        <function-signature>java.lang.String fromJson(java.lang.String,java.lang.Object)</function-signature>
+    </function>
 </taglib>
