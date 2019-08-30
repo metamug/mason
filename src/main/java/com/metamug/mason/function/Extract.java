@@ -506,47 +506,20 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
-package com.metamug.mason.tag;
+package com.metamug.mason.function;
 
-import javax.servlet.jsp.JspException;
+import com.metamug.mason.io.mpath.JSONExtractStrategy;
+import org.json.JSONObject;
+
 
 /**
  *
  * @author anishhirlekar
  */
-public class SqlOutTagHandler extends RestTag {
-
-    private String var;
-    private Boolean bus;
-    private Boolean output;
-    private Object result;
-
-    @Override
-    public int doEndTag() throws JspException {
-        if (output != null && output) {
-            addToOutput(var, result);
-        }
-
-        if (bus != null && bus) {
-            addToBus(var, result);
-        }
-
-        return EVAL_PAGE;
+public class Extract {
+    
+    public static String jsonPath(String jsonPath, Object target){
+        return new JSONExtractStrategy().extract(jsonPath, (JSONObject)target);
     }
-
-    public void setVar(String var) {
-        this.var = var;
-    }
-
-    public void setBus(Boolean bus) {
-        this.bus = bus;
-    }
-
-    public void setOutput(Boolean output) {
-        this.output = output;
-    }
-
-    public void setResult(Object res) {
-        result = res;
-    }
+    
 }

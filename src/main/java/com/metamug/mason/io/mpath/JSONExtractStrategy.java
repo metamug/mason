@@ -528,9 +528,7 @@ import org.json.JSONObject;
 public class JSONExtractStrategy extends ExtractStrategy<JSONObject>{
 
     @Override
-    public String extract(String path, JSONObject target) {
-        
-        String jsonPath = path.replaceFirst("\\$\\[.+?\\]","\\$");
+    public String extract(String jsonPath, JSONObject target) {
         
         Object output = JsonPath.parse(target.toString()).read(jsonPath);
         if(output instanceof Map){

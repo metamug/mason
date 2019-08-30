@@ -135,6 +135,12 @@
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
+        <attribute>
+            <name>var</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     <tag>
         <name>script</name>
@@ -200,11 +206,18 @@
         </attribute>
     </tag>
     <tag>
-        <name>validate</name>
-        <tag-class>com.metamug.mason.tag.ValidateQueryTagHandler</tag-class>
+        <name>arg</name>
+        <tag-class>com.metamug.mason.tag.xrequest.ParamTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
-            <name>onError</name>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>value</name>
+            <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
@@ -271,33 +284,9 @@
         <tag-class>com.metamug.mason.tag.DownloadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
     </tag>
-    <tag>
-        <name>sqlOut</name>
-        <tag-class>com.metamug.mason.tag.SqlOutTagHandler</tag-class>
-        <body-content>empty</body-content>
-        <attribute>
-            <name>var</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>result</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-        <attribute>
-            <name>bus</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
-        </attribute>
-        <attribute>
-            <name>output</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
-        </attribute>
-    </tag>
+    <function>
+        <name>jsonPath</name>
+        <function-class>com.metamug.mason.function.Extract</function-class>
+        <function-signature>java.lang.String jsonPath(java.lang.String,java.lang.Object)</function-signature>
+    </function>
 </taglib>
