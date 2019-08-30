@@ -517,9 +517,9 @@ import java.util.Map;
  *
  * @author pc
  */
-public class FileOutput extends MasonOutput<File> {
+public class FileOutput extends MasonOutput<InputStream> {
 
-    private File content;
+    private InputStream content;
 
     public FileOutput(Map<String, Object> outputMap) {
         super(outputMap);
@@ -527,7 +527,7 @@ public class FileOutput extends MasonOutput<File> {
         outputMap.forEach((key, value) -> {
             //Takes the last matched file
             if (value instanceof Response) {
-                content = (File) ((Response) value).getPayload();
+                content = (InputStream) ((Response) value).getPayload();
             }
 
         });
@@ -539,7 +539,7 @@ public class FileOutput extends MasonOutput<File> {
     }
 
     @Override
-    public File getContent() {
+    public InputStream getContent() {
         return content;
     }
 
