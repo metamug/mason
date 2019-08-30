@@ -637,7 +637,7 @@ public class RequestTagHandler extends RequestTag {
                 MasonOutput<File> output = new FileOutput(responses);
                 File file = output.getContent();
                 response.setContentType(output.getContentType());
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + file + "\"");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
                 /**
                  * Don't set Content Length. Max buffer for output stream is 2KB
                  * and it is flushed
