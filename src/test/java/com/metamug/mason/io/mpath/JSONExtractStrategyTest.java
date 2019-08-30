@@ -573,28 +573,28 @@ public class JSONExtractStrategyTest {
     
     @Test
     public void testString(){
-        String path = "$[xreq].store.book[0].title";
+        String path = "$.store.book[0].title";
         JSONObject j = new JSONObject(json);
         String val = st.extract(path,j);
         Assert.assertEquals("Sayings of the Century", val);
     }
     @Test
     public void testObj(){
-        String path = "$[xreq].store.book[0]";
+        String path = "$.store.book[0]";
         JSONObject j = new JSONObject(json);
         String val = st.extract(path,j);
         Assert.assertEquals("{\"category\":\"reference\",\"title\":\"Sayings of the Century\",\"author\":\"Nigel Rees\",\"price\":8.95}", val);
     }
     @Test
     public void testArray(){
-        String path = "$[xreq].store.book";
+        String path = "$.store.book";
         JSONObject j = new JSONObject(json);
         String val = st.extract(path,j);
         Assert.assertEquals("[{\"author\":\"Nigel Rees\",\"price\":8.95,\"category\":\"reference\",\"title\":\"Sayings of the Century\"},{\"author\":\"Evelyn Waugh\",\"price\":12.99,\"category\":\"fiction\",\"title\":\"Sword of Honour\"},{\"author\":\"Herman Melville\",\"price\":8.99,\"isbn\":\"0-553-21311-3\",\"category\":\"fiction\",\"title\":\"Moby Dick\"},{\"author\":\"J. R. R. Tolkien\",\"price\":22.99,\"isbn\":\"0-395-19395-8\",\"category\":\"fiction\",\"title\":\"The Lord of the Rings\"}]", val);
     }
     @Test
     public void testNumber(){
-        String path = "$[xreq].store.book[3].price";
+        String path = "$.store.book[3].price";
         JSONObject j = new JSONObject(json);
         String val = st.extract(path,j);
         Assert.assertEquals("22.99", val);
