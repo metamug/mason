@@ -517,6 +517,7 @@ import com.metamug.mason.entity.response.XMLOutput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -598,7 +599,7 @@ public class RequestTagHandler extends RequestTag {
 
             if (tag.getValue() instanceof Response) {
                 Response res = (Response) tag.getValue();
-                if (res.getPayload() instanceof File) {
+                if (res.getPayload() instanceof InputStream) {
                     hasFile = true;
                     break;
                 }
@@ -628,16 +629,17 @@ public class RequestTagHandler extends RequestTag {
             } else {
 
                 //has file in response
-                MasonOutput<File> output = new FileOutput(responses);
-                File file = output.getContent();
+                MasonOutput<InputStream> output = new FileOutput(responses);
+                InputStream inputStream = output.getContent();
                 response.setContentType(output.getContentType());
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + file + "\"");
+                //@TODO use Attachment entity from mtg api
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + masonReq.getParameter("file") + "\"");
                 /**
                  * Don't set Content Length. Max buffer for output stream is 2KB
                  * and it is flushed
                  */
 
-                in = Channels.newChannel(new FileInputStream(file));
+                in = Channels.newChannel(inputStream);
                 out = Channels.newChannel(response.getOutputStream());
                 ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
                 while (in.read(buffer) != -1) {

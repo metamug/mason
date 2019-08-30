@@ -6,6 +6,7 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
+import com.metamug.entity.Resource;
 import com.metamug.mason.Router;
 import static com.metamug.mason.Router.APPLICATION_HTML;
 import static com.metamug.mason.Router.APPLICATION_JSON;
@@ -41,7 +42,7 @@ public class MasonRequestFactory {
 
         //Set parent value and pid
         if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {
-            masonRequest.setParent(tokens[versionTokenIndex + 1]);
+            masonRequest.setParent((tokens[versionTokenIndex + 1]));
             masonRequest.setPid(tokens[versionTokenIndex + 2]);
             masonRequest.setId((tokens.length > versionTokenIndex + 4) ? tokens[versionTokenIndex + 4] : null);
         } else {
