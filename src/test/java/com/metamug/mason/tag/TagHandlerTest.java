@@ -516,6 +516,7 @@ import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -708,7 +709,7 @@ public class TagHandlerTest {
 
         resultMap = new LinkedHashMap<>();
         resultMap.put("res3", "Hello World");
-        resultMap.put("file", new Response(temp)); //this will be used a mason bus
+        resultMap.put("file", new Response(new FileInputStream(temp))); //this will be used a mason bus
        
         when(context.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
