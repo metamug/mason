@@ -1,7 +1,10 @@
 # 🧱 MASON [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=All%20New%20Way%20of%20Writing%20REST%20APIs&url=https://github.com/metamug/mason&via=themetamug&hashtags=REST,API,developers)
 
-[![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason) [![Coverage Status](https://coveralls.io/repos/github/metamug/mason/badge.svg?branch=develop)](https://coveralls.io/github/metamug/mason?branch=develop) [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=metamug_mason)
+[![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason) [![Latest Release](https://img.shields.io/github/v/release/metamug/mason.svg?include_prereleases)]() [![Coverage Status](https://coveralls.io/repos/github/metamug/mason/badge.svg?branch=develop)](https://coveralls.io/github/metamug/mason?branch=develop) [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=metamug_mason)
  [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=metamug_mason) [![LGPL v2.1 Metamug License](https://img.shields.io/github/license/metamug/mason.svg?style=flat&colorB=7CFC00)](https://opensource.org/licenses/LGPL-2.1)
+
+
+
 
 Mason is an open-source, lightweight data access layer for REST resources designed to be used in Java web applications. It handles incoming API requests and routes the parameters to these resources.
 
