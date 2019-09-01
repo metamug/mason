@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.tag;
+package com.metamug.mason.service;
 
 import com.metamug.entity.Request;
 import com.metamug.event.UploadEvent;
@@ -519,11 +519,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -534,7 +532,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
 import org.json.JSONArray;
@@ -546,34 +543,36 @@ import org.json.JSONObject;
  * @author Kaisteel
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
-public class UploadEventTagHandler extends RestTag {
+public class UploaderService {
 
     private DataSource ds;
+
+    public UploaderService() {
+
+    }
 
     /**
      * This method is called after the JSP engine finished processing the tag.
      *
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
-     * methods that this method calls.
+     * @param request
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP
+     * page, otherwise return SKIP_PAGE. This method is automatically generated.
+     * Do not modify this method. Instead, modify the methods that this method
+     * calls.
      * @throws javax.servlet.jsp.JspException
      */
-    @Override
-    public int doEndTag() throws JspException {
+    public boolean upload(HttpServletRequest request, Map<String, Object> output) throws JspException {
+
+        String acceptHeader = request.getHeader("Accept");
         ds = ConnectionProvider.getMasonDatasource();
-        String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
-        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
-        String contentType = request.getContentType() == null ? "" : request.getContentType();
-        //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
-        LinkedHashMap<String, Object> bus = (LinkedHashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
-        int size = bus.size();
-        Request mtg = (Request) request.getAttribute("mtgReq");
-        
-        if (contentType.contains("multipart/form-data")) {
+        int size = output.size();
+
+        if (request.getContentType().contains("multipart/form-data")) {
             String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
             try {
                 String listenerClass;
                 Properties prop = new Properties();
-                try (InputStream fis = UploadEventTagHandler.class.getClassLoader().getResourceAsStream("config.properties")) {
+                try (InputStream fis = UploaderService.class.getClassLoader().getResourceAsStream("config.properties")) {
                     prop.load(fis);
                     listenerClass = prop.getProperty("UploadListener");
                 }
@@ -607,15 +606,13 @@ public class UploadEventTagHandler extends RestTag {
                                     for (Object object : (List) result) {
                                         outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
                                     }
-                                    bus.put("dupload" + (size + 1), outputArray);
-                                    addToOutput("dupload" + (size + 1), outputArray);
+                                    output.put("upload" + (size + 1), outputArray);
                                 } else {
                                     StringBuilder outputXml = new StringBuilder();
                                     for (Object object : (List) result) {
                                         outputXml.append(ObjectReturn.convert(object, acceptHeader));
                                     }
-                                    bus.put("dupload" + (size + 1), outputXml.toString());
-                                    addToOutput("dupload" + (size + 1), outputXml.toString());
+                                    output.put("upload" + (size + 1), outputXml.toString());
                                 }
                             } else {
                                 Object processedResult = ObjectReturn.convert(result, acceptHeader);
@@ -628,22 +625,20 @@ public class UploadEventTagHandler extends RestTag {
                                             jsonResult.put(next, jsonOutput.get(next));
                                         }
                                         if (jsonResult.length() > 0) {
-                                            bus.put("dupload" + (size + 1), jsonOutput);
-                                            addToOutput("dupload" + (size + 1), jsonOutput);
+                                            output.put("upload" + (size + 1), jsonOutput);
                                         }
                                     } catch (JSONException jx) {
-                                        bus.put("dupload" + (size + 1), processedResult);
-                                        addToOutput("dupload" + (size + 1), processedResult);
+
+                                        output.put("upload" + (size + 1), processedResult);
                                     }
                                 } //application/xml
                                 else {
-                                    bus.put("dupload" + (size + 1), processedResult);
-                                    addToOutput("dupload" + (size + 1), processedResult);
+                                    output.put("upload" + (size + 1), processedResult);
                                 }
                             }
                         }
-                        mtg.getParams().put("filename", file.getName());
-                        mtg.getParams().put("filesize", String.valueOf(file.length()));
+                        //mtg.getParams().put("filename", file.getName());
+                        //mtg.getParams().put("filesize", String.valueOf(file.length()));
                     }
                 }
             } catch (IllegalStateException ex) {
@@ -660,10 +655,11 @@ public class UploadEventTagHandler extends RestTag {
                 throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
             }
         }
-        return EVAL_PAGE;
+        return true;
     }
 
     private Object callUploadEvent(File uploadedFile, String listenerClass, HttpServletRequest req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
+        
         if (listenerClass != null) {
             Class cls = Class.forName((String) listenerClass);
             Object newInstance = cls.newInstance();
@@ -689,7 +685,7 @@ public class UploadEventTagHandler extends RestTag {
                         reqParams.put(param, req.getParameter(param));
                     }
                 }
-                
+
                 if (uploadedFile != null) {
                     Object result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), mtg), ds);
                     //Sync params to HttpRequest params

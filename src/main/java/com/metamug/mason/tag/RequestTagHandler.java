@@ -514,6 +514,7 @@ import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
+import com.metamug.mason.service.UploaderService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -544,31 +545,33 @@ public class RequestTagHandler extends RequestTag {
     private boolean item;
     private boolean evaluate;
 
-    private Request masonReq;
+    private Request masonRequest;
 
     //private Map<String, Object> masonBus; 
-    private Map<String, Object> extracted; //Holds values extracted using mpath notation
-
+    //private Map<String, Object> extracted; //Holds values extracted using mpath notation
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-        masonReq = (Request) request.getAttribute("mtgReq");
+        masonRequest = (Request) request.getAttribute("mtgReq");
 
-        if (method.equalsIgnoreCase(masonReq.getMethod())) {
-            evaluate = (masonReq.getId() != null) == item; //evaluate
+        if (method.equalsIgnoreCase(masonRequest.getMethod())) {
+            evaluate = (masonRequest.getId() != null) == item; //evaluate
             if (evaluate) {
                 //initialize only when this request is executed.
-
-                //Carrier of result objects 
-                pageContext.setAttribute(MASON_BUS, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
-
                 //Holds var names to be printed in output
                 //to maintain the order of insertion
-                pageContext.setAttribute(MASON_OUTPUT, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
+                Map<String, Object> output = new HashMap<>();
+                pageContext.setAttribute(MASON_OUTPUT, output);
 
-                extracted = new HashMap<>();
-                pageContext.setAttribute(EXTRACTED, extracted, PageContext.PAGE_SCOPE);
-
+                if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
+                    UploaderService uploader = new UploaderService();
+                    uploader.upload(request, output);
+                }
+                
+                //Carrier of result objects 
+                //pageContext.setAttribute(MASON_BUS, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
+//                extracted = new HashMap<>();
+//                pageContext.setAttribute(EXTRACTED, extracted, PageContext.PAGE_SCOPE);
                 //changed from request scope to page scope
                 return EVAL_BODY_INCLUDE;
             }
@@ -633,7 +636,7 @@ public class RequestTagHandler extends RequestTag {
                 InputStream inputStream = output.getContent();
                 response.setContentType(output.getContentType());
                 //@TODO use Attachment entity from mtg api
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + masonReq.getParameter("file") + "\"");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + masonRequest.getParameter("file") + "\"");
                 /**
                  * Don't set Content Length. Max buffer for output stream is 2KB
                  * and it is flushed

@@ -513,12 +513,14 @@ import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.tag.RestTag.MASON_BUS;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
+import static javax.servlet.jsp.PageContext.PAGE_SCOPE;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
@@ -575,8 +577,7 @@ public class ExecuteTagHandler extends RequestTag {
 
                     ds = ConnectionProvider.getMasonDatasource();
 
-                    Map<String, Object> bus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE);
-                    result = reqProcessable.process(masonReq, ds, bus, parameters); //@TODO add actual args and resource
+                    result = reqProcessable.process(masonReq, ds, makeBus(pageContext), parameters); //@TODO add actual args and resource
 
                 }
             } else {
@@ -584,16 +585,16 @@ public class ExecuteTagHandler extends RequestTag {
                         "Class " + cls + " isn't processable"));
             }
 
-            if(result instanceof Response){
+            if (result instanceof Response) {
                 // if Response object is returned, put payload in bus and mason output
                 addToBus(var, result.getPayload());
-                
+
                 if (output != null && output) {
                     addToOutput(var, result.getPayload());
                 }
-                
+
                 // TODO: add Response headers to http response
-            }else{
+            } else {
                 // put returned object in bus and mason output
                 addToBus(var, result);
 
@@ -604,7 +605,7 @@ public class ExecuteTagHandler extends RequestTag {
         } catch (Exception ex) {
             if (onerror == null) {
                 throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, ex.getMessage()));
-            }else{
+            } else {
                 throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onerror));
             }
         }
@@ -630,5 +631,14 @@ public class ExecuteTagHandler extends RequestTag {
 
     public void setOutput(Boolean output) {
         this.output = output;
+    }
+
+    private Map<String, Object> makeBus(PageContext pageContext) {
+        Enumeration<String> e = pageContext.getAttributeNamesInScope(PAGE_SCOPE);
+        Map<String, Object> bus = new HashMap<>();
+        while (e.hasMoreElements()) {
+            bus.put(e.nextElement(), pageContext.getAttribute(e.nextElement(), PAGE_SCOPE));
+        }
+        return bus;
     }
 }

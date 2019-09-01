@@ -30,11 +30,6 @@
         </attribute>
     </tag>
     <tag>
-        <name>upload</name>
-        <tag-class>com.metamug.mason.tag.UploadEventTagHandler</tag-class>
-        <body-content>JSP</body-content>
-    </tag>
-    <tag>
         <name>exception</name>
         <tag-class>com.metamug.mason.tag.ExceptionTagHandler</tag-class>
         <body-content>JSP</body-content>
