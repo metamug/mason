@@ -564,10 +564,10 @@ public class RequestTagHandler extends RequestTag {
                 pageContext.setAttribute(MASON_OUTPUT, output);
 
                 if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
-                    UploaderService uploader = new UploaderService();
-                    uploader.upload(request, output);
+                    UploaderService uploader = new UploaderService(pageContext);
+                    uploader.upload();
                 }
-                
+
                 //Carrier of result objects 
                 //pageContext.setAttribute(MASON_BUS, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
 //                extracted = new HashMap<>();

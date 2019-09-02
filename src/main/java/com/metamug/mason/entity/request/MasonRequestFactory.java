@@ -6,11 +6,10 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
-import com.metamug.entity.Resource;
-import com.metamug.mason.Router;
-import static com.metamug.mason.Router.APPLICATION_HTML;
-import static com.metamug.mason.Router.APPLICATION_JSON;
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
+import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
+import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
+import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +25,7 @@ public class MasonRequestFactory {
 
         ParamExtractStrategy strategy;
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
-                ? Router.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
+                ? APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
 
         if (contentType.contains(APPLICATION_JSON)) {
             strategy = new JsonStrategy(request);

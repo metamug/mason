@@ -509,7 +509,11 @@ package com.metamug.mason;
 import com.eclipsesource.json.ParseException;
 import com.metamug.entity.Request;
 import com.metamug.mason.entity.RootResource;
+import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
+import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
+import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
 import com.metamug.mason.entity.request.MasonRequestFactory;
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
@@ -543,10 +547,7 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    public static final String APPLICATION_JSON = "application/json";
-    public static final String APPLICATION_HTML = "application/html";
-    public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
-    public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+
     private static final String RESOURCE_EXTN = ".jsp";
     private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;

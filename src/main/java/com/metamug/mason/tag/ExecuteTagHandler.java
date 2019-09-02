@@ -585,23 +585,13 @@ public class ExecuteTagHandler extends RequestTag {
                         "Class " + cls + " isn't processable"));
             }
 
-            if (result instanceof Response) {
-                // if Response object is returned, put payload in bus and mason output
-                addToBus(var, result.getPayload());
+            // if Response object is returned, put payload in bus and mason output
+            addToBus(var, result);
 
-                if (output != null && output) {
-                    addToOutput(var, result.getPayload());
-                }
-
-                // TODO: add Response headers to http response
-            } else {
-                // put returned object in bus and mason output
-                addToBus(var, result);
-
-                if (output != null && output) {
-                    addToOutput(var, result);
-                }
+            if (output) {
+                addToOutput(var, result);
             }
+
         } catch (Exception ex) {
             if (onerror == null) {
                 throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, ex.getMessage()));
