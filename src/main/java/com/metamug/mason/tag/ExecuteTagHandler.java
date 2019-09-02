@@ -584,7 +584,7 @@ public class ExecuteTagHandler extends RequestTag {
             // if Response object is returned, put payload in bus and mason output
             addToBus(var, result);
 
-            if (output) {
+            if (output != null && output) {
                 addToOutput(var, result);
             }
 
