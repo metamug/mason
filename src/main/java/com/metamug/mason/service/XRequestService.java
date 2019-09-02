@@ -553,7 +553,7 @@ public class XRequestService {
         return xr;
     }
 
-    public XResponse get(String url, Map<String, String> headers, Map<String, String> params) {
+    public XResponse get(String url, Map<String, String> headers, Map<String, Object> params) {
         Request.Builder reqBuilder = new Request.Builder().get();
         headers.entrySet().forEach(entry -> {
             String key = entry.getKey();
@@ -565,7 +565,8 @@ public class XRequestService {
             try {
                 String str = (String) iterator.next();
                 String key = URLEncoder.encode(str, UTF8);
-                String value = URLEncoder.encode(params.get(str), UTF8);
+                //@TODO handle file uplaod in xrequest
+                String value = URLEncoder.encode((String) params.get(str), UTF8);
                 queryParams.append(key).append("=").append(value);
                 if (iterator.hasNext()) {
                     queryParams.append("&");
@@ -582,19 +583,19 @@ public class XRequestService {
     }
 
     public XResponse post(String url, Map<String, String> headers,
-            Map<String, String> params, String body) {
+            Map<String, Object> params, String body) {
         Request.Builder reqBuilder = null;
-        
+
         if (headers.get(CONTENT_TYPE) == null) {
             headers.put(CONTENT_TYPE, APP_FORM_URLENCODED);
         }
-        
+
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
-        
+
         if (contentType.equals(APP_FORM_URLENCODED)) {
             FormBody.Builder formBuilder = new FormBody.Builder();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                formBuilder.add(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                formBuilder.add(entry.getKey(), (String) entry.getValue());
             }
             reqBuilder = new Request.Builder().post(formBuilder.build());
         } else if (contentType.equals(APP_JSON)) {
@@ -603,7 +604,7 @@ public class XRequestService {
                 reqBuilder = new Request.Builder().post(reqBody);
             } else {
                 JSONObject jo = new JSONObject();
-                for (Map.Entry<String, String> entry : params.entrySet()) {
+                for (Map.Entry<String, Object> entry : params.entrySet()) {
                     jo.put(entry.getKey(), entry.getValue());
                 }
                 RequestBody reqBody = RequestBody.create(JSON, jo.toString());
@@ -625,13 +626,13 @@ public class XRequestService {
     }
 
     public XResponse put(String url, Map<String, String> headers,
-            Map<String, String> params, String body) {
+            Map<String, Object> params, String body) {
         Request.Builder reqBuilder = null;
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
         if (contentType.equals(APP_FORM_URLENCODED)) {
             FormBody.Builder formBuilder = new FormBody.Builder();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                formBuilder.add(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                formBuilder.add(entry.getKey(), (String) entry.getValue());
             }
             reqBuilder = new Request.Builder().put(formBuilder.build());
         } else if (contentType.equals(APP_JSON)) {
@@ -640,7 +641,7 @@ public class XRequestService {
                 reqBuilder = new Request.Builder().put(reqBody);
             } else {
                 JSONObject jo = new JSONObject();
-                for (Map.Entry<String, String> entry : params.entrySet()) {
+                for (Map.Entry<String, Object> entry : params.entrySet()) {
                     jo.put(entry.getKey(), entry.getValue());
                 }
                 RequestBody reqBody = RequestBody.create(JSON, jo.toString());
@@ -661,13 +662,13 @@ public class XRequestService {
         return makeRequest(request);
     }
 
-    public XResponse delete(String url, Map<String, String> params) {
+    public XResponse delete(String url, Map<String, Object> params) {
         StringBuilder queryParams = new StringBuilder();
         for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
             try {
                 String str = (String) iterator.next();
                 String key = URLEncoder.encode(str, UTF8);
-                String value = URLEncoder.encode(params.get(str), UTF8);
+                String value = URLEncoder.encode((String) params.get(str), UTF8);
                 queryParams.append(key).append("=").append(value);
                 if (iterator.hasNext()) {
                     queryParams.append("&");

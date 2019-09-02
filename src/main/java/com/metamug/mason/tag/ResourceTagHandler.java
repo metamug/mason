@@ -507,8 +507,10 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
+import com.metamug.entity.Resource;
 import com.metamug.mason.Router;
 import static com.metamug.mason.Router.CONNECTION_PROVIDER;
+import static com.metamug.mason.Router.MASON_REQUEST;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
@@ -527,6 +529,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ResourceTagHandler extends RestTag {
 
     private String auth;
+    private String parentName;
     private transient AuthService authService;
 
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
@@ -538,6 +541,14 @@ public class ResourceTagHandler extends RestTag {
     public void setAuth(String auth) {
         this.auth = auth;
     }
+    
+    /**
+     * cannot name is setParent since Tag Support class already exists
+     * @param parentName 
+     */
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
 
     @Override
     public int doStartTag() throws JspException {
@@ -547,7 +558,15 @@ public class ResourceTagHandler extends RestTag {
         if (StringUtils.isNotBlank(auth)) {
             processAuth();
         }
+
+        Request masonRequest = (Request) pageContext.getRequest().getAttribute(MASON_REQUEST);
+        Resource parent = masonRequest.getParent();
+        if (parent != null && !parent.getName().equalsIgnoreCase(this.parentName)) {
+            throw new JspException("Parent resource not found", new MetamugException(MetamugError.PARENT_RESOURCE_MISSING));
+        }
+
         return EVAL_BODY_INCLUDE;
+
     }
 
     @Override

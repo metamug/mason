@@ -19,6 +19,8 @@ import javax.servlet.http.Part;
  */
 public class MultipartFormStrategy extends ParamExtractStrategy {
 
+        public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+
     /**
      *
      * @param request

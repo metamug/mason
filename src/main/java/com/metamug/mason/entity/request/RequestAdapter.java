@@ -7,10 +7,10 @@ package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
-import com.metamug.mason.Router;
-import static com.metamug.mason.Router.APPLICATION_HTML;
-import static com.metamug.mason.Router.APPLICATION_JSON;
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
+import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
+import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
+import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,14 +19,34 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author user
  */
-public class MasonRequestFactory {
+public class RequestAdapter {
 
-    public static Request create(HttpServletRequest request, String method,
-            String[] tokens, int versionTokenIndex) throws IOException, ServletException {
+    public static Request create(HttpServletRequest request) throws IOException, ServletException {
+
+        String path = request.getServletPath();
+        String[] tokens = path.split("/");
+        int versionTokenIndex = -1;
+        for (int i = 0; i < tokens.length; i++) {
+            if (tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
+                versionTokenIndex = i;
+                break;
+            }
+        }
+
+        float version = Float.parseFloat(tokens[versionTokenIndex].substring(1));
+        String resourceName;
+
+        if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {
+            resourceName = tokens[versionTokenIndex + 3];
+        } else {
+            resourceName = tokens[versionTokenIndex + 1];
+        }
+
+        String method = request.getMethod().toLowerCase();
 
         ParamExtractStrategy strategy;
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
-                ? Router.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
+                ? APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
 
         if (contentType.contains(APPLICATION_JSON)) {
             strategy = new JsonStrategy(request);
@@ -41,11 +61,14 @@ public class MasonRequestFactory {
         Request masonRequest = strategy.getRequest();
 
         //Set parent value and pid
-        if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {
-            masonRequest.setParent((tokens[versionTokenIndex + 1]));
+        if (tokens.length == versionTokenIndex + VERSION_LENGTH || tokens.length == versionTokenIndex + VERSION_LENGTH + 1) {
+            //@TODO get parent
+            //masonRequest.setParent(parent);
             masonRequest.setPid(tokens[versionTokenIndex + 2]);
             masonRequest.setId((tokens.length > versionTokenIndex + 4) ? tokens[versionTokenIndex + 4] : null);
         } else {
+            Resource resource = new Resource(resourceName, version, String.join("/", tokens), null);
+            masonRequest.setResource(resource);
             masonRequest.setId((tokens.length > versionTokenIndex + 2) ? tokens[versionTokenIndex + 2] : null);
         }
         masonRequest.setMethod(method);
@@ -53,4 +76,5 @@ public class MasonRequestFactory {
 
         return new ImmutableRequest(masonRequest);
     }
+    private static final int VERSION_LENGTH = 4;
 }

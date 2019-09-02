@@ -602,8 +602,8 @@ public class TagHandlerTest {
     @InjectMocks
     ParamTagHandler paramTag = new ParamTagHandler();
 
-    @InjectMocks
-    ParentTagHandler parentTag = new ParentTagHandler();
+//    @InjectMocks
+//    ParentTagHandler parentTag = new ParentTagHandler();
 
     @Mock
     private ConnectionProvider provider;
@@ -687,6 +687,35 @@ public class TagHandlerTest {
 
         requestTag.setMethod("GET");
         requestTag.setItem(false);
+
+        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
+
+    }
+    
+//     @Test
+    public void fileUpload() throws JspException, IOException {
+        
+        File temp = File.createTempFile("test", ".txt");
+
+        // Delete temp file when program exits.
+        temp.deleteOnExit();
+
+        // Write to temp file
+        BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+        out.write("aString");
+        out.close();
+
+        resultMap = new LinkedHashMap<>();
+        resultMap.put("res3", "Hello World");
+        resultMap.put("file", new Response(new FileInputStream(temp))); //this will be used a mason bus
+        
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+        
+        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+        when(masonRequest.getMethod()).thenReturn("POST");
+
+        requestTag.setMethod("POST");
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
@@ -779,12 +808,12 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }
 
-    @Test
-    public void parentTag() throws JspException {
-        when(masonRequest.getParent()).thenReturn("mother");
-        parentTag.setValue("mother");
-        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
-    }
+//    @Test
+//    public void parentTag() throws JspException {
+//        when(masonRequest.getParent()).thenReturn("mother");
+//        parentTag.setValue("mother");
+//        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
+//    }
 
     @Test
     public void paramTag() throws JspException {

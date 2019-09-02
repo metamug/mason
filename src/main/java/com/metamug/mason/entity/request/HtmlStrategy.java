@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author anishhirlekar
  */
 public class HtmlStrategy extends ParamExtractStrategy {
-
+    public static final String APPLICATION_HTML = "application/html";
     /**
      * @param request
      * @throws java.io.IOException

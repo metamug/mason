@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author D3ep4k
  */
 public class JsonStrategy extends ParamExtractStrategy {
-
+    public static final String APPLICATION_JSON = "application/json";
     /**
      *
      * @param request
