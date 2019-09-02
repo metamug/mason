@@ -512,7 +512,7 @@ package com.metamug.mason.tag;
  *
  * @author pc
  */
-interface KeyValue {
+public interface KeyValue {
 
     public void put(String key, Object value);
 }

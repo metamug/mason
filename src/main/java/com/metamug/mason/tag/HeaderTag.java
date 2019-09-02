@@ -517,7 +517,7 @@ import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
  *
  * @author pc
  */
-public class HeaderTag extends BodyTagSupport implements KeyValue {
+public class HeaderTag extends BodyTagSupport {
 
     private String name;
     private String value;
@@ -536,8 +536,9 @@ public class HeaderTag extends BodyTagSupport implements KeyValue {
             value = getBodyContent().getString().trim();
         }
 
-        if (value.length() > 0) {
-            put(name, value);
+        this.value = (String) value;
+        if (this.value.length() > 0) {
+            parent.addHeader(name, this.value);
         }
 
         return EVAL_PAGE;
@@ -547,12 +548,8 @@ public class HeaderTag extends BodyTagSupport implements KeyValue {
         name = n;
     }
 
-    public void setValue(String v) {
-        value = v;
+    public void setValue(Object v) {
+        value = (String) v;
     }
 
-    @Override
-    public void put(String key, Object value) {
-        parent.addHeader(key, (String) value);
-    }
 }

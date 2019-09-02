@@ -529,7 +529,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ResourceTagHandler extends RestTag {
 
     private String auth;
-    private String parent;
+    private String parentName;
     private transient AuthService authService;
 
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
@@ -541,9 +541,13 @@ public class ResourceTagHandler extends RestTag {
     public void setAuth(String auth) {
         this.auth = auth;
     }
-
-    public void setParent(String value) {
-        this.parent = value;
+    
+    /**
+     * cannot name is setParent since Tag Support class already exists
+     * @param parentName 
+     */
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
     }
 
     @Override
@@ -557,7 +561,7 @@ public class ResourceTagHandler extends RestTag {
 
         Request masonRequest = (Request) pageContext.getRequest().getAttribute(MASON_REQUEST);
         Resource parent = masonRequest.getParent();
-        if (parent != null && !parent.getName().equalsIgnoreCase(this.parent)) {
+        if (parent != null && !parent.getName().equalsIgnoreCase(this.parentName)) {
             throw new JspException("Parent resource not found", new MetamugException(MetamugError.PARENT_RESOURCE_MISSING));
         }
 

@@ -62,11 +62,13 @@ public class RequestAdapter {
 
         //Set parent value and pid
         if (tokens.length == versionTokenIndex + VERSION_LENGTH || tokens.length == versionTokenIndex + VERSION_LENGTH + 1) {
-            //@TODO fix parent 
-            masonRequest.setParent(new Resource(resourceName, version));
+            //@TODO get parent
+            //masonRequest.setParent(parent);
             masonRequest.setPid(tokens[versionTokenIndex + 2]);
             masonRequest.setId((tokens.length > versionTokenIndex + 4) ? tokens[versionTokenIndex + 4] : null);
         } else {
+            Resource resource = new Resource(resourceName, version, String.join("/", tokens), null);
+            masonRequest.setResource(resource);
             masonRequest.setId((tokens.length > versionTokenIndex + 2) ? tokens[versionTokenIndex + 2] : null);
         }
         masonRequest.setMethod(method);

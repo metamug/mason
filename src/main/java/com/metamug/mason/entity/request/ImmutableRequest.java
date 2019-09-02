@@ -519,6 +519,7 @@ public final class ImmutableRequest extends Request {
 
     public ImmutableRequest(Request mtgReq) {
         super(mtgReq);
+        super.setResource(mtgReq.getResource()); //remove it later
     }
 
     @Override
@@ -553,6 +554,11 @@ public final class ImmutableRequest extends Request {
 
     @Override
     public void setParent(Resource parent) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void setResource(Resource parent) {
         throw new UnsupportedOperationException();
     }
 }

@@ -13,7 +13,7 @@
             <type>java.lang.String</type>
         </attribute>
         <attribute>
-            <name>parent</name>
+            <name>parentName</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
@@ -189,17 +189,6 @@
         </attribute>
         <attribute>
             <name>var</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-    </tag>
-    <tag>
-        <name>parent</name>
-        <tag-class>com.metamug.mason.tag.ParentTagHandler</tag-class>
-        <body-content>scriptless</body-content>
-        <attribute>
-            <name>value</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
