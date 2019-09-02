@@ -507,6 +507,7 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
+import com.metamug.entity.Resource;
 import java.util.Map;
 
 /**
@@ -551,7 +552,7 @@ public final class ImmutableRequest extends Request {
     }
 
     @Override
-    public void setParent(String parent) {
+    public void setParent(Resource parent) {
         throw new UnsupportedOperationException();
     }
 }

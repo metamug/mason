@@ -514,5 +514,5 @@ package com.metamug.mason.tag;
  */
 interface KeyValue {
 
-    public void put(String key, String value);
+    public void put(String key, Object value);
 }

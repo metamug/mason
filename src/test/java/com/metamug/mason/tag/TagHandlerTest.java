@@ -602,8 +602,8 @@ public class TagHandlerTest {
     @InjectMocks
     ParamTagHandler paramTag = new ParamTagHandler();
 
-    @InjectMocks
-    ParentTagHandler parentTag = new ParentTagHandler();
+//    @InjectMocks
+//    ParentTagHandler parentTag = new ParentTagHandler();
 
     @Mock
     private ConnectionProvider provider;
@@ -808,12 +808,12 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }
 
-    @Test
-    public void parentTag() throws JspException {
-        when(masonRequest.getParent()).thenReturn("mother");
-        parentTag.setValue("mother");
-        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
-    }
+//    @Test
+//    public void parentTag() throws JspException {
+//        when(masonRequest.getParent()).thenReturn("mother");
+//        parentTag.setValue("mother");
+//        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
+//    }
 
     @Test
     public void paramTag() throws JspException {

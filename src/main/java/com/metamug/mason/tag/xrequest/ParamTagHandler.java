@@ -515,7 +515,7 @@ import com.metamug.mason.tag.HeaderTag;
 public class ParamTagHandler extends HeaderTag {
 
     @Override
-    public void put(String key, String value) {
+    public void put(String key, Object value) {
         parent.addParameter(key, value);
     }
 

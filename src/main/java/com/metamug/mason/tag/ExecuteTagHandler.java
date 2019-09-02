@@ -514,13 +514,9 @@ import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import static javax.servlet.jsp.PageContext.PAGE_SCOPE;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
@@ -576,8 +572,8 @@ public class ExecuteTagHandler extends RequestTag {
                     }
 
                     ds = ConnectionProvider.getMasonDatasource();
-
-                    result = reqProcessable.process(masonReq, ds, makeBus(pageContext), parameters); //@TODO add actual args and resource
+                    //no bus
+                    result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
 
                 }
             } else {
@@ -621,14 +617,5 @@ public class ExecuteTagHandler extends RequestTag {
 
     public void setOutput(Boolean output) {
         this.output = output;
-    }
-
-    private Map<String, Object> makeBus(PageContext pageContext) {
-        Enumeration<String> e = pageContext.getAttributeNamesInScope(PAGE_SCOPE);
-        Map<String, Object> bus = new HashMap<>();
-        while (e.hasMoreElements()) {
-            bus.put(e.nextElement(), pageContext.getAttribute(e.nextElement(), PAGE_SCOPE));
-        }
-        return bus;
-    }
+    }  
 }

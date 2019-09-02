@@ -512,7 +512,7 @@ import com.metamug.mason.entity.RootResource;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
-import com.metamug.mason.entity.request.MasonRequestFactory;
+import com.metamug.mason.entity.request.RequestAdapter;
 import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
@@ -547,7 +547,6 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-
     private static final String RESOURCE_EXTN = ".jsp";
     private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
@@ -561,6 +560,7 @@ public class Router implements Filter {
 
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
+    public static final String MASON_REQUEST = "mtgReq";
 
     public Router() {
 
@@ -584,6 +584,7 @@ public class Router implements Filter {
         if (null == request.getCharacterEncoding()) {
             request.setCharacterEncoding(encoding);
         }
+
         String path = req.getServletPath();
         String[] tokens = path.split("/");
         int versionTokenIndex = -1;
@@ -603,19 +604,21 @@ public class Router implements Filter {
             chain.doFilter(request, response);
             return;
         }
-        processRequest(req, res, tokens, versionTokenIndex);
+        processRequest(req, res);
     }
 
     /**
-     * Servlet version of the request handling. Cast objects to handle REST request
+     * Servlet version of the request handling. Cast objects to handle REST
+     * request
      *
      * @param req
      * @param res
      * @param tokens The URI split by /
      * @throws IOException
      */
-    private void processRequest(HttpServletRequest req, HttpServletResponse res, String[] tokens, int versionTokenIndex)
+    private void processRequest(HttpServletRequest req, HttpServletResponse res)
             throws IOException {
+
         String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod().toLowerCase();
 
@@ -629,30 +632,25 @@ public class Router implements Filter {
 
         res.setContentType(APPLICATION_JSON);
         //requesting a REST resource
-
+        String resourceName = "";
         try {
-            String version = tokens[versionTokenIndex];
-            String resourceName;
-
-            if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {
-                resourceName = tokens[versionTokenIndex + 3];
-            } else {
-                resourceName = tokens[versionTokenIndex + 1];
-            }
             //get queries
-            Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
-            Request mtgReq = MasonRequestFactory.create(req, req.getMethod(), tokens, versionTokenIndex);
-            req.setAttribute("mtgReq", mtgReq);
-            
+            Request mtgReq = RequestAdapter.create(req);
+            resourceName = mtgReq.getResource().getName();
+            req.setAttribute(MASON_REQUEST, mtgReq);
+
             //Adding to request, otherwise the user has to write ${applicationScope.datasource}
             req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
             req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
+
+            //Query map of stored queries in a file
+            Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
             req.setAttribute(MASON_QUERY, queryMap);
-            
+
             //save method as attribute because jsp only accepts GET and POST
             //https://stackoverflow.com/a/46489035
-            req.setAttribute("mtgMethod", req.getMethod());
-            req.getRequestDispatcher(RESOURCES_FOLDER + version.toLowerCase() + "/" + resourceName + RESOURCE_EXTN)
+            //req.setAttribute("mtgMethod", req.getMethod()); //its alredy set in adaptor object
+            req.getRequestDispatcher(RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + RESOURCE_EXTN)
                     .forward(new HttpServletRequestWrapper(req) {
                         @Override
                         public String getMethod() {
@@ -671,14 +669,14 @@ public class Router implements Filter {
                 String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
                 writeError(res, 500, cause);
             } else if (ex.getMessage().contains("ELException")) {
-                writeError(res, 512, "Incorrect test condition in '" + tokens[versionTokenIndex + 1] + "' resource");
+                writeError(res, 512, "Incorrect test condition in '" + resourceName + "' resource");
             } else {
                 writeError(res, 500, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
+                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
             }
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (NullPointerException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + tokens[versionTokenIndex + 1] + ":{0}", ex.getMessage());
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
             //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
             writeError(res, 404, "Resource doesn't exist." + ex.getMessage());
         }
