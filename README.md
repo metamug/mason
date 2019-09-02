@@ -17,10 +17,10 @@ Use JSP tags for editing database queries and request handling. To hot deploy RE
 <%-- customer.jsp --%>
 <m:resource>
     <m:request method="GET">
-     	<sql:query var="result" dataSource="${datasource}"> 
+     	<sql:query var="customers" dataSource="${datasource}"> 
 		SELECT name, address, phone, type from retail_customer 
     	</sql:query>
-     	<c:set target="${masonOutput}" property="all customers" value="${result}"/>
+     	<c:set target="${output}" property="customers" value="${customers}"/>
     </m:request>
 </m:resource>
 ```
