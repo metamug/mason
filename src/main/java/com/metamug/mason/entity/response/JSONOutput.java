@@ -536,12 +536,12 @@ public class JSONOutput extends MasonOutput<String> {
             if (obj instanceof ResultImpl) {
                 responseJson.put(key, getJson((ResultImpl) obj));
             } else if (obj instanceof JSONObject) {
-                responseJson.put(key, (JSONObject) obj);
+                responseJson.put(key, obj);
             } else if (obj instanceof String) {
-                responseJson.put(key, (String) obj);
+                responseJson.put(key, obj);
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
-                for (Object o : (List) obj) {
+                for (Object o : (Iterable<? extends Object>) obj) {
                     array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
                 }
                 responseJson.put(key, array);

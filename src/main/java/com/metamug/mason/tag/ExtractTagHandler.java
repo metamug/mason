@@ -542,7 +542,7 @@ public class ExtractTagHandler extends RestTag {
         
         String extractedValue = extractService.extract(target, path);
         
-        Map<String, Object> extractMap = (HashMap)pageContext.getAttribute(EXTRACTED,PageContext.PAGE_SCOPE);
+        Map<String, Object> extractMap = (Map<String, Object>)pageContext.getAttribute(EXTRACTED,PageContext.PAGE_SCOPE);
         
         //set extracted var if given var name, otherwise set name same as mpath
         String extractedVariable = var != null ? var : path.replace("$", "");

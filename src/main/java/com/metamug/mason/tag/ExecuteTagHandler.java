@@ -532,7 +532,7 @@ public class ExecuteTagHandler extends RequestTag {
     private String var;
     private DataSource ds;
 
-    private Boolean output; //default value
+    private boolean output; //default value
     private String onerror;
 
     @Override
@@ -540,7 +540,7 @@ public class ExecuteTagHandler extends RequestTag {
 
         Response result = null;
         try {
-            Class cls = Class.forName((String) className);
+            Class cls = Class.forName(className);
             Object newInstance = cls.newInstance();
             ResultProcessable resProcessable;
             RequestProcessable reqProcessable;
@@ -584,7 +584,7 @@ public class ExecuteTagHandler extends RequestTag {
             // if Response object is returned, put payload in bus and mason output
             addToBus(var, result);
 
-            if (output != null && output) {
+            if (output) {
                 addToOutput(var, result);
             }
 
@@ -615,7 +615,7 @@ public class ExecuteTagHandler extends RequestTag {
         this.var = var;
     }
 
-    public void setOutput(Boolean output) {
+    public void setOutput(boolean output) {
         this.output = output;
     }  
 }

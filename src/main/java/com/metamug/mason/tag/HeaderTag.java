@@ -536,7 +536,7 @@ public class HeaderTag extends BodyTagSupport {
             value = getBodyContent().getString().trim();
         }
 
-        this.value = (String) value;
+        this.value = value;
         if (this.value.length() > 0) {
             parent.addHeader(name, this.value);
         }
