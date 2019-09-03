@@ -534,8 +534,8 @@ public class XRequestTagHandler extends RequestTag {
     public int doEndTag() throws JspException {
         //Accept header of mtg request
         //HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeader = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null
-                ? MasonOutput.HEADER_JSON : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
+        String acceptHeader = request.getHeader(HEADER_ACCEPT) == null
+                ? MasonOutput.HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         //Accept type of XRequest
         String xAcceptType = "json";
         for (Map.Entry<String, String> entry : headers.entrySet()) {

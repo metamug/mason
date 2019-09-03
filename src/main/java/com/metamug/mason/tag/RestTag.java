@@ -567,7 +567,7 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     }
 
     protected void addToOutput(String var, Object value) {
-        Map<String, Object> masonOutput = (HashMap) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
+        Map<String, Object> masonOutput = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
 
         if (value instanceof Response) {
             masonOutput.put(var, ((Response) value).getPayload());

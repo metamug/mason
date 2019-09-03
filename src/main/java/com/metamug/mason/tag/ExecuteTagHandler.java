@@ -540,7 +540,7 @@ public class ExecuteTagHandler extends RequestTag {
 
         Response result = null;
         try {
-            Class cls = Class.forName((String) className);
+            Class cls = Class.forName(className);
             Object newInstance = cls.newInstance();
             ResultProcessable resProcessable;
             RequestProcessable reqProcessable;
@@ -615,7 +615,7 @@ public class ExecuteTagHandler extends RequestTag {
         this.var = var;
     }
 
-    public void setOutput(Boolean output) {
+    public void setOutput(boolean output) {
         this.output = output;
     }  
 }

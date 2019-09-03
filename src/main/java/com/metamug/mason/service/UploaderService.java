@@ -603,14 +603,14 @@ public class UploaderService {
     private void callUploadEvent(File uploadedFile, String listenerClass, Request req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
         Object result = null;
         if (listenerClass != null) {
-            Class cls = Class.forName((String) listenerClass);
+            Class cls = Class.forName(listenerClass);
             Object newInstance = cls.newInstance();
             UploadListener listener;
             if (UploadListener.class.isAssignableFrom(cls)) {
                 listener = (UploadListener) newInstance;
                 if (uploadedFile != null) {
                     DataSource ds = ConnectionProvider.getMasonDatasource();
-                    result = (Response) listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), req), ds);
+                    result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), req), ds);
                 }
             } else {
                 throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));

@@ -562,17 +562,13 @@ public class RequestTagHandler extends RequestTag {
                 //to maintain the order of insertion
                 Map<String, Object> output = new HashMap<>();
                 pageContext.setAttribute(MASON_OUTPUT, output);
-
+                
+                //@TODO Also check for multipart
                 if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
                     UploaderService uploader = new UploaderService(pageContext);
                     uploader.upload();
                 }
-
-                //Carrier of result objects 
-                //pageContext.setAttribute(MASON_BUS, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
-//                extracted = new HashMap<>();
-//                pageContext.setAttribute(EXTRACTED, extracted, PageContext.PAGE_SCOPE);
-                //changed from request scope to page scope
+                
                 return EVAL_BODY_INCLUDE;
             }
         }
@@ -625,7 +621,7 @@ public class RequestTagHandler extends RequestTag {
                 }
                 //cannnot use print writer since it we are already using outputstream
                 response.setContentType(output.getContentType());
-                byte[] stream = ((String) output.getContent()).getBytes(StandardCharsets.UTF_8);
+                byte[] stream = output.getContent().getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(stream.length);
                 outputStream.write(stream);
 

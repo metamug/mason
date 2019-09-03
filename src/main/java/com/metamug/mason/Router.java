@@ -644,7 +644,7 @@ public class Router implements Filter {
             req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
 
             //Query map of stored queries in a file
-            Map<String, String> queryMap = (HashMap) req.getServletContext().getAttribute(MASON_QUERY);
+            Map<String, String> queryMap = (Map<String, String>) req.getServletContext().getAttribute(MASON_QUERY);
             req.setAttribute(MASON_QUERY, queryMap);
 
             //save method as attribute because jsp only accepts GET and POST
@@ -728,7 +728,7 @@ public class Router implements Filter {
             encoding = "UTF-8";
         }
 
-        if (config.getInitParameter("datasource") != null) {
+        if (config.getInitParameter(DATA_SOURCE) != null) {
             config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
         } else {
             config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
