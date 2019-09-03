@@ -126,23 +126,6 @@
         </attribute>
     </tag>
     <tag>
-        <name>extract</name>
-        <tag-class>com.metamug.mason.tag.ExtractTagHandler</tag-class>
-        <body-content>scriptless</body-content>
-        <attribute>
-            <name>path</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>var</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-    </tag>
-    <tag>
         <name>script</name>
         <tag-class>com.metamug.mason.tag.ScriptTagHandler</tag-class>
         <body-content>scriptless</body-content>
