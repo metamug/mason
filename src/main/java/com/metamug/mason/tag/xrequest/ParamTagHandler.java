@@ -506,8 +506,6 @@
  */
 package com.metamug.mason.tag.xrequest;
 
-import com.metamug.mason.tag.HeaderTag;
-import com.metamug.mason.tag.KeyValue;
 import com.metamug.mason.tag.RequestTag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
