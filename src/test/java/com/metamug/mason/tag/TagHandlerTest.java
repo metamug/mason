@@ -508,6 +508,7 @@ package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
@@ -518,17 +519,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -549,14 +544,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 /**
  *
@@ -693,7 +684,7 @@ public class TagHandlerTest {
 
     }
     
-//     @Test
+    @Test (expected = JspException.class)
     public void fileUpload() throws JspException, IOException {
         
         File temp = File.createTempFile("test", ".txt");
@@ -713,6 +704,7 @@ public class TagHandlerTest {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
         
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+        when(request.getContentType()).thenReturn(MULTIPART_FORM_DATA);
         when(masonRequest.getMethod()).thenReturn("POST");
 
         requestTag.setMethod("POST");

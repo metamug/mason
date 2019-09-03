@@ -560,13 +560,13 @@ public class UploaderService {
                 }
                 if (listenerClass != null) {
                     Files.createDirectories(Paths.get(uploadFilePath));
-                    String fileName = null;
+     
                     //Get all the parts from request and write it to the file on server
                     // Retrieves <input type="file" name="file" multiple="true">
                     List<Part> fileParts = request.getParts().stream().filter(part -> 
                             "file".equals(part.getName())).collect(Collectors.toList()); 
                     
-
+                    String fileName;
                     for (Part filePart : fileParts) { //for multiple files
                         fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
                         File uploadedFile = new File(uploadFilePath + File.separator + fileName);
