@@ -1,7 +1,7 @@
 # 🧱 MASON [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=All%20New%20Way%20of%20Writing%20REST%20APIs&url=https://github.com/metamug/mason&via=themetamug&hashtags=REST,API,developers)
 
 [![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason) [![Latest Release](https://img.shields.io/github/v/release/metamug/mason.svg?include_prereleases)]() [![Coverage Status](https://coveralls.io/repos/github/metamug/mason/badge.svg?branch=develop)](https://coveralls.io/github/metamug/mason?branch=develop) [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=metamug_mason)
- [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=metamug_mason) [![LGPL v2.1 Metamug License](https://img.shields.io/github/license/metamug/mason.svg?style=flat&colorB=7CFC00)](https://opensource.org/licenses/LGPL-2.1)
+ [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=metamug_mason) [![LGPL v2.1 License](https://img.shields.io/github/license/metamug/mason.svg?style=flat&colorB=7CFC00)](https://opensource.org/licenses/LGPL-2.1)
 
 
 
@@ -94,42 +94,6 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
         <param-value>jdbc/mason</param-value>
     </init-param>
 </filter-mapping>
-```
-
-### Basic and JWT Auth
-
-Queries for Basic and JWT auth can be passed a `init-param` to the router. Tables given below in the example
-can be changed but the information returned by the query should be consistent for auth to work.
-
-```xml
-<filter>
-	<filter-name>Router</filter-name>
-	<filter-class>com.metamug.mason.Router</filter-class>
-	<init-param>
-	   <param-name>datasource</param-name>
-	   <param-value>jdbc/mason</param-value>
-	</init-param>
-	<init-param>
-	   <param-name>MTG_AUTH_BASIC</param-name>
-	   <param-value>
-	   <![CDATA[
-	       SELECT r.user_id, r.role_name
-	       FROM usr_role r INNER JOIN usr u ON r.user_id=u.user_id
-	       WHERE u.user_name=$user AND u.pass_word=$pass
-	   ]]>
-	   </param-value>
-	</init-param>
-	<init-param>
-	   <param-name>MTG_AUTH_BEARER</param-name>
-	   <param-value>
-	   <![CDATA[
-	       SELECT r.user_id as sub,r.role_name AS aud
-	       FROM usr_role r INNER JOIN usr u ON r.user_id=u.user_id
-	       WHERE u.user_name=$user AND u.pass_word=$pass
-	   ]]>
-	   </param-value>
-	</init-param>
-</filter>
 ```
 
 All requests made to the jsp resources are routed through this filter.

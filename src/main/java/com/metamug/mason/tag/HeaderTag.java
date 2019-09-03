@@ -508,18 +508,16 @@ That's all there is to it!
  */
 package com.metamug.mason.tag;
 
-import com.metamug.mason.tag.RequestTag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
 
 /**
  *
  * @author pc
  */
-public class HeaderTag extends BodyTagSupport implements KeyValue {
+public class HeaderTag extends BodyTagSupport {
 
     private String name;
     private String value;
@@ -538,8 +536,9 @@ public class HeaderTag extends BodyTagSupport implements KeyValue {
             value = getBodyContent().getString().trim();
         }
 
-        if (value.length() > 0) {
-            put(name, value);
+        this.value = value;
+        if (this.value.length() > 0) {
+            parent.addHeader(name, this.value);
         }
 
         return EVAL_PAGE;
@@ -549,12 +548,8 @@ public class HeaderTag extends BodyTagSupport implements KeyValue {
         name = n;
     }
 
-    public void setValue(String v) {
-        value = v;
+    public void setValue(Object v) {
+        value = (String) v;
     }
 
-    @Override
-    public void put(String key, String value) {
-        parent.addHeader(key, value);
-    }
 }

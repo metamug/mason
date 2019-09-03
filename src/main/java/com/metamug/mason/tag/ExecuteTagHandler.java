@@ -513,13 +513,10 @@ import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.tag.RestTag.MASON_BUS;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
@@ -535,7 +532,7 @@ public class ExecuteTagHandler extends RequestTag {
     private String var;
     private DataSource ds;
 
-    private Boolean output; //default value
+    private boolean output; //default value
     private String onerror;
 
     @Override
@@ -543,7 +540,7 @@ public class ExecuteTagHandler extends RequestTag {
 
         Response result = null;
         try {
-            Class cls = Class.forName((String) className);
+            Class cls = Class.forName(className);
             Object newInstance = cls.newInstance();
             ResultProcessable resProcessable;
             RequestProcessable reqProcessable;
@@ -575,9 +572,8 @@ public class ExecuteTagHandler extends RequestTag {
                     }
 
                     ds = ConnectionProvider.getMasonDatasource();
-
-                    Map<String, Object> bus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE);
-                    result = reqProcessable.process(masonReq, ds, bus, parameters); //@TODO add actual args and resource
+                    //no bus
+                    result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
 
                 }
             } else {
@@ -585,15 +581,17 @@ public class ExecuteTagHandler extends RequestTag {
                         "Class " + cls + " isn't processable"));
             }
 
+            // if Response object is returned, put payload in bus and mason output
             addToBus(var, result);
 
-            if (output != null && output) {
+            if (output) {
                 addToOutput(var, result);
             }
+
         } catch (Exception ex) {
             if (onerror == null) {
                 throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, ex.getMessage()));
-            }else{
+            } else {
                 throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onerror));
             }
         }
@@ -617,7 +615,7 @@ public class ExecuteTagHandler extends RequestTag {
         this.var = var;
     }
 
-    public void setOutput(Boolean output) {
+    public void setOutput(boolean output) {
         this.output = output;
-    }
+    }  
 }

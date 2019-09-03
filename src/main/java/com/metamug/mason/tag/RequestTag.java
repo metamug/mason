@@ -512,14 +512,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * This is super class for request tag and its elements
  * @author pc
  */
 public class RequestTag extends RestTag {
 
     protected String method;
-    protected Map<String, String> headers = new HashMap<>();
-    protected Map<String, String> parameters = new HashMap<>();
+    protected Map<String, String> headers = new HashMap<>(); //to set headers for request/response depending on the tag.
+    protected Map<String, Object> parameters = new HashMap<>();
 
     public void setMethod(String m) {
         method = m;
@@ -528,16 +528,18 @@ public class RequestTag extends RestTag {
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
-
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
-
-    public void addHeader(String name, String value) {
+    
+     public void addHeader(String name, String value) {
         headers.put(name, value);
     }
 
-    public void addParameter(String name, String value) {
+
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
+
+   
+    public void addParameter(String name, Object value) {
         parameters.put(name, value);
     }
     

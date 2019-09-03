@@ -514,13 +514,12 @@ import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.XMLOutput;
-import com.metamug.mason.tag.RestTag;
+import com.metamug.mason.service.UploaderService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -528,14 +527,11 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.xml.bind.JAXBException;
@@ -549,32 +545,30 @@ public class RequestTagHandler extends RequestTag {
     private boolean item;
     private boolean evaluate;
 
-    private Request masonReq;
+    private Request masonRequest;
 
     //private Map<String, Object> masonBus; 
-    private Map<String, Object> extracted; //Holds values extracted using mpath notation
-
+    //private Map<String, Object> extracted; //Holds values extracted using mpath notation
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-        masonReq = (Request) request.getAttribute("mtgReq");
+        masonRequest = (Request) request.getAttribute("mtgReq");
 
-        if (method.equalsIgnoreCase(masonReq.getMethod())) {
-            evaluate = (masonReq.getId() != null) == item; //evaluate
+        if (method.equalsIgnoreCase(masonRequest.getMethod())) {
+            evaluate = (masonRequest.getId() != null) == item; //evaluate
             if (evaluate) {
                 //initialize only when this request is executed.
-
-                //Carrier of result objects 
-                pageContext.setAttribute(MASON_BUS, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
-
                 //Holds var names to be printed in output
                 //to maintain the order of insertion
-                pageContext.setAttribute(MASON_OUTPUT, new HashMap<String, Object>(), PageContext.PAGE_SCOPE);
-
-                extracted = new HashMap<>();
-                pageContext.setAttribute(EXTRACTED, extracted, PageContext.PAGE_SCOPE);
-
-                //changed from request scope to page scope
+                Map<String, Object> output = new HashMap<>();
+                pageContext.setAttribute(MASON_OUTPUT, output);
+                
+                //@TODO Also check for multipart
+                if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
+                    UploaderService uploader = new UploaderService(pageContext);
+                    uploader.upload();
+                }
+                
                 return EVAL_BODY_INCLUDE;
             }
         }
@@ -604,7 +598,7 @@ public class RequestTagHandler extends RequestTag {
 
             if (tag.getValue() instanceof Response) {
                 Response res = (Response) tag.getValue();
-                if (res.getPayload() instanceof File) {
+                if (res.getPayload() instanceof InputStream) {
                     hasFile = true;
                     break;
                 }
@@ -627,23 +621,24 @@ public class RequestTagHandler extends RequestTag {
                 }
                 //cannnot use print writer since it we are already using outputstream
                 response.setContentType(output.getContentType());
-                byte[] stream = ((String) output.getContent()).getBytes(StandardCharsets.UTF_8);
+                byte[] stream = output.getContent().getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(stream.length);
                 outputStream.write(stream);
 
             } else {
 
                 //has file in response
-                MasonOutput<File> output = new FileOutput(responses);
-                File file = output.getContent();
+                MasonOutput<InputStream> output = new FileOutput(responses);
+                InputStream inputStream = output.getContent();
                 response.setContentType(output.getContentType());
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + file + "\"");
+                //@TODO use Attachment entity from mtg api
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + masonRequest.getParameter("file") + "\"");
                 /**
                  * Don't set Content Length. Max buffer for output stream is 2KB
                  * and it is flushed
                  */
 
-                in = Channels.newChannel(new FileInputStream(file));
+                in = Channels.newChannel(inputStream);
                 out = Channels.newChannel(response.getOutputStream());
                 ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
                 while (in.read(buffer) != -1) {

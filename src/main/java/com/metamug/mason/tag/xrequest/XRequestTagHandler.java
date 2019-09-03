@@ -510,11 +510,8 @@ import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
 import com.metamug.mason.tag.RequestTag;
-import com.metamug.mason.tag.RequestTagHandler;
 import com.metamug.mason.tag.ResourceTagHandler;
-import com.metamug.mason.tag.RestTag;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
@@ -531,14 +528,14 @@ public class XRequestTagHandler extends RequestTag {
     private String url;
 
     private String requestBody;
-    private Boolean output;
+    private boolean output;
 
     @Override
     public int doEndTag() throws JspException {
         //Accept header of mtg request
         //HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String acceptHeader = request.getHeader(ResourceTagHandler.HEADER_ACCEPT) == null
-                ? MasonOutput.HEADER_JSON : request.getHeader(ResourceTagHandler.HEADER_ACCEPT);
+        String acceptHeader = request.getHeader(HEADER_ACCEPT) == null
+                ? MasonOutput.HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         //Accept type of XRequest
         String xAcceptType = "json";
         for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -591,7 +588,7 @@ public class XRequestTagHandler extends RequestTag {
             addToBus(var, xResponseJson);
         }
         
-        if(output != null && output){
+        if(output){
             addToOutput(var, getFromBus(var));
         }
 

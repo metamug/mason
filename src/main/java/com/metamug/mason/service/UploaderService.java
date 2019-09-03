@@ -504,28 +504,22 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.tag;
+package com.metamug.mason.service;
 
 import com.metamug.entity.Request;
+import com.metamug.entity.Response;
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.exception.MetamugError;
 import com.metamug.mason.exception.MetamugException;
-import com.metamug.mason.io.objectreturn.ObjectReturn;
-import com.metamug.mason.service.ConnectionProvider;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
@@ -535,55 +529,45 @@ import javax.servlet.http.Part;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author Kaisteel
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
-public class UploadEventTagHandler extends RestTag {
+public class UploaderService {
 
-    private DataSource ds;
+    public final String UPLOAD_ATTR = "upload";
+    private static final String UPLOAD_DIR = "uploads";
+    PageContext pageContext;
 
-    /**
-     * This method is called after the JSP engine finished processing the tag.
-     *
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
-     * methods that this method calls.
-     * @throws javax.servlet.jsp.JspException
-     */
-    @Override
-    public int doEndTag() throws JspException {
-        ds = ConnectionProvider.getMasonDatasource();
-        String acceptHeadr = request.getHeader("Accept") == null ? "" : request.getHeader("Accept");
-        String acceptHeader = Arrays.asList(acceptHeadr.split("/")).contains("xml") ? "application/xml" : "application/json";
-        String contentType = request.getContentType() == null ? "" : request.getContentType();
-        //LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
-        LinkedHashMap<String, Object> bus = (LinkedHashMap)pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
-        int size = bus.size();
-        Request mtg = (Request) request.getAttribute("mtgReq");
-        
-        if (contentType.contains("multipart/form-data")) {
-            String uploadFilePath = System.getProperty("catalina.base") + File.separator + "uploads" + request.getContextPath();
+    public UploaderService(PageContext pageContext) {
+        this.pageContext = pageContext;
+    }
+
+    public boolean upload() throws JspException {
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        if (request.getContentType().contains(MULTIPART_FORM_DATA)) {
+            String uploadFilePath = System.getProperty("catalina.base") + File.separator + UPLOAD_DIR + request.getContextPath();
             try {
                 String listenerClass;
                 Properties prop = new Properties();
-                try (InputStream fis = UploadEventTagHandler.class.getClassLoader().getResourceAsStream("config.properties")) {
+                try (InputStream fis = UploaderService.class.getClassLoader().getResourceAsStream("config.properties")) {
                     prop.load(fis);
-                    listenerClass = prop.getProperty("UploadListener");
+                    listenerClass = prop.getProperty("uploadlistener");
                 }
                 if (listenerClass != null) {
                     Files.createDirectories(Paths.get(uploadFilePath));
-                    String fileName = null;
+     
                     //Get all the parts from request and write it to the file on server
-                    List<Part> fileParts = request.getParts().stream().filter(part -> "file".equals(part.getName())).collect(Collectors.toList()); // Retrieves <input type="file" name="file" multiple="true">
-
-                    for (Part filePart : fileParts) {
+                    // Retrieves <input type="file" name="file" multiple="true">
+                    List<Part> fileParts = request.getParts().stream().filter(part -> 
+                            "file".equals(part.getName())).collect(Collectors.toList()); 
+                    
+                    String fileName;
+                    for (Part filePart : fileParts) { //for multiple files
                         fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
                         File uploadedFile = new File(uploadFilePath + File.separator + fileName);
                         if (!uploadedFile.isDirectory()) {
@@ -594,65 +578,18 @@ public class UploadEventTagHandler extends RestTag {
                                     fos.write(bytes, 0, read);
                                 }
                             }
+                            //call event
+                            callUploadEvent(uploadedFile, listenerClass, (Request) request.getAttribute("mtgReq"));
                         }
+
                     }
-                    Object result;
-                    if (fileName != null && !fileName.isEmpty()) {
-                        File file = new File(uploadFilePath + File.separator + fileName);
-                        result = callUploadEvent(new File(uploadFilePath + File.separator + fileName), listenerClass, request);
-                        if (result != null) {
-                            if (result instanceof List) {
-                                if (acceptHeader.equals("application/json")) {
-                                    JSONArray outputArray = new JSONArray();
-                                    for (Object object : (List) result) {
-                                        outputArray.put(new JSONObject(ObjectReturn.convert(object, acceptHeader)));
-                                    }
-                                    bus.put("dupload" + (size + 1), outputArray);
-                                    addToOutput("dupload" + (size + 1), outputArray);
-                                } else {
-                                    StringBuilder outputXml = new StringBuilder();
-                                    for (Object object : (List) result) {
-                                        outputXml.append(ObjectReturn.convert(object, acceptHeader));
-                                    }
-                                    bus.put("dupload" + (size + 1), outputXml.toString());
-                                    addToOutput("dupload" + (size + 1), outputXml.toString());
-                                }
-                            } else {
-                                Object processedResult = ObjectReturn.convert(result, acceptHeader);
-                                if (acceptHeader.equals("application/json")) {
-                                    try {
-                                        JSONObject jsonOutput = new JSONObject((String) processedResult);
-                                        JSONObject jsonResult = new JSONObject();
-                                        for (Iterator<String> iterator = jsonOutput.keys(); iterator.hasNext();) {
-                                            String next = iterator.next();
-                                            jsonResult.put(next, jsonOutput.get(next));
-                                        }
-                                        if (jsonResult.length() > 0) {
-                                            bus.put("dupload" + (size + 1), jsonOutput);
-                                            addToOutput("dupload" + (size + 1), jsonOutput);
-                                        }
-                                    } catch (JSONException jx) {
-                                        bus.put("dupload" + (size + 1), processedResult);
-                                        addToOutput("dupload" + (size + 1), processedResult);
-                                    }
-                                } //application/xml
-                                else {
-                                    bus.put("dupload" + (size + 1), processedResult);
-                                    addToOutput("dupload" + (size + 1), processedResult);
-                                }
-                            }
-                        }
-                        mtg.getParams().put("filename", file.getName());
-                        mtg.getParams().put("filesize", String.valueOf(file.length()));
-                    }
+
                 }
             } catch (IllegalStateException ex) {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {
                     throw new JspException("", new MetamugException(MetamugError.UPLOAD_SIZE_EXCEEDED));
                 }
-            } catch (ClassNotFoundException ex) {
-                throw new JspException("", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
-            } catch (NullPointerException | IOException | ServletException | InstantiationException | IllegalAccessException ex) {
+            } catch (NullPointerException | IOException | ServletException ex) {
                 throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
             } catch (RuntimeException ex) {
                 throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
@@ -660,45 +597,20 @@ public class UploadEventTagHandler extends RestTag {
                 throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
             }
         }
-        return EVAL_PAGE;
+        return true;
     }
 
-    private Object callUploadEvent(File uploadedFile, String listenerClass, HttpServletRequest req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
+    private void callUploadEvent(File uploadedFile, String listenerClass, Request req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
+        Object result = null;
         if (listenerClass != null) {
-            Class cls = Class.forName((String) listenerClass);
+            Class cls = Class.forName(listenerClass);
             Object newInstance = cls.newInstance();
             UploadListener listener;
-            Request mtg = (Request) req.getAttribute("mtgReq");
             if (UploadListener.class.isAssignableFrom(cls)) {
                 listener = (UploadListener) newInstance;
-                //Add Request Header values
-                Map<String, String> reqHeaders = new HashMap<>();
-                Enumeration<String> headerNames = req.getHeaderNames();
-                while (headerNames.hasMoreElements()) {
-                    String header = headerNames.nextElement();
-                    if (req.getHeader(header) != null) {
-                        reqHeaders.put(header, req.getHeader(header));
-                    }
-                }
-                //Add Request Parameter values
-                Map<String, String> reqParams = new HashMap<>();
-                Enumeration<String> parameterNames = req.getParameterNames();
-                while (parameterNames.hasMoreElements()) {
-                    String param = parameterNames.nextElement();
-                    if (req.getParameter(param) != null) {
-                        reqParams.put(param, req.getParameter(param));
-                    }
-                }
-                
                 if (uploadedFile != null) {
-                    Object result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), mtg), ds);
-                    //Sync params to HttpRequest params
-                    reqParams.entrySet().forEach((entry) -> {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        mtg.getParams().put(key, value);
-                    });
-                    return result;
+                    DataSource ds = ConnectionProvider.getMasonDatasource();
+                    result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), req), ds);
                 }
             } else {
                 throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));
@@ -706,6 +618,12 @@ public class UploadEventTagHandler extends RestTag {
         } else {
             throw new JspTagException("No implementation of UploadListener was found.", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
         }
-        return null;
+
+        //add to bus
+        if (result instanceof Response) {
+            pageContext.setAttribute(UPLOAD_ATTR, ((Response) result).getPayload());
+        } else {
+            pageContext.setAttribute(UPLOAD_ATTR, result);
+        }
     }
 }

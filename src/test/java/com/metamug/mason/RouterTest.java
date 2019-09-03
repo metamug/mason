@@ -5,7 +5,8 @@
  */
 package com.metamug.mason;
 
-import static com.metamug.mason.Router.APPLICATION_FORM_URLENCODED;
+
+import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;

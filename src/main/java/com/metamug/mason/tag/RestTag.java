@@ -506,8 +506,8 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.entity.Response;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -523,16 +523,16 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 public class RestTag extends BodyTagSupport implements TryCatchFinally {
 
     public static final String HEADER_ACCEPT = "Accept";
-    public static final String MASON_BUS = "MASON_BUS";
-    public static final String MASON_OUTPUT = "masonOutput";
-    public static final String EXTRACTED = "extracted";
+//    public static final String MASON_BUS = "bus";
+    public static final String MASON_OUTPUT = "output";
+    public static final String EXTRACTED = "extract";
 
     protected HttpServletRequest request;
     protected HttpServletResponse response;
 
     protected PageContext context; //For Mocking https://stackoverflow.com/a/17474381/1097600
     //WARNING: DO NOT USE context object in subclasses
-    
+
     public RestTag() {
         super();
         this.context = super.pageContext;
@@ -554,18 +554,26 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public void doFinally() {
     }
 
+    protected void addToBus(String var, Object result) {
+        if (result instanceof Response) {
+            pageContext.setAttribute(var, ((Response) result).getPayload());
+        } else {
+            pageContext.setAttribute(var, result);
+        }
+    }
+
     protected Object getFromBus(String var) {
-        Map<String, Object> bus = (HashMap) pageContext.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE);
-        return bus.get(var);
+        return pageContext.getAttribute(var, PageContext.PAGE_SCOPE);
     }
 
     protected void addToOutput(String var, Object value) {
-        Map<String, Object> masonOutput = (HashMap) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
-        masonOutput.put(var, value);
+        Map<String, Object> masonOutput = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
+
+        if (value instanceof Response) {
+            masonOutput.put(var, ((Response) value).getPayload());
+        } else {
+            masonOutput.put(var, value);
+        }
     }
 
-    protected void addToBus(String var, Object result) {
-        Map<String, Object> bus = (HashMap) pageContext.getAttribute(MASON_BUS, PageContext.PAGE_SCOPE);
-        bus.put(var, result);
-    }
 }

@@ -506,18 +506,45 @@
  */
 package com.metamug.mason.tag.xrequest;
 
-import com.metamug.mason.tag.HeaderTag;
+import com.metamug.mason.tag.RequestTag;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
  *
  * @author anishhirlekar
  */
-public class ParamTagHandler extends HeaderTag {
+public class ParamTagHandler extends BodyTagSupport {
+
+    private String name;
+    private Object value;
+    protected RequestTag parent;
 
     @Override
-    public void put(String key, String value) {
-        parent.addParameter(key, value);
+    public int doEndTag() throws JspException {
+
+        parent = (RequestTag) getParent();
+        if (parent == null) {
+            throw new JspTagException("Header Tag doesnt have a valid parent");
+        }
+
+        if (value == null) {
+            value = getBodyContent().getString().trim();
+        }
+
+        parent.addParameter(name, this.value);
+
+        return EVAL_PAGE;
     }
 
-   
+    public void setName(String n) {
+        name = n;
+    }
+
+    public void setValue(Object v) {
+        value = v;
+    }
+
 }
