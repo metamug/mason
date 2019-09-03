@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.metamug</groupId>
     <artifactId>mason</artifactId>
-    <version>2.5</version>
+    <version>3.0</version>
     <packaging>jar</packaging>
     <name>mason</name>
     <properties>
