@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import com.metamug.mason.entity.response.FileOutput;
@@ -562,13 +563,13 @@ public class RequestTagHandler extends RequestTag {
                 //to maintain the order of insertion
                 Map<String, Object> output = new HashMap<>();
                 pageContext.setAttribute(MASON_OUTPUT, output);
-                
+
                 //@TODO Also check for multipart
                 if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
                     UploaderService uploader = new UploaderService(pageContext);
                     uploader.upload();
                 }
-                
+
                 return EVAL_BODY_INCLUDE;
             }
         }
@@ -589,7 +590,7 @@ public class RequestTagHandler extends RequestTag {
     private void processOutput() {
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
 
-        boolean hasFile = false;
+        boolean hasAttachment = false;
 
         Map<String, Object> responses = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         //get response objects to be printed in output        
@@ -598,71 +599,57 @@ public class RequestTagHandler extends RequestTag {
 
             if (tag.getValue() instanceof Response) {
                 Response res = (Response) tag.getValue();
-                if (res.getPayload() instanceof InputStream) {
-                    hasFile = true;
+                if (res.getPayload() instanceof Attachment) {
+                    hasAttachment = true;
                     break;
                 }
             }
         }
 
-        ReadableByteChannel in = null;
-        WritableByteChannel out = null;
         try (OutputStream outputStream = response.getOutputStream();) {
-            if (!hasFile) {
+            if (!hasAttachment) {
 
                 MasonOutput<String> output = null;
                 List list = Arrays.asList(header.split("/"));
                 if (list.contains("xml")) { //Accept: application/xml, text/xml
-                    output = new XMLOutput(responses);
+                    output = new XMLOutput();
                 } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
-                    output = new DatasetOutput(responses);
+                    output = new DatasetOutput();
                 } else { //Accept: application/json OR default
-                    output = new JSONOutput(responses);
+                    output = new JSONOutput();
                 }
                 //cannnot use print writer since it we are already using outputstream
-                response.setContentType(output.getContentType());
-                byte[] stream = output.getContent().getBytes(StandardCharsets.UTF_8);
-                response.setContentLength(stream.length);
-                outputStream.write(stream);
+                Response masonResponse = output.generate(masonRequest, responses);
+                masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+                byte[] bytes = ((String) masonResponse.getPayload()).getBytes(StandardCharsets.UTF_8);
+                response.setContentLength(bytes.length);
+                outputStream.write(bytes);
 
             } else {
 
                 //has file in response
-                MasonOutput<InputStream> output = new FileOutput(responses);
-                InputStream inputStream = output.getContent();
-                response.setContentType(output.getContentType());
-                //@TODO use Attachment entity from mtg api
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + masonRequest.getParameter("file") + "\"");
-                /**
-                 * Don't set Content Length. Max buffer for output stream is 2KB
-                 * and it is flushed
-                 */
+                MasonOutput<Attachment> output = new FileOutput();
+                Response masonResponse = output.generate(masonRequest, responses);
+                masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+                InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
+                try (ReadableByteChannel in = Channels.newChannel(inputStream);
+                        WritableByteChannel out = Channels.newChannel(response.getOutputStream());) {
+                    /**
+                     * Don't set Content Length. Max buffer for output stream is
+                     * 2KB and it is flushed
+                     */
 
-                in = Channels.newChannel(inputStream);
-                out = Channels.newChannel(response.getOutputStream());
-                ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
-                while (in.read(buffer) != -1) {
-                    buffer.flip();
-                    out.write(buffer);
-                    buffer.clear();
+                    ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
+                    while (in.read(buffer) != -1) {
+                        buffer.flip();
+                        out.write(buffer);
+                        buffer.clear();
+                    }
+
                 }
-
             }
         } catch (IOException ex) {
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JAXBException ex) {
-            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
 
     }

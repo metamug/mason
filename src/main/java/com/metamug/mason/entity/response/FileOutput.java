@@ -508,29 +508,25 @@ That's all there is to it!
  */
 package com.metamug.mason.entity.response;
 
+import com.metamug.entity.Attachment;
+import com.metamug.entity.Request;
 import com.metamug.entity.Response;
-import java.io.File;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  * @author pc
  */
-public class FileOutput extends MasonOutput<InputStream> {
+public class FileOutput extends MasonOutput<Attachment> {
 
-    private InputStream content;
+    private Attachment content;
 
-    public FileOutput(Map<String, Object> outputMap) {
-        super(outputMap);
-
-        outputMap.forEach((key, value) -> {
-            //Takes the last matched file
-            if (value instanceof Response) {
-                content = (InputStream) ((Response) value).getPayload();
-            }
-
-        });
+    public Map<String, String> getExtraHeader() {
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Content-Disposition", "attachment; filename=\"" + content.getName() + "\"");
+        return headers;
     }
 
     @Override
@@ -539,7 +535,16 @@ public class FileOutput extends MasonOutput<InputStream> {
     }
 
     @Override
-    public InputStream getContent() {
+    public Attachment getContent() {
+        responseMap.forEach((key, value) -> {
+            //Takes the last matched file
+            if (value instanceof Response) {
+                Response res = ((Response) value);
+                if (res.getPayload() instanceof Attachment) {
+                    content = (Attachment) res.getPayload();
+                }
+            }
+        });
         return content;
     }
 

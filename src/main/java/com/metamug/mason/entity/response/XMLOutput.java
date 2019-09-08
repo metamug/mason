@@ -516,10 +516,6 @@ import org.json.XML;
  */
 public class XMLOutput extends JSONOutput {
 
-    public XMLOutput(Map<String, Object> outputMap) throws JAXBException {
-        super(outputMap);
-    }
-
     protected String getXml(String json) {
         StringBuilder xmlBuilder = new StringBuilder();
         xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");

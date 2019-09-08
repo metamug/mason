@@ -5,9 +5,7 @@
  */
 package com.metamug.mason.entity.response;
 
-import java.util.Map;
 import java.util.SortedMap;
-import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,10 +17,6 @@ public class DatasetOutput extends JSONOutput {
 
     public static final String COLUMNS = "columns";
     public static final String DATASET = "dataset";
-
-    public DatasetOutput(Map<String, Object> outputMap) throws JAXBException {
-        super(outputMap);
-    }
 
     @Override
     protected Object getJson(ResultImpl impl) {

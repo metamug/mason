@@ -506,24 +506,82 @@
  */
 package com.metamug.mason.entity.response;
 
-import java.io.UnsupportedEncodingException;
+import com.metamug.entity.Attachment;
+import com.metamug.entity.Request;
+import com.metamug.entity.Response;
+import com.metamug.exec.ResponseGenerator;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Generic Output Object
+ *
+ * @param <T>
  */
-public abstract class MasonOutput<T> {
+public abstract class MasonOutput<T> implements ResponseGenerator {
 
     public static final String HEADER_JSON = "application/json";
     public static final String HEADER_DATASET = "application/json+dataset";
     public static final String HEADER_XML = "application/xml";
     Map<String, Object> responseMap;
+    Response finalResponse;
 
-    public MasonOutput(Map<String, Object> outputMap) {
+    /**
+     * If Extra Headers are added later, and Content-Type header is part of it.
+     * Thie value from this method will be overwritten in the response header
+     *
+     * @return
+     */
+    protected abstract String getContentType();
 
+    /**
+     * Protected from being used outside the package. Use Response Object to get
+     * payload
+     *
+     * @return
+     */
+    protected abstract T getContent();
+
+    /**
+     * Add Extra Headers to the response
+     *
+     * @return
+     *
+     */
+    private void getExtraHeader() {
+        responseMap.forEach((key, value) -> {
+            //Takes the last matched file
+            if (value instanceof Response) {
+                Response res = ((Response) value);
+                res.getHeaders().forEach((k, v) -> finalResponse.setHeader(k, v));
+                res.setHeaders(null); //remove this map 
+            }
+        });
     }
 
-    public abstract String getContentType();
+    @Override
+    public Response generate(Request request, Map<String, Object> outputMap) {
 
-    public abstract T getContent();
+        this.responseMap = outputMap;
+        finalResponse = new Response(getContent());
+        
+        getExtraHeader();
+//        InputStream targetStream = null;
+//        if (content instanceof String) {
+//            targetStream = new ByteArrayInputStream(((String) content).getBytes());
+//        } else if (content instanceof InputStream) {
+//            targetStream = (InputStream) content;
+//        }
+        if (StringUtils.isEmpty(getContentType())) {
+            //@TODO Set from the request
+        } else {
+            finalResponse.setHeader("Content-Type", getContentType());
+        }
+
+        return finalResponse;
+
+    }
 }
