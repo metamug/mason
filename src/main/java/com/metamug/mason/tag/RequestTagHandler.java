@@ -514,10 +514,9 @@ import com.metamug.mason.entity.response.DatasetOutput;
 import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import com.metamug.mason.entity.response.ResponeBuilder;
 import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.service.UploaderService;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -535,7 +534,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
-import javax.xml.bind.JAXBException;
 
 /**
  *
@@ -592,9 +590,9 @@ public class RequestTagHandler extends RequestTag {
 
         boolean hasAttachment = false;
 
-        Map<String, Object> responses = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
+        Map<String, Object> outputMap = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         //get response objects to be printed in output        
-        for (Entry<String, Object> tag : responses.entrySet()) {
+        for (Entry<String, Object> tag : outputMap.entrySet()) {
             //check for file
 
             if (tag.getValue() instanceof Response) {
@@ -607,9 +605,10 @@ public class RequestTagHandler extends RequestTag {
         }
 
         try (OutputStream outputStream = response.getOutputStream();) {
+
             if (!hasAttachment) {
 
-                MasonOutput<String> output = null;
+                MasonOutput output = null;
                 List list = Arrays.asList(header.split("/"));
                 if (list.contains("xml")) { //Accept: application/xml, text/xml
                     output = new XMLOutput();
@@ -618,10 +617,11 @@ public class RequestTagHandler extends RequestTag {
                 } else { //Accept: application/json OR default
                     output = new JSONOutput();
                 }
+
                 //cannnot use print writer since it we are already using outputstream
-                Response masonResponse = output.generate(masonRequest, responses);
+                Response masonResponse = new ResponeBuilder(output).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
-                byte[] bytes = ((String) masonResponse.getPayload()).getBytes(StandardCharsets.UTF_8);
+                byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
 
@@ -629,8 +629,10 @@ public class RequestTagHandler extends RequestTag {
 
                 //has file in response
                 MasonOutput<Attachment> output = new FileOutput();
-                Response masonResponse = output.generate(masonRequest, responses);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+                Response masonResponse = output.generate(masonRequest, outputMap);
+                for (Map.Entry<String, String> entry : masonResponse.getHeaders().entrySet()) {
+                    response.setHeader(entry.getKey(), entry.getValue());
+                }
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
                         WritableByteChannel out = Channels.newChannel(response.getOutputStream());) {

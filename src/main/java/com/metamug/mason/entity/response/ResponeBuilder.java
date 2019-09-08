@@ -508,49 +508,34 @@ That's all there is to it!
  */
 package com.metamug.mason.entity.response;
 
-import com.metamug.entity.Attachment;
 import com.metamug.entity.Response;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
- *
+ * This builder avoids the direct use of getContent method in MasonOutput
  * @author pc
  */
-public class FileOutput extends MasonOutput<Attachment> {
+public class ResponeBuilder {
 
-    private Attachment content;
+    MasonOutput output;
 
-    public Map<String, String> getExtraHeaders() {
-        Map<String, String> headers = new HashMap<String, String>();
-        headers.put("Content-Disposition", "attachment; filename=\"" + content.getName() + "\"");
-        return headers;
+    public ResponeBuilder(Class<? extends MasonOutput> clazz) {
+        try {
+            this.output = clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(ResponeBuilder.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    @Override
-    public String getContentType() {
-        return OCTETSTREAM;
+    public ResponeBuilder(MasonOutput output) {
+        this.output = output;
     }
 
-    @Override
-    public Attachment getContent() {
-        outputMap.forEach((key, value) -> {
-            //Takes the last matched file
-            if (value instanceof Response) {
-                Response res = ((Response) value);
-                if (res.getPayload() instanceof Attachment) {
-                    content = (Attachment) res.getPayload();
-                }
-            }
-        });
-        return content;
+    public Response build(Map<String, Object> outputMap) {
+        Response response = this.output.generate(null, outputMap);
+        return response;
     }
-
-    public static final String OCTETSTREAM = "application/octet-stream";
-
-    @Override
-    public String format(Response masonResponse) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }

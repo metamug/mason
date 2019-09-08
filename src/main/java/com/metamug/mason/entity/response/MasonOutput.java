@@ -506,32 +506,29 @@
  */
 package com.metamug.mason.entity.response;
 
-import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import com.metamug.exec.ResponseGenerator;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import com.metamug.exec.ResponseFormatter;
 
 /**
  * Generic Output Object
  *
  * @param <T>
  */
-public abstract class MasonOutput<T> implements ResponseGenerator {
+public abstract class MasonOutput<T> implements ResponseGenerator, ResponseFormatter {
 
     public static final String HEADER_JSON = "application/json";
     public static final String HEADER_DATASET = "application/json+dataset";
     public static final String HEADER_XML = "application/xml";
-    Map<String, Object> responseMap;
-    Response finalResponse;
+    protected Map<String, Object> outputMap;
+    private Response finalResponse;
 
     /**
      * If Extra Headers are added later, and Content-Type header is part of it.
-     * Thie value from this method will be overwritten in the response header
+     * This value from this method will be overwritten in the response header
      *
      * @return
      */
@@ -551,8 +548,16 @@ public abstract class MasonOutput<T> implements ResponseGenerator {
      * @return
      *
      */
-    private void getExtraHeader() {
-        responseMap.forEach((key, value) -> {
+    abstract protected Map<String, String> getExtraHeaders();
+
+    @Override
+    public Response generate(Request request, Map<String, Object> outputMap) {
+
+        this.outputMap = outputMap;
+        //Response takes Any Object as its payload
+        this.finalResponse = new Response(getContent());
+
+        outputMap.forEach((key, value) -> {
             //Takes the last matched file
             if (value instanceof Response) {
                 Response res = ((Response) value);
@@ -560,15 +565,9 @@ public abstract class MasonOutput<T> implements ResponseGenerator {
                 res.setHeaders(null); //remove this map 
             }
         });
-    }
 
-    @Override
-    public Response generate(Request request, Map<String, Object> outputMap) {
+        getExtraHeaders().forEach((k, v) -> finalResponse.setHeader(k, v));
 
-        this.responseMap = outputMap;
-        finalResponse = new Response(getContent());
-        
-        getExtraHeader();
 //        InputStream targetStream = null;
 //        if (content instanceof String) {
 //            targetStream = new ByteArrayInputStream(((String) content).getBytes());
@@ -584,4 +583,6 @@ public abstract class MasonOutput<T> implements ResponseGenerator {
         return finalResponse;
 
     }
+
+    abstract public String format(Response masonResponse);
 }
