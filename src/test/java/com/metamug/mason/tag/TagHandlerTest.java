@@ -742,7 +742,7 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
 
-        verify(response).setContentType(FileOutput.OCTETSTREAM);
+        verify(response).setHeader("Content-Type",FileOutput.OCTETSTREAM);
         //verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
 
     }

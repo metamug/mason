@@ -524,7 +524,6 @@ public abstract class MasonOutput<T> implements ResponseGenerator, ResponseForma
     public static final String HEADER_DATASET = "application/json+dataset";
     public static final String HEADER_XML = "application/xml";
     protected Map<String, Object> outputMap;
-    private Response finalResponse;
 
     /**
      * If Extra Headers are added later, and Content-Type header is part of it.
@@ -555,7 +554,7 @@ public abstract class MasonOutput<T> implements ResponseGenerator, ResponseForma
 
         this.outputMap = outputMap;
         //Response takes Any Object as its payload
-        this.finalResponse = new Response(getContent());
+        Response finalResponse = new Response(getContent());
 
         outputMap.forEach((key, value) -> {
             //Takes the last matched file

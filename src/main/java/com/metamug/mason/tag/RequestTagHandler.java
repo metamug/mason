@@ -627,12 +627,9 @@ public class RequestTagHandler extends RequestTag {
 
             } else {
 
-                //has file in response
-                MasonOutput<Attachment> output = new FileOutput();
-                Response masonResponse = output.generate(masonRequest, outputMap);
-                for (Map.Entry<String, String> entry : masonResponse.getHeaders().entrySet()) {
-                    response.setHeader(entry.getKey(), entry.getValue());
-                }
+                //has file in respons
+                Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
+                masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
                         WritableByteChannel out = Channels.newChannel(response.getOutputStream());) {
