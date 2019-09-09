@@ -556,15 +556,6 @@ public abstract class MasonOutput<T> implements ResponseGenerator, ResponseForma
         //Response takes Any Object as its payload
         Response finalResponse = new Response(getContent());
 
-        outputMap.forEach((key, value) -> {
-            //Takes the last matched file
-            if (value instanceof Response) {
-                Response res = ((Response) value);
-                res.getHeaders().forEach((k, v) -> finalResponse.setHeader(k, v));
-                res.setHeaders(null); //remove this map 
-            }
-        });
-
         getExtraHeaders().forEach((k, v) -> finalResponse.setHeader(k, v));
 
 //        InputStream targetStream = null;

@@ -536,11 +536,8 @@ public class FileOutput extends MasonOutput<Attachment> {
     public Attachment getContent() {
         outputMap.forEach((key, value) -> {
             //Takes the last matched file
-            if (value instanceof Response) {
-                Response res = ((Response) value);
-                if (res.getPayload() instanceof Attachment) {
-                    content = (Attachment) res.getPayload();
-                }
+            if (value instanceof Attachment) {
+                content = (Attachment) value;
             }
         });
         return content;

@@ -730,7 +730,7 @@ public class TagHandlerTest {
 
         resultMap = new LinkedHashMap<>();
         resultMap.put("res3", "Hello World");
-        resultMap.put("file", new Response(new Attachment(new FileInputStream(temp)))); //this will be used a mason bus
+        resultMap.put("file",new Attachment(new FileInputStream(temp))); //this will be used a mason bus
 
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");

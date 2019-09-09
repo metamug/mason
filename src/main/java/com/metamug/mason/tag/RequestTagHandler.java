@@ -593,14 +593,10 @@ public class RequestTagHandler extends RequestTag {
         Map<String, Object> outputMap = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         //get response objects to be printed in output        
         for (Entry<String, Object> tag : outputMap.entrySet()) {
-            //check for file
-
-            if (tag.getValue() instanceof Response) {
-                Response res = (Response) tag.getValue();
-                if (res.getPayload() instanceof Attachment) {
-                    hasAttachment = true;
-                    break;
-                }
+            //check for Attachmetn
+            if (tag.getValue() instanceof Attachment) {
+                hasAttachment = true;
+                break;
             }
         }
 
