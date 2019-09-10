@@ -506,36 +506,91 @@
  */
 package com.metamug.mason.entity.response;
 
+import com.metamug.entity.Response;
+import com.metamug.exec.ResponseFormatter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.json.JSONObject;
 import org.json.XML;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Generic Output Object
  */
-public class XMLOutput extends JSONOutput {
+public class XMLOutput extends MasonOutput<Document> {
 
-    public XMLOutput(Map<String, Object> outputMap) throws JAXBException {
-        super(outputMap);
-    }
-
-    protected String getXml(String json) {
+    /**
+     * Convert JSONObject into XML DOcument Object
+     *
+     * @param jsonObject
+     * @return
+     */
+    private Document getXml(JSONObject jsonObject) {
         StringBuilder xmlBuilder = new StringBuilder();
         xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
         xmlBuilder.append("<response>");
-        xmlBuilder.append(XML.toString(new JSONObject(json)));
+        xmlBuilder.append(XML.toString(jsonObject));
         xmlBuilder.append("</response>");
-        return xmlBuilder.toString();
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document doc = null;
+        DocumentBuilder builder = null;
+        try {
+            builder = factory.newDocumentBuilder();
+            doc = builder.parse(new InputSource(new StringReader(xmlBuilder.toString())));
+            return doc;
+        } catch (IOException | ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
+        }
+        return doc;
     }
 
     @Override
-    public String getContent() {
-        return getXml(super.getContent());
+    protected Document getContent() {
+        Response response = new ResponeBuilder(JSONOutput.class).build(outputMap);
+        return getXml((JSONObject) response.getPayload());
     }
 
     @Override
     public String getContentType() {
         return HEADER_XML;
+    }
+
+    public String getStringFromDocument(Document doc) {
+        try {
+            DOMSource domSource = new DOMSource(doc);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+            return writer.toString();
+        } catch (TransformerException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public String format(Response response) {
+        return getStringFromDocument((Document) response.getPayload());
+    }
+
+    @Override
+    protected Map<String, String> getExtraHeaders() {
+        return new HashMap<>();
     }
 }

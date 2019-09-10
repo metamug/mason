@@ -521,6 +521,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -539,7 +541,7 @@ import org.apache.commons.lang3.StringUtils;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class UploaderService {
 
-    public final String UPLOAD_ATTR = "upload";
+    public final String UPLOAD_ATTR = "_upload";
     private static final String UPLOAD_DIR = "uploads";
     PageContext pageContext;
 
@@ -550,7 +552,7 @@ public class UploaderService {
     public boolean upload() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         if (request.getContentType().contains(MULTIPART_FORM_DATA)) {
-            String uploadFilePath = System.getProperty("catalina.base") + File.separator + UPLOAD_DIR + request.getContextPath();
+
             try {
                 String listenerClass;
                 Properties prop = new Properties();
@@ -559,37 +561,15 @@ public class UploaderService {
                     listenerClass = prop.getProperty("uploadlistener");
                 }
                 if (listenerClass != null) {
-                    Files.createDirectories(Paths.get(uploadFilePath));
-     
-                    //Get all the parts from request and write it to the file on server
-                    // Retrieves <input type="file" name="file" multiple="true">
-                    List<Part> fileParts = request.getParts().stream().filter(part -> 
-                            "file".equals(part.getName())).collect(Collectors.toList()); 
-                    
-                    String fileName;
-                    for (Part filePart : fileParts) { //for multiple files
-                        fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-                        File uploadedFile = new File(uploadFilePath + File.separator + fileName);
-                        if (!uploadedFile.isDirectory()) {
-                            try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
-                                int read;
-                                byte[] bytes = new byte[1024];
-                                while ((read = fileContent.read(bytes)) != -1) {
-                                    fos.write(bytes, 0, read);
-                                }
-                            }
-                            //call event
-                            callUploadEvent(uploadedFile, listenerClass, (Request) request.getAttribute("mtgReq"));
-                        }
-
-                    }
-
+                    uploadPart(request, listenerClass);
+                } else {
+                    throw new JspTagException("No implementation of UploadListener was found.", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
                 }
             } catch (IllegalStateException ex) {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {
                     throw new JspException("", new MetamugException(MetamugError.UPLOAD_SIZE_EXCEEDED));
                 }
-            } catch (NullPointerException | IOException | ServletException ex) {
+            } catch (NullPointerException | IOException ex) {
                 throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
             } catch (RuntimeException ex) {
                 throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
@@ -600,23 +580,21 @@ public class UploaderService {
         return true;
     }
 
-    private void callUploadEvent(File uploadedFile, String listenerClass, Request req) throws NullPointerException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RuntimeException, Exception {
+    private void callUploadEvent(File uploadedFile, String listenerClass, Request req) throws ClassNotFoundException, 
+            InstantiationException, IllegalAccessException, Exception{
         Object result = null;
-        if (listenerClass != null) {
-            Class cls = Class.forName(listenerClass);
-            Object newInstance = cls.newInstance();
-            UploadListener listener;
-            if (UploadListener.class.isAssignableFrom(cls)) {
-                listener = (UploadListener) newInstance;
-                if (uploadedFile != null) {
-                    DataSource ds = ConnectionProvider.getMasonDatasource();
-                    result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), req), ds);
-                }
-            } else {
-                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));
+
+        Class cls = Class.forName(listenerClass);
+        Object newInstance = cls.newInstance();
+        UploadListener listener;
+        if (UploadListener.class.isAssignableFrom(cls)) {
+            listener = (UploadListener) newInstance;
+            if (uploadedFile != null) {
+                DataSource ds = ConnectionProvider.getMasonDatasource();
+                result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), req), ds);
             }
         } else {
-            throw new JspTagException("No implementation of UploadListener was found.", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
+            throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));
         }
 
         //add to bus
@@ -624,6 +602,40 @@ public class UploaderService {
             pageContext.setAttribute(UPLOAD_ATTR, ((Response) result).getPayload());
         } else {
             pageContext.setAttribute(UPLOAD_ATTR, result);
+        }
+    }
+
+    private void uploadPart(HttpServletRequest request, String listenerClass) throws JspTagException, IOException, Exception {
+        try {
+            String uploadFilePath = System.getProperty("catalina.base") + File.separator + UPLOAD_DIR + request.getContextPath();
+            Files.createDirectories(Paths.get(uploadFilePath));
+
+            //Get all the parts from request and write it to the file on server
+            // Retrieves <input type="file" name="file" multiple="true">
+            List<Part> fileParts = request.getParts().stream().filter(part
+                    -> "file".equals(part.getName())).collect(Collectors.toList());
+
+            String fileName;
+            for (Part filePart : fileParts) { //for multiple files
+                fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
+                File uploadedFile = new File(uploadFilePath + File.separator + fileName);
+                if (!uploadedFile.isDirectory()) {
+                    try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
+                        int read;
+                        byte[] bytes = new byte[1024];
+                        while ((read = fileContent.read(bytes)) != -1) {
+                            fos.write(bytes, 0, read);
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(UploaderService.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    //call event
+                    callUploadEvent(uploadedFile, listenerClass, (Request) request.getAttribute("mtgReq"));
+                }
+
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException ex) {
+            throw new JspTagException("Unable to load Upload Event Listener", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
         }
     }
 }

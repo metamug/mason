@@ -5,6 +5,7 @@
  */
 package com.metamug.mason.entity.response;
 
+import com.metamug.entity.Response;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -70,7 +71,8 @@ public class MasonOutputTest {
     public void testJsonSingleResult() throws JAXBException {
         Map<String, Object> singleMap = new LinkedHashMap<>();
         singleMap.put("res2", new JSONArray(sampleArray));
-        MasonOutput output = new JSONOutput(singleMap);
+        MasonOutput output = new JSONOutput();
+        output.generate(null, outputMap);
         String outStr = output.toString();
         System.out.println("single json: " + outStr);
         System.out.println("Length: " + outStr.length());
@@ -101,20 +103,21 @@ public class MasonOutputTest {
     }
 
     private MasonOutput getOutput(String dataType) throws JAXBException {
-        MasonOutput output = new JSONOutput(new LinkedHashMap<>());
-        Assert.assertEquals("{}", output.getContent());
+        MasonOutput output = null;
 
         switch (dataType) {
             case MasonOutput.HEADER_JSON:
-                output = new JSONOutput(outputMap);
+                output = new JSONOutput();
                 break;
             case MasonOutput.HEADER_DATASET:
-                output = new DatasetOutput(outputMap);
+                output = new DatasetOutput();
                 break;
             case MasonOutput.HEADER_XML:
-                output = new XMLOutput(outputMap);
+                output = new XMLOutput();
                 break;
         }
+        Response res = output.generate(null, outputMap);
+//        Assert.assertEquals(null, res.getPayload());
         return output;
     }
 

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.metamug</groupId>
     <artifactId>mason</artifactId>
-    <version>3.0</version>
+    <version>3.1</version>
     <packaging>jar</packaging>
     <name>mason</name>
     <properties>
@@ -157,7 +157,7 @@
         <dependency>
             <groupId>com.metamug</groupId>
             <artifactId>mtg-api</artifactId>
-            <version>1.2.0</version>
+            <version>1.5</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>

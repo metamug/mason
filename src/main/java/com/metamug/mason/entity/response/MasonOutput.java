@@ -506,24 +506,73 @@
  */
 package com.metamug.mason.entity.response;
 
-import java.io.UnsupportedEncodingException;
+import com.metamug.entity.Request;
+import com.metamug.entity.Response;
+import com.metamug.exec.ResponseGenerator;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import com.metamug.exec.ResponseFormatter;
 
 /**
  * Generic Output Object
+ *
+ * @param <T>
  */
-public abstract class MasonOutput<T> {
+public abstract class MasonOutput<T> implements ResponseGenerator, ResponseFormatter {
 
     public static final String HEADER_JSON = "application/json";
     public static final String HEADER_DATASET = "application/json+dataset";
     public static final String HEADER_XML = "application/xml";
-    Map<String, Object> responseMap;
+    protected Map<String, Object> outputMap;
 
-    public MasonOutput(Map<String, Object> outputMap) {
+    /**
+     * If Extra Headers are added later, and Content-Type header is part of it.
+     * This value from this method will be overwritten in the response header
+     *
+     * @return
+     */
+    protected abstract String getContentType();
+
+    /**
+     * Protected from being used outside the package. Use Response Object to get
+     * payload
+     *
+     * @return
+     */
+    protected abstract T getContent();
+
+    /**
+     * Add Extra Headers to the response
+     *
+     * @return
+     *
+     */
+    abstract protected Map<String, String> getExtraHeaders();
+
+    @Override
+    public Response generate(Request request, Map<String, Object> outputMap) {
+
+        this.outputMap = outputMap;
+        //Response takes Any Object as its payload
+        Response finalResponse = new Response(getContent());
+
+        getExtraHeaders().forEach((k, v) -> finalResponse.setHeader(k, v));
+
+//        InputStream targetStream = null;
+//        if (content instanceof String) {
+//            targetStream = new ByteArrayInputStream(((String) content).getBytes());
+//        } else if (content instanceof InputStream) {
+//            targetStream = (InputStream) content;
+//        }
+        if (StringUtils.isEmpty(getContentType())) {
+            //@TODO Set from the request
+        } else {
+            finalResponse.setHeader("Content-Type", getContentType());
+        }
+
+        return finalResponse;
 
     }
 
-    public abstract String getContentType();
-
-    public abstract T getContent();
+    abstract public String format(Response masonResponse);
 }

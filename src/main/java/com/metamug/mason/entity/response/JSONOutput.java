@@ -506,13 +506,17 @@
  */
 package com.metamug.mason.entity.response;
 
+import com.metamug.entity.Request;
+import com.metamug.entity.Response;
+import com.metamug.exec.ResponseFormatter;
 import com.metamug.mason.io.mpath.MPathUtil;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
@@ -522,13 +526,11 @@ import org.json.JSONObject;
 /**
  * JSONs Output Object
  */
-public class JSONOutput extends MasonOutput<String> {
+public class JSONOutput extends MasonOutput<JSONObject>{
 
-    protected JSONObject responseJson = new JSONObject();
-
-    public JSONOutput(Map<String, Object> outputMap) throws JAXBException {
-        super(outputMap);
-
+    @Override
+    protected JSONObject getContent() {
+        JSONObject responseJson = new JSONObject();
         for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
             Object obj = entry.getValue();
             String key = entry.getKey();
@@ -542,7 +544,12 @@ public class JSONOutput extends MasonOutput<String> {
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
                 for (Object o : (Iterable<? extends Object>) obj) {
-                    array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
+                    try {
+                        array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
+                    } catch (JAXBException ex) {
+                        //@TODO Do something here
+                        Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 responseJson.put(key, array);
             } else {
@@ -552,16 +559,25 @@ public class JSONOutput extends MasonOutput<String> {
                     responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, HEADER_JSON)));
                 } catch (MarshalException mex) {
                     responseJson.put(key, obj);
+                } catch (JAXBException ex) {
+                    Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
+        return responseJson;
+    }
+
+    @Override
+    public String format(Response response) {
+        JSONObject responseJson = (JSONObject) response.getPayload();
+        return responseJson.toString();
     }
 
     protected Object getJson(ResultImpl impl) {
         return resultSetToJson(impl);
     }
 
-    protected JSONArray resultSetToJson(ResultImpl resultImpl) {
+    private JSONArray resultSetToJson(ResultImpl resultImpl) {
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
         JSONArray array = new JSONArray();
@@ -596,8 +612,8 @@ public class JSONOutput extends MasonOutput<String> {
     }
 
     @Override
-    public String getContent() {
-        return responseJson.toString();
+    protected Map<String, String> getExtraHeaders() {
+        return new HashMap<>();
     }
 
 }

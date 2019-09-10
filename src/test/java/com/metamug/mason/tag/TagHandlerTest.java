@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
@@ -729,7 +730,7 @@ public class TagHandlerTest {
 
         resultMap = new LinkedHashMap<>();
         resultMap.put("res3", "Hello World");
-        resultMap.put("file", new Response(new FileInputStream(temp))); //this will be used a mason bus
+        resultMap.put("file",new Attachment(new FileInputStream(temp))); //this will be used a mason bus
 
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
@@ -741,7 +742,7 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
 
-        verify(response).setContentType(FileOutput.OCTETSTREAM);
+        verify(response).setHeader("Content-Type",FileOutput.OCTETSTREAM);
         //verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
 
     }

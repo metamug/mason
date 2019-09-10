@@ -508,6 +508,7 @@ package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
+import com.metamug.entity.Result;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.exception.MetamugError;
@@ -550,7 +551,8 @@ public class ExecuteTagHandler extends RequestTag {
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
                     //@TODO remove cast
-                    result = resProcessable.process(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                    Result sqlResult = new Result(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                    result = resProcessable.process(sqlResult);
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
                 reqProcessable = (RequestProcessable) newInstance;
@@ -617,5 +619,5 @@ public class ExecuteTagHandler extends RequestTag {
 
     public void setOutput(boolean output) {
         this.output = output;
-    }  
+    }
 }
