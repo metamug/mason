@@ -551,7 +551,7 @@ public class UploaderService {
 
     public boolean upload() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        if (request.getContentType().contains(MULTIPART_FORM_DATA)) {
+        if (request.getContentType()!=null && request.getContentType().contains(MULTIPART_FORM_DATA)) {
 
             try {
                 String listenerClass;
