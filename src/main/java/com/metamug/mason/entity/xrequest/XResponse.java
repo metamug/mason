@@ -506,7 +506,6 @@
  */
 package com.metamug.mason.entity.xrequest;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -520,28 +519,19 @@ import org.json.XML;
 public class XResponse {
 
     private int statusCode;
-    private Map<String,String> headers = new HashMap<>();
+    private Map<String,String> headers;
     private String body;
     private boolean error;
 
     public XResponse(int statusCode, Map<String,String> headers, String body, boolean error) {
         this.statusCode = statusCode;
-        if(headers!=null)
-            this.headers = headers;
+        this.headers = headers;
         this.body = body;
         this.error = error;
     }
 
-    private JSONObject getErrorJson() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("body", body);
-
-        return obj;
-    }
-
-    private String getErrorXml() {
-        return XML.toString(getErrorJson());
+    public int getStatusCode() {
+        return statusCode;
     }
 
     public JSONObject getJsonForXmlXResponse() {
@@ -549,11 +539,7 @@ public class XResponse {
             return getErrorJson();
         }
 
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("body", body);
-
-        return obj;
+        return getResponseObject(statusCode,headers,body);
     }
 
     public JSONObject getJsonForJsonXResponse() {
@@ -563,6 +549,8 @@ public class XResponse {
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
+        putHeadersInJson(obj, headers);
+        
         try {
             JSONObject bodyObject = new JSONObject(body);
             obj.put("body", bodyObject);
@@ -592,6 +580,8 @@ public class XResponse {
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
+        putHeadersInJson(obj, headers);
+        
         try {
             JSONObject bodyObject = new JSONObject(body);
             obj.put("body", bodyObject);
@@ -607,8 +597,31 @@ public class XResponse {
         }
         return XML.toString(obj);
     }
+    
+    private JSONObject getErrorJson() {
+        return getResponseObject(statusCode,headers,body);
+    }
 
-    public int getStatusCode() {
-        return statusCode;
+    private String getErrorXml() {
+        return XML.toString(getErrorJson());
+    }
+    
+    private JSONObject getResponseObject(int statusCode, Map<String,String> headers, String body){
+        JSONObject obj = new JSONObject();
+        obj.put("statusCode", statusCode);
+        
+        putHeadersInJson(obj, headers);
+        
+        obj.put("body", body);
+
+        return obj;
+    }
+    
+    private void putHeadersInJson(JSONObject object, Map<String,String> headers){
+        if(headers != null){
+            headers.entrySet().forEach( entry -> {
+                object.put(entry.getKey(), entry.getValue());
+            });
+        }
     }
 }
