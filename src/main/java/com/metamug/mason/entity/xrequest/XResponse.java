@@ -506,6 +506,8 @@
  */
 package com.metamug.mason.entity.xrequest;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -518,19 +520,16 @@ import org.json.XML;
 public class XResponse {
 
     private int statusCode;
+    private Map<String,String> headers = new HashMap<>();
     private String body;
     private boolean error;
 
-    public XResponse(int statusCode, String body, boolean error) {
+    public XResponse(int statusCode, Map<String,String> headers, String body, boolean error) {
         this.statusCode = statusCode;
+        if(headers!=null)
+            this.headers = headers;
         this.body = body;
         this.error = error;
-    }
-
-    public XResponse(int statusCode, String body) {
-        this.statusCode = statusCode;
-        this.body = body;
-        this.error = false;
     }
 
     private JSONObject getErrorJson() {
