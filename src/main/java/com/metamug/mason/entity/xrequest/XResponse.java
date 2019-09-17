@@ -618,10 +618,12 @@ public class XResponse {
     }
     
     private void putHeadersInJson(JSONObject object, Map<String,String> headers){
+        JSONObject headersObject = new JSONObject();
         if(headers != null){
-            headers.entrySet().forEach( entry -> {
-                object.put(entry.getKey(), entry.getValue());
+            headers.entrySet().forEach( (Map.Entry<String, String> entry) -> {
+                headersObject.put(entry.getKey(), entry.getValue());
             });
         }
+        object.put("headers", headersObject);
     }
 }
