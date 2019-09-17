@@ -529,18 +529,15 @@ public class RequestTag extends RestTag {
         this.headers = headers;
     }
     
-     public void addHeader(String name, String value) {
+    public void addHeader(String name, String value) {
         headers.put(name, value);
     }
-
 
     public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
     }
-
    
     public void addParameter(String name, Object value) {
         parameters.put(name, value);
     }
-    
 }

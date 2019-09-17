@@ -517,6 +517,8 @@ import com.metamug.mason.exception.MetamugException;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
@@ -527,6 +529,8 @@ import org.apache.commons.lang3.StringUtils;
  * @author anishhirlekar
  */
 public class ResourceTagHandler extends RestTag {
+    
+    private Request masonRequest;
 
     private String auth;
     private String parentName;
@@ -537,9 +541,15 @@ public class ResourceTagHandler extends RestTag {
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String BEARER_ = "Bearer ";
+    
+    private List<String> childMethods; //holds http methods of child request tags
 
     public void setAuth(String auth) {
         this.auth = auth;
+    }
+    
+    public void addChildMethod(String method) {
+        childMethods.add(method);
     }
     
     /**
@@ -553,29 +563,34 @@ public class ResourceTagHandler extends RestTag {
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-        //request = (HttpServletRequest) context.getRequest();
-        //response = (HttpServletResponse) context.getResponse();
+       
+        childMethods = new ArrayList<>();
+        
         if (StringUtils.isNotBlank(auth)) {
             processAuth();
         }
 
-        Request masonRequest = (Request) pageContext.getRequest().getAttribute(MASON_REQUEST);
+        masonRequest = (Request) request.getAttribute(MASON_REQUEST);
         Resource parent = masonRequest.getParent();
         if (parent != null && !parent.getName().equalsIgnoreCase(this.parentName)) {
             throw new JspException("Parent resource not found", new MetamugException(MetamugError.PARENT_RESOURCE_MISSING));
         }
 
         return EVAL_BODY_INCLUDE;
-
     }
 
     @Override
     public int doEndTag() throws JspException {
-        process405();
+        String incomingRequestMethod = masonRequest.getMethod();
+        
+        if(!childMethods.contains(incomingRequestMethod)) {
+            return405();
+        }
+        
         return SKIP_PAGE;
     }
 
-    private void process405() {
+    private void return405() {
 //        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(HEADER_JSON);
         response.setStatus(STATUS_METHOD_NOT_ALLOWED);

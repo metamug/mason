@@ -509,6 +509,7 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
+import static com.metamug.mason.Router.MASON_REQUEST;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.entity.response.DatasetOutput;
 import com.metamug.mason.entity.response.JSONOutput;
@@ -545,13 +546,18 @@ public class RequestTagHandler extends RequestTag {
     private boolean evaluate;
 
     private Request masonRequest;
+    
+    protected ResourceTagHandler parent;
 
-    //private Map<String, Object> masonBus; 
-    //private Map<String, Object> extracted; //Holds values extracted using mpath notation
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-        masonRequest = (Request) request.getAttribute("mtgReq");
+        
+        parent = (ResourceTagHandler)getParent();
+        //add http method of this request tag to parent's list
+        parent.addChildMethod(method);
+        
+        masonRequest = (Request) request.getAttribute(MASON_REQUEST);
 
         if (method.equalsIgnoreCase(masonRequest.getMethod())) {
             evaluate = (masonRequest.getId() != null) == item; //evaluate
@@ -593,7 +599,7 @@ public class RequestTagHandler extends RequestTag {
         Map<String, Object> outputMap = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         //get response objects to be printed in output        
         for (Entry<String, Object> tag : outputMap.entrySet()) {
-            //check for Attachmetn
+            //check for Attachment
             if (tag.getValue() instanceof Attachment) {
                 hasAttachment = true;
                 break;
@@ -623,7 +629,7 @@ public class RequestTagHandler extends RequestTag {
 
             } else {
 
-                //has file in respons
+                //has file in response
                 Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
