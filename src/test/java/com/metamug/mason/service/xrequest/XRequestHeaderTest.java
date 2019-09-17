@@ -524,7 +524,7 @@ public class XRequestHeaderTest {
     private final XRequestService xRequestService;
 
     public XRequestHeaderTest() {
-        xRequestService = new XRequestService();
+        xRequestService = new XRequestService(true);
     }
 
     @Test

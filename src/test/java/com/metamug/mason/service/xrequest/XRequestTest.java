@@ -37,7 +37,7 @@ public class XRequestTest {
     private final XRequestService xRequestService;
 
     public XRequestTest() {
-        xRequestService = new XRequestService();
+        xRequestService = new XRequestService(true);
     }
 
     @Test

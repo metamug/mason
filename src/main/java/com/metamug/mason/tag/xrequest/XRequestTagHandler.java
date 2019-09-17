@@ -528,12 +528,12 @@ public class XRequestTagHandler extends RequestTag {
     private String url;
 
     private String requestBody;
+    private boolean outputHeaders;
     private boolean output;
 
     @Override
     public int doEndTag() throws JspException {
         //Accept header of mtg request
-        //HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String acceptHeader = request.getHeader(HEADER_ACCEPT) == null
                 ? MasonOutput.HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         //Accept type of XRequest
@@ -545,7 +545,7 @@ public class XRequestTagHandler extends RequestTag {
             }
         }
 
-        XRequestService xRequestService = new XRequestService();
+        XRequestService xRequestService = new XRequestService(outputHeaders);
         XResponse xresponse = null;
 
         switch (method) {
@@ -567,25 +567,17 @@ public class XRequestTagHandler extends RequestTag {
 
         //if Accept header "application/xml"
         if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
-            String xResponseXml;
-            if (xAcceptType.equals("xml")) {
-                xResponseXml = xresponse.getXmlForXmlXResponse();
-            } else {
-                xResponseXml = xresponse.getXmlForJsonXResponse();
-            }
-
-            addToBus(var,xResponseXml);
+            String response = xAcceptType.equals("xml") ? xresponse.getXmlForXmlXResponse() : xresponse.getXmlForJsonXResponse();
+            
+            addToBus(var,response);
             
         } else {
             //if Accept header "application/json"
-            JSONObject xResponseJson;
-            if (xAcceptType.equals("xml")) {
-                xResponseJson = xresponse.getJsonForXmlXResponse();
-            } else {
-                xResponseJson = xresponse.getJsonForJsonXResponse();
+            JSONObject response = xAcceptType.equals("xml") ? xresponse.getJsonForXmlXResponse() : xresponse.getJsonForJsonXResponse();
+            if(!outputHeaders){
+                response = response.getJSONObject("body");
             }
-
-            addToBus(var, xResponseJson);
+            addToBus(var, response);
         }
         
         if(output){
@@ -603,15 +595,11 @@ public class XRequestTagHandler extends RequestTag {
         url = u;
     }
 
-   
-
     public void setRequestBody(String b) {
         requestBody = b;
     }
     
     public void setOutput(Boolean output){
         this.output = output;
-    }
-
-   
+    } 
 }

@@ -526,7 +526,7 @@ public class XRequestErrorTest {
     private final XRequestService xRequestService;
 
     public XRequestErrorTest() {
-        xRequestService = new XRequestService();
+        xRequestService = new XRequestService(true);
     }
     
     @Test

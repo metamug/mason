@@ -540,14 +540,22 @@ public class XRequestService {
     public static final String APP_JSON = "application/json";
 
     private final OkHttpClient client = new OkHttpClient();
+    
+    private boolean outputHeaders;
+    
+    public XRequestService(boolean outputHeaders){
+        this.outputHeaders = outputHeaders;
+    }
 
     private XResponse makeRequest(Request request) {
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
-            Headers headers = response.headers();
             Map<String,String> headerMap = new HashMap<>();
-            for (int i = 0; i < headers.size(); i++) {
-                headerMap.put(headers.name(i), headers.value(i));
+            if(outputHeaders){
+                Headers headers = response.headers();
+                for (int i = 0; i < headers.size(); i++) {
+                    headerMap.put(headers.name(i), headers.value(i));
+                }
             }
             if (!response.isSuccessful()) {
                 xr = new XResponse(response.code(), headerMap, XREQUEST_ERROR + response, true);

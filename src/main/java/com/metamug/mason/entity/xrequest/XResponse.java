@@ -549,7 +549,7 @@ public class XResponse {
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
-        putHeadersInJson(obj, headers);
+        putHeaders(obj, headers);
         
         try {
             JSONObject bodyObject = new JSONObject(body);
@@ -580,7 +580,7 @@ public class XResponse {
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
-        putHeadersInJson(obj, headers);
+        putHeaders(obj, headers);
         
         try {
             JSONObject bodyObject = new JSONObject(body);
@@ -610,14 +610,14 @@ public class XResponse {
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         
-        putHeadersInJson(obj, headers);
+        putHeaders(obj, headers);
         
         obj.put("body", body);
 
         return obj;
     }
     
-    private void putHeadersInJson(JSONObject object, Map<String,String> headers){
+    private void putHeaders(JSONObject object, Map<String,String> headers){
         JSONObject headersObject = new JSONObject();
         if(headers != null){
             headers.entrySet().forEach( (Map.Entry<String, String> entry) -> {
