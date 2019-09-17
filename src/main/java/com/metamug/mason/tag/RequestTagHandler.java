@@ -628,13 +628,12 @@ public class RequestTagHandler extends RequestTag {
                 outputStream.write(bytes);
 
             } else {
-
                 //has file in response
                 Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
-                        WritableByteChannel out = Channels.newChannel(response.getOutputStream());) {
+                    WritableByteChannel out = Channels.newChannel(response.getOutputStream());) {
                     /**
                      * Don't set Content Length. Max buffer for output stream is
                      * 2KB and it is flushed
@@ -646,14 +645,12 @@ public class RequestTagHandler extends RequestTag {
                         out.write(buffer);
                         buffer.clear();
                     }
-
                 }
             }
         } catch (IOException ex) {
             //@TODO write error response if there is an error in file read or something else
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     public void setItem(boolean i) {

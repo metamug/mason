@@ -538,6 +538,9 @@ public class ResourceTagHandler extends RestTag {
 
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
     public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";
+    public static final int STATUS_RESOURCE_NOT_FOUND = 404;
+    public static final String MSG_RESOURCE_NOT_FOUND = "Resource not found";
+    
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String BEARER_ = "Bearer ";
@@ -581,17 +584,32 @@ public class ResourceTagHandler extends RestTag {
 
     @Override
     public int doEndTag() throws JspException {
-        String incomingRequestMethod = masonRequest.getMethod();
-        
-        if(!childMethods.contains(incomingRequestMethod)) {
-            return405();
+      
+        if(!childMethods.contains(masonRequest.getMethod())) {
+            //if incoming request is item request
+            if(masonRequest.getId() != null){
+                return404();
+            } else {
+                return405();
+            }
         }
         
         return SKIP_PAGE;
     }
+    
+    private void return404() {
+        response.setContentType(HEADER_JSON);
+        response.setStatus(STATUS_RESOURCE_NOT_FOUND);
+        try {
+            pageContext.getOut().print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
+                    + MSG_RESOURCE_NOT_FOUND + "}");
+        } catch (IOException ex) {
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+    }
 
     private void return405() {
-//        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+//      String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(HEADER_JSON);
         response.setStatus(STATUS_METHOD_NOT_ALLOWED);
         try {
@@ -621,7 +639,7 @@ public class ResourceTagHandler extends RestTag {
         if (header == null) {
             throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
         }
-        Request masonReq = (Request) request.getAttribute("mtgReq");
+        Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
         authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));
         try {
             if (header.contains("Basic ")) {
