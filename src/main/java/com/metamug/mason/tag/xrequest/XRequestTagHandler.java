@@ -565,9 +565,9 @@ public class XRequestTagHandler extends RequestTag {
                 throw new JspTagException("Unsupported method \"" + method + "\".");
         }
 
-        Response response = xresponse.getResponse(acceptHeader, xAcceptType);
+        Response res = xresponse.getResponse(acceptHeader, xAcceptType);
         
-        addToBus(var, response);
+        addToBus(var, res);
      
         if(output){
             addToOutput(var, getFromBus(var));

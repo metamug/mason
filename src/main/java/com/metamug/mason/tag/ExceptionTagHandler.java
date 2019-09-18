@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.tag;
 
-import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.ConnectionProvider;
 import java.io.IOException;
 import java.sql.Connection;
@@ -568,7 +568,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
                     } else if (cause.contains("MetamugException")) {
-                        MetamugException mtgCause = (MetamugException) exception.getCause();
+                        MasonException mtgCause = (MasonException) exception.getCause();
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));
@@ -665,7 +665,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
                     } else if (cause.contains("MetamugException")) {
-                        MetamugException mtgCause = (MetamugException) exception.getCause();
+                        MasonException mtgCause = (MasonException) exception.getCause();
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
                         String errorId = String.valueOf(Math.abs(hash));

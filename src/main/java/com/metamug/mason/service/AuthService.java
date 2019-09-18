@@ -508,8 +508,8 @@ package com.metamug.mason.service;
 
 import com.metamug.mason.dao.AuthDAO;
 import com.metamug.mason.entity.auth.JWebToken;
-import com.metamug.mason.exception.MetamugError;
-import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.exception.MasonError;
+import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.tag.ResourceTagHandler;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -542,17 +542,17 @@ public class AuthService {
         String password = split[1];
 
         if (split.length < 2 || user.isEmpty() || password.isEmpty()) {
-            throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
         }
 
         JSONObject status = dao.validateBasic(user, password, roleName, authQuery);
         switch (status.getInt("status")) {
             case 0:
-                throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
+                throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MasonException(MasonError.INCORRECT_ROLE_AUTHENTICATION));
             case 1:
                 return status.getString("user_id");
             default:
-                throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+                throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MasonException(MasonError.ROLE_ACCESS_DENIED));
         }
     }
 
@@ -569,14 +569,14 @@ public class AuthService {
             //verify and use
             JWebToken incomingToken = new JWebToken(bearerToken);
             if (!incomingToken.isValid()) {
-                throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
+                throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MasonException(MasonError.BEARER_TOKEN_MISMATCH));
             }
             if (incomingToken.getAudience().contains("'" + roleName + "'")) {
-                throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
+                throw new JspException(ResourceTagHandler.ACCESS_FORBIDDEN, new MasonException(MasonError.BEARER_TOKEN_MISMATCH));
             }
             return (incomingToken.getSubject());
         } catch (NoSuchAlgorithmException ex) {
-            throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MetamugException(MetamugError.BEARER_TOKEN_MISMATCH));
+            throw new JspException(ResourceTagHandler.ACCESS_DENIED, new MasonException(MasonError.BEARER_TOKEN_MISMATCH));
         }
     }
 

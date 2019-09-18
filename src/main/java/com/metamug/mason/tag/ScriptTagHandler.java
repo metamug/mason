@@ -6,8 +6,8 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
-import com.metamug.mason.exception.MetamugError;
-import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.exception.MasonError;
+import com.metamug.mason.exception.MasonException;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
@@ -63,7 +63,7 @@ public class ScriptTagHandler extends RestTag {
             addToBus(var, object);
         } catch (SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
             Logger.getLogger(ScriptTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            throw new JspException("", new MetamugException(MetamugError.SCRIPT_ERROR));
+            throw new JspException("", new MasonException(MasonError.SCRIPT_ERROR));
         }
     }
 

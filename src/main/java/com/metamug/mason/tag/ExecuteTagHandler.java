@@ -511,8 +511,8 @@ import com.metamug.entity.Response;
 import com.metamug.entity.Result;
 import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
-import com.metamug.mason.exception.MetamugError;
-import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.exception.MasonError;
+import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.ConnectionProvider;
 import java.util.Enumeration;
 import java.util.Map;
@@ -579,7 +579,7 @@ public class ExecuteTagHandler extends RequestTag {
 
                 }
             } else {
-                throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED,
+                throw new JspException("", new MasonException(MasonError.CLASS_NOT_IMPLEMENTED,
                         "Class " + cls + " isn't processable"));
             }
 
@@ -592,9 +592,9 @@ public class ExecuteTagHandler extends RequestTag {
 
         } catch (Exception ex) {
             if (onerror == null) {
-                throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, ex.getMessage()));
+                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
             } else {
-                throw new JspException("", new MetamugException(MetamugError.CODE_ERROR, ex, onerror));
+                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, onerror));
             }
         }
 

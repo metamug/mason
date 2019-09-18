@@ -512,8 +512,8 @@ import com.metamug.mason.Router;
 import static com.metamug.mason.Router.CONNECTION_PROVIDER;
 import static com.metamug.mason.Router.MASON_REQUEST;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
-import com.metamug.mason.exception.MetamugError;
-import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.exception.MasonError;
+import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import java.io.IOException;
@@ -576,7 +576,7 @@ public class ResourceTagHandler extends RestTag {
         masonRequest = (Request) request.getAttribute(MASON_REQUEST);
         Resource parent = masonRequest.getParent();
         if (parent != null && !parent.getName().equalsIgnoreCase(this.parentName)) {
-            throw new JspException("Parent resource not found", new MetamugException(MetamugError.PARENT_RESOURCE_MISSING));
+            throw new JspException("Parent resource not found", new MasonException(MasonError.PARENT_RESOURCE_MISSING));
         }
 
         return EVAL_BODY_INCLUDE;
@@ -637,7 +637,7 @@ public class ResourceTagHandler extends RestTag {
     private void processAuth() throws JspException {
         String header = request.getHeader("Authorization");
         if (header == null) {
-            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
+            throw new JspException(ACCESS_DENIED, new MasonException(MasonError.INCORRECT_ROLE_AUTHENTICATION));
         }
         Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
         authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));
@@ -651,10 +651,10 @@ public class ResourceTagHandler extends RestTag {
                 //validateJwt - check aud against val, exp
                 masonReq.setUid(authService.validateBearer(bearerToken.trim(), auth));
             } else {
-                throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+                throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
             }
         } catch (IllegalArgumentException ex) {
-            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
         }
     }
 }
