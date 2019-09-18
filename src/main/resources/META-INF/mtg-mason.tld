@@ -257,6 +257,12 @@
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
         </attribute>
+        <attribute>
+            <name>className</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     <tag>
         <name>download</name>

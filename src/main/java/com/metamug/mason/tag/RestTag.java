@@ -576,5 +576,4 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
             masonOutput.put(var, value);
         }
     }
-
 }

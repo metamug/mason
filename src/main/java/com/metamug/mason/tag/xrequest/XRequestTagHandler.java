@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.tag.xrequest;
 
+import com.metamug.entity.Response;
 import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
@@ -526,8 +527,9 @@ public class XRequestTagHandler extends RequestTag {
 
     private String var;
     private String url;
-
     private String requestBody;
+    private String className;
+    
     private boolean outputHeaders;
     private boolean output;
 
@@ -565,21 +567,10 @@ public class XRequestTagHandler extends RequestTag {
                 throw new JspTagException("Unsupported method \"" + method + "\".");
         }
 
-        //if Accept header "application/xml"
-        if (Arrays.asList(acceptHeader.split("/")).contains("xml")) {
-            String response = xAcceptType.equals("xml") ? xresponse.getXmlForXmlXResponse() : xresponse.getXmlForJsonXResponse();
-            
-            addToBus(var,response);
-            
-        } else {
-            //if Accept header "application/json"
-            JSONObject response = xAcceptType.equals("xml") ? xresponse.getJsonForXmlXResponse() : xresponse.getJsonForJsonXResponse();
-            if(!outputHeaders){
-                response = response.getJSONObject("body");
-            }
-            addToBus(var, response);
-        }
+        Response response = xresponse.getResponse(acceptHeader, xAcceptType, outputHeaders);
         
+        addToBus(var, response);
+     
         if(output){
             addToOutput(var, getFromBus(var));
         }
