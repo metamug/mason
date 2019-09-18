@@ -576,7 +576,6 @@ public class ExecuteTagHandler extends RequestTag {
                     ds = ConnectionProvider.getMasonDatasource();
                     //no bus
                     result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
-
                 }
             } else {
                 throw new JspException("", new MasonException(MasonError.CLASS_NOT_IMPLEMENTED,

@@ -507,8 +507,11 @@
 package com.metamug.mason.tag.xrequest;
 
 import com.metamug.entity.Response;
+import com.metamug.exec.ResponseProcessable;
 import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.entity.xrequest.XResponse;
+import com.metamug.mason.exception.MasonError;
+import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.XRequestService;
 import com.metamug.mason.tag.RequestTag;
 import com.metamug.mason.tag.ResourceTagHandler;
@@ -566,6 +569,25 @@ public class XRequestTagHandler extends RequestTag {
         }
 
         Response res = xresponse.getResponse(acceptHeader, xAcceptType);
+        
+        if(className!=null){
+            //post processable classname is given
+            try {
+                Class cls = Class.forName(className);                
+                if(ResponseProcessable.class.isAssignableFrom(cls)){
+                    ResponseProcessable responseProcessor = (ResponseProcessable)cls.newInstance();
+                    //get post processed response
+                    res = responseProcessor.process(res);
+                } else {
+                    throw new JspException("", new MasonException(MasonError.RESPONSE_PROCESSABLE_NOT_IMPLEMENTED,
+                            "Class " + cls + " is not Response processable"));
+                }                
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
+            } catch (Exception ex) {
+                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
+            }
+        }
         
         addToBus(var, res);
      
