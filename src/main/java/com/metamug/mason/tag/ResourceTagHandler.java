@@ -587,17 +587,17 @@ public class ResourceTagHandler extends RestTag {
       
         if(!childMethods.contains(masonRequest.getMethod().toLowerCase())) {
             //incoming request has method which is not handled by any child
-            return405();
+            print405();
         } else {
             //incoming request has method which is handled by a child
             //but the flow reached the end tag of <m:resource>
-            return404();
+            print404();
         }
         
         return SKIP_PAGE;
     }
     
-    private void return404() {
+    private void print404() {
         response.setContentType(HEADER_JSON);
         response.setStatus(STATUS_RESOURCE_NOT_FOUND);
         try {
@@ -608,7 +608,7 @@ public class ResourceTagHandler extends RestTag {
         }
     }
 
-    private void return405() {
+    private void print405() {
 //      String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(HEADER_JSON);
         response.setStatus(STATUS_METHOD_NOT_ALLOWED);
