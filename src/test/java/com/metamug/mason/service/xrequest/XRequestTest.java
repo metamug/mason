@@ -21,6 +21,7 @@ package com.metamug.mason.service.xrequest;
 import com.metamug.entity.Response;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
+import static com.metamug.mason.service.xrequest.XRequestErrorTest.ACCEPT_JSON;
 import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONObject;
@@ -47,7 +48,7 @@ public class XRequestTest {
         Map<String, String> headers = new HashMap<>();
         headers.put("Accept", XRequestService.APP_JSON);
         XResponse xr = xRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", headers, params);
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         String foo = body.getJSONObject("body").getJSONObject("args").getString("foo1");
@@ -62,7 +63,7 @@ public class XRequestTest {
         params.put("foo1", "bar1");
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.get("https://postman-echo.com/get", headers, params);
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         String foo = body.getJSONObject("body").getJSONObject("args").getString("foo1");
@@ -78,7 +79,7 @@ public class XRequestTest {
         params.put("foo1", "bar1");
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.post("https://postman-echo.com/post", headers, params, null);
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
@@ -94,7 +95,7 @@ public class XRequestTest {
         params.put("foo1", "bar1");
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.post("https://postman-echo.com/post", headers, params, null);
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
@@ -111,7 +112,7 @@ public class XRequestTest {
         json.put("foo1", "bar1");
         json.put("foo2", "bar2");
         XResponse xr = xRequestService.post("https://postman-echo.com/post", headers, params, json.toString());
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
@@ -127,7 +128,7 @@ public class XRequestTest {
         params.put("foo1", "bar1");
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.put("https://postman-echo.com/put", headers, params, null);
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
@@ -143,7 +144,7 @@ public class XRequestTest {
         params.put("foo1", "bar1");
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.put("https://postman-echo.com/put", headers, params, null);
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
@@ -160,7 +161,7 @@ public class XRequestTest {
         json.put("foo1", "bar1");
         json.put("foo2", "bar2");
         XResponse xr = xRequestService.put("https://postman-echo.com/put", headers, params, json.toString());
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());

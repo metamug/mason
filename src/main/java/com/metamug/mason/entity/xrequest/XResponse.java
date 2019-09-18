@@ -524,19 +524,21 @@ public class XResponse {
     private Map<String,String> headers;
     private String body;
     private boolean error;
+    private boolean outputHeaders;
 
-    public XResponse(int statusCode, Map<String,String> headers, String body, boolean error) {
+    public XResponse(int statusCode, Map<String,String> headers, String body, boolean error, boolean outputHeaders) {
         this.statusCode = statusCode;
         this.headers = headers;
         this.body = body;
         this.error = error;
+        this.outputHeaders = outputHeaders;
     }
 
     public int getStatusCode() {
         return statusCode;
     }
     
-    public Response getResponse(String accept, String xrequestAccept, boolean outputHeaders){
+    public Response getResponse(String accept, String xrequestAccept){
         Response response;
         if (Arrays.asList(accept.split("/")).contains("xml")) {
             response = xrequestAccept.equals("xml") ? getXmlForXmlXResponse() : getXmlForJsonXResponse();     

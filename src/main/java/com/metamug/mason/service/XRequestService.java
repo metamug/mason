@@ -558,13 +558,13 @@ public class XRequestService {
                 }
             }
             if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), headerMap, XREQUEST_ERROR + response, true);
+                xr = new XResponse(response.code(), headerMap, XREQUEST_ERROR + response, true, outputHeaders);
                 
             } else {
-                xr = new XResponse(response.code(), headerMap, response.body().string().trim(), false);
+                xr = new XResponse(response.code(), headerMap, response.body().string().trim(), false, outputHeaders);
             }
         } catch (IOException ex) {
-            xr = new XResponse(0, null, XREQUEST_ERROR + ex.getMessage(), true);
+            xr = new XResponse(0, null, XREQUEST_ERROR + ex.getMessage(), true, outputHeaders);
         }
         return xr;
     }

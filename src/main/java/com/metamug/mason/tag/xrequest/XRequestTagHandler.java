@@ -512,12 +512,10 @@ import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
 import com.metamug.mason.tag.RequestTag;
 import com.metamug.mason.tag.ResourceTagHandler;
-import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import org.json.JSONObject;
 
 /**
  *
@@ -567,7 +565,7 @@ public class XRequestTagHandler extends RequestTag {
                 throw new JspTagException("Unsupported method \"" + method + "\".");
         }
 
-        Response response = xresponse.getResponse(acceptHeader, xAcceptType, outputHeaders);
+        Response response = xresponse.getResponse(acceptHeader, xAcceptType);
         
         addToBus(var, response);
      

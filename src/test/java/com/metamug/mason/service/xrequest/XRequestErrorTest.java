@@ -525,7 +525,7 @@ public class XRequestErrorTest {
     private static final int STATUS_CODE_NOT_FOUND = 404;
     private static final int STATUS_FAILED_REQUEST = 0;
 
-    private static final String ACCEPT_JSON = "application/json";
+    public static final String ACCEPT_JSON = "application/json";
     
     private final XRequestService xRequestService;
 
@@ -538,19 +538,19 @@ public class XRequestErrorTest {
         Map<String, Object> params = new HashMap<>();
         Map<String, String> headers = new HashMap<>();
         XResponse xr = xRequestService.get("https://postman-echo.com/xxx", headers, params);
-        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON, false);
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
-        System.out.println();
-        //Assert.assertEquals(STATUS_CODE_NOT_FOUND, body.getInt("statusCode"));
-        //Assert.assertEquals(STATUS_CODE_NOT_FOUND, xr.getStatusCode());
+        //System.out.println();
+        Assert.assertEquals(STATUS_CODE_NOT_FOUND, body.getInt("statusCode"));
+        Assert.assertEquals(STATUS_CODE_NOT_FOUND, xr.getStatusCode());
     }
-/*
+
     @Test
     public void testGetJSONInvalidUrl() {
         Map<String, Object> params = new HashMap<>();
         Map<String, String> headers = new HashMap<>();
         XResponse xr = xRequestService.get("https://wrongurl/abc", headers, params);
-        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON, false);
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
 
         Assert.assertEquals(STATUS_FAILED_REQUEST, body.getInt("statusCode"));
@@ -621,5 +621,5 @@ public class XRequestErrorTest {
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.delete("https://wrongurl/abc", params);
         Assert.assertEquals(STATUS_FAILED_REQUEST, xr.getStatusCode());
-    }*/
+    }
 }

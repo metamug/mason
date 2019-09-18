@@ -511,6 +511,7 @@ package com.metamug.mason.service.xrequest;
 import com.metamug.entity.Response;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
+import static com.metamug.mason.service.xrequest.XRequestErrorTest.ACCEPT_JSON;
 import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONObject;
@@ -535,7 +536,7 @@ public class XRequestHeaderTest {
         Map<String, String> headers = new HashMap<>();
         headers.put("Accept", XRequestService.APP_JSON);
         XResponse xr = xRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", headers, params);
-        Response response = xr.getJsonForJsonXResponse();
+        Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject)response.getPayload();
         
         String contentTypeHeader = body.getJSONObject("headers")
