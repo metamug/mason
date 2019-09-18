@@ -588,8 +588,8 @@ public class ResourceTagHandler extends RestTag {
         if(!childMethods.contains(masonRequest.getMethod().toLowerCase())) {
             //incoming request has method which is not handled by any child
             return405();
-        }else if(masonRequest.getId() != null){
-            //incoming request is item request and has method which is handled by a child
+        } else {
+            //incoming request has method which is handled by a child
             //but the flow reached the end tag of <m:resource>
             return404();
         }
