@@ -552,7 +552,7 @@ public class ResourceTagHandler extends RestTag {
     }
     
     public void addChildMethod(String method) {
-        childMethods.add(method);
+        childMethods.add(method.toLowerCase());
     }
     
     /**
@@ -585,7 +585,7 @@ public class ResourceTagHandler extends RestTag {
     @Override
     public int doEndTag() throws JspException {
       
-        if(!childMethods.contains(masonRequest.getMethod())) {
+        if(!childMethods.contains(masonRequest.getMethod().toLowerCase())) {
             //incoming request has method which is not handled by any child
             return405();
         }else if(masonRequest.getId() != null){
@@ -601,8 +601,8 @@ public class ResourceTagHandler extends RestTag {
         response.setContentType(HEADER_JSON);
         response.setStatus(STATUS_RESOURCE_NOT_FOUND);
         try {
-            pageContext.getOut().print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
-                    + MSG_RESOURCE_NOT_FOUND + "}");
+            pageContext.getOut().print("{\"message\":\"" + MSG_RESOURCE_NOT_FOUND + "\",\"status\":"
+                    + STATUS_RESOURCE_NOT_FOUND + "}");
         } catch (IOException ex) {
             Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
