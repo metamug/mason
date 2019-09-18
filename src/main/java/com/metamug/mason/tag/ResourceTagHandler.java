@@ -586,12 +586,12 @@ public class ResourceTagHandler extends RestTag {
     public int doEndTag() throws JspException {
       
         if(!childMethods.contains(masonRequest.getMethod())) {
-            //if incoming request is item request
-            if(masonRequest.getId() != null){
-                return404();
-            } else {
-                return405();
-            }
+            //incoming request has method which is not handled by any child
+            return405();
+        }else if(masonRequest.getId() != null){
+            //incoming request is item request and has method which is handled by a child
+            //but the flow reached the end tag of <m:resource>
+            return404();
         }
         
         return SKIP_PAGE;

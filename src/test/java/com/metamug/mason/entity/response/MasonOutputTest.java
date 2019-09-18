@@ -15,7 +15,6 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
