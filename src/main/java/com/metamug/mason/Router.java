@@ -648,7 +648,7 @@ public class Router implements Filter {
 
             //save method as attribute because jsp only accepts GET and POST
             //https://stackoverflow.com/a/46489035
-            //req.setAttribute("mtgMethod", req.getMethod()); //its alredy set in adaptor object
+            req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
             req.getRequestDispatcher(RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + RESOURCE_EXTN)
                     .forward(new HttpServletRequestWrapper(req) {
                         @Override
