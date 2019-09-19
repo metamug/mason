@@ -617,4 +617,8 @@ public class XRequestTagHandler extends RequestTag {
     public void setOutputHeaders(boolean outputHeaders) {
         this.outputHeaders = outputHeaders;
     }
+    
+    public void setClassName(String className) {
+        this.className = className;
+    }
 }
