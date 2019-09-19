@@ -545,7 +545,7 @@ public class ResourceTagHandler extends RestTag {
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String BEARER_ = "Bearer ";
     
-    private List<String> childMethods; //holds http methods of child request tags
+    private List<String> childMethods = new ArrayList<>(); //holds http methods of child request tags
 
     public void setAuth(String auth) {
         this.auth = auth;
@@ -566,8 +566,6 @@ public class ResourceTagHandler extends RestTag {
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-       
-        childMethods = new ArrayList<>();
         
         if (StringUtils.isNotBlank(auth)) {
             processAuth();
@@ -584,8 +582,8 @@ public class ResourceTagHandler extends RestTag {
 
     @Override
     public int doEndTag() throws JspException {
-      
-        if(!childMethods.contains(masonRequest.getMethod().toLowerCase())) {
+        String requestMethod = masonRequest.getMethod().toLowerCase();
+        if(!childMethods.contains(requestMethod)) {
             //incoming request has method which is not handled by any child
             print405();
         } else {

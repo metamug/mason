@@ -509,6 +509,7 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
+import static com.metamug.mason.Router.MASON_REQUEST;
 import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
@@ -637,7 +638,7 @@ public class TagHandlerTest {
             when(response.getOutputStream()).thenReturn(outputStream);
 
             when(context.getOut()).thenReturn(writer);
-            when(request.getAttribute("mtgReq")).thenReturn(masonRequest);
+            when(request.getAttribute(MASON_REQUEST)).thenReturn(masonRequest);
 
             when(request.getParameter("auth")).thenReturn("bearer");
             when(request.getParameter("userid")).thenReturn("1234");
@@ -676,9 +677,10 @@ public class TagHandlerTest {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
 
         when(masonRequest.getMethod()).thenReturn("GET");
-
+        
         requestTag.setMethod("GET");
         requestTag.setItem(false);
+        requestTag.setParent(resourceTag);
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
@@ -709,6 +711,7 @@ public class TagHandlerTest {
         when(masonRequest.getMethod()).thenReturn("POST");
 
         requestTag.setMethod("POST");
+        requestTag.setParent(resourceTag);
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
@@ -738,6 +741,7 @@ public class TagHandlerTest {
 
         requestTag.setMethod("GET");
         requestTag.setItem(false);
+        requestTag.setParent(resourceTag);
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
@@ -759,6 +763,7 @@ public class TagHandlerTest {
 
     @Test //(expected = JspException.class)
     public void resourceTagAuth() throws JspException {
+        when(masonRequest.getMethod()).thenReturn("POST");
         resourceTag.setAuth("admin");
         //@TODO Change this every 3-4 months since it wont work after some time. Token expires
         String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTc0NTA5ODM0LCJpYXQiOjE1NjY3MzM4MzQsImp0aSI6IjI1NWM5Y2JiLWE4OTktNGYyYS04MjA3LTlhMzg2MWQ4MGEzZiJ9.5446gdZ7doGkUg9YIDg4FFYX2H3CBkVBD4itwJ3KMR8";
