@@ -613,4 +613,8 @@ public class XRequestTagHandler extends RequestTag {
     public void setOutput(Boolean output){
         this.output = output;
     } 
+    
+    public void setOutputHeaders(boolean outputHeaders) {
+        this.outputHeaders = outputHeaders;
+    }
 }
