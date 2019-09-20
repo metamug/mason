@@ -583,6 +583,7 @@ public class ResourceTagHandler extends RestTag {
     @Override
     public int doEndTag() throws JspException {
         String requestMethod = masonRequest.getMethod().toLowerCase();
+        
         if(!childMethods.contains(requestMethod)) {
             //incoming request has method which is not handled by any child
             print405();
