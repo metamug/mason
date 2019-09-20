@@ -913,8 +913,12 @@ public class TagHandlerTest {
         
         xrequestTag.setMethod("GET");
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());    
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());  
+        
+        JSONObject body = new JSONObject();
+        body.put("foo1", "bar1").put("foo2", "bar2");
         xrequestTag.setMethod("POST");
+        xrequestTag.setRequestBody(body.toString(4));
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
         xrequestTag.setMethod("PUT");
