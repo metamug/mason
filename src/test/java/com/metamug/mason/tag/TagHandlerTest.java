@@ -924,4 +924,21 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
     }
+    
+    @Test
+    public void xrequestTagResponseProcessable() throws JspException {
+      
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+        
+        xrequestTag.addParameter("foo1", "bar1");
+        xrequestTag.addParameter("foo2", "bar2");
+        xrequestTag.setVar("xrequestOutput");
+        xrequestTag.setUrl("https://postman-echo.com/get");
+        xrequestTag.setOutput(true);
+        //xrequestTag.setOutputHeaders(true);
+        xrequestTag.setClassName("com.metamug.mason.processables.ResponseExample"); 
+        xrequestTag.setMethod("GET");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());    
+    }
 }
