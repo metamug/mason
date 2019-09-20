@@ -666,27 +666,7 @@ public class TagHandlerTest {
             Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    /**
-     * Test of doStartTag method, of class RequestTagHandler.
-     */
-    @Test
-    public void requestTag() throws JspException {
-
-        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-
-        when(masonRequest.getMethod()).thenReturn("GET");
-        
-        requestTag.setMethod("GET");
-        requestTag.setItem(false);
-        requestTag.setParent(resourceTag);
-
-        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
-        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
-
-    }
-    
+   
     @Test (expected = JspException.class)
     public void fileUpload() throws JspException, IOException {
         
@@ -750,6 +730,26 @@ public class TagHandlerTest {
         //verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
 
     }
+    
+    /**
+     * Test of doStartTag method, of class RequestTagHandler.
+     */
+    @Test
+    public void requestTag() throws JspException {
+
+        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
+        when(masonRequest.getMethod()).thenReturn("GET");
+        
+        requestTag.setMethod("GET");
+        requestTag.setItem(false);
+        requestTag.setParent(resourceTag);
+
+        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
+
+    }
 
     @Test(expected = JspException.class)
     public void resourceTag() throws JspException {
@@ -761,6 +761,18 @@ public class TagHandlerTest {
 
     }
 
+    @Test(expected = JspException.class)
+    public void resourceTag404() throws JspException {
+        resourceTag.setAuth("admin");
+        //add child request method, this is the equivalent of mocking a 404 response
+        resourceTag.addChildMethod("GET");
+        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTYxNDU4OTMxLCJpYXQiOjE1NTM2ODI5MzEsImp0aSI6ImJjMTgxNGMzLWU5ZGItNDljOC1iYTMyLWI4NDAxY2Q0YTgyMSJ9.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
+        when(request.getHeader("Authorization")).thenReturn(bearer);
+        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+
+    }
+    
     @Test //(expected = JspException.class)
     public void resourceTagAuth() throws JspException {
         when(masonRequest.getMethod()).thenReturn("POST");
