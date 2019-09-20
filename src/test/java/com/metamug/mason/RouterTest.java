@@ -84,7 +84,6 @@ public class RouterTest {
 
     @Test
     public void testRestCall() {
-        when(request.getContentType()).thenReturn("blah");
         when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
         String[] params = new String[]{"name"};
@@ -106,7 +105,7 @@ public class RouterTest {
         assertTrue(stringWriter.toString().contains("404"));
     }
 
-    //@Test
+    @Test
     public void testResourceNotFound() {
         when(request.getContentType()).thenReturn("application/json");
         when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
