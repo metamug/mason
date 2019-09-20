@@ -526,6 +526,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -931,15 +933,19 @@ public class TagHandlerTest {
     
     @Test
     public void xrequestTagResponseProcessable() throws JspException {
-      
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-        
-        xrequestTag.addParameter("foo1", "bar1");
-        xrequestTag.addParameter("foo2", "bar2");
+      
+        Map<String,String> headers = new HashMap<>();
+        headers.put(ResourceTagHandler.HEADER_ACCEPT,"application/json");
+        xrequestTag.setHeaders(headers);
+                
+        Map<String,Object> parameters = new HashMap<>();
+        parameters.put("foo1", "bar1");
+        parameters.put("foo2", "bar2");
+        xrequestTag.setParameters(parameters);
         xrequestTag.setVar("xrequestOutput");
         xrequestTag.setUrl("https://postman-echo.com/get");
         xrequestTag.setOutput(true);
-        //xrequestTag.setOutputHeaders(true);
         xrequestTag.setClassName("com.metamug.mason.processables.ResponseExample"); 
         xrequestTag.setMethod("GET");
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
