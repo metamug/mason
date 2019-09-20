@@ -784,15 +784,6 @@ public class TagHandlerTest {
     }
 
     @Test(expected = JspException.class)
-    public void executeTag() throws JspException {
-        executeTag.setVar("executeOutput");
-
-        executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
-        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
-    }
-
-    @Test(expected = JspException.class)
     public void scriptTag() throws JspException {
         scriptTag.setVar("executeOutput");
 
@@ -854,6 +845,42 @@ public class TagHandlerTest {
 
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
     }
+    
+    @Test(expected = JspException.class)
+    public void executeTagInvalidProcessable() throws JspException {
+        executeTag.setVar("executeOutput");
+
+        executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
+        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+    }
+    /*
+    @Test
+    public void executeTagRequestProcessable() throws JspException {
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+        
+        
+        executeTag.setVar("executeOutput");
+        executeTag.setOutput(true);
+        executeTag.setClassName("com.metamug.mason.processables.RequestExample"); 
+        
+        Map<String,String> requestParams = new HashMap<>();
+        requestParams.put("foo1","bar1");
+        requestParams.put("foo2","bar2");
+        masonRequest.setParams(requestParams);
+        
+        List<String> headerNames = new ArrayList<String>(); 
+        headerNames.add("Accept");
+        Enumeration<String> headerNameEnum = Collections.enumeration(headerNames);
+        when(request.getHeaderNames()).thenReturn(headerNameEnum);
+        //when(request.getHeader("Authorization")).thenReturn(bearer);
+        when(request.getHeader("Accept")).thenReturn("application/json");  
+        
+        executeTag.setParam(masonRequest);
+        
+        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+    }*/
     
     @Test
     public void xrequestTag() throws JspException {

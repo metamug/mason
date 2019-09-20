@@ -545,7 +545,7 @@ public class ExecuteTagHandler extends RequestTag {
             Object newInstance = cls.newInstance();
             ResultProcessable resProcessable;
             RequestProcessable reqProcessable;
-
+            
             if (ResultProcessable.class.isAssignableFrom(cls)) {
                 resProcessable = (ResultProcessable) newInstance;
                 if (param instanceof ResultImpl) {
@@ -555,24 +555,23 @@ public class ExecuteTagHandler extends RequestTag {
                     result = resProcessable.process(sqlResult);
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
+                
                 reqProcessable = (RequestProcessable) newInstance;
                 if (param instanceof Request) {
                     Request masonReq = (Request) param;
-
+                    
                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     masonReq.getParams().entrySet().forEach(entry -> {
                         String key = entry.getKey();
                         String value = entry.getValue();
                         requestParameters.put(key, value);
                     });
-
                     Enumeration<String> headerNames = request.getHeaderNames();
                     Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     while (headerNames.hasMoreElements()) {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));
                     }
-
                     ds = ConnectionProvider.getMasonDatasource();
                     //no bus
                     result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
