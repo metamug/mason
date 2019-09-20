@@ -766,8 +766,8 @@ public class TagHandlerTest {
         resourceTag.setAuth("admin");
         //add child request same as incoming request method, this is the equivalent of mocking a 404 response,
         //if the flow reaches the end of resource tag
-        when(masonRequest.getMethod()).thenReturn("GET");
-        resourceTag.addChildMethod("GET");
+        when(masonRequest.getMethod()).thenReturn("get");
+        resourceTag.addChildMethod("get");
         String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTYxNDU4OTMxLCJpYXQiOjE1NTM2ODI5MzEsImp0aSI6ImJjMTgxNGMzLWU5ZGItNDljOC1iYTMyLWI4NDAxY2Q0YTgyMSJ9.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
