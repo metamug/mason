@@ -783,20 +783,6 @@ public class TagHandlerTest {
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
     }
 
-    @Test //(expected = JspException.class)
-    public void xrequestTag() throws JspException {
-        xrequestTag.addParameter("foo1", "bar1");
-        xrequestTag.addParameter("foo2", "bar2");
-        xrequestTag.setVar("xrequestOutput");
-        xrequestTag.setUrl("https://postman-echo.com/get");
-        xrequestTag.setMethod("GET");
-
-        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
-        System.out.println(context.getAttribute("xrequestOutput"));
-
-    }
-
     @Test(expected = JspException.class)
     public void executeTag() throws JspException {
         executeTag.setVar("executeOutput");
@@ -867,6 +853,32 @@ public class TagHandlerTest {
         paramTag.setValue("hi@metamug.com");
 
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-
+    }
+    
+    @Test
+    public void xrequestTag() throws JspException {
+      
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+        
+        xrequestTag.addHeader(ResourceTagHandler.HEADER_ACCEPT,"application/xml");
+        xrequestTag.addParameter("foo1", "bar1");
+        xrequestTag.addParameter("foo2", "bar2");
+        xrequestTag.setVar("xrequestOutput");
+        xrequestTag.setUrl("https://postman-echo.com/get");
+        xrequestTag.setOutput(true);
+        xrequestTag.setOutputHeaders(true);
+        
+        xrequestTag.setMethod("GET");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());    
+        xrequestTag.setMethod("POST");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+        xrequestTag.setMethod("PUT");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+        xrequestTag.setMethod("DELETE");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
     }
 }
