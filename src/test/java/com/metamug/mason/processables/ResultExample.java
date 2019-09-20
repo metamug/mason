@@ -508,41 +508,22 @@ That's all there is to it!
  */
 package com.metamug.mason.processables;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import com.metamug.entity.Response;
+import com.metamug.entity.Result;
+import com.metamug.exec.ResultProcessable;
+import java.util.Map;
 
 /**
  *
  * @author anishhirlekar
  */
-@XmlRootElement
-public class Customer {
-    private int id;
-    private String name;
-    private Contact contact;
+public class ResultExample implements ResultProcessable {
 
-    public void setName(String n) {
-        name = n;
+    @Override
+    public Response process(Result queryResult) throws Exception {
+        Map[] results = queryResult.getRecordMap();
+            
+        Response resp = new Response(results);
+        return resp;
     }
-    
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setContact(String phone, String email) {
-        contact = new Contact();
-        contact.setEmail(email);
-        contact.setPhone(phone);
-    }
-
-    public int getId() {
-        return id;
-    }
-    
-    public String getName() {
-        return name;
-    }
-
-    public Contact getContact() {
-        return contact;
-    }    
- }
+}

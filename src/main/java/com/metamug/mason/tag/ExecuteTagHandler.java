@@ -552,6 +552,7 @@ public class ExecuteTagHandler extends RequestTag {
                     ResultImpl ri = (ResultImpl) param;
                     //@TODO remove cast
                     Result sqlResult = new Result(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
+                    
                     result = resProcessable.process(sqlResult);
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
@@ -571,7 +572,7 @@ public class ExecuteTagHandler extends RequestTag {
                     while (headerNames.hasMoreElements()) {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));
-                    }
+                    }                    
                     ds = ConnectionProvider.getMasonDatasource();
                     //no bus
                     result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
