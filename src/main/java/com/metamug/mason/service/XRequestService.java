@@ -510,11 +510,13 @@ import com.metamug.mason.entity.xrequest.XResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import okhttp3.FormBody;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -538,17 +540,31 @@ public class XRequestService {
     public static final String APP_JSON = "application/json";
 
     private final OkHttpClient client = new OkHttpClient();
+    
+    private boolean outputHeaders;
+    
+    public XRequestService(boolean outputHeaders){
+        this.outputHeaders = outputHeaders;
+    }
 
     private XResponse makeRequest(Request request) {
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
+            Map<String,String> headerMap = new HashMap<>();
+            if(outputHeaders){
+                Headers headers = response.headers();
+                for (int i = 0; i < headers.size(); i++) {
+                    headerMap.put(headers.name(i), headers.value(i));
+                }
+            }
             if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), XREQUEST_ERROR + response, true);
+                xr = new XResponse(response.code(), headerMap, XREQUEST_ERROR + response, true, outputHeaders);
+                
             } else {
-                xr = new XResponse(response.code(), response.body().string().trim());
+                xr = new XResponse(response.code(), headerMap, response.body().string().trim(), false, outputHeaders);
             }
         } catch (IOException ex) {
-            xr = new XResponse(0, XREQUEST_ERROR + ex.getMessage(), true);
+            xr = new XResponse(0, null, XREQUEST_ERROR + ex.getMessage(), true, outputHeaders);
         }
         return xr;
     }

@@ -517,11 +517,12 @@ import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_F
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
+import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -547,8 +548,9 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    private static final String RESOURCE_EXTN = ".jsp";
-    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
+    private static final String JSP_EXTN = ".jsp";
+    private static final String RESOURCES_FOLDER = File.separator+"WEB-INF"+File.separator+"resources"+File.separator;
+    public static final String WEBAPP_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -637,21 +639,26 @@ public class Router implements Filter {
             //get queries
             Request mtgReq = RequestAdapter.create(req);
             resourceName = mtgReq.getResource().getName();
-            req.setAttribute(MASON_REQUEST, mtgReq);
+            
+            String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
+            //System.out.println(jspPath);
+            //System.out.println(req.getContextPath());
+            if(new File(WEBAPP_DIR+req.getContextPath()+File.separator+jspPath).exists()) {
+                req.setAttribute(MASON_REQUEST, mtgReq);
 
-            //Adding to request, otherwise the user has to write ${applicationScope.datasource}
-            req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
-            req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
+                //Adding to request, otherwise the user has to write ${applicationScope.datasource}
+                req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
+                req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
 
-            //Query map of stored queries in a file
-            Map<String, String> queryMap = (Map<String, String>) req.getServletContext().getAttribute(MASON_QUERY);
-            req.setAttribute(MASON_QUERY, queryMap);
+                //Query map of stored queries in a file
+                Map<String, String> queryMap = (Map<String, String>) req.getServletContext().getAttribute(MASON_QUERY);
+                req.setAttribute(MASON_QUERY, queryMap);
 
-            //save method as attribute because jsp only accepts GET and POST
-            //https://stackoverflow.com/a/46489035
-            //req.setAttribute("mtgMethod", req.getMethod()); //its alredy set in adaptor object
-            req.getRequestDispatcher(RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + RESOURCE_EXTN)
-                    .forward(new HttpServletRequestWrapper(req) {
+                //save method as attribute because jsp only accepts GET and POST
+                //https://stackoverflow.com/a/46489035
+                req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
+                req.getRequestDispatcher(jspPath).forward(
+                    new HttpServletRequestWrapper(req) {
                         @Override
                         public String getMethod() {
                             String method = super.getMethod();
@@ -661,7 +668,12 @@ public class Router implements Filter {
                                 return method;
                             }
                         }
-                    }, res);
+                    }, res
+                );
+            } else {
+                writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
+            }
+            
         } catch (IOException | ServletException | JSONException | ParseException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");

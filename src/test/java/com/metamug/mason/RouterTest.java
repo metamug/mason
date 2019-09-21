@@ -6,20 +6,26 @@
 package com.metamug.mason;
 
 
+import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
+import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.FilterChain;
+import javax.servlet.ReadListener;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -49,8 +55,6 @@ public class RouterTest {
     private FilterChain filterChain;
     private StringWriter stringWriter;
     private PrintWriter writer;
-    @Mock
-    private ServletInputStream inputStream;
 
     @BeforeClass
     public static void setUpClass() {
@@ -84,7 +88,6 @@ public class RouterTest {
 
     @Test
     public void testRestCall() {
-        when(request.getContentType()).thenReturn("blah");
         when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
         String[] params = new String[]{"name"};
@@ -102,19 +105,22 @@ public class RouterTest {
         verify(request, atLeast(1)).getContentType(); // verify if Content Type was called
         verify(request, atLeast(1)).getServletPath(); // verify if servlet path was called
         writer.flush(); // it may not have been flushed yet...
-        System.out.println(stringWriter.toString());
+        //System.out.println(stringWriter.toString());
         assertTrue(stringWriter.toString().contains("404"));
     }
 
-    //@Test
-    public void testResourceNotFound() {
-        when(request.getContentType()).thenReturn("application/json");
+    @Test
+    public void testJsonBody() {
+        when(request.getHeader(HEADER_CONTENT_TYPE)).thenReturn(APPLICATION_JSON);
         when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
 
-        //InputStream stream = new ByteArrayInputStream("Definitely Not JSON".getBytes(StandardCharsets.UTF_8));
+        JSONObject jsonBody = new JSONObject();
+        jsonBody.put("name", "kaustubh");
+        ByteArrayInputStream bytestream = new ByteArrayInputStream(jsonBody.toString().getBytes(StandardCharsets.UTF_8));
+        ServletInputStream stream = getServletInputStream(bytestream);
         try {
-            when(request.getInputStream()).thenReturn(inputStream);
+            when(request.getInputStream()).thenReturn(stream);
         } catch (IOException ex) {
             Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -130,7 +136,30 @@ public class RouterTest {
         verify(request, atLeast(1)).getContentType(); // verify if Content Type was called
         verify(request, atLeast(1)).getServletPath(); // verify if servlet path was called
         writer.flush(); // it may not have been flushed yet...
-        System.out.println(stringWriter.toString());
+        //System.out.println(stringWriter.toString());
         assertTrue(stringWriter.toString().contains("404"));
+    }
+    
+    private ServletInputStream getServletInputStream(ByteArrayInputStream bytestream){
+        return new ServletInputStream(){
+            public int read() throws IOException {
+              return bytestream.read();
+            }
+
+            @Override
+            public boolean isFinished() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean isReady() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void setReadListener(ReadListener rl) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
     }
 }

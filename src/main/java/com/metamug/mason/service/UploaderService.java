@@ -511,8 +511,8 @@ import com.metamug.entity.Response;
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
 import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
-import com.metamug.mason.exception.MetamugError;
-import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.exception.MasonError;
+import com.metamug.mason.exception.MasonException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -524,7 +524,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
@@ -532,7 +531,6 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
 import javax.sql.DataSource;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -551,7 +549,7 @@ public class UploaderService {
 
     public boolean upload() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        if (request.getContentType().contains(MULTIPART_FORM_DATA)) {
+        if (request.getContentType()!=null && request.getContentType().contains(MULTIPART_FORM_DATA)) {
 
             try {
                 String listenerClass;
@@ -563,18 +561,18 @@ public class UploaderService {
                 if (listenerClass != null) {
                     uploadPart(request, listenerClass);
                 } else {
-                    throw new JspTagException("No implementation of UploadListener was found.", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
+                    throw new JspTagException("No implementation of UploadListener was found.", new MasonException(MasonError.NO_UPLOAD_LISTENER));
                 }
             } catch (IllegalStateException ex) {
                 if (ex.getMessage().contains("FileSizeLimitExceededException")) {
-                    throw new JspException("", new MetamugException(MetamugError.UPLOAD_SIZE_EXCEEDED));
+                    throw new JspException("", new MasonException(MasonError.UPLOAD_SIZE_EXCEEDED));
                 }
             } catch (NullPointerException | IOException ex) {
-                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
+                throw new JspException("", new MasonException(MasonError.UPLOAD_CODE_ERROR, ex));
             } catch (RuntimeException ex) {
-                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
+                throw new JspException("", new MasonException(MasonError.UPLOAD_CODE_ERROR, ex));
             } catch (Exception ex) {
-                throw new JspException("", new MetamugException(MetamugError.UPLOAD_CODE_ERROR, ex));
+                throw new JspException("", new MasonException(MasonError.UPLOAD_CODE_ERROR, ex));
             }
         }
         return true;
@@ -594,7 +592,7 @@ public class UploaderService {
                 result = listener.uploadPerformed(new UploadEvent(uploadedFile, uploadedFile.getName(), req), ds);
             }
         } else {
-            throw new JspException("", new MetamugException(MetamugError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));
+            throw new JspException("", new MasonException(MasonError.CLASS_NOT_IMPLEMENTED, "Class " + cls + " isn't an UploadListener."));
         }
 
         //add to bus
@@ -635,7 +633,7 @@ public class UploaderService {
 
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException ex) {
-            throw new JspTagException("Unable to load Upload Event Listener", new MetamugException(MetamugError.NO_UPLOAD_LISTENER));
+            throw new JspTagException("Unable to load Upload Event Listener", new MasonException(MasonError.NO_UPLOAD_LISTENER));
         }
     }
 }

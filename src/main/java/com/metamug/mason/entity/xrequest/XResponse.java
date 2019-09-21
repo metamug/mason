@@ -506,6 +506,9 @@
  */
 package com.metamug.mason.entity.xrequest;
 
+import com.metamug.entity.Response;
+import java.util.Arrays;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -518,52 +521,54 @@ import org.json.XML;
 public class XResponse {
 
     private int statusCode;
+    private Map<String,String> headers;
     private String body;
     private boolean error;
+    private boolean outputHeaders;
 
-    public XResponse(int statusCode, String body, boolean error) {
+    public XResponse(int statusCode, Map<String,String> headers, String body, boolean error, boolean outputHeaders) {
         this.statusCode = statusCode;
+        this.headers = headers;
         this.body = body;
         this.error = error;
+        this.outputHeaders = outputHeaders;
     }
 
-    public XResponse(int statusCode, String body) {
-        this.statusCode = statusCode;
-        this.body = body;
-        this.error = false;
+    public int getStatusCode() {
+        return statusCode;
+    }
+    
+    public Response getResponse(String accept, String xrequestAccept){
+        Response response;
+        if (Arrays.asList(accept.split("/")).contains("xml")) {
+            response = xrequestAccept.equals("xml") ? getXmlForXmlXResponse() : getXmlForJsonXResponse();     
+        } else {
+            response = xrequestAccept.equals("xml") ? getJsonForXmlXResponse() : getJsonForJsonXResponse();
+            if(!outputHeaders){
+                JSONObject payload = (JSONObject)response.getPayload();
+                response.setPayload(payload.getJSONObject("body"));
+            }
+        }
+        return response;
     }
 
-    private JSONObject getErrorJson() {
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
-        obj.put("body", body);
-
-        return obj;
-    }
-
-    private String getErrorXml() {
-        return XML.toString(getErrorJson());
-    }
-
-    public JSONObject getJsonForXmlXResponse() {
+    private Response getJsonForXmlXResponse() {
         if (error) {
-            return getErrorJson();
+            return new Response(getErrorJson());
+        }
+
+        return new Response(getJson(statusCode,headers,body));
+    }
+
+    private Response getJsonForJsonXResponse() {
+        if (error) {
+            return new Response(getErrorJson());
         }
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
-        obj.put("body", body);
-
-        return obj;
-    }
-
-    public JSONObject getJsonForJsonXResponse() {
-        if (error) {
-            return getErrorJson();
-        }
-
-        JSONObject obj = new JSONObject();
-        obj.put("statusCode", statusCode);
+        putHeaders(obj, headers);
+        
         try {
             JSONObject bodyObject = new JSONObject(body);
             obj.put("body", bodyObject);
@@ -575,24 +580,26 @@ public class XResponse {
                 obj.put("body", "Could not parse json response.");
             }
         }
-        return obj;
+        return new Response(obj);
     }
 
-    public String getXmlForXmlXResponse() {
+    private Response getXmlForXmlXResponse() {
         if (error) {
-            return getErrorXml();
+            return new Response(getErrorXml());
         }
 
-        return XML.toString(getJsonForXmlXResponse());
+        return new Response(XML.toString(getJsonForXmlXResponse()));
     }
 
-    public String getXmlForJsonXResponse() {
+    private Response getXmlForJsonXResponse() {
         if (error) {
-            return getErrorXml();
+            return new Response(getErrorXml());
         }
 
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
+        putHeaders(obj, headers);
+        
         try {
             JSONObject bodyObject = new JSONObject(body);
             obj.put("body", bodyObject);
@@ -606,10 +613,35 @@ public class XResponse {
                 obj.put("body", "Could not parse json response.");
             }
         }
-        return XML.toString(obj);
+        return new Response(XML.toString(obj));
+    }
+    
+    private JSONObject getErrorJson() {
+        return getJson(statusCode,headers,body);
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    private String getErrorXml() {
+        return XML.toString(getErrorJson());
+    }
+    
+    private JSONObject getJson(int statusCode, Map<String,String> headers, String body){
+        JSONObject obj = new JSONObject();
+        obj.put("statusCode", statusCode);
+        
+        putHeaders(obj, headers);
+        
+        obj.put("body", body);
+
+        return obj;
+    }
+    
+    private void putHeaders(JSONObject object, Map<String,String> headers){
+        JSONObject headersObject = new JSONObject();
+        if(headers != null){
+            headers.entrySet().forEach( (Map.Entry<String, String> entry) -> {
+                headersObject.put(entry.getKey(), entry.getValue());
+            });
+        }
+        object.put("headers", headersObject);
     }
 }

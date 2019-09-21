@@ -510,36 +510,36 @@ package com.metamug.mason.exception;
  *
  * @author Kaisteel
  */
-public class MetamugException extends Exception {
+public class MasonException extends Exception {
 
-    private final MetamugError error;
+    private final MasonError error;
     private final Exception rootException;
 
-    public MetamugException(MetamugError error) {
+    public MasonException(MasonError error) {
         super(error.getMsg());
         this.error = error;
         this.rootException = null;
     }
 
-    public MetamugException(MetamugError error, String msg) {
+    public MasonException(MasonError error, String msg) {
         super(msg);
         this.error = error;
         this.rootException = null;
     }
 
-    public MetamugException(MetamugError error, Exception root) {
+    public MasonException(MasonError error, Exception root) {
         super(error.getMsg());
         this.error = error;
         this.rootException = root;
     }
 
-    public MetamugException(MetamugError error, Exception root, String msg) {
+    public MasonException(MasonError error, Exception root, String msg) {
         super(msg);
         this.error = error;
         this.rootException = root;
     }
 
-    public MetamugError getError() {
+    public MasonError getError() {
         return this.error;
     }
 

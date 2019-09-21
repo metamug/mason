@@ -512,11 +512,13 @@ import com.metamug.mason.Router;
 import static com.metamug.mason.Router.CONNECTION_PROVIDER;
 import static com.metamug.mason.Router.MASON_REQUEST;
 import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
-import com.metamug.mason.exception.MetamugError;
-import com.metamug.mason.exception.MetamugException;
+import com.metamug.mason.exception.MasonError;
+import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
@@ -527,6 +529,8 @@ import org.apache.commons.lang3.StringUtils;
  * @author anishhirlekar
  */
 public class ResourceTagHandler extends RestTag {
+    
+    private Request masonRequest;
 
     private String auth;
     private String parentName;
@@ -534,12 +538,21 @@ public class ResourceTagHandler extends RestTag {
 
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
     public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";
+    public static final int STATUS_RESOURCE_NOT_FOUND = 404;
+    public static final String MSG_RESOURCE_NOT_FOUND = "Resource not found";
+    
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String BEARER_ = "Bearer ";
+    
+    private List<String> childMethods = new ArrayList<>(); //holds http methods of child request tags
 
     public void setAuth(String auth) {
         this.auth = auth;
+    }
+    
+    public void addChildMethod(String method) {
+        childMethods.add(method.toLowerCase());
     }
     
     /**
@@ -553,49 +566,68 @@ public class ResourceTagHandler extends RestTag {
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-        //request = (HttpServletRequest) context.getRequest();
-        //response = (HttpServletResponse) context.getResponse();
+        
         if (StringUtils.isNotBlank(auth)) {
             processAuth();
         }
 
-        Request masonRequest = (Request) pageContext.getRequest().getAttribute(MASON_REQUEST);
+        masonRequest = (Request) request.getAttribute(MASON_REQUEST);
         Resource parent = masonRequest.getParent();
         if (parent != null && !parent.getName().equalsIgnoreCase(this.parentName)) {
-            throw new JspException("Parent resource not found", new MetamugException(MetamugError.PARENT_RESOURCE_MISSING));
+            throw new JspException("Parent resource not found", new MasonException(MasonError.PARENT_RESOURCE_MISSING));
         }
 
         return EVAL_BODY_INCLUDE;
-
     }
 
     @Override
     public int doEndTag() throws JspException {
-        process405();
+        String requestMethod = masonRequest.getMethod().toLowerCase();
+        
+        if(!childMethods.contains(requestMethod)) {
+            //incoming request has method which is not handled by any child
+            print405();
+        } else {
+            //incoming request has method which is handled by a child
+            //but the flow reached the end tag of <m:resource>
+            print404();
+        }
+        
         return SKIP_PAGE;
     }
+    
+    private void print404() {
+        response.setContentType(HEADER_JSON);
+        response.setStatus(STATUS_RESOURCE_NOT_FOUND);
+        try {
+            pageContext.getOut().print("{\"message\":\"" + MSG_RESOURCE_NOT_FOUND + "\",\"status\":"
+                    + STATUS_RESOURCE_NOT_FOUND + "}");
+        } catch (IOException ex) {
+            Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+    }
 
-    private void process405() {
-//        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+    private void print405() {
+//      String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(HEADER_JSON);
         response.setStatus(STATUS_METHOD_NOT_ALLOWED);
         try {
-//            if (Arrays.asList(header.split("/")).contains("xml")) {
-//                StringBuilder xmlBuilder = new StringBuilder();
-//                xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-//                xmlBuilder.append("<response>");
-//                xmlBuilder.append("\n\t<status>");
-//                xmlBuilder.append(STATUS_METHOD_NOT_ALLOWED);
-//                xmlBuilder.append("</status>");
-//                xmlBuilder.append("\n\t<message>");
-//                xmlBuilder.append(MSG_METHOD_NOT_ALLOWED);
-//                xmlBuilder.append("</message>");
-//                xmlBuilder.append("\n</response>");
-//                pageContext.getOut().print(xmlBuilder.toString());
-//            } else {
+//          if (Arrays.asList(header.split("/")).contains("xml")) {
+//              StringBuilder xmlBuilder = new StringBuilder();
+//              xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+//              xmlBuilder.append("<response>");
+//              xmlBuilder.append("\n\t<status>");
+//              xmlBuilder.append(STATUS_METHOD_NOT_ALLOWED);
+//              xmlBuilder.append("</status>");
+//              xmlBuilder.append("\n\t<message>");
+//              xmlBuilder.append(MSG_METHOD_NOT_ALLOWED);
+//              xmlBuilder.append("</message>");
+//              xmlBuilder.append("\n</response>");
+//              pageContext.getOut().print(xmlBuilder.toString());
+//          } else {
             pageContext.getOut().print("{\"message\":\"" + MSG_METHOD_NOT_ALLOWED + "\",\"status\":"
                     + STATUS_METHOD_NOT_ALLOWED + "}");
-//            }
+//          }
         } catch (IOException ex) {
             Logger.getLogger(ResourceTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -604,9 +636,9 @@ public class ResourceTagHandler extends RestTag {
     private void processAuth() throws JspException {
         String header = request.getHeader("Authorization");
         if (header == null) {
-            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.INCORRECT_ROLE_AUTHENTICATION));
+            throw new JspException(ACCESS_DENIED, new MasonException(MasonError.INCORRECT_ROLE_AUTHENTICATION));
         }
-        Request masonReq = (Request) request.getAttribute("mtgReq");
+        Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
         authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));
         try {
             if (header.contains("Basic ")) {
@@ -618,10 +650,10 @@ public class ResourceTagHandler extends RestTag {
                 //validateJwt - check aud against val, exp
                 masonReq.setUid(authService.validateBearer(bearerToken.trim(), auth));
             } else {
-                throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+                throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
             }
         } catch (IllegalArgumentException ex) {
-            throw new JspException(ACCESS_DENIED, new MetamugException(MetamugError.ROLE_ACCESS_DENIED));
+            throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
         }
     }
 }

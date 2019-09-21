@@ -509,6 +509,7 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
+import static com.metamug.mason.Router.MASON_REQUEST;
 import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
@@ -525,6 +526,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -637,7 +640,7 @@ public class TagHandlerTest {
             when(response.getOutputStream()).thenReturn(outputStream);
 
             when(context.getOut()).thenReturn(writer);
-            when(request.getAttribute("mtgReq")).thenReturn(masonRequest);
+            when(request.getAttribute(MASON_REQUEST)).thenReturn(masonRequest);
 
             when(request.getParameter("auth")).thenReturn("bearer");
             when(request.getParameter("userid")).thenReturn("1234");
@@ -659,32 +662,14 @@ public class TagHandlerTest {
             row.put("Age", "26");
             when(resultImpl.getRows()).thenReturn(new SortedMap[]{row});
             when(resultImpl.getColumnNames()).thenReturn(new String[]{"Name", "Age"});
+            when(resultImpl.getRowCount()).thenReturn(2);
         } catch (SQLException ex) {
             Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    /**
-     * Test of doStartTag method, of class RequestTagHandler.
-     */
-    @Test
-    public void requestTag() throws JspException {
-
-        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-
-        when(masonRequest.getMethod()).thenReturn("GET");
-
-        requestTag.setMethod("GET");
-        requestTag.setItem(false);
-
-        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
-        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
-
-    }
-    
+   
     @Test (expected = JspException.class)
     public void fileUpload() throws JspException, IOException {
         
@@ -709,6 +694,7 @@ public class TagHandlerTest {
         when(masonRequest.getMethod()).thenReturn("POST");
 
         requestTag.setMethod("POST");
+        requestTag.setParent(resourceTag);
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
@@ -738,12 +724,33 @@ public class TagHandlerTest {
 
         requestTag.setMethod("GET");
         requestTag.setItem(false);
+        requestTag.setParent(resourceTag);
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
 
         verify(response).setHeader("Content-Type",FileOutput.OCTETSTREAM);
         //verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
+
+    }
+    
+    /**
+     * Test of doStartTag method, of class RequestTagHandler.
+     */
+    @Test
+    public void requestTag() throws JspException {
+
+        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
+        when(masonRequest.getMethod()).thenReturn("GET");
+        
+        requestTag.setMethod("GET");
+        requestTag.setItem(false);
+        requestTag.setParent(resourceTag);
+
+        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
 
     }
 
@@ -757,8 +764,19 @@ public class TagHandlerTest {
 
     }
 
-    @Test //(expected = JspException.class)
+    @Test
+    public void resourceTag404() throws JspException {
+        //add child request same as incoming request method, this is the equivalent of mocking a 404 response,
+        //if the flow reaches the end of resource tag
+        when(masonRequest.getMethod()).thenReturn("GET");
+        resourceTag.addChildMethod("GET".toLowerCase());
+        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+    }
+    
+    @Test
     public void resourceTagAuth() throws JspException {
+        when(masonRequest.getMethod()).thenReturn("POST");
         resourceTag.setAuth("admin");
         //@TODO Change this every 3-4 months since it wont work after some time. Token expires
         String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTc0NTA5ODM0LCJpYXQiOjE1NjY3MzM4MzQsImp0aSI6IjI1NWM5Y2JiLWE4OTktNGYyYS04MjA3LTlhMzg2MWQ4MGEzZiJ9.5446gdZ7doGkUg9YIDg4FFYX2H3CBkVBD4itwJ3KMR8";
@@ -766,30 +784,6 @@ public class TagHandlerTest {
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
-
-    }
-
-    @Test //(expected = JspException.class)
-    public void xrequestTag() throws JspException {
-        xrequestTag.addParameter("foo1", "bar1");
-        xrequestTag.addParameter("foo2", "bar2");
-        xrequestTag.setVar("xrequestOutput");
-        xrequestTag.setUrl("https://postman-echo.com/get");
-        xrequestTag.setMethod("GET");
-
-        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
-        System.out.println(context.getAttribute("xrequestOutput"));
-
-    }
-
-    @Test(expected = JspException.class)
-    public void executeTag() throws JspException {
-        executeTag.setVar("executeOutput");
-
-        executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
-        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }
 
     @Test(expected = JspException.class)
@@ -853,6 +847,108 @@ public class TagHandlerTest {
         paramTag.setValue("hi@metamug.com");
 
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+    }
+    
+    @Test(expected = JspException.class)
+    public void executeTagInvalidProcessable() throws JspException {
+        executeTag.setVar("executeOutput");
 
+        executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
+        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+    }
+    /*
+    @Test
+    public void executeTagRequestProcessable() throws JspException {
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+        
+        
+        executeTag.setVar("executeOutput");
+        executeTag.setOutput(true);
+        executeTag.setClassName("com.metamug.mason.processables.RequestExample"); 
+        
+        Map<String,String> requestParams = new HashMap<>();
+        requestParams.put("foo1","bar1");
+        requestParams.put("foo2","bar2");
+        masonRequest.setParams(requestParams);
+        
+        List<String> headerNames = new ArrayList<String>(); 
+        headerNames.add("Accept");
+        Enumeration<String> headerNameEnum = Collections.enumeration(headerNames);
+        when(request.getHeaderNames()).thenReturn(headerNameEnum);
+        //when(request.getHeader("Authorization")).thenReturn(bearer);
+        when(request.getHeader("Accept")).thenReturn("application/json");  
+        
+        executeTag.setParam(masonRequest);
+        
+        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+    }*/
+    
+    
+    @Test
+    public void executeTagResultProcessable() throws JspException {
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+             
+        executeTag.setVar("executeOutput");
+        executeTag.setOutput(true);
+        executeTag.setClassName("com.metamug.mason.processables.ResultExample"); 
+        
+        executeTag.setParam(resultImpl);
+        
+        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+    }
+    
+    @Test
+    public void xrequestTag() throws JspException {
+      
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+        
+        xrequestTag.addHeader(ResourceTagHandler.HEADER_ACCEPT,"application/xml");
+        xrequestTag.addParameter("foo1", "bar1");
+        xrequestTag.addParameter("foo2", "bar2");
+        xrequestTag.setVar("xrequestOutput");
+        xrequestTag.setUrl("https://postman-echo.com/get");
+        xrequestTag.setOutput(true);
+        xrequestTag.setOutputHeaders(true);
+        
+        xrequestTag.setMethod("GET");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());  
+        
+        JSONObject body = new JSONObject();
+        body.put("foo1", "bar1").put("foo2", "bar2");
+        xrequestTag.setMethod("POST");
+        xrequestTag.setRequestBody(body.toString(4));
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+        xrequestTag.setMethod("PUT");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+        xrequestTag.setMethod("DELETE");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+    }
+    
+    @Test
+    public void xrequestTagResponseProcessable() throws JspException {
+        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+      
+        Map<String,String> headers = new HashMap<>();
+        headers.put(ResourceTagHandler.HEADER_ACCEPT,"application/json");
+        xrequestTag.setHeaders(headers);
+                
+        Map<String,Object> parameters = new HashMap<>();
+        parameters.put("foo1", "bar1");
+        parameters.put("foo2", "bar2");
+        xrequestTag.setParameters(parameters);
+        xrequestTag.setVar("xrequestOutput");
+        xrequestTag.setUrl("https://postman-echo.com/get");
+        xrequestTag.setOutput(true);
+        xrequestTag.setClassName("com.metamug.mason.processables.ResponseExample"); 
+        xrequestTag.setMethod("GET");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());    
     }
 }

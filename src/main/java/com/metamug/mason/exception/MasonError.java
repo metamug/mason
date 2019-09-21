@@ -510,10 +510,11 @@ package com.metamug.mason.exception;
  *
  * @author Kaisteel
  */
-public enum MetamugError {
+public enum MasonError {
     SCRIPT_ERROR("Error in script."),
     BEARER_TOKEN_MISMATCH("Token doesn't belong to specified user."),
     CLASS_NOT_IMPLEMENTED("Did not implement any of the processable interface."),
+    RESPONSE_PROCESSABLE_NOT_IMPLEMENTED("Did not implement ResponseProcessable interface."),
     CODE_ERROR("Error occured during code execution."),
     EMPTY_PERSIST_ERROR("No result to persist."),
     INCORRECT_ROLE_AUTHENTICATION("Incorrect role credentials"),
@@ -531,7 +532,7 @@ public enum MetamugError {
 
     private final String msg;
 
-    MetamugError(String msg) {
+    MasonError(String msg) {
         this.msg = msg;
     }
 
