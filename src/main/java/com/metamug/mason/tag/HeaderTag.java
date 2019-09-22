@@ -518,25 +518,21 @@ import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
  * @author pc
  */
 public class HeaderTag extends BodyTagSupport {
-
     private String name;
     private String value;
     protected RequestTag parent;
 
     @Override
     public int doEndTag() throws JspException {
-
-//        RequestTag parent = (RequestTag) findAncestorWithClass(this, RequestTag.class);
         parent = (RequestTag) getParent();
         if (parent == null) {
-            throw new JspTagException("Header Tag doesnt have a valid parent");
+            throw new JspTagException("Header Tag doesnt have a valid parent!");
         }
 
         if (value == null) {
             value = getBodyContent().getString().trim();
         }
 
-        this.value = value;
         if (this.value.length() > 0) {
             parent.addHeader(name, this.value);
         }
@@ -551,5 +547,4 @@ public class HeaderTag extends BodyTagSupport {
     public void setValue(Object v) {
         value = (String) v;
     }
-
 }
