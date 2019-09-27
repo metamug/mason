@@ -54,6 +54,7 @@ public class MasonOutputTest {
         outputMap.put("res2", new JSONArray(sampleArray));
         outputMap.put("res3", "Hello World");
         outputMap.put("res4", sampleResult);
+        outputMap.put("res5", null);
     }
 
     @Test

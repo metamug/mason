@@ -529,17 +529,18 @@ public class JSONOutput extends MasonOutput<JSONObject>{
     @Override
     protected JSONObject getContent() {
         JSONObject responseJson = new JSONObject();
-        for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
+        outputMap.entrySet().forEach( entry  -> {
             Object obj = entry.getValue();
             String key = entry.getKey();
-            
-            if (obj instanceof ResultImpl) {
+            if(obj == null) {
+                responseJson.put(key, new JSONObject());
+            } else if (obj instanceof ResultImpl) {
                 responseJson.put(key, getJson((ResultImpl) obj));
             } else if (obj instanceof JSONObject) {
                 responseJson.put(key, obj);
-            } else if (obj instanceof JSONObject) {
-                responseJson.put(key, obj);
             } else if (obj instanceof JSONArray) {
+                responseJson.put(key, obj);
+            } else if (obj instanceof String) {
                 responseJson.put(key, obj);
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
@@ -563,7 +564,7 @@ public class JSONOutput extends MasonOutput<JSONObject>{
                     Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
+        });
         return responseJson;
     }
 
