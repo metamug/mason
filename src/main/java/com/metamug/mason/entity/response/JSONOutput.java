@@ -544,12 +544,22 @@ public class JSONOutput extends MasonOutput<JSONObject>{
                 responseJson.put(key, obj);
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
-                for (Object o : (Iterable<? extends Object>) obj) {
-                    try {
-                        array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
-                    } catch (JAXBException ex) {
-                        //@TODO Do something here
-                        Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
+                List<Object> list = (List)obj;
+                for (Object o : list) {
+                    if(o == null){
+                        array.put(new JSONObject());
+                    } else if(o instanceof String || o instanceof JSONObject || o instanceof JSONArray) {
+                        array.put(o);
+                    } else if (o instanceof ResultImpl) {
+                        array.put(getJson((ResultImpl) o));
+                    } else {
+                        // for POJO
+                        try {
+                            array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
+                        } catch (JAXBException ex) {
+                            //@TODO Do something here
+                            Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
                 responseJson.put(key, array);

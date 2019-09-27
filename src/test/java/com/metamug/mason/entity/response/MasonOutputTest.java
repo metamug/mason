@@ -6,7 +6,10 @@
 package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Response;
+import com.metamug.mason.processables.Customer;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -49,12 +52,27 @@ public class MasonOutputTest {
         when(sampleResult.getColumnNames()).thenReturn(colNames);
         when(sampleResult.getRows()).thenReturn(rows);
 
+        List<Object> list = new ArrayList<>();
+        list.add("I am String");
+        list.add(new JSONObject(sampleObj));
+        list.add(sampleResult);
+        list.add(null);
+        
+        Customer customer = new Customer();
+        customer.setName("John");
+        customer.setId(1);
+        customer.setContact("8080808080", "john@example.com");
+        
+        list.add(customer);
+        
         outputMap = new LinkedHashMap<>();
-        outputMap.put("res1", new JSONObject(sampleObj));
-        outputMap.put("res2", new JSONArray(sampleArray));
-        outputMap.put("res3", "Hello World");
-        outputMap.put("res4", sampleResult);
-        outputMap.put("res5", null);
+        outputMap.put("jsonobj", new JSONObject(sampleObj));
+        outputMap.put("jsonarray", new JSONArray(sampleArray));
+        outputMap.put("string", "Hello World");
+        outputMap.put("result", sampleResult);
+        outputMap.put("null", null);
+        outputMap.put("pojo", customer);
+        outputMap.put("list", list);
     }
 
     @Test
@@ -64,20 +82,6 @@ public class MasonOutputTest {
         String outStr = output.toString();
         System.out.println("json: " + outStr);
         System.out.println("Length: " + outStr.length());
-        //Assert.assertTrue(outStr.length()>1);
-    }
-
-    @Test
-    public void testJsonSingleResult() throws JAXBException {
-        Map<String, Object> singleMap = new LinkedHashMap<>();
-        singleMap.put("res2", new JSONArray(sampleArray));
-        MasonOutput output = new JSONOutput();
-        output.generate(null, outputMap);
-        String outStr = output.toString();
-        System.out.println("single json: " + outStr);
-        System.out.println("Length: " + outStr.length());
-        //@TODO how do you know its a single json object. Do you want to look
-        //everytime when you run the test. Validate the string back to JSON Object
         //Assert.assertTrue(outStr.length()>1);
     }
 
