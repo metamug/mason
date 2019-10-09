@@ -507,12 +507,13 @@
 package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Response;
-import com.metamug.exec.ResponseFormatter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -553,7 +554,7 @@ public class XMLOutput extends MasonOutput<Document> {
             doc = builder.parse(new InputSource(new StringReader(xmlBuilder.toString())));
             return doc;
         } catch (IOException | ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
+            Logger.getLogger(XMLOutput.class.getName()).log(Level.SEVERE, e.getMessage(), e);	
         }
         return doc;
     }
@@ -578,8 +579,8 @@ public class XMLOutput extends MasonOutput<Document> {
             Transformer transformer = tf.newTransformer();
             transformer.transform(domSource, result);
             return writer.toString();
-        } catch (TransformerException ex) {
-            ex.printStackTrace();
+        } catch (TransformerException e) {
+            Logger.getLogger(XMLOutput.class.getName()).log(Level.SEVERE, e.getMessage(), e);	
             return null;
         }
     }

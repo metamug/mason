@@ -636,7 +636,7 @@ public class ResourceTagHandler extends RestTag {
     private void processAuth() throws JspException {
         String header = request.getHeader("Authorization");
         if (header == null) {
-            throw new JspException(ACCESS_DENIED, new MasonException(MasonError.INCORRECT_ROLE_AUTHENTICATION));
+            throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
         }
         Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
         authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));

@@ -529,24 +529,37 @@ public class JSONOutput extends MasonOutput<JSONObject>{
     @Override
     protected JSONObject getContent() {
         JSONObject responseJson = new JSONObject();
-        for (Map.Entry<String, Object> entry : outputMap.entrySet()) {
+        outputMap.entrySet().forEach( entry  -> {
             Object obj = entry.getValue();
             String key = entry.getKey();
-
-            if (obj instanceof ResultImpl) {
+            if(obj == null) {
+                responseJson.put(key, new JSONObject());
+            } else if (obj instanceof ResultImpl) {
                 responseJson.put(key, getJson((ResultImpl) obj));
             } else if (obj instanceof JSONObject) {
+                responseJson.put(key, obj);
+            } else if (obj instanceof JSONArray) {
                 responseJson.put(key, obj);
             } else if (obj instanceof String) {
                 responseJson.put(key, obj);
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
-                for (Object o : (Iterable<? extends Object>) obj) {
-                    try {
-                        array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
-                    } catch (JAXBException ex) {
-                        //@TODO Do something here
-                        Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
+                List<Object> list = (List)obj;
+                for (Object o : list) {
+                    if(o == null){
+                        array.put(new JSONObject());
+                    } else if(o instanceof String || o instanceof JSONObject || o instanceof JSONArray) {
+                        array.put(o);
+                    } else if (o instanceof ResultImpl) {
+                        array.put(getJson((ResultImpl) o));
+                    } else {
+                        // for POJO
+                        try {
+                            array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
+                        } catch (JAXBException ex) {
+                            //@TODO Do something here
+                            Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
                 responseJson.put(key, array);
@@ -561,7 +574,7 @@ public class JSONOutput extends MasonOutput<JSONObject>{
                     Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
+        });
         return responseJson;
     }
 

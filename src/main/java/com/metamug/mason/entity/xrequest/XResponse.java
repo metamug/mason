@@ -544,9 +544,18 @@ public class XResponse {
             response = xrequestAccept.equals("xml") ? getXmlForXmlXResponse() : getXmlForJsonXResponse();     
         } else {
             response = xrequestAccept.equals("xml") ? getJsonForXmlXResponse() : getJsonForJsonXResponse();
+            
             if(!outputHeaders){
                 JSONObject payload = (JSONObject)response.getPayload();
-                response.setPayload(payload.getJSONObject("body"));
+                try{
+                    response.setPayload(payload.getJSONObject("body"));
+                }catch(JSONException jx){
+                    try{
+                        response.setPayload(payload.getJSONArray("body"));
+                    }catch(JSONException jx1){
+                        response.setPayload(payload.getString("body"));
+                    }
+                }
             }
         }
         return response;

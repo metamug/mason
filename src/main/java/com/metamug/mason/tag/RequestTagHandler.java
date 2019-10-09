@@ -606,7 +606,15 @@ public class RequestTagHandler extends RequestTag {
             }
         }
 
-        try (OutputStream outputStream = response.getOutputStream();) {
+        //set response headers
+        if(headers != null) {
+            headers.entrySet().forEach( entry -> {
+                response.setHeader(entry.getKey(), entry.getValue());
+            });
+        }
+        
+        //write response
+        try (OutputStream outputStream = response.getOutputStream()) {
 
             if (!hasAttachment) {
 

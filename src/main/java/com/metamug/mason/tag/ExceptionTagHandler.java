@@ -567,7 +567,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         response.setStatus(422);
                         out.println("<message>Unable to parse input</message>\n<status>" + 422 + "</status>");
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
-                    } else if (cause.contains("MetamugException")) {
+                    } else if (cause.contains(MasonException.class.getName())) {
                         MasonException mtgCause = (MasonException) exception.getCause();
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
@@ -664,7 +664,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         response.setStatus(422);
                         out.println("{\"message\": \"Unable to parse input\",\"status\":" + 422 + "}");
                         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
-                    } else if (cause.contains("MetamugException")) {
+                    } else if (cause.contains(MasonException.class.getName())) {
                         MasonException mtgCause = (MasonException) exception.getCause();
                         String timestamp = String.valueOf(System.currentTimeMillis());
                         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
