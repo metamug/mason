@@ -5,13 +5,21 @@
     <artifactId>mason</artifactId>
     <version>3.2</version>
     <packaging>jar</packaging>
-    <name>mason</name>
+     <name>com.metamug:msaon</name>
+    <description>API SDK</description>
+    <url>https://metamug.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-    
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <developers>
         <developer>
             <name>Anish Hirlekar</name>
@@ -45,9 +53,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:git@github.com:metamug/mtg-api.git</connection>
-        <developerConnection>scm:git:git@github.com:metamug/mtg-api.git</developerConnection>
-        <url>git@github.com:metamug/mtg-api.git</url>
+        <connection>scm:git:git@github.com:metamug/mtg-mason.git</connection>
+        <developerConnection>scm:git:git@github.com:metamug/mtg-mason.git</developerConnection>
+        <url>git@github.com:metamug/mtg-mason.git</url>
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -298,7 +306,7 @@
         <dependency>
             <groupId>com.metamug</groupId>
             <artifactId>mtg-api</artifactId>
-            <version>1.5</version>
+            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>
