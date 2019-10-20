@@ -507,6 +507,8 @@
 package com.metamug.mason.service;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -528,27 +530,42 @@ public class ConnectionProvider {
 
     private static String masonDatasource;
 
-    private final DataSource ds;
+    private static DataSource ds;
 
     public static DataSource getMasonDatasource() {
-        try {
-            setupInitialContext();
+//        try {
+                return  ds;
 //            Context initialContext = new InitialContext();
-            return (DataSource) InitialContext.doLookup(masonDatasource);
-        } catch (NamingException ex) {
-            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+//            return (DataSource) InitialContext.doLookup(masonDatasource);
+//        } catch (NamingException ex) {
+//            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return null;
     }
 
-    public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
+    public ConnectionProvider(String masonDatasource) throws SQLException, NamingException, ClassNotFoundException {
+        HikariConfig hikariConfig = new HikariConfig();
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
+//            hikariConfig.setDataSourceClassName("com.mysql.cj.jdbc.MysqlConnectionPoolDataSource");
+        hikariConfig.setJdbcUrl("jdbc:mysql://192.168.1.11:3306/deepak?useOldAliasMetadataBehavior=true&characterEncoding=UTF-8&zeroDateTimeBehavior=CONVERT_TO_NULL&characterSetResults=UTF-8&allowMultiQueries=true&connectTimeout=120000");
+//        hikariConfig.addDataSourceProperty("serverName","192.168.1.11");
+//        hikariConfig.addDataSourceProperty("port","3306");
+//        hikariConfig.addDataSourceProperty("databaseName", "moviedb");
+        hikariConfig.setUsername("moviebuff");
+        hikariConfig.setPassword("password");
+
+        hikariConfig.setMaximumPoolSize(5);
+        hikariConfig.setConnectionTestQuery("SELECT 1");
+        hikariConfig.setPoolName("jdbc/mason");
+
+        ds = new HikariDataSource(hikariConfig);
+//        setupInitialContext();
         ConnectionProvider.masonDatasource = masonDatasource;
-        ds = getMasonDatasource();
+//        ds = getMasonDatasource();
     }
 
-    //    public static ConnectionProvider getInstance() throws SQLException, NamingException {
-//        return new ConnectionProvider();
-//    }
     public Connection getConnection() {
         try {
             return ds.getConnection();

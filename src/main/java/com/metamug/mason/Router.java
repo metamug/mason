@@ -527,12 +527,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.NamingException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -549,8 +544,8 @@ import org.json.JSONObject;
 public class Router implements Filter {
 
     private static final String JSP_EXTN = ".jsp";
-    private static final String RESOURCES_FOLDER = File.separator+"WEB-INF"+File.separator+"resources"+File.separator;
-    public static final String WEBAPP_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
+    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
+    //public static final String WEBAPP_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -563,6 +558,7 @@ public class Router implements Filter {
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
     public static final String MASON_REQUEST = "mtgReq";
+
 
     public Router() {
 
@@ -582,6 +578,7 @@ public class Router implements Filter {
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+
         //Setting character encoding
         if (null == request.getCharacterEncoding()) {
             request.setCharacterEncoding(encoding);
@@ -615,7 +612,6 @@ public class Router implements Filter {
      *
      * @param req
      * @param res
-     * @param tokens The URI split by /
      * @throws IOException
      */
     private void processRequest(HttpServletRequest req, HttpServletResponse res)
@@ -641,9 +637,9 @@ public class Router implements Filter {
             resourceName = mtgReq.getResource().getName();
             
             String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
-            //System.out.println(jspPath);
-            //System.out.println(req.getContextPath());
-            if(new File(WEBAPP_DIR+req.getContextPath()+File.separator+jspPath).exists()) {
+            File file = new File(req.getServletContext().getRealPath(jspPath));
+//            Logger.getLogger(Router.class.getName()).log(Level.INFO, file.getAbsolutePath());
+            if(file.exists()) {
                 req.setAttribute(MASON_REQUEST, mtgReq);
 
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
@@ -657,6 +653,7 @@ public class Router implements Filter {
                 //save method as attribute because jsp only accepts GET and POST
                 //https://stackoverflow.com/a/46489035
                 req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
+
                 req.getRequestDispatcher(jspPath).forward(
                     new HttpServletRequestWrapper(req) {
                         @Override
@@ -735,6 +732,7 @@ public class Router implements Filter {
      */
     @Override
     public void init(FilterConfig config) {
+
         encoding = config.getInitParameter("requestEncoding");
         if (encoding == null) {
             encoding = "UTF-8";
@@ -766,6 +764,8 @@ public class Router implements Filter {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (NullPointerException nx) {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 }
