@@ -542,7 +542,7 @@ public class ConnectionProvider {
     }
 
     public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
-        this.masonDatasource = masonDatasource;
+        ConnectionProvider.masonDatasource = masonDatasource;
         ds = getMasonDatasource();
     }
 

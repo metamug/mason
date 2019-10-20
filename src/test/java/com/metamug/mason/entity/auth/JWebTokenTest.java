@@ -54,7 +54,7 @@ public class JWebTokenTest {
     @org.junit.Test
     public void testWithData() {
         //generate JWT
-        long exp = ldt.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
+        long exp = LocalDateTime.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
         String token = new JWebToken("1234", new JSONArray("['admin']"), exp).toString();
         //verify and use
         JWebToken incomingToken;

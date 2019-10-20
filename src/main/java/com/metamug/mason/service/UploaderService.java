@@ -578,8 +578,8 @@ public class UploaderService {
         return true;
     }
 
-    private void callUploadEvent(File uploadedFile, String listenerClass, Request req) throws ClassNotFoundException, 
-            InstantiationException, IllegalAccessException, Exception{
+    private void callUploadEvent(File uploadedFile, String listenerClass, Request req) throws
+            Exception{
         Object result = null;
 
         Class cls = Class.forName(listenerClass);
@@ -603,7 +603,7 @@ public class UploaderService {
         }
     }
 
-    private void uploadPart(HttpServletRequest request, String listenerClass) throws JspTagException, IOException, Exception {
+    private void uploadPart(HttpServletRequest request, String listenerClass) throws Exception {
         try {
             String uploadFilePath = System.getProperty("catalina.base") + File.separator + UPLOAD_DIR + request.getContextPath();
             Files.createDirectories(Paths.get(uploadFilePath));

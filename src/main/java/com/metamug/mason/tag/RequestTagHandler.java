@@ -641,7 +641,7 @@ public class RequestTagHandler extends RequestTag {
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
-                    WritableByteChannel out = Channels.newChannel(response.getOutputStream());) {
+                    WritableByteChannel out = Channels.newChannel(response.getOutputStream())) {
                     /**
                      * Don't set Content Length. Max buffer for output stream is
                      * 2KB and it is flushed
