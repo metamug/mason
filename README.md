@@ -1,7 +1,6 @@
 # 🧱 MASON [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=All%20New%20Way%20of%20Writing%20REST%20APIs&url=https://github.com/metamug/mason&via=themetamug&hashtags=REST,API,developers)
 
-[![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason)  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.metamug/mason/badge.svg)](http://search.maven.org/#artifactdetails|com.metamug|mason|3.2|)  [![Coverage Status](https://coveralls.io/repos/github/metamug/mason/badge.svg?branch=develop)](https://coveralls.io/github/metamug/mason?branch=develop) [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=metamug_mason)
- [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=metamug_mason) [![Total alerts](https://img.shields.io/lgtm/alerts/g/metamug/mason.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/metamug/mason/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/metamug/mason.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/metamug/mason/context:java) [![LGPL v2.1 License](https://img.shields.io/github/license/metamug/mason.svg?style=flat&colorB=7CFC00)](https://opensource.org/licenses/LGPL-2.1)
+[![Build Status](https://travis-ci.org/metamug/mason.svg?branch=master)](https://travis-ci.org/metamug/mason)  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.metamug/mason/badge.svg)](http://search.maven.org/#artifactdetails|com.metamug|mason|3.2|) [![javadoc.io](https://javadoc.io/badge2/com.metamug/mason/javadoc.io.svg)](https://javadoc.io/doc/com.metamug/mason)  [![Coverage Status](https://coveralls.io/repos/github/metamug/mason/badge.svg?branch=develop)](https://coveralls.io/github/metamug/mason?branch=develop) [![LGPL v2.1 License](https://img.shields.io/github/license/metamug/mason.svg?style=flat&colorB=7CFC00)](https://opensource.org/licenses/LGPL-2.1)
 
 
 
@@ -146,3 +145,8 @@ The script can be invoked using `script` tag in jsp resource.
 ### How To Contribute
 
 Fork this repo and submit a PR against the listed issues. We will provide certificates to all those who succcessfully contribute and help close existing issues and submit new features.
+
+
+[![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=metamug_mason)
+ [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=metamug_mason) [![Total alerts](https://img.shields.io/lgtm/alerts/g/metamug/mason.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/metamug/mason/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/metamug/mason.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/metamug/mason/context:java) 
+ 
