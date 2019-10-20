@@ -507,17 +507,21 @@
 package com.metamug.mason.service;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.spi.InitialContextFactory;
+import javax.naming.spi.InitialContextFactoryBuilder;
+import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
 
 /**
- *
  * @author Kainix
  */
 public class ConnectionProvider {
@@ -528,9 +532,9 @@ public class ConnectionProvider {
 
     public static DataSource getMasonDatasource() {
         try {
-            Context initialContext = new InitialContext();
-            Context envContext = (Context) initialContext.lookup("java:/comp/env");
-            return (DataSource) envContext.lookup(masonDatasource);
+            setupInitialContext();
+//            Context initialContext = new InitialContext();
+            return (DataSource) InitialContext.doLookup(masonDatasource);
         } catch (NamingException ex) {
             Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -542,7 +546,7 @@ public class ConnectionProvider {
         ds = getMasonDatasource();
     }
 
-//    public static ConnectionProvider getInstance() throws SQLException, NamingException {
+    //    public static ConnectionProvider getInstance() throws SQLException, NamingException {
 //        return new ConnectionProvider();
 //    }
     public Connection getConnection() {
@@ -567,6 +571,29 @@ public class ConnectionProvider {
             //set this for mysql driver
             //https://stackoverflow.com/a/19027873/4800126
             AbandonedConnectionCleanupThread.checkedShutdown();
+        }
+    }
+
+    private static void setupInitialContext() {
+
+        try {
+            NamingManager.setInitialContextFactoryBuilder(new InitialContextFactoryBuilder() {
+
+                @Override
+                public InitialContextFactory createInitialContextFactory(Hashtable<?, ?> environment) throws NamingException {
+                    return new InitialContextFactory() {
+
+                        @Override
+                        public Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
+                            return new MasonContext();
+                        }
+
+                    };
+                }
+
+            });
+        } catch (NamingException ne) {
+            ne.printStackTrace();
         }
     }
 }
