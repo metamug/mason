@@ -545,7 +545,7 @@ public class ConnectionProvider {
 
     public ConnectionProvider(String masonDatasource) throws SQLException, NamingException, ClassNotFoundException {
         HikariConfig hikariConfig = new HikariConfig();
-        Class.forName("com.mysql.cj.jdbc.Driver");
+//        Class.forName("com.mysql.cj.jdbc.Driver");
 
         hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
 //            hikariConfig.setDataSourceClassName("com.mysql.cj.jdbc.MysqlConnectionPoolDataSource");
