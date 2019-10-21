@@ -549,8 +549,8 @@ import org.json.JSONObject;
 public class Router implements Filter {
 
     private static final String JSP_EXTN = ".jsp";
-    private static final String RESOURCES_FOLDER = File.separator+"WEB-INF"+File.separator+"resources"+File.separator;
-    public static final String WEBAPP_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
+    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
+    //public static final String WEBAPP_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -641,9 +641,9 @@ public class Router implements Filter {
             resourceName = mtgReq.getResource().getName();
             
             String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
-            //System.out.println(jspPath);
-            //System.out.println(req.getContextPath());
-            if(new File(WEBAPP_DIR+req.getContextPath()+File.separator+jspPath).exists()) {
+            File file = new File(req.getServletContext().getRealPath(jspPath));
+            
+            if(file.exists()) {
                 req.setAttribute(MASON_REQUEST, mtgReq);
 
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
