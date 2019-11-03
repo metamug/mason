@@ -506,7 +506,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
@@ -526,7 +525,7 @@ public class RootResource {
     }
 
     private void writeError(int status, String message) throws IOException {
-        try (ServletOutputStream writer = response.getOutputStream()) {
+        try (PrintWriter writer = response.getWriter()) {
             response.setContentType("application/json;charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
             response.setStatus(status);

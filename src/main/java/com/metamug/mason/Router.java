@@ -523,7 +523,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.NamingException;
@@ -550,7 +549,6 @@ public class Router implements Filter {
 
     private static final String JSP_EXTN = ".jsp";
     private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
-    //public static final String WEBAPP_DIR = System.getProperty("catalina.base") + File.separator + "webapps";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -651,7 +649,7 @@ public class Router implements Filter {
                 req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
 
                 //Query map of stored queries in a file
-                Map<String, String> queryMap = (Map<String, String>) req.getServletContext().getAttribute(MASON_QUERY);
+                Object queryMap = req.getServletContext().getAttribute(MASON_QUERY);
                 req.setAttribute(MASON_QUERY, queryMap);
 
                 //save method as attribute because jsp only accepts GET and POST
@@ -697,7 +695,7 @@ public class Router implements Filter {
     /**
      * Error message to be returned
      *
-     * @param res Http Response
+     * @param res HTTP Response
      * @param status Http Status Code
      * @param message Message in Response
      * @throws IOException

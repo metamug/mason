@@ -634,6 +634,7 @@ public class RequestTagHandler extends RequestTag {
                 byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
+                outputStream.flush();
 
             } else {
                 //has file in response
@@ -641,7 +642,7 @@ public class RequestTagHandler extends RequestTag {
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
-                    WritableByteChannel out = Channels.newChannel(response.getOutputStream());) {
+                    WritableByteChannel out = Channels.newChannel(outputStream);) {
                     /**
                      * Don't set Content Length. Max buffer for output stream is
                      * 2KB and it is flushed
