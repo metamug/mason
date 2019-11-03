@@ -5,7 +5,7 @@
     <artifactId>mason</artifactId>
     <version>3.3</version>
     <packaging>jar</packaging>
-     <name>com.metamug:msaon</name>
+    <name>com.metamug:msaon</name>
     <description>API SDK</description>
     <url>https://metamug.com</url>
     <properties>
@@ -31,7 +31,7 @@
             </roles>
             <timezone>+5:30</timezone>
         </developer>
-		<developer>
+        <developer>
             <name>Deepak Mishra</name>
             <email>deepak.mishra@metamug.com</email>
             <organization>Metamug Technologies</organization>
@@ -41,7 +41,7 @@
             </roles>
             <timezone>+5:30</timezone>
         </developer>
-		<developer>
+        <developer>
             <name>Kaustubh Damle</name>
             <email>kaustubh.damle@metamug.com</email>
             <organization>Metamug Technologies</organization>
@@ -155,41 +155,41 @@
                     <!-- existing plugins -->
                     
                     <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.3.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>prepare-integration-test-agent</id>
-                        <goals>
-                            <goal>prepare-agent-integration</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>generate-integration-test-report</id>
-                        <goals>
-                            <goal>report-integration</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+                        <groupId>org.eluder.coveralls</groupId>
+                        <artifactId>coveralls-maven-plugin</artifactId>
+                        <version>4.3.0</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.7.9</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>prepare-integration-test-agent</id>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>generate-integration-test-report</id>
+                                <goals>
+                                    <goal>report-integration</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
