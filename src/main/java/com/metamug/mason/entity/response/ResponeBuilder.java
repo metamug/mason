@@ -512,7 +512,6 @@ import com.metamug.entity.Response;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.JSONObject;
 
 /**
  * This builder avoids the direct use of getContent method in MasonOutput
