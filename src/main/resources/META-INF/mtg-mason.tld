@@ -3,7 +3,7 @@
         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd">
     <tlib-version>1.0</tlib-version>
     <short-name>mtg-mason</short-name>
-    <uri>mtg-mason.tld</uri>
+    <uri>http://xml.metamug.net/jsp/jstl/mason</uri>
     <tag>
         <name>resource</name>
         <tag-class>com.metamug.mason.tag.ResourceTagHandler</tag-class>
