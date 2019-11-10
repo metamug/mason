@@ -584,6 +584,7 @@ public class AuthDAO {
                         }
                         jwtPayload.put("aud", audArray);
                         LocalDateTime ldt = LocalDateTime.now().plusDays(EXPIRY_DAYS);
+                        LocalDateTime.now();
                         jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //thsi needs to be configured
                     }
                 }
