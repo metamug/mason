@@ -5,7 +5,7 @@
     <artifactId>mason</artifactId>
     <version>3.3</version>
     <packaging>jar</packaging>
-    <name>com.metamug:msaon</name>
+    <name>com.metamug:mason</name>
     <description>API SDK</description>
     <url>https://metamug.com</url>
     <properties>
