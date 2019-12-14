@@ -507,10 +507,12 @@
 package com.metamug.mason.service;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -522,51 +524,51 @@ import javax.sql.DataSource;
  */
 public class ConnectionProvider {
 
-    private static String masonDatasource;
+	private static String masonDatasource;
 
-    private final DataSource ds;
+	private final DataSource ds;
 
-    public static DataSource getMasonDatasource() {
-        try {
-            Context initialContext = new InitialContext();
-            Context envContext = (Context) initialContext.lookup("java:/comp/env");
-            return (DataSource) envContext.lookup(masonDatasource);
-        } catch (NamingException ex) {
-            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
+	public static DataSource getMasonDatasource() {
+		try {
+			Context initialContext = new InitialContext();
+			Context envContext = (Context) initialContext.lookup("java:/comp/env");
+			return (DataSource) envContext.lookup(masonDatasource);
+		} catch (NamingException ex) {
+			Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		return null;
+	}
 
-    public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
-        this.masonDatasource = masonDatasource;
-        ds = getMasonDatasource();
-    }
+	public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
+		ConnectionProvider.masonDatasource = masonDatasource;
+		ds = getMasonDatasource();
+	}
 
-//    public static ConnectionProvider getInstance() throws SQLException, NamingException {
-//        return new ConnectionProvider();
-//    }
-    public Connection getConnection() {
-        try {
-            return ds.getConnection();
-        } catch (SQLException ex) {
-            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
+	//    public static ConnectionProvider getInstance() throws SQLException, NamingException {
+	// return new ConnectionProvider();
+	// }
+	public Connection getConnection() {
+		try {
+			return ds.getConnection();
+		} catch (SQLException ex) {
+			Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
+			return null;
+		}
+	}
 
-    public void shutdown() throws SQLException, NamingException {
-        String driver = "";
-        //try (Connection con = getConnection()) {
-        //    DatabaseMetaData dbMetaData = con.getMetaData();
-        //    driver = dbMetaData.getDriverName().toLowerCase().trim();
-        //} catch (SQLException ex) {
-        //    Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        //}
-        if (driver.contains("hsql")) {
-        } else if (driver.contains("mysql")) {
-            //set this for mysql driver
-            //https://stackoverflow.com/a/19027873/4800126
-            AbandonedConnectionCleanupThread.checkedShutdown();
-        }
-    }
+	public void shutdown() throws SQLException, NamingException {
+		String driver = "";
+		// try (Connection con = getConnection()) {
+		// DatabaseMetaData dbMetaData = con.getMetaData();
+		// driver = dbMetaData.getDriverName().toLowerCase().trim();
+		// } catch (SQLException ex) {
+		//		Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		// }
+		if (driver.contains("hsql")) {
+		} else if (driver.contains("mysql")) {
+			// set this for mysql driver
+			// https://stackoverflow.com/a/19027873/4800126
+			AbandonedConnectionCleanupThread.checkedShutdown();
+		}
+	}
 }
