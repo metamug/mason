@@ -506,16 +506,21 @@
  */
 package com.metamug.mason.tag;
 
+import static com.metamug.mason.Router.MASON_REQUEST;
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
+import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
+import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
-import static com.metamug.mason.Router.MASON_REQUEST;
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
-import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -532,6 +537,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -539,18 +545,16 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
+
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
@@ -560,395 +564,396 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class TagHandlerTest {
 
-    @Mock
-    private HttpServletRequest request;
-    @Mock
-    private HttpServletResponse response;
-
-    @Mock
-    private Request masonRequest;
-
-    @Mock
-    private PageContext context;
-
-    private LinkedHashMap<String, Object> resultMap;
-
-    @Mock
-    private JspWriter writer;
-
-    @Mock
-    private ServletOutputStream outputStream;
-
-    @InjectMocks
-    RequestTagHandler requestTag = new RequestTagHandler(); //needs to initialized here 
-
-    @InjectMocks
-    ResourceTagHandler resourceTag = new ResourceTagHandler();
-
-    @InjectMocks
-    XRequestTagHandler xrequestTag = new XRequestTagHandler();
-
-    @InjectMocks
-    ExecuteTagHandler executeTag = new ExecuteTagHandler();
-
-    @InjectMocks
-    ScriptTagHandler scriptTag = new ScriptTagHandler();
-
-    @InjectMocks
-    ParamTagHandler paramTag = new ParamTagHandler();
-
-//    @InjectMocks
-//    ParentTagHandler parentTag = new ParentTagHandler();
-
-    @Mock
-    private ConnectionProvider provider;
-
-    @Mock
-    Connection connection;
-    @Mock
-    private PreparedStatement statement;
-
-    @Mock
-    private ResultSet resultSet;
-
-    @Mock
-    private ResultImpl resultImpl;
-
-    public TagHandlerTest() {
-
-    }
-
-    @Before
-    public void setup() {
-
-        try {
-            String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
-            String sampleArray = "[\n"
-                    + "    { \"name\":\"Ford\", \"models\":[ \"Fiesta\", \"Focus\", \"Mustang\" ] },\n"
-                    + "    { \"name\":\"BMW\", \"models\":[ \"320\", \"X3\", \"X5\" ] },\n"
-                    + "    { \"name\":\"Fiat\", \"models\":[ \"500\", \"Panda\" ] }\n"
-                    + "  ]";
-            String[] colNames = {"name", "age", "car"};
-            resultMap = new LinkedHashMap<>();
-            resultMap.put("res1", new JSONObject(sampleObj));
-            resultMap.put("res2", new JSONArray(sampleArray));
-            resultMap.put("res3", "Hello World");
-
-            when(context.getRequest()).thenReturn(request);
-            when(context.getResponse()).thenReturn(response);
-
-            when(response.getOutputStream()).thenReturn(outputStream);
-
-            when(context.getOut()).thenReturn(writer);
-            when(request.getAttribute(MASON_REQUEST)).thenReturn(masonRequest);
-
-            when(request.getParameter("auth")).thenReturn("bearer");
-            when(request.getParameter("userid")).thenReturn("1234");
-            when(request.getParameter("password")).thenReturn("pass");
-            //when(provider.getInstance()).thenReturn(provider);
-            when(provider.getConnection()).thenReturn(connection);
-            when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
-            when(statement.executeQuery()).thenReturn(resultSet);
-            //result set should return true for config function to give auth query
-            //second time inside createBearer function and then it should return false.
-            when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
-            when(resultSet.getString("auth_query")).thenReturn("some query mocked");
-            when(resultSet.getString(1)).thenReturn("1234");
-            when(resultSet.getString(2)).thenReturn("admin");
-
-            //mock resultimpl
-            SortedMap row = new TreeMap();
-            row.put("Name", "Anish");
-            row.put("Age", "26");
-            when(resultImpl.getRows()).thenReturn(new SortedMap[]{row});
-            when(resultImpl.getColumnNames()).thenReturn(new String[]{"Name", "Age"});
-            when(resultImpl.getRowCount()).thenReturn(2);
-        } catch (SQLException ex) {
-            Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-   
-    @Test (expected = JspException.class)
-    public void fileUpload() throws JspException, IOException {
-        
-        File temp = File.createTempFile("test", ".txt");
-
-        // Delete temp file when program exits.
-        temp.deleteOnExit();
-
-        // Write to temp file
-        BufferedWriter out = new BufferedWriter(new FileWriter(temp));
-        out.write("aString");
-        out.close();
-
-        resultMap = new LinkedHashMap<>();
-        resultMap.put("res3", "Hello World");
-        resultMap.put("file", new Response(new FileInputStream(temp))); //this will be used a mason bus
-        
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-        
-        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(request.getContentType()).thenReturn(MULTIPART_FORM_DATA);
-        when(masonRequest.getMethod()).thenReturn("POST");
-
-        requestTag.setMethod("POST");
-        requestTag.setParent(resourceTag);
-
-        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
-        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
-
-    }
-
-    @Test
-    public void fileDownload() throws JspException, IOException {
-
-        File temp = File.createTempFile("test", ".txt");
-
-        // Delete temp file when program exits.
-        temp.deleteOnExit();
-
-        // Write to temp file
-        BufferedWriter out = new BufferedWriter(new FileWriter(temp));
-        out.write("aString");
-        out.close();
-
-        resultMap = new LinkedHashMap<>();
-        resultMap.put("res3", "Hello World");
-        resultMap.put("file",new Attachment(new FileInputStream(temp))); //this will be used a mason bus
-
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(masonRequest.getMethod()).thenReturn("GET");
-
-        requestTag.setMethod("GET");
-        requestTag.setItem(false);
-        requestTag.setParent(resourceTag);
-
-        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
-        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
-
-        verify(response).setHeader("Content-Type",FileOutput.OCTETSTREAM);
-        //verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
-
-    }
-    
-    /**
-     * Test of doStartTag method, of class RequestTagHandler.
-     */
-    @Test
-    public void requestTag() throws JspException {
-
-        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-
-        when(masonRequest.getMethod()).thenReturn("GET");
-        
-        requestTag.setMethod("GET");
-        requestTag.setItem(false);
-        requestTag.setParent(resourceTag);
-
-        assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
-        assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
-
-    }
-
-    @Test(expected = JspException.class)
-    public void resourceTag() throws JspException {
-        resourceTag.setAuth("admin");
-        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTYxNDU4OTMxLCJpYXQiOjE1NTM2ODI5MzEsImp0aSI6ImJjMTgxNGMzLWU5ZGItNDljOC1iYTMyLWI4NDAxY2Q0YTgyMSJ9.bD+8dO0FG/HCwxLs6TH9+BvH94CL46hBFVZO9oCTyQk=";
-        when(request.getHeader("Authorization")).thenReturn(bearer);
-        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
-        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
-
-    }
-
-    @Test
-    public void resourceTag404() throws JspException {
-        //add child request same as incoming request method, this is the equivalent of mocking a 404 response,
-        //if the flow reaches the end of resource tag
-        when(masonRequest.getMethod()).thenReturn("GET");
-        resourceTag.addChildMethod("GET".toLowerCase());
-        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
-        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
-    }
-    
-    @Test
-    public void resourceTagAuth() throws JspException {
-        when(masonRequest.getMethod()).thenReturn("POST");
-        resourceTag.setAuth("admin");
-        //@TODO Change this every 3-4 months since it wont work after some time. Token expires
-        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTc0NTA5ODM0LCJpYXQiOjE1NjY3MzM4MzQsImp0aSI6IjI1NWM5Y2JiLWE4OTktNGYyYS04MjA3LTlhMzg2MWQ4MGEzZiJ9.5446gdZ7doGkUg9YIDg4FFYX2H3CBkVBD4itwJ3KMR8";
-        //3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
-        when(request.getHeader("Authorization")).thenReturn(bearer);
-        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
-        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
-    }
-
-    @Test(expected = JspException.class)
-    public void scriptTag() throws JspException {
-        scriptTag.setVar("executeOutput");
-
-        scriptTag.setFile("test.groovy"); //should be from test package
-        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
-    }
-
-//    @Test
-//    public void parentTag() throws JspException {
-//        when(masonRequest.getParent()).thenReturn("mother");
-//        parentTag.setValue("mother");
-//        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
-//    }
-
-    @Test
-    public void paramTag() throws JspException {
-        //<Param name="limit" type="number" min="0" max="100"/>
-        //<Param name="offset" type="number" min="0" max="900"/>
-        paramTag.setName("limit");
-        paramTag.setType("number");
-        paramTag.setMin("0");
-        paramTag.setMax("100");
-        paramTag.setValue("12");
-
-        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-
-        paramTag.setName("offset");
-        paramTag.setType("number");
-        paramTag.setMin("0");
-        paramTag.setMax("900");
-        paramTag.setValue("40");
-
-        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-
-        paramTag.setName("startDate");
-        paramTag.setType("date");
-        paramTag.setValue("2018-11-10");
-
-        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-
-        paramTag.setName("name");
-        paramTag.setType("text");
-        paramTag.setValue("hirlekar");
-        paramTag.setMaxLen("20");
-        paramTag.setMinLen("7");
-
-        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-
-        paramTag.setName("link");
-        paramTag.setType("url");
-        paramTag.setValue("https://metamug.com");
-
-        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-
-        paramTag.setName("mail");
-        paramTag.setType("email");
-        paramTag.setValue("hi@metamug.com");
-
-        assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
-    }
-    
-    @Test(expected = JspException.class)
-    public void executeTagInvalidProcessable() throws JspException {
-        executeTag.setVar("executeOutput");
-
-        executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
-        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
-    }
-    /*
+	@Mock
+	private HttpServletRequest request;
+	@Mock
+	private HttpServletResponse response;
+
+	@Mock
+	private Request masonRequest;
+
+	@Mock
+	private PageContext context;
+
+	private LinkedHashMap<String, Object> resultMap;
+
+	@Mock
+	private JspWriter writer;
+
+	@Mock
+	private ServletOutputStream outputStream;
+
+	@InjectMocks
+	RequestTagHandler requestTag = new RequestTagHandler(); //needs to initialized here
+
+	@InjectMocks
+	ResourceTagHandler resourceTag = new ResourceTagHandler();
+
+	@InjectMocks
+	XRequestTagHandler xrequestTag = new XRequestTagHandler();
+
+	@InjectMocks
+	ExecuteTagHandler executeTag = new ExecuteTagHandler();
+
+	@InjectMocks
+	ScriptTagHandler scriptTag = new ScriptTagHandler();
+
+	@InjectMocks
+	ParamTagHandler paramTag = new ParamTagHandler();
+
+	//    @InjectMocks
+	//    ParentTagHandler parentTag = new ParentTagHandler();
+
+	@Mock
+	private ConnectionProvider provider;
+
+	@Mock
+	Connection connection;
+	@Mock
+	private PreparedStatement statement;
+
+	@Mock
+	private ResultSet resultSet;
+
+	@Mock
+	private ResultImpl resultImpl;
+
+	public TagHandlerTest() {
+
+	}
+
+	@Before
+	public void setup() {
+
+		try {
+			String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
+			String sampleArray = "[\n"
+					+ "    { \"name\":\"Ford\", \"models\":[ \"Fiesta\", \"Focus\", \"Mustang\" ] },\n"
+					+ "    { \"name\":\"BMW\", \"models\":[ \"320\", \"X3\", \"X5\" ] },\n"
+					+ "    { \"name\":\"Fiat\", \"models\":[ \"500\", \"Panda\" ] }\n"
+					+ "  ]";
+			resultMap = new LinkedHashMap<>();
+			resultMap.put("res1", new JSONObject(sampleObj));
+			resultMap.put("res2", new JSONArray(sampleArray));
+			resultMap.put("res3", "Hello World");
+
+			when(context.getRequest()).thenReturn(request);
+			when(context.getResponse()).thenReturn(response);
+
+			when(response.getOutputStream()).thenReturn(outputStream);
+
+			when(context.getOut()).thenReturn(writer);
+			when(request.getAttribute(MASON_REQUEST)).thenReturn(masonRequest);
+
+			when(request.getParameter("auth")).thenReturn("bearer");
+			when(request.getParameter("userid")).thenReturn("1234");
+			when(request.getParameter("password")).thenReturn("pass");
+			//when(provider.getInstance()).thenReturn(provider);
+			when(provider.getConnection()).thenReturn(connection);
+			when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
+			when(statement.executeQuery()).thenReturn(resultSet);
+			//result set should return true for config function to give auth query
+			//second time inside createBearer function and then it should return false.
+			when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
+			when(resultSet.getString("auth_query")).thenReturn("some query mocked");
+			when(resultSet.getString(1)).thenReturn("1234");
+			when(resultSet.getString(2)).thenReturn("admin");
+
+			//mock resultimpl
+			SortedMap row = new TreeMap();
+			row.put("Name", "Anish");
+			row.put("Age", "26");
+			when(resultImpl.getRows()).thenReturn(new SortedMap[]{row});
+			when(resultImpl.getColumnNames()).thenReturn(new String[]{"Name", "Age"});
+			when(resultImpl.getRowCount()).thenReturn(2);
+		} catch (SQLException ex) {
+			Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+		} catch (IOException ex) {
+			Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+
+	@Test (expected = JspException.class)
+	public void fileUpload() throws JspException, IOException {
+
+		File temp = File.createTempFile("test", ".txt");
+
+		// Delete temp file when program exits.
+		temp.deleteOnExit();
+
+		// Write to temp file
+		BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+		out.write("aString");
+		out.close();
+
+		resultMap = new LinkedHashMap<>();
+		resultMap.put("res3", "Hello World");
+		resultMap.put("file", new Response(new FileInputStream(temp))); //this will be used a mason bus
+
+		when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
+		when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+		when(request.getContentType()).thenReturn(MULTIPART_FORM_DATA);
+		when(masonRequest.getMethod()).thenReturn("POST");
+
+		requestTag.setMethod("POST");
+		requestTag.setParent(resourceTag);
+
+		assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
+		assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
+
+	}
+
+	@Test
+	public void fileDownload() throws JspException, IOException {
+
+		File temp = File.createTempFile("test", ".txt");
+
+		// Delete temp file when program exits.
+		temp.deleteOnExit();
+
+		// Write to temp file
+		BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+		out.write("aString");
+		out.close();
+
+		resultMap = new LinkedHashMap<>();
+		resultMap.put("res3", "Hello World");
+		resultMap.put("file",new Attachment(new FileInputStream(temp))); //this will be used a mason bus
+
+		when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+		when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+		when(masonRequest.getMethod()).thenReturn("GET");
+
+		requestTag.setMethod("GET");
+		requestTag.setItem(false);
+		requestTag.setParent(resourceTag);
+
+		assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
+		assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
+
+		verify(response).setHeader("Content-Type",FileOutput.OCTETSTREAM);
+		//verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
+
+	}
+
+	/**
+	 * Test of doStartTag method, of class RequestTagHandler.
+	 */
+	@Test
+	public void requestTag() throws JspException {
+
+		when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
+		when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
+		when(masonRequest.getMethod()).thenReturn("GET");
+
+		requestTag.setMethod("GET");
+		requestTag.setItem(false);
+		requestTag.setParent(resourceTag);
+
+		assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
+		assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
+
+	}
+
+	@Test
+	public void resourceTag() throws JspException {
+		resourceTag.setAuth("admin");
+		String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTg0MTE2NTAzLCJpYXQiOjE1NzYzNDA1MDMsImp0aSI6ImUwNjE1YjJhLTUyODQtNDk2Yi04NzIzLWZiMGNkZDcyNTZjOCJ9.-Go2J-Uz4q8UAcUT6KVj2rvPfot38D2xJKoATlNVjqs";
+		when(request.getHeader("Authorization")).thenReturn(bearer);
+		when(masonRequest.getMethod()).thenReturn("GET");
+		resourceTag.addChildMethod("GET".toLowerCase());
+		assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+		assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+
+	}
+
+	@Test
+	public void resourceTag404() throws JspException {
+		//add child request same as incoming request method, this is the equivalent of mocking a 404 response,
+		//if the flow reaches the end of resource tag
+		when(masonRequest.getMethod()).thenReturn("GET");
+		resourceTag.addChildMethod("GET".toLowerCase());
+		assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+		assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+	}
+
+	@Test
+	public void resourceTagAuth() throws JspException {
+		when(masonRequest.getMethod()).thenReturn("POST");
+		resourceTag.setAuth("admin");
+		//@TODO Change this every 3-4 months since it wont work after some time. Token expires
+		String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTg0MTE2NTAzLCJpYXQiOjE1NzYzNDA1MDMsImp0aSI6ImUwNjE1YjJhLTUyODQtNDk2Yi04NzIzLWZiMGNkZDcyNTZjOCJ9.-Go2J-Uz4q8UAcUT6KVj2rvPfot38D2xJKoATlNVjqs";
+		//3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
+		when(request.getHeader("Authorization")).thenReturn(bearer);
+		assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+		assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+	}
+
+	@Test(expected = JspException.class)
+	public void scriptTag() throws JspException {
+		scriptTag.setVar("executeOutput");
+
+		scriptTag.setFile("test.groovy"); //should be from test package
+		assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+		assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+	}
+
+	//    @Test
+	//    public void parentTag() throws JspException {
+	//        when(masonRequest.getParent()).thenReturn("mother");
+	//        parentTag.setValue("mother");
+	//        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
+	//    }
+
+	@Test
+	public void paramTag() throws JspException {
+		//<Param name="limit" type="number" min="0" max="100"/>
+		//<Param name="offset" type="number" min="0" max="900"/>
+		paramTag.setName("limit");
+		paramTag.setType("number");
+		paramTag.setMin("0");
+		paramTag.setMax("100");
+		paramTag.setValue("12");
+
+		assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
+		paramTag.setName("offset");
+		paramTag.setType("number");
+		paramTag.setMin("0");
+		paramTag.setMax("900");
+		paramTag.setValue("40");
+
+		assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
+		paramTag.setName("startDate");
+		paramTag.setType("date");
+		paramTag.setValue("2018-11-10");
+
+		assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
+		paramTag.setName("name");
+		paramTag.setType("text");
+		paramTag.setValue("hirlekar");
+		paramTag.setMaxLen("20");
+		paramTag.setMinLen("7");
+
+		assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
+		paramTag.setName("link");
+		paramTag.setType("url");
+		paramTag.setValue("https://metamug.com");
+
+		assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+
+		paramTag.setName("mail");
+		paramTag.setType("email");
+		paramTag.setValue("hi@metamug.com");
+
+		assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
+	}
+
+	@Test(expected = JspException.class)
+	public void executeTagInvalidProcessable() throws JspException {
+		executeTag.setVar("executeOutput");
+
+		executeTag.setClassName("com.metamug.mason.service.ConvertServiceTest"); //should be from test package
+		assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+		assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+	}
+	/*
     @Test
     public void executeTagRequestProcessable() throws JspException {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-        
-        
+
+
         executeTag.setVar("executeOutput");
         executeTag.setOutput(true);
-        executeTag.setClassName("com.metamug.mason.processables.RequestExample"); 
-        
+        executeTag.setClassName("com.metamug.mason.processables.RequestExample");
+
         Map<String,String> requestParams = new HashMap<>();
         requestParams.put("foo1","bar1");
         requestParams.put("foo2","bar2");
         masonRequest.setParams(requestParams);
-        
-        List<String> headerNames = new ArrayList<String>(); 
+
+        List<String> headerNames = new ArrayList<String>();
         headerNames.add("Accept");
         Enumeration<String> headerNameEnum = Collections.enumeration(headerNames);
         when(request.getHeaderNames()).thenReturn(headerNameEnum);
         //when(request.getHeader("Authorization")).thenReturn(bearer);
-        when(request.getHeader("Accept")).thenReturn("application/json");  
-        
+        when(request.getHeader("Accept")).thenReturn("application/json");
+
         executeTag.setParam(masonRequest);
-        
+
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }*/
-    
-    
-    @Test
-    public void executeTagResultProcessable() throws JspException {
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-             
-        executeTag.setVar("executeOutput");
-        executeTag.setOutput(true);
-        executeTag.setClassName("com.metamug.mason.processables.ResultExample"); 
-        
-        executeTag.setParam(resultImpl);
-        
-        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
-    }
-    
-    @Test
-    public void xrequestTag() throws JspException {
-      
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-        
-        xrequestTag.addHeader(ResourceTagHandler.HEADER_ACCEPT,"application/xml");
-        xrequestTag.addParameter("foo1", "bar1");
-        xrequestTag.addParameter("foo2", "bar2");
-        xrequestTag.setVar("xrequestOutput");
-        xrequestTag.setUrl("https://postman-echo.com/get");
-        xrequestTag.setOutput(true);
-        xrequestTag.setOutputHeaders(true);
-        
-        xrequestTag.setMethod("GET");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());  
-        
-        JSONObject body = new JSONObject();
-        body.put("foo1", "bar1").put("foo2", "bar2");
-        xrequestTag.setMethod("POST");
-        xrequestTag.setRequestBody(body.toString(4));
-        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
-        xrequestTag.setMethod("PUT");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
-        xrequestTag.setMethod("DELETE");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
-    }
-    
-    @Test
-    public void xrequestTagResponseProcessable() throws JspException {
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-      
-        Map<String,String> headers = new HashMap<>();
-        headers.put(ResourceTagHandler.HEADER_ACCEPT,"application/json");
-        xrequestTag.setHeaders(headers);
-                
-        Map<String,Object> parameters = new HashMap<>();
-        parameters.put("foo1", "bar1");
-        parameters.put("foo2", "bar2");
-        xrequestTag.setParameters(parameters);
-        xrequestTag.setVar("xrequestOutput");
-        xrequestTag.setUrl("https://postman-echo.com/get");
-        xrequestTag.setOutput(true);
-        xrequestTag.setClassName("com.metamug.mason.processables.ResponseExample"); 
-        xrequestTag.setMethod("GET");
-        assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());    
-    }
+
+
+	@Test
+	public void executeTagResultProcessable() throws JspException {
+		when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
+		executeTag.setVar("executeOutput");
+		executeTag.setOutput(true);
+		executeTag.setClassName("com.metamug.mason.processables.ResultExample");
+
+		executeTag.setParam(resultImpl);
+
+		assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+		assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+	}
+
+	@Test
+	public void xrequestTag() throws JspException {
+
+		when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
+		xrequestTag.addHeader(ResourceTagHandler.HEADER_ACCEPT,"application/xml");
+		xrequestTag.addParameter("foo1", "bar1");
+		xrequestTag.addParameter("foo2", "bar2");
+		xrequestTag.setVar("xrequestOutput");
+		xrequestTag.setUrl("https://postman-echo.com/get");
+		xrequestTag.setOutput(true);
+		xrequestTag.setOutputHeaders(true);
+
+		xrequestTag.setMethod("GET");
+		assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+		assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+
+		JSONObject body = new JSONObject();
+		body.put("foo1", "bar1").put("foo2", "bar2");
+		xrequestTag.setMethod("POST");
+		xrequestTag.setRequestBody(body.toString(4));
+		assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+		assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+		xrequestTag.setMethod("PUT");
+		assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+		assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+		xrequestTag.setMethod("DELETE");
+		assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+		assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+	}
+
+	@Test
+	public void xrequestTagResponseProcessable() throws JspException {
+		when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
+
+		Map<String,String> headers = new HashMap<>();
+		headers.put(ResourceTagHandler.HEADER_ACCEPT,"application/json");
+		xrequestTag.setHeaders(headers);
+
+		Map<String,Object> parameters = new HashMap<>();
+		parameters.put("foo1", "bar1");
+		parameters.put("foo2", "bar2");
+		xrequestTag.setParameters(parameters);
+		xrequestTag.setVar("xrequestOutput");
+		xrequestTag.setUrl("https://postman-echo.com/get");
+		xrequestTag.setOutput(true);
+		xrequestTag.setClassName("com.metamug.mason.processables.ResponseExample");
+		xrequestTag.setMethod("GET");
+		assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
+		assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+	}
 }

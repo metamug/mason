@@ -509,7 +509,6 @@ package com.metamug.mason.tag.xrequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
 
 /**
  *
@@ -517,18 +516,20 @@ import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
  */
 public class BodyTagHandler extends BodyTagSupport {
 
-    @Override
-    public int doEndTag() throws JspException {
-        XRequestTagHandler parent = (XRequestTagHandler) findAncestorWithClass(this, XRequestTagHandler.class);
-        if (parent == null) {
-            throw new JspTagException("X Body Tag outside X Request Tag");
-        }
+	private static final long serialVersionUID = 1L;
 
-        String reqBodyContent = getBodyContent().getString().trim();
-        if (reqBodyContent.length() > 0) {
-            parent.setRequestBody(reqBodyContent);
-        }
+	@Override
+	public int doEndTag() throws JspException {
+		XRequestTagHandler parent = (XRequestTagHandler) findAncestorWithClass(this, XRequestTagHandler.class);
+		if (parent == null) {
+			throw new JspTagException("X Body Tag outside X Request Tag");
+		}
 
-        return EVAL_PAGE;
-    }
+		String reqBodyContent = getBodyContent().getString().trim();
+		if (reqBodyContent.length() > 0) {
+			parent.setRequestBody(reqBodyContent);
+		}
+
+		return EVAL_PAGE;
+	}
 }

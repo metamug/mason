@@ -519,6 +519,9 @@ import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -540,9 +543,6 @@ import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Rest Controller. Handles all the incoming requests
@@ -619,7 +619,6 @@ public class Router implements Filter {
 	 *
 	 * @param req
 	 * @param res
-	 * @param tokens The URI split by /
 	 * @throws IOException
 	 */
 	private void processRequest(HttpServletRequest req, HttpServletResponse res) throws IOException {
@@ -632,7 +631,7 @@ public class Router implements Filter {
 				|| contentType.contains(MULTIPART_FORM_DATA);
 
 		if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
-            writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
+			writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
 			return;
 		}
 
@@ -650,7 +649,7 @@ public class Router implements Filter {
 			if (file.exists()) {
 				req.setAttribute(MASON_REQUEST, mtgReq);
 
-                //Adding to request, otherwise the user has to write ${applicationScope.datasource}
+				//Adding to request, otherwise the user has to write ${applicationScope.datasource}
 				req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
 				req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
 
@@ -686,12 +685,12 @@ public class Router implements Filter {
 				writeError(res, 512, "Incorrect test condition in '" + resourceName + "' resource");
 			} else {
 				writeError(res, 500, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
+				Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
 			}
 			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
 		} catch (NullPointerException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
-            //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
+			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
+			//The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
 			writeError(res, 404, "Resource doesn't exist." + ex.getMessage());
 		}
 	}
@@ -743,7 +742,7 @@ public class Router implements Filter {
 		}
 
 		if (config.getInitParameter(DATA_SOURCE) != null) {
-			config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
+			config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter(DATA_SOURCE));
 		} else {
 			config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
 		}
@@ -760,14 +759,13 @@ public class Router implements Filter {
 
 		try {
 			connectionProvider = new ConnectionProvider((String) config.getServletContext().getAttribute(DATA_SOURCE));
-			// connectionProvider.getMasonDatasource();
 			config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
 			config.getServletContext().setAttribute(CONNECTION_PROVIDER, connectionProvider);
 			queryFileInputStream.close();
 		} catch (IOException | SQLException | NamingException ex) {
 			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
 		} catch (NullPointerException nx) {
-            //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
+			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
 		}
 	}
 }

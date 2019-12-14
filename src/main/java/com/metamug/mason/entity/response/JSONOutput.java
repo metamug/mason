@@ -506,125 +506,128 @@
  */
 package com.metamug.mason.entity.response;
 
-import com.metamug.entity.Response;
-import com.metamug.mason.io.mpath.MPathUtil;
-import com.metamug.mason.io.objectreturn.ObjectReturn;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
+
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.metamug.entity.Response;
+import com.metamug.mason.io.mpath.MPathUtil;
+import com.metamug.mason.io.objectreturn.ObjectReturn;
 
 /**
  * JSONs Output Object
  */
 public class JSONOutput extends MasonOutput<JSONObject>{
 
-    @Override
-    protected JSONObject getContent() {
-        JSONObject responseJson = new JSONObject();
-        outputMap.entrySet().forEach( entry  -> {
-            Object obj = entry.getValue();
-            String key = entry.getKey();
-            if(obj == null) {
-                responseJson.put(key, new JSONObject());
-            } else if (obj instanceof ResultImpl) {
-                responseJson.put(key, getJson((ResultImpl) obj));
-            } else if (obj instanceof JSONObject) {
-                responseJson.put(key, obj);
-            } else if (obj instanceof JSONArray) {
-                responseJson.put(key, obj);
-            } else if (obj instanceof String) {
-                responseJson.put(key, obj);
-            } else if (obj instanceof List) {
-                JSONArray array = new JSONArray();
+	@Override
+	protected JSONObject getContent() {
+		JSONObject responseJson = new JSONObject();
+		outputMap.entrySet().forEach( entry  -> {
+			Object obj = entry.getValue();
+			String key = entry.getKey();
+			if(obj == null) {
+				responseJson.put(key, new JSONObject());
+			} else if (obj instanceof ResultImpl) {
+				responseJson.put(key, getJson((ResultImpl) obj));
+			} else if (obj instanceof JSONObject) {
+				responseJson.put(key, obj);
+			} else if (obj instanceof JSONArray) {
+				responseJson.put(key, obj);
+			} else if (obj instanceof String) {
+				responseJson.put(key, obj);
+			} else if (obj instanceof List) {
+				JSONArray array = new JSONArray();
                 List<Object> list = (List)obj;
-                for (Object o : list) {
-                    if(o == null){
-                        array.put(new JSONObject());
-                    } else if(o instanceof String || o instanceof JSONObject || o instanceof JSONArray) {
-                        array.put(o);
-                    } else if (o instanceof ResultImpl) {
-                        array.put(getJson((ResultImpl) o));
-                    } else {
-                        // for POJO
-                        try {
-                            array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
-                        } catch (JAXBException ex) {
-                            //@TODO Do something here
-                            Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }
-                responseJson.put(key, array);
-            } else {
-                //obj is POJO
-                try {
-                    //try if object of JAXB class
-                    responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, HEADER_JSON)));
-                } catch (MarshalException mex) {
-                    responseJson.put(key, obj);
-                } catch (JAXBException ex) {
-                    Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
-        return responseJson;
-    }
+				for (Object o : list) {
+					if(o == null){
+						array.put(new JSONObject());
+					} else if(o instanceof String || o instanceof JSONObject || o instanceof JSONArray) {
+						array.put(o);
+					} else if (o instanceof ResultImpl) {
+						array.put(getJson((ResultImpl) o));
+					} else {
+						// for POJO
+						try {
+							array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
+						} catch (JAXBException ex) {
+							//@TODO Do something here
+							Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					}
+				}
+				responseJson.put(key, array);
+			} else {
+				//obj is POJO
+				try {
+					//try if object of JAXB class
+					responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, HEADER_JSON)));
+				} catch (MarshalException mex) {
+					responseJson.put(key, obj);
+				} catch (JAXBException ex) {
+					Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
+				}
+			}
+		});
+		return responseJson;
+	}
 
-    @Override
-    public String format(Response response) {
-        JSONObject responseJson = (JSONObject) response.getPayload();
-        return responseJson.toString();
-    }
+	@Override
+	public String format(Response response) {
+		JSONObject responseJson = (JSONObject) response.getPayload();
+		return responseJson.toString();
+	}
 
-    protected Object getJson(ResultImpl impl) {
-        return resultSetToJson(impl);
-    }
+	protected Object getJson(ResultImpl impl) {
+		return resultSetToJson(impl);
+	}
 
-    private JSONArray resultSetToJson(ResultImpl resultImpl) {
-        SortedMap[] rows = resultImpl.getRows();
-        String[] columnNames = resultImpl.getColumnNames();
-        JSONArray array = new JSONArray();
-        for (SortedMap row : rows) {
-            JSONObject rowJson = new JSONObject();
-            for (int i = 0; i < columnNames.length; i++) {
-                String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
-                /*if (entry.getKey().startsWith("p")) {
+	private JSONArray resultSetToJson(ResultImpl resultImpl) {
+		SortedMap[] rows = resultImpl.getRows();
+		String[] columnNames = resultImpl.getColumnNames();
+		JSONArray array = new JSONArray();
+		for (SortedMap row : rows) {
+			JSONObject rowJson = new JSONObject();
+			for (int i = 0; i < columnNames.length; i++) {
+				String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
+				rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
+				/*if (entry.getKey().startsWith("p")) {
                     params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
                 }*/
-            }
-            if (rowJson.length() > 0) {
-                array.put(rowJson);
-            }
-        }
-        // if (array.length() > 0) {
-        //     if (entry.getKey().startsWith("d")) {
-        //        	if (entry.getKey().startsWith("c")) {
-        //             responseJson.put("response", MPathUtil.collect(array));
-        //         } else {
-        //             responseJson.put("response", array);
-        //         }
-        //     }
-        // }
-        return array;
-    }
+			}
+			if (rowJson.length() > 0) {
+				array.put(rowJson);
+			}
+		}
+		// if (array.length() > 0) {
+		//     if (entry.getKey().startsWith("d")) {
+		//        	if (entry.getKey().startsWith("c")) {
+		//             responseJson.put("response", MPathUtil.collect(array));
+		//         } else {
+		//             responseJson.put("response", array);
+		//         }
+		//     }
+		// }
+		return array;
+	}
 
-    @Override
-    public String getContentType() {
-        return HEADER_JSON;
-    }
+	@Override
+	public String getContentType() {
+		return HEADER_JSON;
+	}
 
-    @Override
-    protected Map<String, String> getExtraHeaders() {
-        return new HashMap<>();
-    }
+	@Override
+	protected Map<String, String> getExtraHeaders() {
+		return new HashMap<>();
+	}
 
 }

@@ -512,38 +512,39 @@ package com.metamug.mason.exception;
  */
 public class MasonException extends Exception {
 
-    private final MasonError error;
-    private final Exception rootException;
+	private static final long serialVersionUID = 1L;
+	private final MasonError error;
+	private final Exception rootException;
 
-    public MasonException(MasonError error) {
-        super(error.getMsg());
-        this.error = error;
-        this.rootException = null;
-    }
+	public MasonException(MasonError error) {
+		super(error.getMsg());
+		this.error = error;
+		this.rootException = null;
+	}
 
-    public MasonException(MasonError error, String msg) {
-        super(msg);
-        this.error = error;
-        this.rootException = null;
-    }
+	public MasonException(MasonError error, String msg) {
+		super(msg);
+		this.error = error;
+		this.rootException = null;
+	}
 
-    public MasonException(MasonError error, Exception root) {
-        super(error.getMsg());
-        this.error = error;
-        this.rootException = root;
-    }
+	public MasonException(MasonError error, Exception root) {
+		super(error.getMsg());
+		this.error = error;
+		this.rootException = root;
+	}
 
-    public MasonException(MasonError error, Exception root, String msg) {
-        super(msg);
-        this.error = error;
-        this.rootException = root;
-    }
+	public MasonException(MasonError error, Exception root, String msg) {
+		super(msg);
+		this.error = error;
+		this.rootException = root;
+	}
 
-    public MasonError getError() {
-        return this.error;
-    }
+	public MasonError getError() {
+		return this.error;
+	}
 
-    public Exception getRootException() {
-        return this.rootException;
-    }
+	public Exception getRootException() {
+		return this.rootException;
+	}
 }

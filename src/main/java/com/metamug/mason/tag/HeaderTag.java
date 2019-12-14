@@ -511,40 +511,40 @@ package com.metamug.mason.tag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
  *
  * @author pc
  */
 public class HeaderTag extends BodyTagSupport {
-    private String name;
-    private String value;
-    protected RequestTag parent;
+	private static final long serialVersionUID = 1L;
+	private String name;
+	private String value;
+	protected RequestTag parent;
 
-    @Override
-    public int doEndTag() throws JspException {
-        parent = (RequestTag) getParent();
-        if (parent == null) {
-            throw new JspTagException("Header Tag doesnt have a valid parent!");
-        }
+	@Override
+	public int doEndTag() throws JspException {
+		parent = (RequestTag) getParent();
+		if (parent == null) {
+			throw new JspTagException("Header Tag doesnt have a valid parent!");
+		}
 
-        if (value == null) {
-            value = getBodyContent().getString().trim();
-        }
+		if (value == null) {
+			value = getBodyContent().getString().trim();
+		}
 
-        if (this.value.length() > 0) {
-            parent.addHeader(name, this.value);
-        }
+		if (this.value.length() > 0) {
+			parent.addHeader(name, this.value);
+		}
 
-        return EVAL_PAGE;
-    }
+		return EVAL_PAGE;
+	}
 
-    public void setName(String n) {
-        name = n;
-    }
+	public void setName(String n) {
+		name = n;
+	}
 
-    public void setValue(Object v) {
-        value = (String) v;
-    }
+	public void setValue(Object v) {
+		value = (String) v;
+	}
 }
