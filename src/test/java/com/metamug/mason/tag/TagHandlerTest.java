@@ -642,8 +642,10 @@ public class TagHandlerTest {
 
 			when(response.getOutputStream()).thenReturn(outputStream);
 
+
 			when(context.getOut()).thenReturn(writer);
 			when(request.getAttribute(MASON_REQUEST)).thenReturn(masonRequest);
+
 
 			when(request.getParameter("auth")).thenReturn("bearer");
 			when(request.getParameter("userid")).thenReturn("1234");
@@ -770,35 +772,35 @@ public class TagHandlerTest {
 	}
 
 	@Test
-	public void resourceTag404() throws JspException {
-		//add child request same as incoming request method, this is the equivalent of mocking a 404 response,
-		//if the flow reaches the end of resource tag
-		when(masonRequest.getMethod()).thenReturn("GET");
-		resourceTag.addChildMethod("GET".toLowerCase());
-		assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
-		assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
-	}
+    public void resourceTag404() throws JspException {
+        //add child request same as incoming request method, this is the equivalent of mocking a 404 response,
+        //if the flow reaches the end of resource tag
+        when(masonRequest.getMethod()).thenReturn("GET");
+        resourceTag.addChildMethod("GET".toLowerCase());
+        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+    }
+    
+    @Test
+    public void resourceTagAuth() throws JspException {
+        when(masonRequest.getMethod()).thenReturn("POST");
+        resourceTag.setAuth("admin");
+        //@TODO Change this every 3-4 months since it wont work after some time. Token expires
+        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTg0NTM5NTgwLCJpYXQiOjE1NzY3NjM1ODAsImp0aSI6ImFiYzc1OTExLTIzZDUtNDI2Zi04YWM2LTBmYjczOTIwMDE5NiJ9.bJFi3sOECK0tGWwgk_aZyCNWNQHSjk5bhTZmsFxZPWo";
+        //3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
+        when(request.getHeader("Authorization")).thenReturn(bearer);
+        assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
+        assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
+    }
 
-	@Test
-	public void resourceTagAuth() throws JspException {
-		when(masonRequest.getMethod()).thenReturn("POST");
-		resourceTag.setAuth("admin");
-		//@TODO Change this every 3-4 months since it wont work after some time. Token expires
-		String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTg0MTE2NTAzLCJpYXQiOjE1NzYzNDA1MDMsImp0aSI6ImUwNjE1YjJhLTUyODQtNDk2Yi04NzIzLWZiMGNkZDcyNTZjOCJ9.-Go2J-Uz4q8UAcUT6KVj2rvPfot38D2xJKoATlNVjqs";
-		//3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
-		when(request.getHeader("Authorization")).thenReturn(bearer);
-		assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
-		assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
-	}
+    @Test(expected = JspException.class)
+    public void scriptTag() throws JspException {
+        scriptTag.setVar("executeOutput");
 
-	@Test(expected = JspException.class)
-	public void scriptTag() throws JspException {
-		scriptTag.setVar("executeOutput");
-
-		scriptTag.setFile("test.groovy"); //should be from test package
-		assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
-		assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
-	}
+        scriptTag.setFile("test.groovy"); //should be from test package
+        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
+    }
 
 	//    @Test
 	//    public void parentTag() throws JspException {
