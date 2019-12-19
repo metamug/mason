@@ -779,7 +779,7 @@ public class TagHandlerTest {
         when(masonRequest.getMethod()).thenReturn("POST");
         resourceTag.setAuth("admin");
         //@TODO Change this every 3-4 months since it wont work after some time. Token expires
-        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTc0NTA5ODM0LCJpYXQiOjE1NjY3MzM4MzQsImp0aSI6IjI1NWM5Y2JiLWE4OTktNGYyYS04MjA3LTlhMzg2MWQ4MGEzZiJ9.5446gdZ7doGkUg9YIDg4FFYX2H3CBkVBD4itwJ3KMR8";
+        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTg0NTM5NTgwLCJpYXQiOjE1NzY3NjM1ODAsImp0aSI6ImFiYzc1OTExLTIzZDUtNDI2Zi04YWM2LTBmYjczOTIwMDE5NiJ9.bJFi3sOECK0tGWwgk_aZyCNWNQHSjk5bhTZmsFxZPWo";
         //3OBJlH8UWaBRwI77b457TV0Fozrf8vap33RbcMoDg64=";
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
