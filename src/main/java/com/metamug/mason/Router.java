@@ -506,17 +506,22 @@
  */
 package com.metamug.mason;
 
-import com.metamug.entity.Request;
-import com.metamug.mason.entity.RootResource;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
-import com.metamug.mason.entity.request.RequestAdapter;
 import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
+import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
+
+import com.metamug.entity.Request;
+import com.metamug.mason.entity.RootResource;
+import com.metamug.mason.entity.request.RequestAdapter;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
-import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -524,6 +529,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -532,237 +538,234 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Rest Controller. Handles all the incoming requests
  *
  * @author Kaisteel
  */
+@WebFilter(urlPatterns = "/rest/*", filterName = "Router", description = "Default REST filter", initParams = {
+		@WebInitParam(name = "datasource", value = "jdbc/mason") })
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    private static final String JSP_EXTN = ".jsp";
-    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
-    private String encoding;
+	private static final String JSP_EXTN = ".jsp";
+	private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
+	private String encoding;
 
-    public static final String HEADER_CONTENT_TYPE = "Content-Type";
-    public static final String QUERY_FILE_NAME = "query.properties";
-    public static final String MASON_QUERY = "masonQuery"; //to hold queries from properties file
-    public static final String DATA_SOURCE = "datasource";
-    public static final String MTG_AUTH_BASIC = "MTG_AUTH_BASIC";
-    public static final String MTG_AUTH_BEARER = "MTG_AUTH_BEARER";
+	public static final String HEADER_CONTENT_TYPE = "Content-Type";
+	public static final String QUERY_FILE_NAME = "query.properties";
+	public static final String MASON_QUERY = "masonQuery"; // to hold queries from properties file
+	public static final String DATA_SOURCE = "datasource";
+	public static final String MTG_AUTH_BASIC = "MTG_AUTH_BASIC";
+	public static final String MTG_AUTH_BEARER = "MTG_AUTH_BEARER";
 
-    private ConnectionProvider connectionProvider;
-    public static final String CONNECTION_PROVIDER = "connectionProvider";
-    public static final String MASON_REQUEST = "mtgReq";
+	private ConnectionProvider connectionProvider;
+	public static final String CONNECTION_PROVIDER = "connectionProvider";
+	public static final String MASON_REQUEST = "mtgReq";
 
-    public Router() {
+	public Router() {
 
-    }
+	}
 
-    /**
-     *
-     * @param request The servlet request we are processing
-     * @param response The servlet response we are creating
-     * @param chain The filter chain we are processing
-     *
-     * @exception IOException if an input/output error occurs
-     * @exception ServletException if a servlet error occurs
-     */
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-        //Setting character encoding
-        if (null == request.getCharacterEncoding()) {
-            request.setCharacterEncoding(encoding);
-        }
+	/**
+	 *
+	 * @param request  The servlet request we are processing
+	 * @param response The servlet response we are creating
+	 * @param chain    The filter chain we are processing
+	 *
+	 * @exception IOException      if an input/output error occurs
+	 * @exception ServletException if a servlet error occurs
+	 */
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		HttpServletRequest req = (HttpServletRequest) request;
+		HttpServletResponse res = (HttpServletResponse) response;
+		// Setting character encoding
+		if (null == request.getCharacterEncoding()) {
+			request.setCharacterEncoding(encoding);
+		}
 
-        String path = req.getServletPath();
-        String[] tokens = path.split("/");
-        int versionTokenIndex = -1;
-        for (int i = 0; i < tokens.length; i++) {
-            if (tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
-                versionTokenIndex = i;
-                break;
-            }
-        }
-        //check auth request
-        if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post") && !path.contains("query")) {
-            RootResource rootResource = new RootResource(req, res);
-            rootResource.processAuth(new AuthService(connectionProvider));
-            return;
-        }
-        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
-            chain.doFilter(request, response);
-            return;
-        }
-        processRequest(req, res);
-    }
+		String path = req.getServletPath();
+		String[] tokens = path.split("/");
+		int versionTokenIndex = -1;
+		for (int i = 0; i < tokens.length; i++) {
+			if (tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
+				versionTokenIndex = i;
+				break;
+			}
+		}
+		// check auth request
+		if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post") && !path.contains("query")) {
+			RootResource rootResource = new RootResource(req, res);
+			rootResource.processAuth(new AuthService(connectionProvider));
+			return;
+		}
+		if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
+			chain.doFilter(request, response);
+			return;
+		}
+		processRequest(req, res);
+	}
 
-    /**
-     * Servlet version of the request handling. Cast objects to handle REST
-     * request
-     *
-     * @param req
-     * @param res
-     * @param tokens The URI split by /
-     * @throws IOException
-     */
-    private void processRequest(HttpServletRequest req, HttpServletResponse res)
-            throws IOException {
+	/**
+	 * Servlet version of the request handling. Cast objects to handle REST request
+	 *
+	 * @param req
+	 * @param res
+	 * @throws IOException
+	 */
+	private void processRequest(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
-        String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
-        String method = req.getMethod().toLowerCase();
+		String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
+		String method = req.getMethod().toLowerCase();
 
-        boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
-                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON) || contentType.contains(MULTIPART_FORM_DATA);
+		boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
+				|| contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON)
+				|| contentType.contains(MULTIPART_FORM_DATA);
 
-        if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
-            writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
-            return;
-        }
+		if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
+			writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
+			return;
+		}
 
-        res.setContentType(APPLICATION_JSON);
-        //requesting a REST resource
-        String resourceName = "";
-        try {
-            //get queries
-            Request mtgReq = RequestAdapter.create(req);
-            resourceName = mtgReq.getResource().getName();
-            
-            String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
-            File file = new File(req.getServletContext().getRealPath(jspPath));
-            
-            if(file.exists()) {
-                req.setAttribute(MASON_REQUEST, mtgReq);
+		res.setContentType(APPLICATION_JSON);
+		// requesting a REST resource
+		String resourceName = "";
+		try {
+			// get queries
+			Request mtgReq = RequestAdapter.create(req);
+			resourceName = mtgReq.getResource().getName();
 
-                //Adding to request, otherwise the user has to write ${applicationScope.datasource}
-                req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
-                req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
+			String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
+			File file = new File(req.getServletContext().getRealPath(jspPath));
 
-                //Query map of stored queries in a file
-                Object queryMap = req.getServletContext().getAttribute(MASON_QUERY);
-                req.setAttribute(MASON_QUERY, queryMap);
+			if (file.exists()) {
+				req.setAttribute(MASON_REQUEST, mtgReq);
 
-                //save method as attribute because jsp only accepts GET and POST
-                //https://stackoverflow.com/a/46489035
-                req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
-                req.getRequestDispatcher(jspPath).forward(
-                    new HttpServletRequestWrapper(req) {
-                        @Override
-                        public String getMethod() {
-                            String method = super.getMethod();
-                            if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                                return "POST";
-                            } else {
-                                return method;
-                            }
-                        }
-                    }, res
-                );
-            } else {
-                writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
-            }
-            
-        } catch (IOException | ServletException | JSONException ex) {
-            if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
-                writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
-            } else if (ex.getCause() != null) {
-                String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
-                writeError(res, 500, cause);
-            } else if (ex.getMessage().contains("ELException")) {
-                writeError(res, 512, "Incorrect test condition in '" + resourceName + "' resource");
-            } else {
-                writeError(res, 500, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
-                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
-            }
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (NullPointerException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
-            //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
-            writeError(res, 404, "Resource doesn't exist." + ex.getMessage());
-        }
-    }
+				//Adding to request, otherwise the user has to write ${applicationScope.datasource}
+				req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
+				req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
 
-    /**
-     * Error message to be returned
-     *
-     * @param res HTTP Response
-     * @param status Http Status Code
-     * @param message Message in Response
-     * @throws IOException
-     */
-    private void writeError(HttpServletResponse res, int status, String message) throws IOException {
+				// Query map of stored queries in a file
+				Object queryMap = req.getServletContext().getAttribute(MASON_QUERY);
+				req.setAttribute(MASON_QUERY, queryMap);
 
-        try (PrintWriter writer = res.getWriter()) {
-            res.setContentType("application/json;charset=UTF-8");
-            res.setCharacterEncoding("UTF-8");
-            res.setStatus(status);
-            JSONObject obj = new JSONObject();
-            obj.put("status", status);
-            obj.put("message", message);
-            writer.print(obj.toString());
-            writer.flush();
-        }
-    }
+				// save method as attribute because jsp only accepts GET and POST
+				// https://stackoverflow.com/a/46489035
+				req.setAttribute("mtgMethod", req.getMethod()); // needed by ExceptionTagHandler
+				req.getRequestDispatcher(jspPath).forward(new HttpServletRequestWrapper(req) {
+					@Override
+					public String getMethod() {
+						String method = super.getMethod();
+						if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
+							return "POST";
+						} else {
+							return method;
+						}
+					}
+				}, res);
+			} else {
+				writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
+			}
 
-    /**
-     * Destroy method for this filter
-     */
-    @Override
-    public void destroy() {
-        try {
-            connectionProvider.shutdown();
-        } catch (SQLException | NamingException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-    }
+		} catch (IOException | ServletException | JSONException ex) {
+			if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
+				writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
+			} else if (ex.getCause() != null) {
+				String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+				writeError(res, 500, cause);
+			} else if (ex.getMessage().contains("ELException")) {
+				writeError(res, 512, "Incorrect test condition in '" + resourceName + "' resource");
+			} else {
+				writeError(res, 500, ex.getMessage().replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "));
+				Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
+			}
+			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		} catch (NullPointerException ex) {
+			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
+			//The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
+			writeError(res, 404, "Resource doesn't exist." + ex.getMessage());
+		}
+	}
 
-    /**
-     * Init method for this filter
-     *
-     * @param config
-     */
-    @Override
-    public void init(FilterConfig config) {
-        encoding = config.getInitParameter("requestEncoding");
-        if (encoding == null) {
-            encoding = "UTF-8";
-        }
+	/**
+	 * Error message to be returned
+	 *
+	 * @param res     HTTP Response
+	 * @param status  HTTP Status Code
+	 * @param message Message in Response
+	 * @throws IOException
+	 */
+	private void writeError(HttpServletResponse res, int status, String message) throws IOException {
 
-        if (config.getInitParameter(DATA_SOURCE) != null) {
-            config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter("datasource"));
-        } else {
-            config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
-        }
+		try (PrintWriter writer = res.getWriter()) {
+			res.setContentType("application/json;charset=UTF-8");
+			res.setCharacterEncoding("UTF-8");
+			res.setStatus(status);
+			JSONObject obj = new JSONObject();
+			obj.put("status", status);
+			obj.put("message", message);
+			writer.print(obj.toString());
+			writer.flush();
+		}
+	}
 
-        if (config.getInitParameter(MTG_AUTH_BASIC) != null) {
-            config.getServletContext().setAttribute(MTG_AUTH_BASIC, config.getInitParameter(MTG_AUTH_BASIC));
-        }
-        if (config.getInitParameter(MTG_AUTH_BEARER) != null) {
-            config.getServletContext().setAttribute(MTG_AUTH_BEARER, config.getInitParameter(MTG_AUTH_BEARER));
-        }
+	/**
+	 * Destroy method for this filter
+	 */
+	@Override
+	public void destroy() {
+		try {
+			connectionProvider.shutdown();
+		} catch (SQLException | NamingException ex) {
+			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		}
+	}
 
-        InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
-        QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
+	/**
+	 * Init method for this filter
+	 *
+	 * @param config
+	 */
+	@Override
+	public void init(FilterConfig config) {
+		encoding = config.getInitParameter("requestEncoding");
+		if (encoding == null) {
+			encoding = "UTF-8";
+		}
 
-        try {
-            connectionProvider = new ConnectionProvider((String) config.getServletContext().getAttribute(DATA_SOURCE));
-            //connectionProvider.getMasonDatasource();
-            config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
-            config.getServletContext().setAttribute(CONNECTION_PROVIDER, connectionProvider);
-            queryFileInputStream.close();
-        } catch (IOException | SQLException | NamingException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (NullPointerException nx) {
-            //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
-        }
-    }
+		if (config.getInitParameter(DATA_SOURCE) != null) {
+			config.getServletContext().setAttribute(DATA_SOURCE, config.getInitParameter(DATA_SOURCE));
+		} else {
+			config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
+		}
+
+		if (config.getInitParameter(MTG_AUTH_BASIC) != null) {
+			config.getServletContext().setAttribute(MTG_AUTH_BASIC, config.getInitParameter(MTG_AUTH_BASIC));
+		}
+		if (config.getInitParameter(MTG_AUTH_BEARER) != null) {
+			config.getServletContext().setAttribute(MTG_AUTH_BEARER, config.getInitParameter(MTG_AUTH_BEARER));
+		}
+
+		InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);
+		QueryManagerService queryManagerService = new QueryManagerService(queryFileInputStream);
+
+		try {
+			connectionProvider = new ConnectionProvider((String) config.getServletContext().getAttribute(DATA_SOURCE));
+			config.getServletContext().setAttribute(MASON_QUERY, queryManagerService.getQueryMap());
+			config.getServletContext().setAttribute(CONNECTION_PROVIDER, connectionProvider);
+			queryFileInputStream.close();
+		} catch (IOException | SQLException | NamingException ex) {
+			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		} catch (NullPointerException nx) {
+			Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
+		}
+	}
 }

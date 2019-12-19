@@ -515,10 +515,11 @@ import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.XRequestService;
 import com.metamug.mason.tag.RequestTag;
 import com.metamug.mason.tag.ResourceTagHandler;
+
 import java.util.Map;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
  *
@@ -526,99 +527,100 @@ import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
  */
 public class XRequestTagHandler extends RequestTag {
 
-    private String var;
-    private String url;
-    private String requestBody;
-    private String className;
-    
-    private boolean outputHeaders;
-    private boolean output;
+	private static final long serialVersionUID = 1L;
+	private String var;
+	private String url;
+	private String requestBody;
+	private String className;
 
-    @Override
-    public int doEndTag() throws JspException {
-        //Accept header of mtg request
-        String acceptHeader = request.getHeader(HEADER_ACCEPT) == null
-                ? MasonOutput.HEADER_JSON : request.getHeader(HEADER_ACCEPT);
-        //Accept type of XRequest
-        String xAcceptType = "json";
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            if (entry.getKey().equals(ResourceTagHandler.HEADER_ACCEPT) && entry.getValue().equals("application/xml")) {
-                //if Accept header of XRequest is application/xml 
-                xAcceptType = "xml";
-            }
-        }
+	private boolean outputHeaders;
+	private boolean output;
 
-        XRequestService xRequestService = new XRequestService(outputHeaders);
-        XResponse xresponse = null;
+	@Override
+	public int doEndTag() throws JspException {
+		//Accept header of mtg request
+		String acceptHeader = request.getHeader(HEADER_ACCEPT) == null
+				? MasonOutput.HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+		//Accept type of XRequest
+		String xAcceptType = "json";
+		for (Map.Entry<String, String> entry : headers.entrySet()) {
+			if (entry.getKey().equals(ResourceTagHandler.HEADER_ACCEPT) && entry.getValue().equals("application/xml")) {
+				//if Accept header of XRequest is application/xml
+				xAcceptType = "xml";
+			}
+		}
 
-        switch (method) {
-            case "GET":
-                xresponse = xRequestService.get(url, headers, parameters);
-                break;
-            case "POST":
-                xresponse = xRequestService.post(url, headers, parameters, requestBody);
-                break;
-            case "PUT":
-                xresponse = xRequestService.put(url, headers, parameters, requestBody);
-                break;
-            case "DELETE":
-                xresponse = xRequestService.delete(url, parameters);
-                break;
-            default:
-                throw new JspTagException("Unsupported method \"" + method + "\".");
-        }
+		XRequestService xRequestService = new XRequestService(outputHeaders);
+		XResponse xresponse = null;
 
-        Response res = xresponse.getResponse(acceptHeader, xAcceptType);
-        
-        if(className!=null){
-            //post processable classname is given
-            try {
-                Class cls = Class.forName(className);                
-                if(ResponseProcessable.class.isAssignableFrom(cls)){
-                    ResponseProcessable responseProcessor = (ResponseProcessable)cls.newInstance();
-                    //get post processed response
-                    res = responseProcessor.process(res);
-                } else {
-                    throw new JspException("", new MasonException(MasonError.RESPONSE_PROCESSABLE_NOT_IMPLEMENTED,
-                            "Class " + cls + " is not Response processable"));
-                }                
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
-            } catch (Exception ex) {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
-            }
-        }
-        
-        addToBus(var, res);
-     
-        if(output){
-            addToOutput(var, res);
-        }
+		switch (method) {
+		case "GET":
+			xresponse = xRequestService.get(url, headers, parameters);
+			break;
+		case "POST":
+			xresponse = xRequestService.post(url, headers, parameters, requestBody);
+			break;
+		case "PUT":
+			xresponse = xRequestService.put(url, headers, parameters, requestBody);
+			break;
+		case "DELETE":
+			xresponse = xRequestService.delete(url, parameters);
+			break;
+		default:
+			throw new JspTagException("Unsupported method \"" + method + "\".");
+		}
 
-        return EVAL_PAGE;
-    }
+		Response res = xresponse.getResponse(acceptHeader, xAcceptType);
 
-    public void setVar(String var) {
-        this.var = var;
-    }
+		if(className!=null){
+			//post processable classname is given
+			try {
+				Class<?> cls = Class.forName(className);
+				if(ResponseProcessable.class.isAssignableFrom(cls)){
+					ResponseProcessable responseProcessor = (ResponseProcessable)cls.newInstance();
+					//get post processed response
+					res = responseProcessor.process(res);
+				} else {
+					throw new JspException("", new MasonException(MasonError.RESPONSE_PROCESSABLE_NOT_IMPLEMENTED,
+							"Class " + cls + " is not Response processable"));
+				}
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+				throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
+			} catch (Exception ex) {
+				throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
+			}
+		}
 
-    public void setUrl(String u) {
-        url = u;
-    }
+		addToBus(var, res);
 
-    public void setRequestBody(String b) {
-        requestBody = b;
-    }
-    
-    public void setOutput(Boolean output){
-        this.output = output;
-    } 
-    
-    public void setOutputHeaders(boolean outputHeaders) {
-        this.outputHeaders = outputHeaders;
-    }
-    
-    public void setClassName(String className) {
-        this.className = className;
-    }
+		if(output){
+			addToOutput(var, res);
+		}
+
+		return EVAL_PAGE;
+	}
+
+	public void setVar(String var) {
+		this.var = var;
+	}
+
+	public void setUrl(String u) {
+		url = u;
+	}
+
+	public void setRequestBody(String b) {
+		requestBody = b;
+	}
+
+	public void setOutput(Boolean output){
+		this.output = output;
+	}
+
+	public void setOutputHeaders(boolean outputHeaders) {
+		this.outputHeaders = outputHeaders;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
+	}
 }

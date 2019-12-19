@@ -517,27 +517,28 @@ import java.util.Map;
  */
 public class RequestTag extends RestTag {
 
-    protected String method;
-    protected Map<String, String> headers = new HashMap<>(); //to set headers for request/response depending on the tag.
-    protected Map<String, Object> parameters = new HashMap<>();
+	private static final long serialVersionUID = 1L;
+	protected String method;
+	protected Map<String, String> headers = new HashMap<>(); //to set headers for request/response depending on the tag.
+	protected Map<String, Object> parameters = new HashMap<>();
 
-    public void setMethod(String m) {
-        method = m;
-    }
+	public void setMethod(String m) {
+		method = m;
+	}
 
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
-    }
-    
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
-    }
+	public void setHeaders(Map<String, String> headers) {
+		this.headers = headers;
+	}
 
-    public void setParameters(Map<String, Object> parameters) {
-        this.parameters = parameters;
-    }
-   
-    public void addParameter(String name, Object value) {
-        parameters.put(name, value);
-    }
+	public void addHeader(String name, String value) {
+		headers.put(name, value);
+	}
+
+	public void setParameters(Map<String, Object> parameters) {
+		this.parameters = parameters;
+	}
+
+	public void addParameter(String name, Object value) {
+		parameters.put(name, value);
+	}
 }

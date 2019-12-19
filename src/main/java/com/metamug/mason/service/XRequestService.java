@@ -507,6 +507,10 @@
 package com.metamug.mason.service;
 
 import com.metamug.mason.entity.xrequest.XResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -515,6 +519,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -522,8 +527,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 
 /**
  *
@@ -531,172 +534,172 @@ import org.json.JSONObject;
  */
 public class XRequestService {
 
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private static final String UTF8 = "UTF-8";
-    private static final String XREQUEST_ERROR = "XRequest error: ";
+	private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+	private static final String UTF8 = "UTF-8";
+	private static final String XREQUEST_ERROR = "XRequest error: ";
 
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String APP_FORM_URLENCODED = "application/x-www-form-urlencoded";
-    public static final String APP_JSON = "application/json";
+	public static final String CONTENT_TYPE = "Content-Type";
+	public static final String APP_FORM_URLENCODED = "application/x-www-form-urlencoded";
+	public static final String APP_JSON = "application/json";
 
-    private final OkHttpClient client = new OkHttpClient();
-    
-    private boolean outputHeaders;
-    
-    public XRequestService(boolean outputHeaders){
-        this.outputHeaders = outputHeaders;
-    }
+	private final OkHttpClient client = new OkHttpClient();
 
-    private XResponse makeRequest(Request request) {
-        XResponse xr;
-        try (Response response = client.newCall(request).execute()) {
-            Map<String,String> headerMap = new HashMap<>();
-            if(outputHeaders){
-                Headers headers = response.headers();
-                for (int i = 0; i < headers.size(); i++) {
-                    headerMap.put(headers.name(i), headers.value(i));
-                }
-            }
-            if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), headerMap, XREQUEST_ERROR + response, true, outputHeaders);
-                
-            } else {
-                xr = new XResponse(response.code(), headerMap, response.body().string().trim(), false, outputHeaders);
-            }
-        } catch (IOException ex) {
-            xr = new XResponse(0, null, XREQUEST_ERROR + ex.getMessage(), true, outputHeaders);
-        }
-        return xr;
-    }
+	private boolean outputHeaders;
 
-    public XResponse get(String url, Map<String, String> headers, Map<String, Object> params) {
-        Request.Builder reqBuilder = new Request.Builder().get();
-        headers.entrySet().forEach(entry -> {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            reqBuilder.addHeader(key, value);
-        });
-        StringBuilder queryParams = new StringBuilder();
-        for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
-            try {
-                String str = (String) iterator.next();
-                String key = URLEncoder.encode(str, UTF8);
-                //@TODO handle file uplaod in xrequest
-                String value = URLEncoder.encode((String) params.get(str), UTF8);
-                queryParams.append(key).append("=").append(value);
-                if (iterator.hasNext()) {
-                    queryParams.append("&");
-                }
-            } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            }
-        }
-        if (queryParams.length() > 0) {
-            url += "?" + queryParams.toString();
-        }
-        Request request = reqBuilder.url(url).build();
-        return makeRequest(request);
-    }
+	public XRequestService(boolean outputHeaders){
+		this.outputHeaders = outputHeaders;
+	}
 
-    public XResponse post(String url, Map<String, String> headers,
-            Map<String, Object> params, String body) {
-        Request.Builder reqBuilder = null;
+	private XResponse makeRequest(Request request) {
+		XResponse xr;
+		try (Response response = client.newCall(request).execute()) {
+			Map<String,String> headerMap = new HashMap<>();
+			if(outputHeaders){
+				Headers headers = response.headers();
+				for (int i = 0; i < headers.size(); i++) {
+					headerMap.put(headers.name(i), headers.value(i));
+				}
+			}
+			if (!response.isSuccessful()) {
+				xr = new XResponse(response.code(), headerMap, XREQUEST_ERROR + response, true, outputHeaders);
 
-        if (headers.get(CONTENT_TYPE) == null) {
-            headers.put(CONTENT_TYPE, APP_FORM_URLENCODED);
-        }
+			} else {
+				xr = new XResponse(response.code(), headerMap, response.body().string().trim(), false, outputHeaders);
+			}
+		} catch (IOException ex) {
+			xr = new XResponse(0, null, XREQUEST_ERROR + ex.getMessage(), true, outputHeaders);
+		}
+		return xr;
+	}
 
-        String contentType = headers.get(CONTENT_TYPE).toLowerCase();
+	public XResponse get(String url, Map<String, String> headers, Map<String, Object> params) {
+		Request.Builder reqBuilder = new Request.Builder().get();
+		headers.entrySet().forEach(entry -> {
+			String key = entry.getKey();
+			String value = entry.getValue();
+			reqBuilder.addHeader(key, value);
+		});
+		StringBuilder queryParams = new StringBuilder();
+		for (Iterator<String> iterator = params.keySet().iterator(); iterator.hasNext();) {
+			try {
+				String str = iterator.next();
+				String key = URLEncoder.encode(str, UTF8);
+				// @TODO handle file upload in XRequest
+				String value = URLEncoder.encode((String) params.get(str), UTF8);
+				queryParams.append(key).append("=").append(value);
+				if (iterator.hasNext()) {
+					queryParams.append("&");
+				}
+			} catch (UnsupportedEncodingException ex) {
+				Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
+		}
+		if (queryParams.length() > 0) {
+			url += "?" + queryParams.toString();
+		}
+		Request request = reqBuilder.url(url).build();
+		return makeRequest(request);
+	}
 
-        if (contentType.equals(APP_FORM_URLENCODED)) {
-            FormBody.Builder formBuilder = new FormBody.Builder();
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
-                formBuilder.add(entry.getKey(), (String) entry.getValue());
-            }
-            reqBuilder = new Request.Builder().post(formBuilder.build());
-        } else if (contentType.equals(APP_JSON)) {
-            if (StringUtils.isNotBlank(body)) {
-                RequestBody reqBody = RequestBody.create(JSON, body);
-                reqBuilder = new Request.Builder().post(reqBody);
-            } else {
-                JSONObject jo = new JSONObject();
-                for (Map.Entry<String, Object> entry : params.entrySet()) {
-                    jo.put(entry.getKey(), entry.getValue());
-                }
-                RequestBody reqBody = RequestBody.create(JSON, jo.toString());
-                reqBuilder = new Request.Builder().post(reqBody);
-            }
-        }
-        //no params or body given
-        if (null == reqBuilder) {
-            RequestBody reqbody = RequestBody.create(null, new byte[0]);
-            reqBuilder = new Request.Builder().post(reqbody);
-        }
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            reqBuilder.addHeader(key, value);
-        }
-        Request request = reqBuilder.url(url).build();
-        return makeRequest(request);
-    }
+	public XResponse post(String url, Map<String, String> headers,
+			Map<String, Object> params, String body) {
+		Request.Builder reqBuilder = null;
 
-    public XResponse put(String url, Map<String, String> headers,
-            Map<String, Object> params, String body) {
-        Request.Builder reqBuilder = null;
-        String contentType = headers.get(CONTENT_TYPE).toLowerCase();
-        if (contentType.equals(APP_FORM_URLENCODED)) {
-            FormBody.Builder formBuilder = new FormBody.Builder();
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
-                formBuilder.add(entry.getKey(), (String) entry.getValue());
-            }
-            reqBuilder = new Request.Builder().put(formBuilder.build());
-        } else if (contentType.equals(APP_JSON)) {
-            if ((body != null) && (!body.equals(""))) {
-                RequestBody reqBody = RequestBody.create(JSON, body);
-                reqBuilder = new Request.Builder().put(reqBody);
-            } else {
-                JSONObject jo = new JSONObject();
-                for (Map.Entry<String, Object> entry : params.entrySet()) {
-                    jo.put(entry.getKey(), entry.getValue());
-                }
-                RequestBody reqBody = RequestBody.create(JSON, jo.toString());
-                reqBuilder = new Request.Builder().put(reqBody);
-            }
-        }
-        //no params or body given
-        if (null == reqBuilder) {
-            RequestBody reqbody = RequestBody.create(null, new byte[0]);
-            reqBuilder = new Request.Builder().put(reqbody);
-        }
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            reqBuilder.addHeader(key, value);
-        }
-        Request request = reqBuilder.url(url).build();
-        return makeRequest(request);
-    }
+		if (headers.get(CONTENT_TYPE) == null) {
+			headers.put(CONTENT_TYPE, APP_FORM_URLENCODED);
+		}
 
-    public XResponse delete(String url, Map<String, Object> params) {
-        StringBuilder queryParams = new StringBuilder();
-        for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
-            try {
-                String str = (String) iterator.next();
-                String key = URLEncoder.encode(str, UTF8);
-                String value = URLEncoder.encode((String) params.get(str), UTF8);
-                queryParams.append(key).append("=").append(value);
-                if (iterator.hasNext()) {
-                    queryParams.append("&");
-                }
-            } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            }
-        }
-        if (queryParams.length() > 0) {
-            url += "?" + queryParams.toString();
-        }
-        Request request = new Request.Builder().url(url).delete().build();
-        return makeRequest(request);
-    }
+		String contentType = headers.get(CONTENT_TYPE).toLowerCase();
+
+		if (contentType.equals(APP_FORM_URLENCODED)) {
+			FormBody.Builder formBuilder = new FormBody.Builder();
+			for (Map.Entry<String, Object> entry : params.entrySet()) {
+				formBuilder.add(entry.getKey(), (String) entry.getValue());
+			}
+			reqBuilder = new Request.Builder().post(formBuilder.build());
+		} else if (contentType.equals(APP_JSON)) {
+			if (StringUtils.isNotBlank(body)) {
+				RequestBody reqBody = RequestBody.create(JSON, body);
+				reqBuilder = new Request.Builder().post(reqBody);
+			} else {
+				JSONObject jo = new JSONObject();
+				for (Map.Entry<String, Object> entry : params.entrySet()) {
+					jo.put(entry.getKey(), entry.getValue());
+				}
+				RequestBody reqBody = RequestBody.create(JSON, jo.toString());
+				reqBuilder = new Request.Builder().post(reqBody);
+			}
+		}
+		//no params or body given
+		if (null == reqBuilder) {
+			RequestBody reqbody = RequestBody.create(null, new byte[0]);
+			reqBuilder = new Request.Builder().post(reqbody);
+		}
+		for (Map.Entry<String, String> entry : headers.entrySet()) {
+			String key = entry.getKey();
+			String value = entry.getValue();
+			reqBuilder.addHeader(key, value);
+		}
+		Request request = reqBuilder.url(url).build();
+		return makeRequest(request);
+	}
+
+	public XResponse put(String url, Map<String, String> headers,
+			Map<String, Object> params, String body) {
+		Request.Builder reqBuilder = null;
+		String contentType = headers.get(CONTENT_TYPE).toLowerCase();
+		if (contentType.equals(APP_FORM_URLENCODED)) {
+			FormBody.Builder formBuilder = new FormBody.Builder();
+			for (Map.Entry<String, Object> entry : params.entrySet()) {
+				formBuilder.add(entry.getKey(), (String) entry.getValue());
+			}
+			reqBuilder = new Request.Builder().put(formBuilder.build());
+		} else if (contentType.equals(APP_JSON)) {
+			if ((body != null) && (!body.equals(""))) {
+				RequestBody reqBody = RequestBody.create(JSON, body);
+				reqBuilder = new Request.Builder().put(reqBody);
+			} else {
+				JSONObject jo = new JSONObject();
+				for (Map.Entry<String, Object> entry : params.entrySet()) {
+					jo.put(entry.getKey(), entry.getValue());
+				}
+				RequestBody reqBody = RequestBody.create(JSON, jo.toString());
+				reqBuilder = new Request.Builder().put(reqBody);
+			}
+		}
+		//no params or body given
+		if (null == reqBuilder) {
+			RequestBody reqbody = RequestBody.create(null, new byte[0]);
+			reqBuilder = new Request.Builder().put(reqbody);
+		}
+		for (Map.Entry<String, String> entry : headers.entrySet()) {
+			String key = entry.getKey();
+			String value = entry.getValue();
+			reqBuilder.addHeader(key, value);
+		}
+		Request request = reqBuilder.url(url).build();
+		return makeRequest(request);
+	}
+
+	public XResponse delete(String url, Map<String, Object> params) {
+		StringBuilder queryParams = new StringBuilder();
+		for (Iterator<String> iterator = params.keySet().iterator(); iterator.hasNext();) {
+			try {
+				String str = iterator.next();
+				String key = URLEncoder.encode(str, UTF8);
+				String value = URLEncoder.encode((String) params.get(str), UTF8);
+				queryParams.append(key).append("=").append(value);
+				if (iterator.hasNext()) {
+					queryParams.append("&");
+				}
+			} catch (UnsupportedEncodingException ex) {
+				Logger.getLogger(XRequestService.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
+		}
+		if (queryParams.length() > 0) {
+			url += "?" + queryParams.toString();
+		}
+		Request request = new Request.Builder().url(url).delete().build();
+		return makeRequest(request);
+	}
 }

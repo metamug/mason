@@ -514,13 +514,15 @@ import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.ConnectionProvider;
+
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
+
 import javax.servlet.jsp.JspException;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 import javax.sql.DataSource;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 
 /**
  *
@@ -528,95 +530,96 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
  */
 public class ExecuteTagHandler extends RequestTag {
 
-    private String className;
-    private Object param; //input for execution sql result(ResultProcessable) or http request(RequestProcessable)
-    private String var;
-    private DataSource ds;
+	private static final long serialVersionUID = 1L;
+	private String className;
+	private Object param; //input for execution sql result(ResultProcessable) or http request(RequestProcessable)
+	private String var;
+	private DataSource ds;
 
-    private boolean output; //default value
-    private String onerror;
+	private boolean output; //default value
+	private String onerror;
 
-    @Override
-    public int doEndTag() throws JspException {
+	@Override
+	public int doEndTag() throws JspException {
 
-        Response result = null;
-        try {
-            Class cls = Class.forName(className);
-            Object newInstance = cls.newInstance();
-            ResultProcessable resProcessable;
-            RequestProcessable reqProcessable;
-            
-            if (ResultProcessable.class.isAssignableFrom(cls)) {
-                resProcessable = (ResultProcessable) newInstance;
-                if (param instanceof ResultImpl) {
-                    ResultImpl ri = (ResultImpl) param;
-                    //@TODO remove cast
-                    Result sqlResult = new Result(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                    
-                    result = resProcessable.process(sqlResult);
-                }
-            } else if (RequestProcessable.class.isAssignableFrom(cls)) {
-                
-                reqProcessable = (RequestProcessable) newInstance;
-                if (param instanceof Request) {
-                    Request masonReq = (Request) param;
-                    
-                    Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    masonReq.getParams().entrySet().forEach(entry -> {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        requestParameters.put(key, value);
-                    });
-                    Enumeration<String> headerNames = request.getHeaderNames();
-                    Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    while (headerNames.hasMoreElements()) {
-                        String header = headerNames.nextElement();
-                        requestHeaders.put(header, request.getHeader(header));
-                    }                    
-                    ds = ConnectionProvider.getMasonDatasource();
-                    //no bus
-                    result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
-                }
-            } else {
-                throw new JspException("", new MasonException(MasonError.CLASS_NOT_IMPLEMENTED,
-                        "Class " + cls + " isn't processable"));
-            }
+		Response result = null;
+		try {
+			Class cls = Class.forName(className);
+			Object newInstance = cls.newInstance();
+			ResultProcessable resProcessable;
+			RequestProcessable reqProcessable;
 
-            // if Response object is returned, put payload in bus and mason output
-            addToBus(var, result);
+			if (ResultProcessable.class.isAssignableFrom(cls)) {
+				resProcessable = (ResultProcessable) newInstance;
+				if (param instanceof ResultImpl) {
+					ResultImpl ri = (ResultImpl) param;
+					//@TODO remove cast
+					Result sqlResult = new Result(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
 
-            if (output) {
-                addToOutput(var, result);
-            }
+					result = resProcessable.process(sqlResult);
+				}
+			} else if (RequestProcessable.class.isAssignableFrom(cls)) {
 
-        } catch (Exception ex) {
-            if (onerror == null) {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
-            } else {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, onerror));
-            }
-        }
+				reqProcessable = (RequestProcessable) newInstance;
+				if (param instanceof Request) {
+					Request masonReq = (Request) param;
 
-        return EVAL_PAGE;
-    }
+					Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+					masonReq.getParams().entrySet().forEach(entry -> {
+						String key = entry.getKey();
+						String value = entry.getValue();
+						requestParameters.put(key, value);
+					});
+					Enumeration<String> headerNames = request.getHeaderNames();
+					Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+					while (headerNames.hasMoreElements()) {
+						String header = headerNames.nextElement();
+						requestHeaders.put(header, request.getHeader(header));
+					}
+					ds = ConnectionProvider.getMasonDatasource();
+					//no bus
+					result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
+				}
+			} else {
+				throw new JspException("", new MasonException(MasonError.CLASS_NOT_IMPLEMENTED,
+						"Class " + cls + " isn't processable"));
+			}
 
-    public void setClassName(String className) {
-        this.className = className;
-    }
+			// if Response object is returned, put payload in bus and mason output
+			addToBus(var, result);
 
-    public void setOnerror(String onError) {
-        this.onerror = onError;
-    }
+			if (output) {
+				addToOutput(var, result);
+			}
 
-    public void setParam(Object param) {
-        this.param = param;
-    }
+		} catch (Exception ex) {
+			if (onerror == null) {
+				throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
+			} else {
+				throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, onerror));
+			}
+		}
 
-    public void setVar(String var) {
-        this.var = var;
-    }
+		return EVAL_PAGE;
+	}
 
-    public void setOutput(boolean output) {
-        this.output = output;
-    }
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+	public void setOnerror(String onError) {
+		this.onerror = onError;
+	}
+
+	public void setParam(Object param) {
+		this.param = param;
+	}
+
+	public void setVar(String var) {
+		this.var = var;
+	}
+
+	public void setOutput(boolean output) {
+		this.output = output;
+	}
 }

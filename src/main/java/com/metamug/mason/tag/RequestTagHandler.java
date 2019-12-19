@@ -506,18 +506,20 @@
  */
 package com.metamug.mason.tag;
 
+import static com.metamug.mason.Router.MASON_REQUEST;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
-import static com.metamug.mason.Router.MASON_REQUEST;
-import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.entity.response.DatasetOutput;
+import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
-import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.ResponeBuilder;
 import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.service.UploaderService;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -533,6 +535,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 
@@ -542,127 +545,128 @@ import javax.servlet.jsp.PageContext;
  */
 public class RequestTagHandler extends RequestTag {
 
-    private boolean item;
-    private boolean evaluate;
+	private static final long serialVersionUID = 1L;
+	private boolean item;
+	private boolean evaluate;
 
-    private Request masonRequest;
-    
-    protected ResourceTagHandler parent;
+	private Request masonRequest;
 
-    @Override
-    public int doStartTag() throws JspException {
-        super.doStartTag();
-        
-        parent = (ResourceTagHandler)getParent();
-        //add http method of this request tag to parent's list
-        parent.addChildMethod(method);
-        
-        masonRequest = (Request) request.getAttribute(MASON_REQUEST);
+	protected ResourceTagHandler parent;
 
-        if (method.equalsIgnoreCase(masonRequest.getMethod())) {
-            evaluate = (masonRequest.getId() != null) == item; //evaluate
-            if (evaluate) {
-                //initialize only when this request is executed.
-                //Holds var names to be printed in output
-                //to maintain the order of insertion
-                Map<String, Object> output = new HashMap<>();
-                pageContext.setAttribute(MASON_OUTPUT, output);
+	@Override
+	public int doStartTag() throws JspException {
+		super.doStartTag();
 
-                //@TODO Also check for multipart
-                if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
-                    UploaderService uploader = new UploaderService(pageContext);
-                    uploader.upload();
-                }
+		parent = (ResourceTagHandler)getParent();
+		//add http method of this request tag to parent's list
+		parent.addChildMethod(method);
 
-                return EVAL_BODY_INCLUDE;
-            }
-        }
+		masonRequest = (Request) request.getAttribute(MASON_REQUEST);
 
-        return SKIP_BODY;
-    }
+		if (method.equalsIgnoreCase(masonRequest.getMethod())) {
+			evaluate = (masonRequest.getId() != null) == item; //evaluate
+			if (evaluate) {
+				//initialize only when this request is executed.
+				//Holds var names to be printed in output
+				//to maintain the order of insertion
+				Map<String, Object> output = new HashMap<>();
+				pageContext.setAttribute(MASON_OUTPUT, output);
 
-    @Override
-    public int doEndTag() throws JspException {
-        if (evaluate) {
-            processOutput();
-            return SKIP_PAGE;
-        } else {
-            return EVAL_PAGE;
-        }
-    }
+				//@TODO Also check for multipart
+				if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
+					UploaderService uploader = new UploaderService(pageContext);
+					uploader.upload();
+				}
 
-    private void processOutput() {
-        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+				return EVAL_BODY_INCLUDE;
+			}
+		}
 
-        boolean hasAttachment = false;
+		return SKIP_BODY;
+	}
 
-        Map<String, Object> outputMap = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
-        //get response objects to be printed in output        
-        for (Entry<String, Object> tag : outputMap.entrySet()) {
-            //check for Attachment
-            if (tag.getValue() instanceof Attachment) {
-                hasAttachment = true;
-                break;
-            }
-        }
+	@Override
+	public int doEndTag() throws JspException {
+		if (evaluate) {
+			processOutput();
+			return SKIP_PAGE;
+		} else {
+			return EVAL_PAGE;
+		}
+	}
 
-        //set response headers
-        if(headers != null) {
-            headers.entrySet().forEach( entry -> {
-                response.setHeader(entry.getKey(), entry.getValue());
-            });
-        }
-        
-        //write response
-        try (OutputStream outputStream = response.getOutputStream()) {
+	private void processOutput() {
+		String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
 
-            if (!hasAttachment) {
+		boolean hasAttachment = false;
 
-                MasonOutput output = null;
-                List list = Arrays.asList(header.split("/"));
-                if (list.contains("xml")) { //Accept: application/xml, text/xml
-                    output = new XMLOutput();
-                } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
-                    output = new DatasetOutput();
-                } else { //Accept: application/json OR default
-                    output = new JSONOutput();
-                }
+		Map<String, Object> outputMap = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
+		//get response objects to be printed in output
+		for (Entry<String, Object> tag : outputMap.entrySet()) {
+			//check for Attachment
+			if (tag.getValue() instanceof Attachment) {
+				hasAttachment = true;
+				break;
+			}
+		}
 
-                //cannnot use print writer since it we are already using outputstream
-                Response masonResponse = new ResponeBuilder(output).build(outputMap);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
-                byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
-                response.setContentLength(bytes.length);
-                outputStream.write(bytes);
-                outputStream.flush();
+		//set response headers
+		if(headers != null) {
+			headers.entrySet().forEach( entry -> {
+				response.setHeader(entry.getKey(), entry.getValue());
+			});
+		}
 
-            } else {
-                //has file in response
-                Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
-                InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
-                try (ReadableByteChannel in = Channels.newChannel(inputStream);
-                    WritableByteChannel out = Channels.newChannel(outputStream);) {
-                    /**
-                     * Don't set Content Length. Max buffer for output stream is
-                     * 2KB and it is flushed
-                     */
+		//write response
+		try (OutputStream outputStream = response.getOutputStream()) {
 
-                    ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
-                    while (in.read(buffer) != -1) {
-                        buffer.flip();
-                        out.write(buffer);
-                        buffer.clear();
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            //@TODO write error response if there is an error in file read or something else
-            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+			if (!hasAttachment) {
 
-    public void setItem(boolean i) {
-        item = i;
-    }
+				MasonOutput output = null;
+				List list = Arrays.asList(header.split("/"));
+				if (list.contains("xml")) { //Accept: application/xml, text/xml
+					output = new XMLOutput();
+				} else if (list.contains("json+dataset")) { //Accept: application/json+dataset
+					output = new DatasetOutput();
+				} else { //Accept: application/json OR default
+					output = new JSONOutput();
+				}
+
+				//cannnot use print writer since it we are already using outputstream
+				Response masonResponse = new ResponeBuilder(output).build(outputMap);
+				masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+				byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
+				response.setContentLength(bytes.length);
+				outputStream.write(bytes);
+				outputStream.flush();
+
+			} else {
+				//has file in response
+				Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
+				masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+				InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
+				try (ReadableByteChannel in = Channels.newChannel(inputStream);
+						WritableByteChannel out = Channels.newChannel(outputStream);) {
+					/**
+					 * Don't set Content Length. Max buffer for output stream is
+					 * 2KB and it is flushed
+					 */
+
+					ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer
+					while (in.read(buffer) != -1) {
+						buffer.flip();
+						out.write(buffer);
+						buffer.clear();
+					}
+				}
+			}
+		} catch (IOException ex) {
+			//@TODO write error response if there is an error in file read or something else
+			Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+
+	public void setItem(boolean i) {
+		item = i;
+	}
 }
