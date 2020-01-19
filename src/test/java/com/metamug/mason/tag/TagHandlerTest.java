@@ -506,6 +506,12 @@
  */
 package com.metamug.mason.tag;
 
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import static com.metamug.mason.tag.ResourceTagHandler.BEARER_;
+import com.metamug.mason.entity.auth.JWebToken;
+
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
@@ -614,12 +620,20 @@ public class TagHandlerTest {
     @Mock
     private ResultImpl resultImpl;
 
+    private LocalDateTime ldt;
+
     public TagHandlerTest() {
 
     }
 
     @Before
     public void setup() {
+
+
+        ldt = LocalDateTime.now().plusDays(90);
+        // payload = new JSONObject("{\"sub\":\"1234\",\"aud\":[\"admin\"],"
+        //         + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
+    
 
         try {
             String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
@@ -779,7 +793,9 @@ public class TagHandlerTest {
         when(masonRequest.getMethod()).thenReturn("POST");
         resourceTag.setAuth("admin");
         //@TODO Change this every 3-4 months since it wont work after some time. Token expires
-        String bearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiYXVkIjpbImFkbWluIl0sImlzcyI6Im1hc29uLm1ldGFtdWcubmV0IiwiZXhwIjoxNTg2OTcyMjE4LCJpYXQiOjE1NzkxOTYyMTgsImp0aSI6IjFhMTdkMmVmLTA5MjgtNDNjMC05YzIyLTM5ZjhjMzk1MmMxOCJ9.JBMfg-xYieks_yKpUapJEK7_I_mGH6HhAxJAka5x69Y";
+        long exp = ldt.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
+        String bearer = new JWebToken("1234", new JSONArray("['admin']"), exp).toString(); 
+        bearer = BEARER_ + bearer;
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
