@@ -5,8 +5,8 @@
     <artifactId>mason</artifactId>
     <version>3.3</version>
     <packaging>jar</packaging>
-    <name>com.metamug:msaon</name>
-    <description>API SDK</description>
+    <name>com.metamug:mason</name>
+    <description>JSP REST API Library</description>
     <url>https://metamug.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
