@@ -57,7 +57,7 @@ public class ScriptTagHandler extends RestTag {
 //            Map<String, Object> masonBus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
             binding.setVariable("_context", pageContext);
             Map<String, Object> object = new LinkedHashMap<>();
-            binding.setVariable(var, object); //for the output
+            binding.setVariable("res", object); //for the output
             engine.run(SCRIPT_ROOT + file, binding);
             //output to bus
             addToBus(var, object);
