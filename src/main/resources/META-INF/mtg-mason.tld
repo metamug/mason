@@ -49,7 +49,7 @@
     <tag>
         <name>header</name>
         <tag-class>com.metamug.mason.tag.HeaderTag</tag-class>
-        <body-content>empty</body-content>
+        <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
             <required>true</required>
@@ -58,7 +58,7 @@
         </attribute>
         <attribute>
             <name>value</name>
-            <required>true</required>
+            <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
