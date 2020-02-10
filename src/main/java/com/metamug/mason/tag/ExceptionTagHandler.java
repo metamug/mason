@@ -575,57 +575,57 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                         switch (mtgCause.getError()) {
                             case BEARER_TOKEN_MISMATCH:
                                 response.setStatus(401);
-                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                out.println("<message>" + "Failed to authenticate User" + "</message>"
                                         + "\n<status>" + 401 + "</status>");
                                 break;
                             case INCORRECT_ROLE_AUTHENTICATION:
-                                response.setStatus(401);
+                                response.setStatus(403);
                                 response.setHeader("WWW-Authenticate", "Basic");
-                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                out.println("<message>" + "Authorization Error. Access Denied" + "</message>"
                                         + "\n<status>" + 401 + "</status>");
                                 break;
                             case INCORRECT_STATUS_CODE:
                                 response.setStatus(406);
-                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                out.println("<message>" + "Incorrect Status Code" + "</message>"
                                         + "\n<status>" + 406 + "</status>");
                                 break;
                             case INPUT_VALIDATION_ERROR:
                                 response.setStatus(412);
-                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                out.println("<message>" + "Unable to validate input parameters" + "</message>"
                                         + "\n<status>" + 412 + "</status>");
                                 break;
                             case NO_UPLOAD_LISTENER:
                                 response.setStatus(424);
-                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                out.println("<message>" + "Unable to handle file upload" + "</message>"
                                         + "\n<status>" + 424 + "</status>");
                                 break;
                             case PARENT_RESOURCE_MISSING:
                                 response.setStatus(404);
-                                out.println("<message>" + mtgCause.getMessage() + "</message>"
-                                        + "\n<status>" + 424 + "</status>");
+                                out.println("<message>" + "Resource not found" + "</message>"
+                                        + "\n<status>" + 404 + "</status>");
                                 break;
                             case ROLE_ACCESS_DENIED:
                                 response.setStatus(403);
-                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                out.println("<message>" + "Access Denied" + "</message>"
                                         + "\n<status>" + 403 + "</status>");
                                 break;
                             case SQL_ERROR:
                                 response.setStatus(512);
                                 logError(errorId, request, exception);
                                 out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
-                                        + "\n<error>" + mtgCause.getMessage() + "</error>"
+                                        + "\n<error>" + "Internal Server Error" + "</error>"
                                         + "\n<message>API Error. Please contact your API administrator.</message>");
                                 break;
                             case UPLOAD_CODE_ERROR:
                                 response.setStatus(512);
                                 logUploadCodeError(errorId, request, mtgCause.getRootException());
                                 out.println("<errorid>" + errorId + "</errorid>\n<status>" + 512 + "</status>"
-                                        + "\n<error>" + mtgCause.getMessage() + "</error>"
+                                        + "\n<error>" + "Error during upload" + "</error>"
                                         + "\n<message>API Error. Please contact your API administrator.</message>");
                                 break;
                             case UPLOAD_SIZE_EXCEEDED:
                                 response.setStatus(413);
-                                out.println("<message>" + mtgCause.getMessage() + "</message>"
+                                out.println("<message>" + "Upload Size Exceeded"+ "</message>"
                                         + "\n<status>" + 413 + "</status>");
                                 break;
                         }
