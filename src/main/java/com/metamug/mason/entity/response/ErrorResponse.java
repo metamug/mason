@@ -3,10 +3,11 @@ package com.metamug.mason.entity.response;
 import java.util.UUID;
 
 public class ErrorResponse {
-    String errorId;
-    int status = 512;
-    String error = "Internal Server Error";
-    String message = "API Error. Please contact your API administrator." ;
+
+    private String errorId;
+    private int status = 512;
+    private String error = "Internal Server Error";
+    private String message = "API Error. Please contact your API administrator." ;
 
     public ErrorResponse() {
         String timestamp = String.valueOf(System.currentTimeMillis());

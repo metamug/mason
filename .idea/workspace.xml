@@ -42,6 +42,11 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
   </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn clean install" />
+    </option>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -93,6 +98,26 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="614" y="115" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581336468103" />
+    <state width="1877" height="282" key="GridCell.Tab.0.bottom" timestamp="1581348340020">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
+    <state width="1877" height="282" key="GridCell.Tab.0.center" timestamp="1581348340020">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="282" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
+    <state width="1877" height="282" key="GridCell.Tab.0.left" timestamp="1581348340020">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="282" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
+    <state width="1877" height="282" key="GridCell.Tab.0.right" timestamp="1581348340020">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="282" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
+    <state x="655" y="345" key="com.intellij.ide.util.TipDialog" timestamp="1581430715823">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="655" y="345" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1581430715823" />
     <state x="657" y="252" width="606" height="536" key="find.popup" timestamp="1581345837917">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
