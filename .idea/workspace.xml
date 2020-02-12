@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1caabcb6-9198-4883-b8b9-c5dff813bd33" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/ContextMap.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/ContextMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/ContextMap.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ScriptTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ScriptTagHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -74,7 +72,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581430745983</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added ContextMap and updated ScriptTagHandler">
+      <created>1581433267295</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1581433267295</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -93,7 +98,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Updated ConnectionProvider" />
     <MESSAGE value="Updated Error Response" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated Error Response" />
+    <MESSAGE value="Added ContextMap and updated ScriptTagHandler" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added ContextMap and updated ScriptTagHandler" />
   </component>
   <component name="WindowStateProjectService">
     <state x="765" y="205" key="#com.intellij.ide.util.MemberChooser" timestamp="1581431243036">
@@ -104,10 +110,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="808" y="410" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1581336605411" />
-    <state x="614" y="115" key="CommitChangelistDialog2" timestamp="1581430744500">
+    <state x="614" y="115" key="CommitChangelistDialog2" timestamp="1581433266201">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="614" y="115" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581430744500" />
+    <state x="614" y="115" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581433266201" />
     <state width="1877" height="282" key="GridCell.Tab.0.bottom" timestamp="1581348340020">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -124,6 +130,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="282" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
+    <state x="552" y="254" key="Vcs.Push.Dialog.v2" timestamp="1581433273128">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="552" y="254" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1581433273128" />
     <state x="655" y="345" key="com.intellij.ide.util.TipDialog" timestamp="1581432977462">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

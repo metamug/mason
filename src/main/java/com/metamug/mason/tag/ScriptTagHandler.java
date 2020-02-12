@@ -13,6 +13,7 @@ import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
+
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,7 +23,6 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 
 /**
- *
  * @author pc
  */
 public class ScriptTagHandler extends RestTag {
@@ -34,7 +34,6 @@ public class ScriptTagHandler extends RestTag {
     }
 
     /**
-     *
      * @param var
      */
     public void setVar(String var) {
@@ -55,9 +54,11 @@ public class ScriptTagHandler extends RestTag {
             Binding binding = new Binding();
 
             Request masonReq = (Request) request.getAttribute("mtgReq");
-            binding.setVariable("_request", masonReq);
+            for (Map.Entry<String, String> requestVariable : masonReq.getParams().entrySet()) {
+                binding.setVariable("_$" + requestVariable.getKey(), requestVariable.getValue());
+            }
 
-            Map  contextMap = new ContextMap(pageContext);
+            Map contextMap = new ContextMap(pageContext);
             binding.setVariable("_$", contextMap);
             Map<String, Object> object = new LinkedHashMap<>();
 
