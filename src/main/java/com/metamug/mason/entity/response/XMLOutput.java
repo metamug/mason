@@ -514,6 +514,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -545,18 +546,18 @@ public class XMLOutput extends MasonOutput<Document> {
         xmlBuilder.append("<response>");
         xmlBuilder.append(XML.toString(jsonObject));
         xmlBuilder.append("</response>");
-
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document doc = null;
-        DocumentBuilder builder = null;
         try {
-            builder = factory.newDocumentBuilder();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.FALSE);
+            DocumentBuilder builder = factory.newDocumentBuilder();
             doc = builder.parse(new InputSource(new StringReader(xmlBuilder.toString())));
             return doc;
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            Logger.getLogger(XMLOutput.class.getName()).log(Level.SEVERE, e.getMessage(), e);	
+        } catch (IOException | SAXException | ParserConfigurationException e) {
+            Logger.getLogger(XMLOutput.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+            return doc;
         }
-        return doc;
+
     }
 
     @Override
@@ -576,11 +577,12 @@ public class XMLOutput extends MasonOutput<Document> {
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
             TransformerFactory tf = TransformerFactory.newInstance();
+            tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
             Transformer transformer = tf.newTransformer();
             transformer.transform(domSource, result);
             return writer.toString();
         } catch (TransformerException e) {
-            Logger.getLogger(XMLOutput.class.getName()).log(Level.SEVERE, e.getMessage(), e);	
+            Logger.getLogger(XMLOutput.class.getName()).log(Level.SEVERE, e.getMessage(), e);
             return null;
         }
     }

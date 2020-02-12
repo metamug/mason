@@ -525,6 +525,8 @@ import org.json.JSONObject;
 public class AuthDAO {
 
     ConnectionProvider provider;
+    private static final String STATUS = "status";
+    private static final int EXPIRY_DAYS = 90;
 
     public AuthDAO(ConnectionProvider provider) {
         this.provider = provider;
@@ -532,9 +534,8 @@ public class AuthDAO {
 
     public JSONObject validateBasic(String userName, String password, String roleName, String authQuery) {
         JSONObject status = new JSONObject();
-        status.put("status", 0);
+        status.put(STATUS, 0);
         try (Connection con = provider.getConnection()) {
-            //String authQuery = getConfigValue(con, "Basic");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, userName);
@@ -544,14 +545,14 @@ public class AuthDAO {
                             status.put("user_id", basicResult.getString(1));
                             status.put("role", basicResult.getString(2));
                             if (basicResult.getString(2).equalsIgnoreCase(roleName)) {
-                                status.put("status", 1);
+                                status.put(STATUS, 1);
                                 break;
                             }
                         }
                     }
                 }
             } else {
-                status.put("status", -1);
+                status.put(STATUS, -1);
             }
         } catch (SQLException ex) {
             Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -569,9 +570,8 @@ public class AuthDAO {
      */
     public JSONObject getBearerDetails(String user, String pass, String authQuery) {
         JSONObject jwtPayload = new JSONObject();
-        jwtPayload.put("status", 0);
+        jwtPayload.put(STATUS, 0);
         try (Connection con = provider.getConnection()) {
-            //String authQuery = getConfigValue(con, "Bearer");
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement stmt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     stmt.setString(1, user);
@@ -584,7 +584,8 @@ public class AuthDAO {
                         }
                         jwtPayload.put("aud", audArray);
                         LocalDateTime ldt = LocalDateTime.now().plusDays(EXPIRY_DAYS);
-                        jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //thsi needs to be configured
+//                        LocalDateTime.now();
+                        jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //this needs to be configured
                     }
                 }
             }
@@ -593,29 +594,5 @@ public class AuthDAO {
         }
         return jwtPayload;
     }
-
-    /**
-     * Get Value for key in mtg_config
-     *
-     * @param key
-     * @return empty string if no query
-     */
-    /*private String getConfigValue(Connection con, String key) {
-
-        try (PreparedStatement basicAuthQueryStmnt = con.prepareStatement("SELECT auth_query FROM mtg_config WHERE lower(auth_scheme)=lower(?)");) {
-            basicAuthQueryStmnt.setString(1, key);
-            try (ResultSet authQueryResult = basicAuthQueryStmnt.executeQuery()) {
-                if (authQueryResult.next()) {
-                    return authQueryResult.getString("auth_query");
-                } else {
-                    return "";
-                }
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-            return "";
-        }
-    }*/
-    private static final int EXPIRY_DAYS = 90;
 
 }

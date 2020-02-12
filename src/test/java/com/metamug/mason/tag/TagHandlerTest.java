@@ -793,9 +793,11 @@ public class TagHandlerTest {
         when(masonRequest.getMethod()).thenReturn("POST");
         resourceTag.setAuth("admin");
         //@TODO Change this every 3-4 months since it wont work after some time. Token expires
+
         long exp = ldt.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
         String bearer = new JWebToken("1234", new JSONArray("['admin']"), exp).toString(); 
         bearer = BEARER_ + bearer;
+        
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page

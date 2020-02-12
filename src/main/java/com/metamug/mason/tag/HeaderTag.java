@@ -528,15 +528,16 @@ public class HeaderTag extends BodyTagSupport {
         if (parent == null) {
             throw new JspTagException("Header Tag doesnt have a valid parent!");
         }
-
+        
         if (value == null) {
             value = getBodyContent().getString().trim();
         }
-
+        //System.out.println(value);
         if (this.value.length() > 0) {
             parent.addHeader(name, this.value);
         }
-
+        //flush value to prevent possible reappearance in next instance of tag
+        value = null;
         return EVAL_PAGE;
     }
 

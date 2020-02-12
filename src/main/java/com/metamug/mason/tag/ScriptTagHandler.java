@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 
 /**
  * @author pc
@@ -62,7 +61,8 @@ public class ScriptTagHandler extends RestTag {
             binding.setVariable("_$", contextMap);
             Map<String, Object> object = new LinkedHashMap<>();
 
-            binding.setVariable(var, object); //for the output
+            binding.setVariable("response", object); //for the output
+
             engine.run(SCRIPT_ROOT + file, binding);
             //output to bus
             addToBus(var, object);

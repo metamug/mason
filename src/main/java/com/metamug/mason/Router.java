@@ -506,7 +506,6 @@
  */
 package com.metamug.mason;
 
-import com.eclipsesource.json.ParseException;
 import com.metamug.entity.Request;
 import com.metamug.mason.entity.RootResource;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
@@ -672,7 +671,7 @@ public class Router implements Filter {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
             }
             
-        } catch (IOException | ServletException | JSONException | ParseException ex) {
+        } catch (IOException | ServletException | JSONException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
             } else if (ex.getCause() != null) {
