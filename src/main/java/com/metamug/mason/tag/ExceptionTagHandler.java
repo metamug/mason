@@ -517,7 +517,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
@@ -545,7 +544,6 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
      */
     @Override
     public int doEndTag() throws JspException {
-
         Exception exception = (Exception) value;
         ds = ConnectionProvider.getMasonDatasource();
         JspWriter out = pageContext.getOut();
@@ -567,7 +565,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     createErrorResponse(errorResponse, mtgCause);
                 }
             }
-
+            //add record to db
+            dbLogError(errorResponse, request, exception.getMessage(), new StringBuilder());
             //set response
             response.setStatus(errorResponse.getStatus());
             if (Arrays.asList(header.split("/")).contains("xml")) {
@@ -642,7 +641,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             exceptionMessage = exception.toString();
         }
         //to trace here
-        dbLogErorr(errorResponse, request, exceptionMessage, new StringBuilder());
+        dbLogError(errorResponse, request, exceptionMessage, new StringBuilder());
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -662,7 +661,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             }
             errorTraceBuilder.append("\n");
         }
-        dbLogErorr(response, request, exceptionMessage, errorTraceBuilder);
+        dbLogError(response, request, exceptionMessage, errorTraceBuilder);
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -682,7 +681,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         } else {
             exceptionMessage = exception.toString();
         }
-        dbLogErorr(errorResponse, request, exceptionMessage, errorTraceBuilder);
+        dbLogError(errorResponse, request, exceptionMessage, errorTraceBuilder);
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -699,7 +698,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     public void doFinally() {
     }
 
-    private void dbLogErorr(ErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
+    private void dbLogError(ErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
         String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,trace,"
