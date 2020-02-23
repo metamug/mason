@@ -550,6 +550,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String header = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
+       
         try {
             ErrorResponse errorResponse = new ErrorResponse();
             if (exception.getCause() != null) {
@@ -562,7 +563,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
                 } else if (cause.contains(MasonException.class.getName())) {
                     MasonException mtgCause = (MasonException) exception.getCause();
-                    createErrorResponse(errorResponse, mtgCause);
+                    errorResponse = createErrorResponse(errorResponse, mtgCause);
                 }
             }
             //add record to db
@@ -594,7 +595,6 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
      * @throws IOException
      */
     private ErrorResponse createErrorResponse(ErrorResponse errorResponse, MasonException mtgCause) throws IOException {
-
         switch (mtgCause.getError()) {
             case BEARER_TOKEN_MISMATCH:
                 errorResponse = new ErrorResponse(401, "Failed to authenticate User");
