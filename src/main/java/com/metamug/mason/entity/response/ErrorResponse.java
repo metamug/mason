@@ -4,10 +4,10 @@ import java.util.UUID;
 
 public class ErrorResponse {
 
-    private String errorId;
-    private int status = 512;
-    private String error = "Internal Server Error";
-    private String message = "API Error. Please contact your API administrator." ;
+    protected String errorId;
+    protected int status = 512;
+    protected String error = "Internal Server Error";
+    protected String message = "API Error. Please contact your API administrator." ;
 
     public ErrorResponse() {
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -16,7 +16,6 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(String errorId, int status, String error, String message) {
-        this();
         this.errorId = errorId;
         this.status = status;
         this.error = error;

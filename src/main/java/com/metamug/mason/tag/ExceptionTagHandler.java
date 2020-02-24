@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.mason.entity.response.ClientErrorResponse;
 import com.metamug.mason.entity.response.ErrorResponse;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.ConnectionProvider;
@@ -567,7 +568,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 }
             }
             //add record to db
-            dbLogError(errorResponse, request, exception.getMessage(), new StringBuilder());
+            if(!(errorResponse instanceof ClientErrorResponse)){
+                dbLogError(errorResponse, request, exception.getMessage(), new StringBuilder());
+            }
             //set response
             response.setStatus(errorResponse.getStatus());
             if (Arrays.asList(header.split("/")).contains("xml")) {
@@ -597,25 +600,25 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     private ErrorResponse createErrorResponse(ErrorResponse errorResponse, MasonException mtgCause) throws IOException {
         switch (mtgCause.getError()) {
             case BEARER_TOKEN_MISMATCH:
-                errorResponse = new ErrorResponse(401, "Failed to authenticate User");
+                errorResponse = new ClientErrorResponse(401, "Failed to authenticate User");
                 break;
             case INCORRECT_ROLE_AUTHENTICATION:
-                errorResponse = new ErrorResponse(403, "Authorization Error. Access Denied");
+                errorResponse = new ClientErrorResponse(403, "Authorization Error. Access Denied");
                 break;
             case INCORRECT_STATUS_CODE:
-                errorResponse = new ErrorResponse(406, "Incorrect Status Code");
+                errorResponse = new ClientErrorResponse(406, "Incorrect Status Code");
                 break;
             case INPUT_VALIDATION_ERROR:
-                errorResponse = new ErrorResponse(412, "Unable to validate input parameters");
+                errorResponse = new ClientErrorResponse(412, "Unable to validate input parameters");
                 break;
             case NO_UPLOAD_LISTENER:
-                errorResponse = new ErrorResponse(424, "Unable to handle file upload");
+                errorResponse = new ClientErrorResponse(424, "Unable to handle file upload");
                 break;
             case PARENT_RESOURCE_MISSING:
-                errorResponse = new ErrorResponse(404, "Resource not found");
+                errorResponse = new ClientErrorResponse(404, "Resource not found");
                 break;
             case ROLE_ACCESS_DENIED:
-                errorResponse = new ErrorResponse(403, "Access Denied");
+                errorResponse = new ClientErrorResponse(403, "Access Denied");
                 break;
             case SQL_ERROR:
                 logError(errorResponse, (HttpServletRequest) pageContext.getRequest(), mtgCause.getRootException());
@@ -625,7 +628,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 errorResponse.setError("Error during upload process");
                 break;
             case UPLOAD_SIZE_EXCEEDED:
-                errorResponse = new ErrorResponse(413, "File Size Exceeded");
+                errorResponse = new ClientErrorResponse(413, "File Size Exceeded");
                 break;
         }
         return errorResponse;
