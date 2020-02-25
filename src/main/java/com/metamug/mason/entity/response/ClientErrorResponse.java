@@ -21,25 +21,6 @@ package com.metamug.mason.entity.response;
  */
 public class ClientErrorResponse extends ErrorResponse {
     public ClientErrorResponse(int status, String message) {
-        this.status = status;
-        this.message = message;
-        error = "Client Error";
-        errorId = null;
-    }
-    
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-    
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
+        super(status, "Client Error", message);
     }
 }

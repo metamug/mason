@@ -15,42 +15,28 @@
  */
 package com.metamug.mason.entity.response;
 
+import java.util.UUID;
+
 /**
  *
  * @author anishhirlekar
  */
-public class ErrorResponse {
-    protected int status;
-    protected String error;
-    protected String message;
+public class InternalServerErrorResponse extends ErrorResponse {
     
-    public ErrorResponse(int status, String error, String message){
-        this.status = status;
-        this.error = error;
-        this.message = message;
+    protected String errorId;
+    
+    public InternalServerErrorResponse() {
+        super(512, "Internal Server Error", "API Error. Please contact your API administrator.");
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
+        errorId = String.valueOf(Math.abs(hash));
     }
     
-    public int getStatus() {
-        return status;
-    }
- 
-    public void setStatus(int status) {
-        this.status = status;
+    public String getErrorId() {
+        return errorId;
     }
 
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
+    public void setErrorId(String errorId) {
+        this.errorId = errorId;
     }
 }

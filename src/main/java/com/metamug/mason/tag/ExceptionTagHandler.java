@@ -508,6 +508,7 @@ package com.metamug.mason.tag;
 
 import com.metamug.mason.entity.response.ClientErrorResponse;
 import com.metamug.mason.entity.response.ErrorResponse;
+import com.metamug.mason.entity.response.InternalServerErrorResponse;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.ConnectionProvider;
 import org.json.JSONObject;
@@ -553,7 +554,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         String header = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
        
         try {
-            ErrorResponse errorResponse = new ErrorResponse();
+            ErrorResponse errorResponse = new InternalServerErrorResponse();
+            
             if (exception.getCause() != null) {
                 String cause = exception.getCause().toString();
                 if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
@@ -568,8 +570,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 }
             }
             //add record to db
-            if(!(errorResponse instanceof ClientErrorResponse)){
-                dbLogError(errorResponse, request, exception.getMessage(), new StringBuilder());
+            if(errorResponse instanceof InternalServerErrorResponse){
+                dbLogError((InternalServerErrorResponse)errorResponse, request, exception.getMessage(), new StringBuilder());
             }
             //set response
             response.setStatus(errorResponse.getStatus());
@@ -644,7 +646,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             exceptionMessage = exception.toString();
         }
         //to trace here
-        dbLogError(errorResponse, request, exceptionMessage, new StringBuilder());
+        if(errorResponse instanceof InternalServerErrorResponse){
+            dbLogError((InternalServerErrorResponse)errorResponse, request, exceptionMessage, new StringBuilder());
+        }
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -664,7 +668,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             }
             errorTraceBuilder.append("\n");
         }
-        dbLogError(response, request, exceptionMessage, errorTraceBuilder);
+        if(response instanceof InternalServerErrorResponse){
+            dbLogError((InternalServerErrorResponse)response, request, exceptionMessage, errorTraceBuilder);
+        }
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -684,7 +690,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         } else {
             exceptionMessage = exception.toString();
         }
-        dbLogError(errorResponse, request, exceptionMessage, errorTraceBuilder);
+        if(errorResponse instanceof InternalServerErrorResponse){
+            dbLogError((InternalServerErrorResponse)errorResponse, request, exceptionMessage, errorTraceBuilder);
+        }
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -701,7 +709,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     public void doFinally() {
     }
 
-    private void dbLogError(ErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
+    private void dbLogError(InternalServerErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
         String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,trace,"
