@@ -572,7 +572,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             //add record to db
             if(errorResponse instanceof InternalServerErrorResponse){
                 String msg = exception.getMessage();
-                if(exception.getCause()!=null){
+                if(exception.getCause()!=null && exception.getCause().toString().contains(MasonException.class.getName())) {
                     msg = exception.getCause().getMessage();
                 }
                 dbLogError((InternalServerErrorResponse)errorResponse, request, msg, new StringBuilder());
