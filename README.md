@@ -80,7 +80,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 ```xml
 <% @taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% @taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
-<% @taglib uri="mtg-mason.tld" prefix="m" %>
+<% @taglib uri="http://xml.metamug.net/jsp/jstl/mason" prefix="m" %>
 <%@ page trimDirectiveWhitespaces="true" %>
 ```
 
@@ -134,10 +134,11 @@ You need to keep the scripts in `{webAppDir}/WEB-INF/scripts`
 
 ```groovy
 //test.groovy
-def params = _request.getParams();
-res['message'] = 'Hello ' + params['name'];
+response['message'] = 'Hello ' + _$name;
 ```
+
 The script can be invoked using `script` tag in jsp resource.
+
 ```xml
 <m:script file="test.groovy" var="res" />
 ```
