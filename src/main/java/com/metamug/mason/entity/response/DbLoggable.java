@@ -23,5 +23,5 @@ import javax.sql.DataSource;
  * @author anishhirlekar
  */
 public interface DbLoggable {
-    public void log(InternalServerErrorResponse response, HttpServletRequest request, DataSource ds, String exceptionMessage, StringBuilder errorTraceBuilder);
+    public void log(String errorId, HttpServletRequest request, DataSource ds, String exceptionMessage, StringBuilder errorTraceBuilder);
 }

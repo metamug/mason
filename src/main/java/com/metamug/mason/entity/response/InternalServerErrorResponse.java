@@ -34,10 +34,10 @@ public class InternalServerErrorResponse extends ErrorResponse {
         errorId = String.valueOf(Math.abs(hash));
     }
     
-    public InternalServerErrorResponse(InternalServerErrorResponse response, DbLoggable dbLoggable, DataSource ds, HttpServletRequest request, 
+    public InternalServerErrorResponse(DbLoggable dbLoggable, DataSource ds, HttpServletRequest request, 
             String exceptionMessage, StringBuilder errorTraceBuilder) {
         this();
-        dbLoggable.log(response, request, ds, exceptionMessage, errorTraceBuilder);
+        dbLoggable.log(errorId, request, ds, exceptionMessage, errorTraceBuilder);
     }
     
     public String getErrorId() {

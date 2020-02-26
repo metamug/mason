@@ -31,12 +31,12 @@ import javax.sql.DataSource;
 public class DefaultDbLogger implements DbLoggable {
 
     @Override
-    public void log(InternalServerErrorResponse response, HttpServletRequest request, DataSource ds, String exceptionMessage, StringBuilder errorTraceBuilder) {
+    public void log(String errorId, HttpServletRequest request, DataSource ds, String exceptionMessage, StringBuilder errorTraceBuilder) {
         String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,trace,"
                 + " resource) VALUES(?,?,?,?,?)");) {
-            stmnt.setString(1, String.valueOf(response.getErrorId()));
+            stmnt.setString(1, errorId);
             stmnt.setString(2, method);
             stmnt.setString(3, exceptionMessage);
             stmnt.setString(4, errorTraceBuilder.toString());
