@@ -16,6 +16,8 @@
 package com.metamug.mason.entity.response;
 
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
 
 /**
  *
@@ -30,6 +32,12 @@ public class InternalServerErrorResponse extends ErrorResponse {
         String timestamp = String.valueOf(System.currentTimeMillis());
         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
         errorId = String.valueOf(Math.abs(hash));
+    }
+    
+    public InternalServerErrorResponse(InternalServerErrorResponse response, DbLoggable dbLoggable, DataSource ds, HttpServletRequest request, 
+            String exceptionMessage, StringBuilder errorTraceBuilder) {
+        this();
+        dbLoggable.log(response, request, ds, exceptionMessage, errorTraceBuilder);
     }
     
     public String getErrorId() {
