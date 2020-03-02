@@ -612,7 +612,6 @@ public class Router implements Filter {
      *
      * @param req
      * @param res
-     * @param tokens The URI split by /
      * @throws IOException
      */
     private void processRequest(HttpServletRequest req, HttpServletResponse res)

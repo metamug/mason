@@ -571,7 +571,7 @@ public class ParamTagHandler extends RestTag {
         //continue validation if value != null
         if (pattern != null) {
             try {
-                if (!value.matches(pattern)) {
+                if (value != null && (!value.matches(pattern))) {
                     throw new JspException("", new MasonException(MasonError.INPUT_VALIDATION_ERROR, "Input value doesn't match with specified pattern of " + name + " parameter"));
                 }
             } catch (PatternSyntaxException ex) {
@@ -634,7 +634,7 @@ public class ParamTagHandler extends RestTag {
                     if (maxLen != null) {
                         double maxLength = maxLen;
                         try {
-                            if (value.length() > maxLength) {
+                            if (value != null && (value.length() > maxLength)) {
                                 throw new JspException("", new MasonException(MasonError.INPUT_VALIDATION_ERROR, "Input " + value + " can be " + maxLength + " character long for " + name + " parameter"));
                             }
                         } catch (NullPointerException ex) {
@@ -645,7 +645,7 @@ public class ParamTagHandler extends RestTag {
                     }
                     if (minLen != null) {
                         double minLength = minLen;
-                        if (value.length() < minLength) {
+                        if (value != null && (value.length() < minLength)) {
                             throw new JspException("", new MasonException(MasonError.INPUT_VALIDATION_ERROR, "Input value must be " + minLength + " character long for " + name + " parameter"));
                         }
                     }

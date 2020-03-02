@@ -624,7 +624,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 errorResponse = new ClientErrorResponse(404, "Resource not found");
                 break;
             case ROLE_ACCESS_DENIED:
-                errorResponse = new ClientErrorResponse(403, "Access Denied");
+                errorResponse = new ClientErrorResponse(401, "Access Denied");
                 break;
             case SQL_ERROR:
                 logError(errorResponse, (HttpServletRequest) pageContext.getRequest(), mtgCause.getRootException());
