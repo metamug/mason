@@ -8,9 +8,12 @@ package com.metamug.mason.entity.request;
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
+import static com.metamug.mason.Router.JSP_EXTN;
+import static com.metamug.mason.Router.RESOURCES_FOLDER;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import java.io.File;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -59,11 +62,23 @@ public class RequestAdapter {
         }
 
         Request masonRequest = strategy.getRequest();
-
+        //System.out.println(VERSION_LENGTH);
+        //System.out.println("versionTokenIndex: "+versionTokenIndex);
         //Set parent value and pid
         if (tokens.length == versionTokenIndex + VERSION_LENGTH || tokens.length == versionTokenIndex + VERSION_LENGTH + 1) {
             //@TODO get parent
             //masonRequest.setParent(parent);
+            if(tokens.length == 5){
+                //check if parent exists
+                String parentName = tokens[2];
+                String v = tokens[1];
+                //System.out.println(parentName);
+                String jspPath = RESOURCES_FOLDER + "v" + v + "/" + parentName + JSP_EXTN;
+                File file = new File(request.getServletContext().getRealPath(jspPath));
+                if(!file.exists()) {
+                    //this means /parent/child/childId
+                }
+            }
             masonRequest.setPid(tokens[versionTokenIndex + 2]);
             masonRequest.setId((tokens.length > versionTokenIndex + 4) ? tokens[versionTokenIndex + 4] : null);
         } else {
