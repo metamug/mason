@@ -546,8 +546,8 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    public static final String JSP_EXTN = ".jsp";
-    public static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
+    private static final String JSP_EXTN = ".jsp";
+    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -614,8 +614,7 @@ public class Router implements Filter {
      * @param res
      * @throws IOException
      */
-    private void processRequest(HttpServletRequest req, HttpServletResponse res)
-            throws IOException {
+    private void processRequest(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
         String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod().toLowerCase();
@@ -637,9 +636,9 @@ public class Router implements Filter {
             resourceName = mtgReq.getResource().getName();
             
             String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
-            File file = new File(req.getServletContext().getRealPath(jspPath));
+            //File file = new File(req.getServletContext().getRealPath(jspPath));
             
-            if(file.exists()) {
+            if(resourceFileExists(resourceName, Float.toString(mtgReq.getResource().getVersion()), req)) {
                 req.setAttribute(MASON_REQUEST, mtgReq);
 
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
@@ -763,5 +762,11 @@ public class Router implements Filter {
         } catch (NullPointerException nx) {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
         }
+    }
+    
+    public static boolean resourceFileExists(String resourceName, String v, HttpServletRequest req){
+        String jspPath = RESOURCES_FOLDER + "v" + v + "/" + resourceName + JSP_EXTN;
+        File file = new File(req.getServletContext().getRealPath(jspPath));
+        return file.exists();
     }
 }
