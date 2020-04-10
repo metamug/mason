@@ -69,10 +69,7 @@ public class RequestAdapter {
                 //check if parent exists
                 String parentName = tokens[versionTokenIndex+1];
                 String v = tokens[versionTokenIndex];
-                //System.out.println(parentName);
-                //String jspPath = RESOURCES_FOLDER + "v" + v + "/" + parentName + JSP_EXTN;
-                //File file = new File(request.getServletContext().getRealPath(jspPath));
-                if(resourceFileExists(parentName,v,request)) {
+                if(resourceFileExists(parentName,v.replace("v",""),request)) {
                     //this means /parent/pid/child/ - so set pid
                     masonRequest.setPid(tokens[versionTokenIndex + 2]);
                     
@@ -81,12 +78,22 @@ public class RequestAdapter {
                     masonRequest.setId(tokens[versionTokenIndex + 3]);
                 }
             } else {
+                masonRequest.setPid(tokens[versionTokenIndex + 2]);
                 masonRequest.setId((tokens.length > versionTokenIndex + 4) ? tokens[versionTokenIndex + 4] : null);
             }
+            //System.out.println("ID: "+masonRequest.getId());
+            //System.out.println("PID: "+masonRequest.getPid());
         } else {
             Resource resource = new Resource(resourceName, version, String.join("/", tokens), null);
             masonRequest.setResource(resource);
-            masonRequest.setId((tokens.length > versionTokenIndex + 2) ? tokens[versionTokenIndex + 2] : null);
+            
+            String parentName = tokens[versionTokenIndex+1];
+            String v = tokens[versionTokenIndex];
+            if(resourceFileExists(parentName,v.replace("v",""),request) ){
+                masonRequest.setId((tokens.length > versionTokenIndex + 2) ? tokens[versionTokenIndex + 2] : null);
+            } 
+            //System.out.println("ID: "+masonRequest.getId());
+            //System.out.println("PID: "+masonRequest.getPid());
         }
         masonRequest.setMethod(method);
         masonRequest.setUri(tokens[versionTokenIndex + 1]);
