@@ -19,9 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
 /**
- *
  * @author anishhirlekar
  */
 public interface DbLoggable {
-    public void log(String errorId, HttpServletRequest request, DataSource ds, String exceptionMessage, StringBuilder errorTraceBuilder);
+    void log(String errorId, HttpServletRequest request, DataSource ds, String exceptionMessage, StringBuilder errorTraceBuilder);
 }

@@ -5,17 +5,17 @@
  */
 package com.metamug.mason.entity.request;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import javax.servlet.http.HttpServletRequest;
 
 /**
- *
  * @author anishhirlekar
  */
 public class HtmlStrategy extends ParamExtractStrategy {
     public static final String APPLICATION_HTML = "application/html";
+
     /**
      * @param request
      * @throws java.io.IOException

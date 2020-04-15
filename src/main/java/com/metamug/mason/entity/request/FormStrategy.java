@@ -5,17 +5,16 @@
  */
 package com.metamug.mason.entity.request;
 
-import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 /**
- *
  * @author D3ep4k
  */
 public class FormStrategy extends ParamExtractStrategy {
-        
+
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
-    
+
     public FormStrategy(HttpServletRequest request) {
         super(request);
         Enumeration<String> parameters = request.getParameterNames();

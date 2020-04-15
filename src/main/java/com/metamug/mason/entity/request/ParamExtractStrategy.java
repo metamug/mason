@@ -6,12 +6,12 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.servlet.http.HttpServletRequest;
 
 /**
- *
  * @author D3ep4k
  */
 public abstract class ParamExtractStrategy {

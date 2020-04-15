@@ -7,13 +7,6 @@ package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Response;
 import com.metamug.mason.processables.Customer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,11 +15,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.xml.bind.JAXBException;
+import java.util.*;
+
+import static org.mockito.Mockito.when;
+
 /**
- *
  * @author anishhirlekar
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -57,14 +53,14 @@ public class MasonOutputTest {
         list.add(new JSONObject(sampleObj));
         list.add(sampleResult);
         list.add(null);
-        
+
         Customer customer = new Customer();
         customer.setName("John");
         customer.setId(1);
         customer.setContact("8080808080", "john@example.com");
-        
+
         list.add(customer);
-        
+
         outputMap = new LinkedHashMap<>();
         outputMap.put("jsonobj", new JSONObject(sampleObj));
         outputMap.put("jsonarray", new JSONArray(sampleArray));

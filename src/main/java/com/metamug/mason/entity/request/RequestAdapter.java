@@ -7,16 +7,17 @@ package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 /**
- *
  * @author user
  */
 public class RequestAdapter {
@@ -76,5 +77,6 @@ public class RequestAdapter {
 
         return new ImmutableRequest(masonRequest);
     }
+
     private static final int VERSION_LENGTH = 4;
 }

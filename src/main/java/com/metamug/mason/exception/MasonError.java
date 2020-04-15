@@ -507,7 +507,6 @@
 package com.metamug.mason.exception;
 
 /**
- *
  * @author Kaisteel
  */
 public enum MasonError {

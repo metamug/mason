@@ -16,24 +16,23 @@
 package com.metamug.mason.entity.response;
 
 /**
- *
  * @author anishhirlekar
  */
 public class ErrorResponse {
     protected int status;
     protected String error;
     protected String message;
-    
-    public ErrorResponse(int status, String error, String message){
+
+    public ErrorResponse(int status, String error, String message) {
         this.status = status;
         this.error = error;
         this.message = message;
     }
-    
+
     public int getStatus() {
         return status;
     }
- 
+
     public void setStatus(int status) {
         this.status = status;
     }

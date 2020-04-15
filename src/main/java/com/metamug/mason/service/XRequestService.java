@@ -507,6 +507,10 @@
 package com.metamug.mason.service;
 
 import com.metamug.mason.entity.xrequest.XResponse;
+import okhttp3.*;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -515,18 +519,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import okhttp3.FormBody;
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 
 /**
- *
  * @author anishhirlekar
  */
 public class XRequestService {
@@ -540,18 +534,18 @@ public class XRequestService {
     public static final String APP_JSON = "application/json";
 
     private final OkHttpClient client = new OkHttpClient();
-    
+
     private boolean outputHeaders;
-    
-    public XRequestService(boolean outputHeaders){
+
+    public XRequestService(boolean outputHeaders) {
         this.outputHeaders = outputHeaders;
     }
 
     private XResponse makeRequest(Request request) {
         XResponse xr;
         try (Response response = client.newCall(request).execute()) {
-            Map<String,String> headerMap = new HashMap<>();
-            if(outputHeaders){
+            Map<String, String> headerMap = new HashMap<>();
+            if (outputHeaders) {
                 Headers headers = response.headers();
                 for (int i = 0; i < headers.size(); i++) {
                     headerMap.put(headers.name(i), headers.value(i));
@@ -559,7 +553,7 @@ public class XRequestService {
             }
             if (!response.isSuccessful()) {
                 xr = new XResponse(response.code(), headerMap, XREQUEST_ERROR + response, true, outputHeaders);
-                
+
             } else {
                 xr = new XResponse(response.code(), headerMap, response.body().string().trim(), false, outputHeaders);
             }
@@ -577,7 +571,7 @@ public class XRequestService {
             reqBuilder.addHeader(key, value);
         });
         StringBuilder queryParams = new StringBuilder();
-        for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = params.keySet().iterator(); iterator.hasNext(); ) {
             try {
                 String str = (String) iterator.next();
                 String key = URLEncoder.encode(str, UTF8);
@@ -599,7 +593,7 @@ public class XRequestService {
     }
 
     public XResponse post(String url, Map<String, String> headers,
-            Map<String, Object> params, String body) {
+                          Map<String, Object> params, String body) {
         Request.Builder reqBuilder = null;
 
         if (headers.get(CONTENT_TYPE) == null) {
@@ -642,7 +636,7 @@ public class XRequestService {
     }
 
     public XResponse put(String url, Map<String, String> headers,
-            Map<String, Object> params, String body) {
+                         Map<String, Object> params, String body) {
         Request.Builder reqBuilder = null;
         String contentType = headers.get(CONTENT_TYPE).toLowerCase();
         if (contentType.equals(APP_FORM_URLENCODED)) {
@@ -680,7 +674,7 @@ public class XRequestService {
 
     public XResponse delete(String url, Map<String, Object> params) {
         StringBuilder queryParams = new StringBuilder();
-        for (Iterator iterator = params.keySet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = params.keySet().iterator(); iterator.hasNext(); ) {
             try {
                 String str = (String) iterator.next();
                 String key = URLEncoder.encode(str, UTF8);

@@ -10,24 +10,25 @@ import java.util.Set;
 /**
  * Immutable Map to encapsulate pageContext
  */
-final public class ContextMap  implements Map<String, Object> {
+final public class ContextMap implements Map<String, Object> {
 
     private PageContext context;
 
-    public ContextMap(PageContext context){
+    public ContextMap(PageContext context) {
         this.context = context;
     }
 
     /**
      * Get Mason Request object from page context
+     *
      * @return Mason Request Object
      */
-    public Request getRequest(){
+    public Request getRequest() {
         return (Request) this.context.getRequest().getAttribute("mtgReq");
     }
 
     @Override
-    public int size(){
+    public int size() {
         return 0;
     }
 
