@@ -19,16 +19,8 @@ import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import com.metamug.exec.RequestProcessable;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
@@ -40,16 +32,15 @@ public class FileDownloadPlugin implements RequestProcessable {
     @Override
     public Response process(Request request, DataSource ds, Map<String, Object> args) throws Exception {
 
-        try (SFTP sftp = new SFTP((String) args.get("host"),
-                (String) args.get("user"), (String) args.get("password"), (String) args.get("dir"))) {
-            InputStream is = sftp.download(request.getParameter("file"));
-            Attachment attachment = new Attachment(is);
-            attachment.setName(request.getParameter("file"));
-            Response response = new Response(attachment);
-            return response;
-        }
+        SFTP sftp = new SFTP((String) args.get("host"),
+                (String) args.get("user"), (String) args.get("password"), (String) args.get("dir"));
+
+        InputStream is = sftp.download(request.getParameter("file"));
+        Attachment attachment = new Attachment(is);
+        attachment.setName(request.getParameter("file"));
+        Response response = new Response(attachment);
+        return response;
+
     }
-    
-    
 
 }
