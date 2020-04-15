@@ -605,13 +605,6 @@ public class RequestTagHandler extends RequestTag {
                 break;
             }
         }
-
-        //set response headers
-        if(headers != null) {
-            headers.entrySet().forEach( entry -> {
-                response.setHeader(entry.getKey(), entry.getValue());
-            });
-        }
         
         //write response
         try (OutputStream outputStream = response.getOutputStream()) {
@@ -631,6 +624,12 @@ public class RequestTagHandler extends RequestTag {
                 //cannnot use print writer since it we are already using outputstream
                 Response masonResponse = new ResponeBuilder(output).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+                //set response headers
+                if(headers != null) {
+                    headers.entrySet().forEach( entry -> {
+                        response.setHeader(entry.getKey(), entry.getValue());
+                    });
+                }
                 byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
@@ -640,6 +639,12 @@ public class RequestTagHandler extends RequestTag {
                 //has file in response
                 Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+                //set response headers
+                if(headers != null) {
+                    headers.entrySet().forEach( entry -> {
+                        response.setHeader(entry.getKey(), entry.getValue());
+                    });
+                }
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
                     WritableByteChannel out = Channels.newChannel(outputStream);) {
@@ -656,6 +661,7 @@ public class RequestTagHandler extends RequestTag {
                     }
                 }
             }
+            
         } catch (IOException ex) {
             //@TODO write error response if there is an error in file read or something else
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
