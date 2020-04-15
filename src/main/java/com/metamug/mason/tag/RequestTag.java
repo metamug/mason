@@ -513,7 +513,8 @@ import java.util.Map;
 
 /**
  * This is super class for request tag and its elements
- * @author pc
+ *
+ * @author d3ep4k
  */
 public class RequestTag extends RestTag {
 
@@ -528,7 +529,7 @@ public class RequestTag extends RestTag {
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
-    
+
     public void addHeader(String name, String value) {
         headers.put(name, value);
     }
@@ -536,7 +537,7 @@ public class RequestTag extends RestTag {
     public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
     }
-   
+
     public void addParameter(String name, Object value) {
         parameters.put(name, value);
     }

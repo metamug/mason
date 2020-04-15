@@ -21,15 +21,16 @@ package com.metamug.mason.service.xrequest;
 import com.metamug.entity.Response;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
-import static com.metamug.mason.service.xrequest.XRequestErrorTest.ACCEPT_JSON;
-import java.util.HashMap;
-import java.util.Map;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.metamug.mason.service.xrequest.XRequestErrorTest.ACCEPT_JSON;
+
 /**
- *
  * @author d3ep4k
  */
 public class XRequestTest {
@@ -49,8 +50,8 @@ public class XRequestTest {
         headers.put("Accept", XRequestService.APP_JSON);
         XResponse xr = xRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", headers, params);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
-        
+        JSONObject body = (JSONObject) response.getPayload();
+
         String foo = body.getJSONObject("body").getJSONObject("args").getString("foo1");
         Assert.assertEquals("bar1", foo);
     }
@@ -64,8 +65,8 @@ public class XRequestTest {
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.get("https://postman-echo.com/get", headers, params);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
-        
+        JSONObject body = (JSONObject) response.getPayload();
+
         String foo = body.getJSONObject("body").getJSONObject("args").getString("foo1");
         Assert.assertEquals("bar1", foo);
     }
@@ -80,8 +81,8 @@ public class XRequestTest {
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.post("https://postman-echo.com/post", headers, params, null);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
-        
+        JSONObject body = (JSONObject) response.getPayload();
+
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
         Assert.assertEquals("bar1", body.getJSONObject("body").getJSONObject("form").getString("foo1"));
     }
@@ -96,8 +97,8 @@ public class XRequestTest {
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.post("https://postman-echo.com/post", headers, params, null);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
-        
+        JSONObject body = (JSONObject) response.getPayload();
+
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
         Assert.assertEquals("bar1", body.getJSONObject("body").getJSONObject("data").getString("foo1"));
     }
@@ -113,12 +114,12 @@ public class XRequestTest {
         json.put("foo2", "bar2");
         XResponse xr = xRequestService.post("https://postman-echo.com/post", headers, params, json.toString());
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
-        
+        JSONObject body = (JSONObject) response.getPayload();
+
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
         Assert.assertEquals("bar1", body.getJSONObject("body").getJSONObject("data").getString("foo1"));
     }
-    
+
     @Test
     public void testPutWithFormParams() {
         Map<String, Object> params = new HashMap<>();
@@ -129,8 +130,8 @@ public class XRequestTest {
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.put("https://postman-echo.com/put", headers, params, null);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
-        
+        JSONObject body = (JSONObject) response.getPayload();
+
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
         Assert.assertEquals("bar1", body.getJSONObject("body").getJSONObject("form").getString("foo1"));
     }
@@ -145,8 +146,8 @@ public class XRequestTest {
         params.put("foo2", "bar2");
         XResponse xr = xRequestService.put("https://postman-echo.com/put", headers, params, null);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
-        
+        JSONObject body = (JSONObject) response.getPayload();
+
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
         Assert.assertEquals("bar1", body.getJSONObject("body").getJSONObject("data").getString("foo1"));
     }
@@ -162,11 +163,11 @@ public class XRequestTest {
         json.put("foo2", "bar2");
         XResponse xr = xRequestService.put("https://postman-echo.com/put", headers, params, json.toString());
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
-        
+        JSONObject body = (JSONObject) response.getPayload();
+
         Assert.assertEquals(STATUS_OK, xr.getStatusCode());
         Assert.assertEquals("bar1", body.getJSONObject("body").getJSONObject("data").getString("foo1"));
-    } 
+    }
 
     @Test
     public void testDeleteWithQueryParams() {

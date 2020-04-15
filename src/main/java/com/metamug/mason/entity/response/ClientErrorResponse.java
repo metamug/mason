@@ -16,7 +16,6 @@
 package com.metamug.mason.entity.response;
 
 /**
- *
  * @author anishhirlekar
  */
 public class ClientErrorResponse extends ErrorResponse {

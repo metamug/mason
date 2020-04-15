@@ -511,13 +511,13 @@ import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.tag.ResourceTagHandler;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
 
+import javax.servlet.jsp.JspException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
 /**
- *
  * @author Kaisteel
  */
 public class AuthService {

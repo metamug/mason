@@ -659,6 +659,17 @@ import com.metamug.mason.RouterTest;
 import com.metamug.mason.dao.AuthDAO;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -668,22 +679,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- *
  * @author GAURI
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -724,7 +725,7 @@ public class RootResourceTest {
             Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
-  
+
     @Ignore
     @Test
     public void testJwtAuthCall() {

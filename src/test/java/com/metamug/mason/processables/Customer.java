@@ -511,7 +511,6 @@ package com.metamug.mason.processables;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
  * @author anishhirlekar
  */
 @XmlRootElement
@@ -523,7 +522,7 @@ public class Customer {
     public void setName(String n) {
         name = n;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }
@@ -537,12 +536,12 @@ public class Customer {
     public int getId() {
         return id;
     }
-    
+
     public String getName() {
         return name;
     }
 
     public Contact getContact() {
         return contact;
-    }    
- }
+    }
+}

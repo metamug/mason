@@ -507,17 +507,17 @@
 package com.metamug.mason.service;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
  * @author Kainix
  */
 public class ConnectionProvider {
@@ -538,11 +538,11 @@ public class ConnectionProvider {
     }
 
     public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
-        this.masonDatasource = masonDatasource;
+        ConnectionProvider.masonDatasource = masonDatasource;
         ds = getMasonDatasource();
     }
 
-//    public static ConnectionProvider getInstance() throws SQLException, NamingException {
+    //    public static ConnectionProvider getInstance() throws SQLException, NamingException {
 //        return new ConnectionProvider();
 //    }
     public Connection getConnection() {

@@ -509,30 +509,31 @@ package com.metamug.mason.entity.response;
 import com.metamug.entity.Response;
 import com.metamug.mason.io.mpath.MPathUtil;
 import com.metamug.mason.io.objectreturn.ObjectReturn;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.MarshalException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.MarshalException;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * JSONs Output Object
  */
-public class JSONOutput extends MasonOutput<JSONObject>{
+public class JSONOutput extends MasonOutput<JSONObject> {
 
     @Override
     protected JSONObject getContent() {
         JSONObject responseJson = new JSONObject();
-        outputMap.entrySet().forEach( entry  -> {
+        outputMap.entrySet().forEach(entry -> {
             Object obj = entry.getValue();
             String key = entry.getKey();
-            if(obj == null) {
+            if (obj == null) {
                 responseJson.put(key, new JSONObject());
             } else if (obj instanceof ResultImpl) {
                 responseJson.put(key, getJson((ResultImpl) obj));
@@ -544,11 +545,11 @@ public class JSONOutput extends MasonOutput<JSONObject>{
                 responseJson.put(key, obj);
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
-                List<Object> list = (List)obj;
+                List<Object> list = (List) obj;
                 for (Object o : list) {
-                    if(o == null){
+                    if (o == null) {
                         array.put(new JSONObject());
-                    } else if(o instanceof String || o instanceof JSONObject || o instanceof JSONArray) {
+                    } else if (o instanceof String || o instanceof JSONObject || o instanceof JSONArray) {
                         array.put(o);
                     } else if (o instanceof ResultImpl) {
                         array.put(getJson((ResultImpl) o));

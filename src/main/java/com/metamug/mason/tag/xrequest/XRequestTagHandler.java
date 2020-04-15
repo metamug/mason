@@ -515,13 +515,12 @@ import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.XRequestService;
 import com.metamug.mason.tag.RequestTag;
 import com.metamug.mason.tag.ResourceTagHandler;
-import java.util.Map;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import java.util.Map;
 
 /**
- *
  * @author anishhirlekar
  */
 public class XRequestTagHandler extends RequestTag {
@@ -530,7 +529,7 @@ public class XRequestTagHandler extends RequestTag {
     private String url;
     private String requestBody;
     private String className;
-    
+
     private boolean outputHeaders;
     private boolean output;
 
@@ -569,29 +568,29 @@ public class XRequestTagHandler extends RequestTag {
         }
 
         Response res = xresponse.getResponse(acceptHeader, xAcceptType);
-        
-        if(className!=null){
+
+        if (className != null) {
             //post processable classname is given
             try {
-                Class cls = Class.forName(className);                
-                if(ResponseProcessable.class.isAssignableFrom(cls)){
-                    ResponseProcessable responseProcessor = (ResponseProcessable)cls.newInstance();
+                Class cls = Class.forName(className);
+                if (ResponseProcessable.class.isAssignableFrom(cls)) {
+                    ResponseProcessable responseProcessor = (ResponseProcessable) cls.newInstance();
                     //get post processed response
                     res = responseProcessor.process(res);
                 } else {
                     throw new JspException("", new MasonException(MasonError.RESPONSE_PROCESSABLE_NOT_IMPLEMENTED,
                             "Class " + cls + " is not Response processable"));
-                }                
+                }
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
                 throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
             } catch (Exception ex) {
                 throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
             }
         }
-        
+
         addToBus(var, res);
-     
-        if(output){
+
+        if (output) {
             addToOutput(var, res);
         }
 
@@ -609,15 +608,15 @@ public class XRequestTagHandler extends RequestTag {
     public void setRequestBody(String b) {
         requestBody = b;
     }
-    
-    public void setOutput(Boolean output){
+
+    public void setOutput(Boolean output) {
         this.output = output;
-    } 
-    
+    }
+
     public void setOutputHeaders(boolean outputHeaders) {
         this.outputHeaders = outputHeaders;
     }
-    
+
     public void setClassName(String className) {
         this.className = className;
     }

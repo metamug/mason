@@ -507,6 +507,9 @@
 package com.metamug.mason.dao;
 
 import com.metamug.mason.service.ConnectionProvider;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -515,11 +518,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
- *
  * @author Kaisteel
  */
 public class AuthDAO {
@@ -563,8 +563,8 @@ public class AuthDAO {
     /**
      * This is used by to generate the token.
      *
-     * @param user username to be matched in the auth query
-     * @param pass password to be matched in auth query
+     * @param user      username to be matched in the auth query
+     * @param pass      password to be matched in auth query
      * @param authQuery The Bearer Auth query in web.xml
      * @return
      */

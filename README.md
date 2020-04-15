@@ -134,8 +134,8 @@ You need to keep the scripts in `{webAppDir}/WEB-INF/scripts`
 
 ```groovy
 //test.groovy
-def params = _request.getParams();
-res['message'] = 'Hello ' + params['name'];
+def params = _request.getParams()
+res['message'] = 'Hello ' + params['name']
 ```
 The script can be invoked using `script` tag in jsp resource.
 ```xml

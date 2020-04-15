@@ -16,16 +16,16 @@
 package com.metamug.mason.entity.response;
 
 import com.metamug.mason.tag.ExceptionTagHandler;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 
 /**
- *
  * @author anishhirlekar
  */
 public class DefaultDbLogger implements DbLoggable {
@@ -35,7 +35,7 @@ public class DefaultDbLogger implements DbLoggable {
         String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,trace,"
-                + " resource) VALUES(?,?,?,?,?)");) {
+                + " resource) VALUES(?,?,?,?,?)")) {
             stmnt.setString(1, errorId);
             stmnt.setString(2, method);
             stmnt.setString(3, exceptionMessage);
@@ -46,5 +46,5 @@ public class DefaultDbLogger implements DbLoggable {
             Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
-    
+
 }

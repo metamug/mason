@@ -5,14 +5,13 @@
  */
 package com.metamug.mason.service;
 
-import com.metamug.mason.service.QueryManagerService;
-import java.io.IOException;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.Map;
+
 /**
- *
  * @author anishhirlekar
  */
 public class QueryManagerServiceTest {

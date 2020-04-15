@@ -5,20 +5,17 @@
  */
 package com.metamug.mason.entity.auth;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.*;
+
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
+
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.BeforeClass;
 
 /**
- *
  * @author user
  */
 public class JWebTokenTest {
@@ -54,7 +51,7 @@ public class JWebTokenTest {
     @org.junit.Test
     public void testWithData() {
         //generate JWT
-        long exp = ldt.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
+        long exp = LocalDateTime.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
         String token = new JWebToken("1234", new JSONArray("['admin']"), exp).toString();
         //verify and use
         JWebToken incomingToken;

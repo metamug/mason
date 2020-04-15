@@ -509,12 +509,14 @@ That's all there is to it!
 package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Response;
+
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * This builder avoids the direct use of getContent method in MasonOutput
+ *
  * @author pc
  */
 public class ResponeBuilder {

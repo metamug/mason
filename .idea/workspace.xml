@@ -3,13 +3,88 @@
   <component name="ChangeListManager">
     <list default="true" id="1caabcb6-9198-4883-b8b9-c5dff813bd33" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/Router.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/Router.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/SimpleCORSFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/SimpleCORSFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/dao/AuthDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/dao/AuthDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/ContextMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/ContextMap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/RootResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/RootResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/auth/JWebToken.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/auth/JWebToken.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/FormStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/FormStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/HtmlStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/HtmlStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/ImmutableRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/ImmutableRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/JsonStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/JsonStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/MultipartFormStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/MultipartFormStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/ParamExtractStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/ParamExtractStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/RequestAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/RequestAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ClientErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ClientErrorResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DatasetOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DatasetOutput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DbLoggable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DbLoggable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DefaultDbLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DefaultDbLogger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ErrorResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/FileOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/FileOutput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/InternalServerErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/InternalServerErrorResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/JSONOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/JSONOutput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/MasonOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/MasonOutput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ResponeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ResponeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/XMLOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/XMLOutput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/xrequest/XResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/xrequest/XResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/exception/MasonError.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/exception/MasonError.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/exception/MasonException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/exception/MasonException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/function/Extract.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/function/Extract.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/io/mpath/MPathUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/io/mpath/MPathUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/io/objectreturn/ObjectReturn.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/io/objectreturn/ObjectReturn.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/ConnectionProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/ConnectionProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/QueryManagerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/QueryManagerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/UploaderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/UploaderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/XRequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/XRequestService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ExceptionTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ExceptionTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ExecuteTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ExecuteTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/HeaderTag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/HeaderTag.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/KeyValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/KeyValue.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ParamTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ParamTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RequestTag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RequestTag.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RequestTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RequestTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ResourceTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ResourceTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RestTag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RestTag.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ScriptTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ScriptTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/BodyTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/BodyTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/ParamTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/ParamTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/XRequestTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/XRequestTagHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/mtg-mason.tld" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/mtg-mason.tld" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/RouterTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/RouterTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/RootResourceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/RootResourceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/auth/JWebTokenTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/auth/JWebTokenTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/response/MasonOutputTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/response/MasonOutputTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/CollectTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/CollectTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/MPathFetchValueTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/MPathFetchValueTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/MPathUnflattenTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/MPathUnflattenTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/TestData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/TestData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/ObjectReturnTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/ObjectReturnTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/testclasses/Customer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/testclasses/Customer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/testclasses/PhoneNumber.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/testclasses/PhoneNumber.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/Contact.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/Contact.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/Customer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/Customer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/RequestExample.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/RequestExample.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/ResponseExample.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/ResponseExample.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/ResultExample.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/ResultExample.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/QueryManagerServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/QueryManagerServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestErrorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestErrorTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestHeaderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestHeaderTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/tag/TagHandlerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/tag/TagHandlerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/test.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CoverageViewManager">
+    <option name="myElementSize" value="99" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -41,11 +116,33 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../metamug-parser" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
   </component>
   <component name="RunAnythingCache">
     <option name="myCommands">
+      <command value="mvn package" />
       <command value="mvn clean install" />
+      <command value="mvn pre-package" />
+      <command value="mvn release" />
+      <command value="mvn test" />
+      <command value="mvn clean test" />
     </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="All in mason" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="mason" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.All in mason" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -102,6 +199,10 @@
     <option name="LAST_COMMIT_MESSAGE" value="Added ContextMap and updated ScriptTagHandler" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="414" y="176" width="1092" height="775" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586617191203">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="414" y="176" width="1092" height="775" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1586617191203" />
     <state x="765" y="205" key="#com.intellij.ide.util.MemberChooser" timestamp="1581431243036">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -110,34 +211,42 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="808" y="410" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1581336605411" />
+    <state x="707" y="368" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1586617053535">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="707" y="368" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1586617053535" />
     <state x="614" y="115" key="CommitChangelistDialog2" timestamp="1581433266201">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="614" y="115" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581433266201" />
-    <state width="1877" height="282" key="GridCell.Tab.0.bottom" timestamp="1581348340020">
+    <state x="740" y="276" key="FileChooserDialogImpl" timestamp="1586618967194">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
-    <state width="1877" height="282" key="GridCell.Tab.0.center" timestamp="1581348340020">
+    <state x="740" y="276" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1586618967194" />
+    <state width="1877" height="282" key="GridCell.Tab.0.bottom" timestamp="1586618978295">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
-    <state width="1877" height="282" key="GridCell.Tab.0.left" timestamp="1581348340020">
+    <state width="1877" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1586618978295" />
+    <state width="1877" height="282" key="GridCell.Tab.0.center" timestamp="1586618978294">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
-    <state width="1877" height="282" key="GridCell.Tab.0.right" timestamp="1581348340020">
+    <state width="1877" height="282" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1586618978294" />
+    <state width="1877" height="282" key="GridCell.Tab.0.left" timestamp="1586618978294">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581348340020" />
+    <state width="1877" height="282" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1586618978294" />
+    <state width="1877" height="282" key="GridCell.Tab.0.right" timestamp="1586618978294">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="282" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1586618978294" />
     <state x="552" y="254" key="Vcs.Push.Dialog.v2" timestamp="1581433273128">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="254" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1581433273128" />
-    <state x="655" y="345" key="com.intellij.ide.util.TipDialog" timestamp="1581432977462">
+    <state x="655" y="345" key="com.intellij.ide.util.TipDialog" timestamp="1586529181684">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="655" y="345" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1581432977462" />
+    <state x="655" y="345" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1586529181684" />
     <state x="657" y="252" width="606" height="536" key="find.popup" timestamp="1581345837917">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -146,9 +255,12 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="691" y="312" key="git4idea.merge.GitPullDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1581336474527" />
-    <state x="616" y="240" width="672" height="677" key="run.anything.popup" timestamp="1581347450164">
+    <state x="616" y="240" width="672" height="677" key="run.anything.popup" timestamp="1586618699865">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="616" y="240" width="672" height="677" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1581347450164" />
+    <state x="616" y="240" width="672" height="677" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1586618699865" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/mason$All_in_mason.ic" NAME="All in mason Coverage Results" MODIFIED="1586617249748" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>
