@@ -509,11 +509,15 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
-import com.metamug.mason.entity.response.*;
+import static com.metamug.mason.Router.MASON_REQUEST;
+import com.metamug.mason.entity.response.FileOutput;
+import com.metamug.mason.entity.response.DatasetOutput;
+import com.metamug.mason.entity.response.JSONOutput;
+import com.metamug.mason.entity.response.MasonOutput;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import com.metamug.mason.entity.response.ResponeBuilder;
+import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.service.UploaderService;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -529,11 +533,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.metamug.mason.Router.MASON_REQUEST;
-import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 
 /**
+ *
  * @author anishhirlekar
  */
 public class RequestTagHandler extends RequestTag {
@@ -542,17 +546,17 @@ public class RequestTagHandler extends RequestTag {
     private boolean evaluate;
 
     private Request masonRequest;
-
+    
     protected ResourceTagHandler parent;
 
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-
-        parent = (ResourceTagHandler) getParent();
+        
+        parent = (ResourceTagHandler)getParent();
         //add http method of this request tag to parent's list
         parent.addChildMethod(method);
-
+        
         masonRequest = (Request) request.getAttribute(MASON_REQUEST);
 
         if (method.equalsIgnoreCase(masonRequest.getMethod())) {
@@ -601,14 +605,14 @@ public class RequestTagHandler extends RequestTag {
                 break;
             }
         }
-
+        
         //set response headers
-        if (headers != null) {
-            headers.entrySet().forEach(entry -> {
+        if(headers != null) {
+            headers.entrySet().forEach( entry -> {
                 response.setHeader(entry.getKey(), entry.getValue());
             });
         }
-
+        
         //write response
         try (OutputStream outputStream = response.getOutputStream()) {
 
@@ -627,6 +631,7 @@ public class RequestTagHandler extends RequestTag {
                 //cannnot use print writer since it we are already using outputstream
                 Response masonResponse = new ResponeBuilder(output).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+                
                 byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
@@ -636,23 +641,31 @@ public class RequestTagHandler extends RequestTag {
                 //has file in response
                 Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+               
+                //set response headers
+                if(headers != null) {
+                    headers.entrySet().forEach( entry -> {
+                        response.setHeader(entry.getKey(), entry.getValue());
+                    });
+                }        
+                
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
-
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
-                        WritableByteChannel out = Channels.newChannel(outputStream);) {
+                    WritableByteChannel out = Channels.newChannel(outputStream);) {
                     /**
                      * Don't set Content Length. Max buffer for output stream is
                      * 2KB and it is flushed
                      */
+
                     ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
-                    while (in.read(buffer) != - 1) {
+                    while (in.read(buffer) != -1) {
                         buffer.flip();
                         out.write(buffer);
                         buffer.clear();
                     }
-
                 }
             }
+            
         } catch (IOException ex) {
             //@TODO write error response if there is an error in file read or something else
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
