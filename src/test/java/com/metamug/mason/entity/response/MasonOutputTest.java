@@ -97,7 +97,7 @@ public class MasonOutputTest {
         System.out.println("XML: " + outStr);
         System.out.println("Length: " + outStr.length());
         XML.toJSONObject(outStr); //validate xml 
-        assertTrue(outStr.length()>900);
+        assertTrue(outStr.length()>800);
     }
 
     private String getOutput(String dataType) throws JAXBException {
