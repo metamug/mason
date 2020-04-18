@@ -19,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.xml.bind.JAXBException;
 import java.util.*;
+import static org.junit.Assert.assertTrue;
 
 import static org.mockito.Mockito.when;
 
@@ -74,35 +75,32 @@ public class MasonOutputTest {
     @Test
     public void testJson() throws JAXBException {
         String dataType = MasonOutput.HEADER_JSON;
-        MasonOutput output = getOutput(dataType);
-        String outStr = output.toString();
+        String outStr = getOutput(dataType);
         System.out.println("json: " + outStr);
         System.out.println("Length: " + outStr.length());
-        //Assert.assertTrue(outStr.length()>1);
+        assertTrue(outStr.length()>500);
     }
 
     @Test
     public void testDataSet() throws JAXBException {
         String dataType = MasonOutput.HEADER_DATASET;
-        MasonOutput output = getOutput(dataType);
-        String outStr = output.toString();
+        String outStr = getOutput(dataType);
         System.out.println("DATASET: " + outStr);
         System.out.println("Length: " + outStr.length());
-        //Assert.assertTrue(outStr.length()>1);
+        assertTrue(outStr.length()>500);
     }
 
     @Test
     public void testXml() throws JAXBException {
         String dataType = MasonOutput.HEADER_XML;
-        MasonOutput output = getOutput(dataType);
-        String outStr = output.toString();
+        String outStr = getOutput(dataType);
         System.out.println("XML: " + outStr);
         System.out.println("Length: " + outStr.length());
         XML.toJSONObject(outStr); //validate xml 
-        //Assert.assertTrue(outStr.length()>1);
+        assertTrue(outStr.length()>900);
     }
 
-    private MasonOutput getOutput(String dataType) throws JAXBException {
+    private String getOutput(String dataType) throws JAXBException {
         MasonOutput output = null;
 
         switch (dataType) {
@@ -116,9 +114,11 @@ public class MasonOutputTest {
                 output = new XMLOutput();
                 break;
         }
+        
         Response res = output.generate(null, outputMap);
+        
 //        Assert.assertEquals(null, res.getPayload());
-        return output;
+        return output.format(res);
     }
 
     public static SortedMap[] getSampleRows() {
