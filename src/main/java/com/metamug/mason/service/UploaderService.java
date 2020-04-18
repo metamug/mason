@@ -616,7 +616,7 @@ public class UploaderService {
 
             String fileName;
             for (Part filePart : fileParts) { //for multiple files
-                //fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
+                fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
                 File uploadedFile = new File(uploadFilePath + File.separator + filePart.getSubmittedFileName());
                 if (!uploadedFile.isDirectory()) {
                     try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
