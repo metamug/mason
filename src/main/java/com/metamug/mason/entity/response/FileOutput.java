@@ -510,11 +510,11 @@ package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Response;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author pc
  */
 public class FileOutput extends MasonOutput<Attachment> {

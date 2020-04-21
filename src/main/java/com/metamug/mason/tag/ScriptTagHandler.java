@@ -6,22 +6,22 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
+import com.metamug.mason.entity.ContextMap;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
+
+import javax.servlet.jsp.JspException;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 
 /**
- *
  * @author pc
  */
 public class ScriptTagHandler extends RestTag {
@@ -33,7 +33,6 @@ public class ScriptTagHandler extends RestTag {
     }
 
     /**
-     *
      * @param var
      */
     public void setVar(String var) {
@@ -52,15 +51,22 @@ public class ScriptTagHandler extends RestTag {
             //file:/C:/tomcat9/webapps/mason-sample/WEB-INF/classes//WEB_INF/scripts/test.groovy
             GroovyScriptEngine engine = new GroovyScriptEngine(new URL[]{ScriptTagHandler.class.getClassLoader().getResource("..")});
             Binding binding = new Binding();
+
             Request masonReq = (Request) request.getAttribute("mtgReq");
-            binding.setVariable("_request", masonReq);
-//            Map<String, Object> masonBus = (Map<String, Object>) pageContext.getAttribute(MASON_BUS,PageContext.PAGE_SCOPE);
-            binding.setVariable("_context", pageContext);
+            for (Map.Entry<String, String> requestVariable : masonReq.getParams().entrySet()) {
+                binding.setVariable("_$" + requestVariable.getKey(), requestVariable.getValue());
+            }
+
+            Map contextMap = new ContextMap(pageContext);
+            binding.setVariable("_$", contextMap);
             Map<String, Object> object = new LinkedHashMap<>();
-            binding.setVariable(var, object); //for the output
+
+            binding.setVariable("response", object); //for the output
+
             engine.run(SCRIPT_ROOT + file, binding);
             //output to bus
             addToBus(var, object);
+
         } catch (SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
             Logger.getLogger(ScriptTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new JspException("", new MasonException(MasonError.SCRIPT_ERROR));

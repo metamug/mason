@@ -507,26 +507,26 @@
 package com.metamug.mason.entity.xrequest;
 
 import com.metamug.entity.Response;
-import java.util.Arrays;
-import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 
+import java.util.Arrays;
+import java.util.Map;
+
 /**
- *
  * @author anishhirlekar
  */
 public class XResponse {
 
     private int statusCode;
-    private Map<String,String> headers;
+    private Map<String, String> headers;
     private String body;
     private boolean error;
     private boolean outputHeaders;
 
-    public XResponse(int statusCode, Map<String,String> headers, String body, boolean error, boolean outputHeaders) {
+    public XResponse(int statusCode, Map<String, String> headers, String body, boolean error, boolean outputHeaders) {
         this.statusCode = statusCode;
         this.headers = headers;
         this.body = body;
@@ -537,22 +537,22 @@ public class XResponse {
     public int getStatusCode() {
         return statusCode;
     }
-    
-    public Response getResponse(String accept, String xrequestAccept){
+
+    public Response getResponse(String accept, String xrequestAccept) {
         Response response;
         if (Arrays.asList(accept.split("/")).contains("xml")) {
-            response = xrequestAccept.equals("xml") ? getXmlForXmlXResponse() : getXmlForJsonXResponse();     
+            response = xrequestAccept.equals("xml") ? getXmlForXmlXResponse() : getXmlForJsonXResponse();
         } else {
             response = xrequestAccept.equals("xml") ? getJsonForXmlXResponse() : getJsonForJsonXResponse();
-            
-            if(!outputHeaders){
-                JSONObject payload = (JSONObject)response.getPayload();
-                try{
+
+            if (!outputHeaders) {
+                JSONObject payload = (JSONObject) response.getPayload();
+                try {
                     response.setPayload(payload.getJSONObject("body"));
-                }catch(JSONException jx){
-                    try{
+                } catch (JSONException jx) {
+                    try {
                         response.setPayload(payload.getJSONArray("body"));
-                    }catch(JSONException jx1){
+                    } catch (JSONException jx1) {
                         response.setPayload(payload.getString("body"));
                     }
                 }
@@ -566,7 +566,7 @@ public class XResponse {
             return new Response(getErrorJson());
         }
 
-        return new Response(getJson(statusCode,headers,body));
+        return new Response(getJson(statusCode, headers, body));
     }
 
     private Response getJsonForJsonXResponse() {
@@ -577,7 +577,7 @@ public class XResponse {
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         putHeaders(obj, headers);
-        
+
         try {
             JSONObject bodyObject = new JSONObject(body);
             obj.put("body", bodyObject);
@@ -608,7 +608,7 @@ public class XResponse {
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
         putHeaders(obj, headers);
-        
+
         try {
             JSONObject bodyObject = new JSONObject(body);
             obj.put("body", bodyObject);
@@ -624,30 +624,30 @@ public class XResponse {
         }
         return new Response(XML.toString(obj));
     }
-    
+
     private JSONObject getErrorJson() {
-        return getJson(statusCode,headers,body);
+        return getJson(statusCode, headers, body);
     }
 
     private String getErrorXml() {
         return XML.toString(getErrorJson());
     }
-    
-    private JSONObject getJson(int statusCode, Map<String,String> headers, String body){
+
+    private JSONObject getJson(int statusCode, Map<String, String> headers, String body) {
         JSONObject obj = new JSONObject();
         obj.put("statusCode", statusCode);
-        
+
         putHeaders(obj, headers);
-        
+
         obj.put("body", body);
 
         return obj;
     }
-    
-    private void putHeaders(JSONObject object, Map<String,String> headers){
+
+    private void putHeaders(JSONObject object, Map<String, String> headers) {
         JSONObject headersObject = new JSONObject();
-        if(headers != null){
-            headers.entrySet().forEach( (Map.Entry<String, String> entry) -> {
+        if (headers != null) {
+            headers.entrySet().forEach((Map.Entry<String, String> entry) -> {
                 headersObject.put(entry.getKey(), entry.getValue());
             });
         }

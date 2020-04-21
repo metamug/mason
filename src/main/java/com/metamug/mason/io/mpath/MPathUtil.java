@@ -508,25 +508,24 @@ package com.metamug.mason.io.mpath;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
-import java.io.IOException;
-import java.util.Map;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.util.Map;
+
 /**
- *
  * @author anishhirlekar
  */
 public class MPathUtil {
     /**
-     *
      * @param inputJson the json body containing data
-     * @param mPath the m-path notation pointing to the value
+     * @param mPath     the m-path notation pointing to the value
      * @return value from json as per mpath as a general Object
      */
     public static Object getValueFromJson(String inputJson, String mPath) {
@@ -535,7 +534,7 @@ public class MPathUtil {
     }
 
     /**
-     * @param mPath the m-path notation pointing to the value
+     * @param mPath    the m-path notation pointing to the value
      * @param xmlInput the XML body containing data. XML without root element is not allowed
      * @return value from json as per mpath as a general Object
      * @throws java.io.IOException
@@ -572,8 +571,8 @@ public class MPathUtil {
      * This method takes an input json and appends the input value to the json according to the given mPath
      *
      * @param initialJsonObject JSONObject in which the new value will be added.
-     * @param mPath the input m-path notation
-     * @param value the value of the mPath key
+     * @param mPath             the input m-path notation
+     * @param value             the value of the mPath key
      * @return unflattened json object
      */
     public static JSONObject appendJsonFromMPath(JSONObject initialJsonObject, String mPath, Object value) {
@@ -638,5 +637,5 @@ public class MPathUtil {
             }
         }
         return null;
-    }  
+    }
 }

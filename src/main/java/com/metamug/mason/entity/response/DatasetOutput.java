@@ -5,10 +5,11 @@
  */
 package com.metamug.mason.entity.response;
 
-import java.util.SortedMap;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.SortedMap;
 
 /**
  * Dataset JSON output object

@@ -508,10 +508,11 @@ package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
-import com.metamug.exec.ResponseGenerator;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import com.metamug.exec.ResponseFormatter;
+import com.metamug.exec.ResponseGenerator;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
 
 /**
  * Generic Output Object
@@ -545,7 +546,6 @@ public abstract class MasonOutput<T> implements ResponseGenerator, ResponseForma
      * Add Extra Headers to the response
      *
      * @return
-     *
      */
     abstract protected Map<String, String> getExtraHeaders();
 

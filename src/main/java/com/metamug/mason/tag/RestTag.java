@@ -507,22 +507,22 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Response;
-import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.TryCatchFinally;
+import java.util.Map;
 
 /**
- *
  * @author user
  */
 public class RestTag extends BodyTagSupport implements TryCatchFinally {
 
     public static final String HEADER_ACCEPT = "Accept";
-//    public static final String MASON_BUS = "bus";
+    //    public static final String MASON_BUS = "bus";
     public static final String MASON_OUTPUT = "output";
     public static final String EXTRACTED = "extract";
 
@@ -566,10 +566,10 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
 
         if (value instanceof Response) {
             Response res = (Response) value;
-            if(null != res.getPayload()){
+            if (null != res.getPayload()) {
                 masonOutput.put(var, res.getPayload());
             }
-            if(null != res.getHeaders()){
+            if (null != res.getHeaders()) {
                 res.getHeaders().forEach((k, v) -> response.setHeader(k, v));
             }
         } else {

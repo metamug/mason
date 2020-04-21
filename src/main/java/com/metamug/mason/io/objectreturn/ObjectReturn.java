@@ -506,15 +506,15 @@
  */
 package com.metamug.mason.io.objectreturn;
 
-import java.io.StringWriter;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.StringWriter;
+
 /**
- *
  * @author anishhirlekar
  */
 public class ObjectReturn {
@@ -529,11 +529,11 @@ public class ObjectReturn {
      * @throws javax.xml.bind.JAXBException
      */
     public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
-        
+
         if (returnObject instanceof String) {
             return (String) returnObject;
         }
-        
+
         StringWriter marshalledResult = new StringWriter();
         JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
 

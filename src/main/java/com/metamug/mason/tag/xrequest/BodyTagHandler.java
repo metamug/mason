@@ -509,10 +509,8 @@ package com.metamug.mason.tag.xrequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.TagSupport.findAncestorWithClass;
 
 /**
- *
  * @author anishhirlekar
  */
 public class BodyTagHandler extends BodyTagSupport {

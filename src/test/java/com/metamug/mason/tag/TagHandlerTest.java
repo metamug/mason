@@ -507,37 +507,24 @@
 package com.metamug.mason.tag;
 
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import static com.metamug.mason.tag.ResourceTagHandler.BEARER_;
-import com.metamug.mason.entity.auth.JWebToken;
-
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
-import static com.metamug.mason.Router.MASON_REQUEST;
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
+import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
-import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
-import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
 import com.metamug.mason.tag.xrequest.XRequestTagHandler;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -545,22 +532,27 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Matchers;
-import org.mockito.Mock;
+import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.metamug.mason.Router.MASON_REQUEST;
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
+import static com.metamug.mason.tag.ResourceTagHandler.BEARER_;
+import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
+import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- *
  * @author user
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -618,7 +610,7 @@ public class TagHandlerTest {
     private ResultSet resultSet;
 
     @Mock
-    private ResultImpl resultImpl;
+    public ResultImpl resultImpl;
 
     private LocalDateTime ldt;
 
@@ -633,7 +625,7 @@ public class TagHandlerTest {
         ldt = LocalDateTime.now().plusDays(90);
         // payload = new JSONObject("{\"sub\":\"1234\",\"aud\":[\"admin\"],"
         //         + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
-    
+
 
         try {
             String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
@@ -683,10 +675,10 @@ public class TagHandlerTest {
             Logger.getLogger(TagHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-   
-    @Test (expected = JspException.class)
+
+    @Test(expected = JspException.class)
     public void fileUpload() throws JspException, IOException {
-        
+
         File temp = File.createTempFile("test", ".txt");
 
         // Delete temp file when program exits.
@@ -700,9 +692,9 @@ public class TagHandlerTest {
         resultMap = new LinkedHashMap<>();
         resultMap.put("res3", "Hello World");
         resultMap.put("file", new Response(new FileInputStream(temp))); //this will be used a mason bus
-        
+
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-        
+
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
         when(request.getContentType()).thenReturn(MULTIPART_FORM_DATA);
         when(masonRequest.getMethod()).thenReturn("POST");
@@ -730,7 +722,7 @@ public class TagHandlerTest {
 
         resultMap = new LinkedHashMap<>();
         resultMap.put("res3", "Hello World");
-        resultMap.put("file",new Attachment(new FileInputStream(temp))); //this will be used a mason bus
+        resultMap.put("file", new Attachment(new FileInputStream(temp))); //this will be used a mason bus
 
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
@@ -743,11 +735,11 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
 
-        verify(response).setHeader("Content-Type",FileOutput.OCTETSTREAM);
+        verify(response).setHeader("Content-Type", FileOutput.OCTETSTREAM);
         //verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
 
     }
-    
+
     /**
      * Test of doStartTag method, of class RequestTagHandler.
      */
@@ -758,7 +750,7 @@ public class TagHandlerTest {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
 
         when(masonRequest.getMethod()).thenReturn("GET");
-        
+
         requestTag.setMethod("GET");
         requestTag.setItem(false);
         requestTag.setParent(resourceTag);
@@ -787,15 +779,17 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
     }
-    
+
     @Test
     public void resourceTagAuth() throws JspException {
         when(masonRequest.getMethod()).thenReturn("POST");
         resourceTag.setAuth("admin");
         //@TODO Change this every 3-4 months since it wont work after some time. Token expires
-        long exp = ldt.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
-        String bearer = new JWebToken("1234", new JSONArray("['admin']"), exp).toString(); 
+
+        long exp = LocalDateTime.now().plusDays(90).toEpochSecond(ZoneOffset.UTC);
+        String bearer = new JWebToken("1234", new JSONArray("['admin']"), exp).toString();
         bearer = BEARER_ + bearer;
+
         when(request.getHeader("Authorization")).thenReturn(bearer);
         assertEquals(Tag.EVAL_BODY_INCLUDE, resourceTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
@@ -863,7 +857,7 @@ public class TagHandlerTest {
 
         assertEquals(Tag.EVAL_PAGE, paramTag.doEndTag());
     }
-    
+
     @Test(expected = JspException.class)
     public void executeTagInvalidProcessable() throws JspException {
         executeTag.setVar("executeOutput");
@@ -899,39 +893,39 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }*/
-    
-    
+
+
     @Test
     public void executeTagResultProcessable() throws JspException {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-             
+
         executeTag.setVar("executeOutput");
         executeTag.setOutput(true);
-        executeTag.setClassName("com.metamug.mason.processables.ResultExample"); 
-        
+        executeTag.setClassName("com.metamug.mason.processables.ResultExample");
+
         executeTag.setParam(resultImpl);
-        
+
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }
-    
+
     @Test
     public void xrequestTag() throws JspException {
-      
+
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-        
-        xrequestTag.addHeader(ResourceTagHandler.HEADER_ACCEPT,"application/xml");
+
+        xrequestTag.addHeader(ResourceTagHandler.HEADER_ACCEPT, "application/xml");
         xrequestTag.addParameter("foo1", "bar1");
         xrequestTag.addParameter("foo2", "bar2");
         xrequestTag.setVar("xrequestOutput");
         xrequestTag.setUrl("https://postman-echo.com/get");
         xrequestTag.setOutput(true);
         xrequestTag.setOutputHeaders(true);
-        
+
         xrequestTag.setMethod("GET");
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());  
-        
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
+
         JSONObject body = new JSONObject();
         body.put("foo1", "bar1").put("foo2", "bar2");
         xrequestTag.setMethod("POST");
@@ -945,25 +939,25 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
     }
-    
+
     @Test
     public void xrequestTagResponseProcessable() throws JspException {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-      
-        Map<String,String> headers = new HashMap<>();
-        headers.put(ResourceTagHandler.HEADER_ACCEPT,"application/json");
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put(ResourceTagHandler.HEADER_ACCEPT, "application/json");
         xrequestTag.setHeaders(headers);
-                
-        Map<String,Object> parameters = new HashMap<>();
+
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("foo1", "bar1");
         parameters.put("foo2", "bar2");
         xrequestTag.setParameters(parameters);
         xrequestTag.setVar("xrequestOutput");
         xrequestTag.setUrl("https://postman-echo.com/get");
         xrequestTag.setOutput(true);
-        xrequestTag.setClassName("com.metamug.mason.processables.ResponseExample"); 
+        xrequestTag.setClassName("com.metamug.mason.processables.ResponseExample");
         xrequestTag.setMethod("GET");
         assertEquals(Tag.EVAL_BODY_INCLUDE, xrequestTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());    
+        assertEquals(Tag.EVAL_PAGE, xrequestTag.doEndTag());
     }
 }

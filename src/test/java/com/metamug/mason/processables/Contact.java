@@ -509,7 +509,6 @@ That's all there is to it!
 package com.metamug.mason.processables;
 
 /**
- *
  * @author anishhirlekar
  */
 public class Contact {

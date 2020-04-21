@@ -506,18 +506,21 @@
  */
 package com.metamug.mason;
 
-import com.eclipsesource.json.ParseException;
 import com.metamug.entity.Request;
 import com.metamug.mason.entity.RootResource;
-import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
-import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
-import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
 import com.metamug.mason.entity.request.RequestAdapter;
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
-import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.naming.NamingException;
+import javax.servlet.*;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -525,19 +528,12 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.NamingException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
+import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
+import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
+import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
 
 /**
  * Rest Controller. Handles all the incoming requests
@@ -567,13 +563,11 @@ public class Router implements Filter {
     }
 
     /**
-     *
-     * @param request The servlet request we are processing
+     * @param request  The servlet request we are processing
      * @param response The servlet response we are creating
-     * @param chain The filter chain we are processing
-     *
-     * @exception IOException if an input/output error occurs
-     * @exception ServletException if a servlet error occurs
+     * @param chain    The filter chain we are processing
+     * @throws IOException      if an input/output error occurs
+     * @throws ServletException if a servlet error occurs
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -613,7 +607,6 @@ public class Router implements Filter {
      *
      * @param req
      * @param res
-     * @param tokens The URI split by /
      * @throws IOException
      */
     private void processRequest(HttpServletRequest req, HttpServletResponse res)
@@ -637,11 +630,11 @@ public class Router implements Filter {
             //get queries
             Request mtgReq = RequestAdapter.create(req);
             resourceName = mtgReq.getResource().getName();
-            
+
             String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
             File file = new File(req.getServletContext().getRealPath(jspPath));
-            
-            if(file.exists()) {
+
+            if (file.exists()) {
                 req.setAttribute(MASON_REQUEST, mtgReq);
 
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
@@ -656,23 +649,23 @@ public class Router implements Filter {
                 //https://stackoverflow.com/a/46489035
                 req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
                 req.getRequestDispatcher(jspPath).forward(
-                    new HttpServletRequestWrapper(req) {
-                        @Override
-                        public String getMethod() {
-                            String method = super.getMethod();
-                            if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                                return "POST";
-                            } else {
-                                return method;
+                        new HttpServletRequestWrapper(req) {
+                            @Override
+                            public String getMethod() {
+                                String method = super.getMethod();
+                                if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
+                                    return "POST";
+                                } else {
+                                    return method;
+                                }
                             }
-                        }
-                    }, res
+                        }, res
                 );
             } else {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
             }
-            
-        } catch (IOException | ServletException | JSONException | ParseException ex) {
+
+        } catch (IOException | ServletException | JSONException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
             } else if (ex.getCause() != null) {
@@ -695,8 +688,8 @@ public class Router implements Filter {
     /**
      * Error message to be returned
      *
-     * @param res HTTP Response
-     * @param status Http Status Code
+     * @param res     HTTP Response
+     * @param status  Http Status Code
      * @param message Message in Response
      * @throws IOException
      */

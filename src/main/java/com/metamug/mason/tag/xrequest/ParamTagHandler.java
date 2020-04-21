@@ -507,13 +507,12 @@
 package com.metamug.mason.tag.xrequest;
 
 import com.metamug.mason.tag.RequestTag;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
- *
  * @author anishhirlekar
  */
 public class ParamTagHandler extends BodyTagSupport {

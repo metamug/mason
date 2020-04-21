@@ -511,10 +511,8 @@ package com.metamug.mason.tag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
- *
  * @author pc
  */
 public class HeaderTag extends BodyTagSupport {
@@ -532,11 +530,12 @@ public class HeaderTag extends BodyTagSupport {
         if (value == null) {
             value = getBodyContent().getString().trim();
         }
-
+        //System.out.println(value);
         if (this.value.length() > 0) {
             parent.addHeader(name, this.value);
         }
-
+        //flush value to prevent possible reappearance in next instance of tag
+        value = null;
         return EVAL_PAGE;
     }
 

@@ -506,20 +506,14 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.mason.entity.response.ClientErrorResponse;
 import com.metamug.mason.entity.response.ErrorResponse;
+import com.metamug.mason.entity.response.InternalServerErrorResponse;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.ConnectionProvider;
 import org.json.JSONObject;
 import org.json.XML;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
@@ -527,6 +521,13 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Kaisteel
@@ -545,15 +546,16 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
      */
     @Override
     public int doEndTag() throws JspException {
-
         Exception exception = (Exception) value;
         ds = ConnectionProvider.getMasonDatasource();
         JspWriter out = pageContext.getOut();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String header = request.getHeader("Accept") == null ? "application/json" : request.getHeader("Accept");
+
         try {
-            ErrorResponse errorResponse = new ErrorResponse();
+            ErrorResponse errorResponse = new InternalServerErrorResponse();
+
             if (exception.getCause() != null) {
                 String cause = exception.getCause().toString();
                 if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
@@ -564,10 +566,17 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                     Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
                 } else if (cause.contains(MasonException.class.getName())) {
                     MasonException mtgCause = (MasonException) exception.getCause();
-                    createErrorResponse(errorResponse, mtgCause);
+                    errorResponse = createErrorResponse(errorResponse, mtgCause);
                 }
             }
-
+            //log to db
+            if (errorResponse instanceof InternalServerErrorResponse) {
+                String msg = exception.getMessage();
+                if (exception.getCause() != null && exception.getCause().toString().contains(MasonException.class.getName())) {
+                    msg = exception.getCause().getMessage();
+                }
+                dbLogError((InternalServerErrorResponse) errorResponse, request, msg, new StringBuilder());
+            }
             //set response
             response.setStatus(errorResponse.getStatus());
             if (Arrays.asList(header.split("/")).contains("xml")) {
@@ -595,28 +604,27 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
      * @throws IOException
      */
     private ErrorResponse createErrorResponse(ErrorResponse errorResponse, MasonException mtgCause) throws IOException {
-
         switch (mtgCause.getError()) {
             case BEARER_TOKEN_MISMATCH:
-                errorResponse = new ErrorResponse(401, "Failed to authenticate User");
+                errorResponse = new ClientErrorResponse(401, "Failed to authenticate User");
                 break;
             case INCORRECT_ROLE_AUTHENTICATION:
-                errorResponse = new ErrorResponse(403, "Authorization Error. Access Denied");
+                errorResponse = new ClientErrorResponse(403, "Authorization Error. Access Denied");
                 break;
             case INCORRECT_STATUS_CODE:
-                errorResponse = new ErrorResponse(406, "Incorrect Status Code");
+                errorResponse = new ClientErrorResponse(406, "Incorrect Status Code");
                 break;
             case INPUT_VALIDATION_ERROR:
-                errorResponse = new ErrorResponse(412, "Unable to validate input parameters");
+                errorResponse = new ClientErrorResponse(412, "Unable to validate input parameters");
                 break;
             case NO_UPLOAD_LISTENER:
-                errorResponse = new ErrorResponse(424, "Unable to handle file upload");
+                errorResponse = new ClientErrorResponse(424, "Unable to handle file upload");
                 break;
             case PARENT_RESOURCE_MISSING:
-                errorResponse = new ErrorResponse(404, "Resource not found");
+                errorResponse = new ClientErrorResponse(404, "Resource not found");
                 break;
             case ROLE_ACCESS_DENIED:
-                errorResponse = new ErrorResponse(403, "Access Denied");
+                errorResponse = new ClientErrorResponse(401, "Access Denied");
                 break;
             case SQL_ERROR:
                 logError(errorResponse, (HttpServletRequest) pageContext.getRequest(), mtgCause.getRootException());
@@ -626,7 +634,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 errorResponse.setError("Error during upload process");
                 break;
             case UPLOAD_SIZE_EXCEEDED:
-                errorResponse = new ErrorResponse(413, "File Size Exceeded");
+                errorResponse = new ClientErrorResponse(413, "File Size Exceeded");
                 break;
         }
         return errorResponse;
@@ -642,7 +650,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             exceptionMessage = exception.toString();
         }
         //to trace here
-        dbLogErorr(errorResponse, request, exceptionMessage, new StringBuilder());
+        if (errorResponse instanceof InternalServerErrorResponse) {
+            dbLogError((InternalServerErrorResponse) errorResponse, request, exceptionMessage, new StringBuilder());
+        }
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -662,7 +672,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
             }
             errorTraceBuilder.append("\n");
         }
-        dbLogErorr(response, request, exceptionMessage, errorTraceBuilder);
+        if (response instanceof InternalServerErrorResponse) {
+            dbLogError((InternalServerErrorResponse) response, request, exceptionMessage, errorTraceBuilder);
+        }
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -682,7 +694,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
         } else {
             exceptionMessage = exception.toString();
         }
-        dbLogErorr(errorResponse, request, exceptionMessage, errorTraceBuilder);
+        if (errorResponse instanceof InternalServerErrorResponse) {
+            dbLogError((InternalServerErrorResponse) errorResponse, request, exceptionMessage, errorTraceBuilder);
+        }
         Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
     }
 
@@ -699,11 +713,11 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     public void doFinally() {
     }
 
-    private void dbLogErorr(ErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
+    private void dbLogError(InternalServerErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
         String method = (String) request.getAttribute("mtgMethod");
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,trace,"
-                + " resource) VALUES(?,?,?,?,?)");) {
+                + " resource) VALUES(?,?,?,?,?)")) {
             stmnt.setString(1, String.valueOf(response.getErrorId()));
             stmnt.setString(2, method);
             stmnt.setString(3, exceptionMessage);

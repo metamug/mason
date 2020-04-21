@@ -511,10 +511,10 @@ package com.metamug.mason.processables;
 import com.metamug.entity.Response;
 import com.metamug.entity.Result;
 import com.metamug.exec.ResultProcessable;
+
 import java.util.Map;
 
 /**
- *
  * @author anishhirlekar
  */
 public class ResultExample implements ResultProcessable {
@@ -522,7 +522,7 @@ public class ResultExample implements ResultProcessable {
     @Override
     public Response process(Result queryResult) throws Exception {
         Map[] results = queryResult.getRecordMap();
-            
+
         Response resp = new Response(results);
         return resp;
     }

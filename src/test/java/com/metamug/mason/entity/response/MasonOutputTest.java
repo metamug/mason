@@ -7,13 +7,6 @@ package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Response;
 import com.metamug.mason.processables.Customer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import javax.xml.bind.JAXBException;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,11 +15,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.xml.bind.JAXBException;
+import java.util.*;
+import static org.junit.Assert.assertTrue;
+
+import static org.mockito.Mockito.when;
+
 /**
- *
  * @author anishhirlekar
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -57,14 +54,14 @@ public class MasonOutputTest {
         list.add(new JSONObject(sampleObj));
         list.add(sampleResult);
         list.add(null);
-        
+
         Customer customer = new Customer();
         customer.setName("John");
         customer.setId(1);
         customer.setContact("8080808080", "john@example.com");
-        
+
         list.add(customer);
-        
+
         outputMap = new LinkedHashMap<>();
         outputMap.put("jsonobj", new JSONObject(sampleObj));
         outputMap.put("jsonarray", new JSONArray(sampleArray));
@@ -78,35 +75,32 @@ public class MasonOutputTest {
     @Test
     public void testJson() throws JAXBException {
         String dataType = MasonOutput.HEADER_JSON;
-        MasonOutput output = getOutput(dataType);
-        String outStr = output.toString();
+        String outStr = getOutput(dataType);
         System.out.println("json: " + outStr);
         System.out.println("Length: " + outStr.length());
-        //Assert.assertTrue(outStr.length()>1);
+        assertTrue(outStr.length()>500);
     }
 
     @Test
     public void testDataSet() throws JAXBException {
         String dataType = MasonOutput.HEADER_DATASET;
-        MasonOutput output = getOutput(dataType);
-        String outStr = output.toString();
+        String outStr = getOutput(dataType);
         System.out.println("DATASET: " + outStr);
         System.out.println("Length: " + outStr.length());
-        //Assert.assertTrue(outStr.length()>1);
+        assertTrue(outStr.length()>500);
     }
 
     @Test
     public void testXml() throws JAXBException {
         String dataType = MasonOutput.HEADER_XML;
-        MasonOutput output = getOutput(dataType);
-        String outStr = output.toString();
+        String outStr = getOutput(dataType);
         System.out.println("XML: " + outStr);
         System.out.println("Length: " + outStr.length());
         XML.toJSONObject(outStr); //validate xml 
-        //Assert.assertTrue(outStr.length()>1);
+        assertTrue(outStr.length()>800);
     }
 
-    private MasonOutput getOutput(String dataType) throws JAXBException {
+    private String getOutput(String dataType) throws JAXBException {
         MasonOutput output = null;
 
         switch (dataType) {
@@ -120,9 +114,11 @@ public class MasonOutputTest {
                 output = new XMLOutput();
                 break;
         }
+        
         Response res = output.generate(null, outputMap);
+        
 //        Assert.assertEquals(null, res.getPayload());
-        return output;
+        return output.format(res);
     }
 
     public static SortedMap[] getSampleRows() {
