@@ -10,7 +10,7 @@ Mason is an open-source, lightweight data access layer for REST resources design
 <dependency>
   <groupId>com.metamug</groupId>
   <artifactId>mason</artifactId>
-  <version>3.3</version>
+  <version>3.4</version>
 </dependency>
 ```
 
