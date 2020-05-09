@@ -29,8 +29,8 @@ public abstract class ParamExtractStrategy {
 
     /**
      * Add Key Value pair to Mason Request Object
-     *
-     * @param masonRequest
+     * Also add special identifiers 
+     * @param masonRequest 
      * @param keyValue
      * @param params
      */

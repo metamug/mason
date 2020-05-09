@@ -12,6 +12,7 @@ import static com.metamug.mason.Router.resourceFileExists;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +28,8 @@ public class RequestAdapter {
         String path = request.getServletPath();
         String[] tokens = path.split("/");
         int versionTokenIndex = -1;
+
+        //find index of version in the url
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
                 versionTokenIndex = i;
@@ -38,9 +41,9 @@ public class RequestAdapter {
         String resourceName;
 
         if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {
-            resourceName = tokens[versionTokenIndex + 3];
+            resourceName = tokens[versionTokenIndex + 3]; /* /backend/v1.0/resource-parent/2/resource */
         } else {
-            resourceName = tokens[versionTokenIndex + 1];
+            resourceName = tokens[versionTokenIndex + 1]; /* /backend/v1.0/resource */
         }
 
         String method = request.getMethod().toLowerCase();
@@ -51,7 +54,7 @@ public class RequestAdapter {
 
         if (contentType.contains(APPLICATION_JSON)) {
             strategy = new JsonStrategy(request);
-        } else if (contentType.contains("multipart/form-data")) {
+        } else if (contentType.contains(MULTIPART_FORM_DATA)) {
             strategy = new MultipartFormStrategy(request);
         } else if (contentType.contains(APPLICATION_HTML)) {
             strategy = new HtmlStrategy(request);
@@ -60,6 +63,7 @@ public class RequestAdapter {
         }
 
         Request masonRequest = strategy.getRequest();
+
         //Set parent value and pid
         if (tokens.length == versionTokenIndex + VERSION_LENGTH || tokens.length == versionTokenIndex + VERSION_LENGTH + 1) {
             //@TODO get parent
@@ -100,5 +104,7 @@ public class RequestAdapter {
 
         return new ImmutableRequest(masonRequest);
     }
-    private static final int VERSION_LENGTH = 4;
+
+    private static final int VERSION_LENGTH = 4; // v1.3
+
 }

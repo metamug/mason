@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.metamug</groupId>
     <artifactId>mason</artifactId>
-    <version>3.3</version>
+    <version>3.4.10</version>
     <packaging>jar</packaging>
     <name>com.metamug:mason</name>
     <description>JSP REST API Library</description>
@@ -25,7 +25,7 @@
             <name>Anish Hirlekar</name>
             <email>anish.hirlekar@metamug.com</email>
             <organization>Metamug Technologies</organization>
-            <organizationUrl>http://www.metamug.com</organizationUrl>
+            <organizationUrl>https://metamug.com</organizationUrl>
             <roles>
                 <role>Developer</role>
             </roles>
@@ -35,7 +35,7 @@
             <name>Deepak Mishra</name>
             <email>deepak.mishra@metamug.com</email>
             <organization>Metamug Technologies</organization>
-            <organizationUrl>http://www.metamug.com</organizationUrl>
+            <organizationUrl>https://metamug.com</organizationUrl>
             <roles>
                 <role>Developer</role>
             </roles>
@@ -45,7 +45,7 @@
             <name>Kaustubh Damle</name>
             <email>kaustubh.damle@metamug.com</email>
             <organization>Metamug Technologies</organization>
-            <organizationUrl>http://www.metamug.com</organizationUrl>
+            <organizationUrl>https://metamug.com</organizationUrl>
             <roles>
                 <role>Developer</role>
             </roles>
