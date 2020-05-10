@@ -26,7 +26,7 @@ public class RequestAdapter {
     public static Request create(HttpServletRequest request) throws IOException, ServletException {
 
         String path = request.getServletPath();
-        String[] tokens = path.split("/");
+        String[] tokens = path.split("/");  //without query string
         int versionTokenIndex = -1;
 
         //find index of version in the url
@@ -35,15 +35,15 @@ public class RequestAdapter {
                 versionTokenIndex = i;
                 break;
             }
-        }
+        } //The uri may always not have a context. This can deal with no context as well.
 
-        float version = Float.parseFloat(tokens[versionTokenIndex].substring(1));
+        float version = Float.parseFloat(tokens[versionTokenIndex].substring(1)); //remove "v"
         String resourceName;
 
         if (tokens.length == versionTokenIndex + 4 || tokens.length == versionTokenIndex + 5) {
-            resourceName = tokens[versionTokenIndex + 3]; /* /backend/v1.0/resource-parent/2/resource */
+            resourceName = tokens[versionTokenIndex + CHILD_RESOURCE_OFFSET]; /* /backend/v1.0/resource-parent/2/resource */
         } else {
-            resourceName = tokens[versionTokenIndex + 1]; /* /backend/v1.0/resource */
+            resourceName = tokens[versionTokenIndex +  RESOURCE_OFFSET]; /* /backend/v1.0/resource */
         }
 
         String method = request.getMethod().toLowerCase();
@@ -63,48 +63,58 @@ public class RequestAdapter {
         }
 
         Request masonRequest = strategy.getRequest();
-
+        Resource parentResource = null;
         //Set parent value and pid
-        if (tokens.length == versionTokenIndex + VERSION_LENGTH || tokens.length == versionTokenIndex + VERSION_LENGTH + 1) {
+        if (tokens.length > (versionTokenIndex + GROUP_RESOURCE_ID_OFFSET) ) {
+
             //@TODO get parent
             //masonRequest.setParent(parent);
-            if(tokens.length == versionTokenIndex + VERSION_LENGTH){
+            if(tokens.length == (versionTokenIndex + CHILD_RESOURCE_OFFSET) + 1){
                 // /parent/pid/child/cid OR /parent/child/cid
                 //check if parent exists
-                String parentName = tokens[versionTokenIndex+1];
-                String v = tokens[versionTokenIndex];
-                if(resourceFileExists(parentName,v.replace("v",""),request)) {
+                String parentName = tokens[versionTokenIndex+ RESOURCE_OFFSET];
+                if(resourceFileExists(parentName,version,request)) {
                     //this means /parent/pid/child/ - so set pid
-                    masonRequest.setPid(tokens[versionTokenIndex + 2]);
-                    
+                    masonRequest.setPid(tokens[versionTokenIndex + RESOURCE_ID_OFFSET]);
                 } else {
                     //this means /parent/child/cid - so set cid
-                    masonRequest.setId(tokens[versionTokenIndex + 3]);
+                    masonRequest.setId(tokens[versionTokenIndex + GROUP_RESOURCE_ID_OFFSET]);
                 }
             } else {
-                masonRequest.setPid(tokens[versionTokenIndex + 2]);
-                masonRequest.setId((tokens.length > versionTokenIndex + 4) ? tokens[versionTokenIndex + 4] : null);
+                masonRequest.setPid(tokens[versionTokenIndex + RESOURCE_ID_OFFSET]);
+                masonRequest.setId((tokens.length > versionTokenIndex + CHILD_RESOURCE_ID_OFFSET) ? tokens[versionTokenIndex + CHILD_RESOURCE_ID_OFFSET] : null);
             }
             //System.out.println("ID: "+masonRequest.getId());
             //System.out.println("PID: "+masonRequest.getPid());
-        } else {
-            Resource resource = new Resource(resourceName, version, String.join("/", tokens), null);
-            masonRequest.setResource(resource);
-            
-            String parentName = tokens[versionTokenIndex+1];
-            String v = tokens[versionTokenIndex];
-            if(resourceFileExists(parentName,v.replace("v",""),request) ){
-                masonRequest.setId((tokens.length > versionTokenIndex + 2) ? tokens[versionTokenIndex + 2] : null);
+        } else {            
+            String parentName = tokens[versionTokenIndex + RESOURCE_OFFSET];
+            if(resourceFileExists(parentName,version,request) ){
+                masonRequest.setId((tokens.length > versionTokenIndex + RESOURCE_ID_OFFSET) ? tokens[versionTokenIndex + RESOURCE_ID_OFFSET] : null);
             } 
             //System.out.println("ID: "+masonRequest.getId());
             //System.out.println("PID: "+masonRequest.getPid());
         }
+
+        Resource resource = new Resource(resourceName, version, String.join("/", tokens), parentResource); //@TODO why not use path from above
+        masonRequest.setResource(resource);
         masonRequest.setMethod(method);
-        masonRequest.setUri(tokens[versionTokenIndex + 1]);
+        masonRequest.setUri(tokens[versionTokenIndex +  RESOURCE_OFFSET]);
 
         return new ImmutableRequest(masonRequest);
     }
 
     private static final int VERSION_LENGTH = 4; // v1.3
+
+    //below offsets are relative to version index
+    private static final int RESOURCE_OFFSET = 1; // /v1.3/resource
+
+    private static final int CHILD_RESOURCE_OFFSET = 3; // /v1.3/parent/32/resource
+    private static final int GROUP_RESOURCE_ID_OFFSET = 3; // /v1.3/group/resource/32
+    
+    private static final int RESOURCE_ID_OFFSET = 2; // /v1.3/parent/32
+    private static final int GROUP_RESOURCE_OFFSET = 2; // /v1.3/group/resource
+
+    private static final int CHILD_RESOURCE_ID_OFFSET = 4; // /v1.3/parent/32/resource/32
+    
 
 }

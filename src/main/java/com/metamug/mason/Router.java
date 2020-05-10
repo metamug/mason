@@ -638,7 +638,7 @@ public class Router implements Filter {
             String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
             //File file = new File(req.getServletContext().getRealPath(jspPath));
             
-            if(resourceFileExists(resourceName, Float.toString(mtgReq.getResource().getVersion()), req)) {
+            if(resourceFileExists(resourceName, mtgReq.getResource().getVersion(), req)) {
                 req.setAttribute(MASON_REQUEST, mtgReq);
 
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
@@ -764,7 +764,7 @@ public class Router implements Filter {
         }
     }
     
-    public static boolean resourceFileExists(String resourceName, String v, HttpServletRequest req){
+    public static boolean resourceFileExists(String resourceName, float v, HttpServletRequest req){
         String jspPath = RESOURCES_FOLDER + "v" + v + "/" + resourceName + JSP_EXTN;
         File file = new File(req.getServletContext().getRealPath(jspPath));
         return file.exists();
