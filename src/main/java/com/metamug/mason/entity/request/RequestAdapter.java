@@ -619,9 +619,10 @@ public class RequestAdapter {
 		
 		listInputAtPresent="";
 		
-		listInputAtPast="";
 		
 		listInputAtAlways="";
+		
+		listInputAtPast="";
 		
 		uriInput+="/";
 		
