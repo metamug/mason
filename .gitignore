@@ -13,3 +13,4 @@ nb-configuration.xml
 !/.mvn/wrapper/maven-wrapper.jar
 
 /nbproject/
+/bin/
