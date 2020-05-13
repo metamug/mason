@@ -686,6 +686,7 @@ import java.util.ArrayList;
 import java.util.Arrays; 
 
 import com.metamug.entity.Resource;
+import com.metamug.entity.Request;
 
 /**
  *
@@ -734,10 +735,12 @@ public class RequestTest {
     public void uriTest() {
         
         String uriInput = "/info/crm/people/customer/12";
-        
+
         List<String> ourListInput = Arrays.asList("crm", "customer");
-        Resource resource = RequestAdapter.uriExtraction(uriInput,ourListInput);
-        assertEquals("customer", resource.getName());
+        Request request = RequestAdapter.uriExtraction(uriInput,ourListInput);
+        assertEquals("customer", request.getResource().getName());
+        assertEquals("12", request.getId());
+        assertEquals("people", request.getPid());
   
     }
 }

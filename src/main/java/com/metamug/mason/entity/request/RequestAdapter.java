@@ -609,7 +609,7 @@ public class RequestAdapter {
     /**
     * Extract resource information from the uri supplied
     */
-    public static Resource uriExtraction(String uriInput , List<String> resourceList ) {
+    public static Request uriExtraction(String uriInput , List<String> resourceList ) {
     	
 		String tokensValue;
 		
@@ -670,19 +670,24 @@ public class RequestAdapter {
 
     	System.out.print("\n");
     	
-        int position=0;
-    	
+
+        int position=finalResponseElement.size()-1;
     	if(finalResponseElement.get(finalResponseElement.size()-1)=="G"){
     	    return null;
     	}
 
+        Request request = new Request();
+	    
+        for(int index=position;index<finalResponseElement.size();index++){
+            if(finalResponseElement.get(index)=="I"){
+                request.setId(ourListElements.get(index));
+                break;
+            }
+        }
 
-	    int flag=0;
-	    System.out.println("the url is valid");
-        
 
         String resourceName = null;
-	    for(int index=finalResponseElement.size()-1;index>=0;index--){
+	    for(int index=position;index>=0;index--){
 	        
 	        if(finalResponseElement.get(index)=="R"){
 	            resourceName = ourListElements.get(index);
@@ -692,37 +697,17 @@ public class RequestAdapter {
 	    }
 
 	    Resource resource = new Resource(resourceName, 1.0f);
-                
+        request.setResource(resource);        
 	    
-	    for(int index=position;index<finalResponseElement.size();index++){
-	        if(finalResponseElement.get(index)=="I"){
-	            System.out.print("Resource id is :"+ourListElements.get(index));
-	            System.out.print("\n");
-	            flag=1;
-	            break;
-	        }
-	    }
+        //why call other loops when R not found ?
 
-	    if(flag==0){
-	        System.out.print("Resource id is :"+"null");
-	        System.out.print("\n");
-	            
-	    }
-	    flag=0;
 	    for(int index=position;index>=0;index--){
 	        if(finalResponseElement.get(index)=="I"){
-	            System.out.print("Parent ID is :"+ourListElements.get(index));
-	            System.out.print("\n");
-	            flag=1;
+	            request.setPid(ourListElements.get(index));
 	            break;
 	        }
 	    }
-	    if(flag==0){
-	        System.out.print("Parent ID is :"+"null");
-	        System.out.print("\n");
-	            
-	    }
-	    flag=0;
+	    
 	    int first=0,second=0;
 	    int count=0;
 	    for(int index=finalResponseElement.size()-1;index>0;index--){
@@ -737,15 +722,10 @@ public class RequestAdapter {
 	    }
 
 	    if(count==2){
-	        System.out.print("Parent is :"+"(ourListElements.get(first))/(ourListElements.get(second)))");
-	        flag=1;
-	    }
-	    if(flag==0){
-            System.out.print("Parent is :"+"null");
-            System.out.print("\n");
+	        System.out.print("Parent is :"+"(ourListElements.get(first))/(ourListElements.get(second)))");  
 	    }
 
-	    return resource;
+	    return request;
     }
     
 
