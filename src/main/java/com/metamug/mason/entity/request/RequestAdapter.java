@@ -683,30 +683,29 @@ public class RequestAdapter {
     	
     	    System.out.print("/"+element);
     	
-    	}
+    	}    	
 
-    	System.out.print("\n");
-    	
-
-        int position=finalResponseElement.size()-1;
-    	if(finalResponseElement.get(finalResponseElement.size()-1)=="G"){
+        
+    	if(finalResponseElement.get(finalResponseElement.size()-1).equals("G")){
     	    return null;
     	}
 
+        
+        int position=finalResponseElement.size()-1;
         Request request = new Request();
-	    
-        for(int index=position;index<finalResponseElement.size();index++){
-            if(finalResponseElement.get(index)=="I"){
-                request.setId(ourListElements.get(index));
-                break;
-            }
+
+        //check for id at the last position
+        if(finalResponseElement.get(position).equals("I")){
+            request.setId(ourListElements.get(position));
+            position--; //last element identified as resource id
         }
 
 
+        
         String resourceName = null;
 	    for(int index=position;index>=0;index--){
 	        
-	        if(finalResponseElement.get(index)=="R"){
+	        if(finalResponseElement.get(index).equals("R")){
 	            resourceName = ourListElements.get(index);
 	            position=index;
 	            break;
@@ -715,8 +714,7 @@ public class RequestAdapter {
 
 	    Resource resource = new Resource(resourceName, 1.0f);
         request.setResource(resource);        
-	    
-        //why call other loops when R not found ?
+	            
 
 	    for(int index=position;index>=0;index--){
 	        if(finalResponseElement.get(index)=="I"){
@@ -725,8 +723,10 @@ public class RequestAdapter {
 	        }
 	    }
 	    
+
 	    int first=0,second=0;
 	    int count=0;
+        String parentName = null; //@TODO set parentName to correc value
 	    for(int index=finalResponseElement.size()-1;index>0;index--){
 	        if(finalResponseElement.get(index)=="G" && finalResponseElement.get(index-1)=="R"){
 	            count=count+1;
@@ -738,9 +738,8 @@ public class RequestAdapter {
 	        }
 	    }
 
-	    if(count==2){
-	        System.out.print("Parent is :"+"(ourListElements.get(first))/(ourListElements.get(second)))");  
-	    }
+        Resource parent = new Resource(null, 1.0f);
+        request.setParent(parent);
 
 	    return request;
     }
