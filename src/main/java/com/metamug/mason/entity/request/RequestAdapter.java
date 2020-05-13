@@ -611,7 +611,17 @@ public class RequestAdapter {
     */
     public static Request uriExtraction(String uriInput , List<String> resourceList ) {
     	
-		String tokensValue;
+    	String tokensValue;
+		
+		String listInputAtPresent,listInputAtPast,listInputAtAlways;
+		
+		String listInputAtFuture="/";
+		
+		listInputAtPresent="";
+		
+		listInputAtPast="";
+		
+		listInputAtAlways="";
 		
 		uriInput+="/";
 		
@@ -623,6 +633,8 @@ public class RequestAdapter {
         
         int positionOfEachElement = 1;
         
+        String prevToken = " ", currentToken = " ";
+        
         for(int index=1;index<sizeOfUriInput;index++){
         
             if(uriInput.charAt(index)=='/'){
@@ -633,18 +645,22 @@ public class RequestAdapter {
         
                 ourListElements.add(tokensValue);
         
-            }
+                listInputAtPast=listInputAtFuture+tokensValue;
         
-        }
+            listInputAtAlways=listInputAtPresent + listInputAtPast ;
+            
+            if(!(resourceList.contains(listInputAtAlways))){
+                
         
-        String prevToken = " ", currentToken = " ";
-        for(String element: ourListElements){
+                if(prevToken.equals(" ")){
+                    currentToken = "G";
+                    listInputAtPresent=listInputAtAlways;
+                }
         
-            if(!(resourceList.contains(element))){
-        
-                if(prevToken.equals(" ")) currentToken = "G";
-        
-                else if(prevToken.equals("G")) currentToken = "G";
+                else if(prevToken.equals("G")){
+                    currentToken = "G";
+                    listInputAtPresent=listInputAtAlways;
+                }
         
                 else if(prevToken.equals("R")) currentToken = "I";
         
@@ -657,10 +673,11 @@ public class RequestAdapter {
             }
         
             prevToken = currentToken;
-            finalResponseElement.add(prevToken);
         
-            
+            finalResponseElement.add(prevToken);
+            }
         }
+        
         
     	for(String element : finalResponseElement){
     	

@@ -736,7 +736,7 @@ public class RequestTest {
         
         String uriInput = "/info/crm/people/customer/12";
 
-        List<String> ourListInput = Arrays.asList("crm", "customer");
+        List<String> ourListInput = Arrays.asList("/info/crm", "/info/customer");
         Request request = RequestAdapter.uriExtraction(uriInput,ourListInput);
         assertEquals("customer", request.getResource().getName());
         assertEquals("12", request.getId());
