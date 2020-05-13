@@ -671,7 +671,7 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -685,10 +685,11 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays; 
 
+import com.metamug.entity.Resource;
 
 /**
  *
- * @author GAURI
+ * @author deepak
  */
 @RunWith(MockitoJUnitRunner.class)
 public class RequestTest {
@@ -732,11 +733,11 @@ public class RequestTest {
     @Test
     public void uriTest() {
         
-        String uriInput;
-    
-        uriInput = "/info/crm/people/customer/12";
+        String uriInput = "/info/crm/people/customer/12";
+        
         List<String> ourListInput = Arrays.asList("crm", "customer");
-        RequestAdapter.uriExtraction(uriInput,ourListInput);
+        Resource resource = RequestAdapter.uriExtraction(uriInput,ourListInput);
+        assertEquals("customer", resource.getName());
   
     }
 }

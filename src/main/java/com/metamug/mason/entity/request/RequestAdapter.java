@@ -606,7 +606,10 @@ public class RequestAdapter {
     }
 
 
-    public static void uriExtraction(String uriInput , List<String> ourListInput ) {
+    /**
+    * Extract resource information from the uri supplied
+    */
+    public static Resource uriExtraction(String uriInput , List<String> resourceList ) {
     	
 		String tokensValue;
 		
@@ -637,7 +640,7 @@ public class RequestAdapter {
         String prevToken = " ", currentToken = " ";
         for(String element: ourListElements){
         
-            if(!(ourListInput.contains(element))){
+            if(!(resourceList.contains(element))){
         
                 if(prevToken.equals(" ")) currentToken = "G";
         
@@ -664,85 +667,85 @@ public class RequestAdapter {
     	    System.out.print("/"+element);
     	
     	}
+
     	System.out.print("\n");
-    	int position=0;
+    	
+        int position=0;
     	
     	if(finalResponseElement.get(finalResponseElement.size()-1)=="G"){
-    	    System.out.print("URL is invalid");
-    	    System.out.print("\n");
+    	    return null;
     	}
-    	else{
-    	    int flag=0;
-    	    System.out.println("the url is valid");
-    	    for(int index=finalResponseElement.size()-1;index>=0;index--){
-    	        
-    	        if(finalResponseElement.get(index)=="R"){
-    	            System.out.print("the resource name is :"+ourListElements.get(index));
-    	            System.out.print("\n");
-    	            position=index;
-    	            flag=1;
-    	            break;
-    	        }
-    	    }
-    	    if(flag==0){
-    	        System.out.print("the resource name is :"+"null");
-    	        System.out.print("\n");
-    	            
-    	    }
-    	    flag=0;
-    	    for(int index=position;index<finalResponseElement.size();index++){
-    	        if(finalResponseElement.get(index)=="I"){
-    	            System.out.print("Resource id is :"+ourListElements.get(index));
-    	            System.out.print("\n");
-    	            flag=1;
-    	            break;
-    	        }
-    	    }
-    	    if(flag==0){
-    	        System.out.print("Resource id is :"+"null");
-    	        System.out.print("\n");
-    	            
-    	    }
-    	    flag=0;
-    	    for(int index=position;index>=0;index--){
-    	        if(finalResponseElement.get(index)=="I"){
-    	            System.out.print("Parent ID is :"+ourListElements.get(index));
-    	            System.out.print("\n");
-    	            flag=1;
-    	            break;
-    	        }
-    	    }
-    	    if(flag==0){
-    	        System.out.print("Parent ID is :"+"null");
-    	        System.out.print("\n");
-    	            
-    	    }
-    	    flag=0;
-    	    int first=0,second=0;
-    	    int count=0;
-    	    for(int index=finalResponseElement.size()-1;index>0;index--){
-    	        if(finalResponseElement.get(index)=="G" && finalResponseElement.get(index-1)=="R"){
-    	            count=count+1;
-    	            if(count==2){
-    	                first=index-1;
-    	                second=index;
-    	                break;
-    	            }
-    	        }
-    	    }
-    	    if(count==2){
-    	        System.out.print("Parent is :"+"(ourListElements.get(first))/(ourListElements.get(second)))");
-    	        flag=1;
-    	    }
-    	    if(flag==0){
-    	        System.out.print("Parent is :"+"null");
-    	        System.out.print("\n");
-    	    }
-    	    flag=0;
-    	
-    	}
-    
-    	
+
+
+	    int flag=0;
+	    System.out.println("the url is valid");
+        
+
+        String resourceName = null;
+	    for(int index=finalResponseElement.size()-1;index>=0;index--){
+	        
+	        if(finalResponseElement.get(index)=="R"){
+	            resourceName = ourListElements.get(index);
+	            position=index;
+	            break;
+	        }
+	    }
+
+	    Resource resource = new Resource(resourceName, 1.0f);
+                
+	    
+	    for(int index=position;index<finalResponseElement.size();index++){
+	        if(finalResponseElement.get(index)=="I"){
+	            System.out.print("Resource id is :"+ourListElements.get(index));
+	            System.out.print("\n");
+	            flag=1;
+	            break;
+	        }
+	    }
+
+	    if(flag==0){
+	        System.out.print("Resource id is :"+"null");
+	        System.out.print("\n");
+	            
+	    }
+	    flag=0;
+	    for(int index=position;index>=0;index--){
+	        if(finalResponseElement.get(index)=="I"){
+	            System.out.print("Parent ID is :"+ourListElements.get(index));
+	            System.out.print("\n");
+	            flag=1;
+	            break;
+	        }
+	    }
+	    if(flag==0){
+	        System.out.print("Parent ID is :"+"null");
+	        System.out.print("\n");
+	            
+	    }
+	    flag=0;
+	    int first=0,second=0;
+	    int count=0;
+	    for(int index=finalResponseElement.size()-1;index>0;index--){
+	        if(finalResponseElement.get(index)=="G" && finalResponseElement.get(index-1)=="R"){
+	            count=count+1;
+	            if(count==2){
+	                first=index-1;
+	                second=index;
+	                break;
+	            }
+	        }
+	    }
+
+	    if(count==2){
+	        System.out.print("Parent is :"+"(ourListElements.get(first))/(ourListElements.get(second)))");
+	        flag=1;
+	    }
+	    if(flag==0){
+            System.out.print("Parent is :"+"null");
+            System.out.print("\n");
+	    }
+
+	    return resource;
     }
     
 
