@@ -550,7 +550,7 @@ public class RequestAdapter {
 
         String method = request.getMethod().toLowerCase();
 
-        ParamExtractStrategy strategy;
+        RequestStrategy strategy;
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
                 ? APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
 

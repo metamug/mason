@@ -514,36 +514,50 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import org.eclipse.persistence.jaxb.MarshallerProperties;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
 /**
  *
  * @author D3ep4k
  */
-public class JsonBodyStrategy extends ParamExtractStrategy {
-    public static final String APPLICATION_JSON = "application/json";
+public class JsonBodyStrategy extends RequestBodyStrategy {
+    
+    private HttpServletRequest request;
+
     /**
      *
      * @param request
      */
     public JsonBodyStrategy(HttpServletRequest request) {
         super(request);
+        this.request = request;
+    }
 
-        String line;
-        StringBuilder jsonData = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-            while ((line = br.readLine()) != null) {
-                jsonData.append(line);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(JsonStrategy.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+    @Override
+    public Object getBodyObject() throws IOException{
+
+    	JAXBContext jaxbContext;
+    	Object object = null;
+        try{
+
+            jaxbContext = JAXBContext.newInstance(clazz);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+             
+            //Set JSON type
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
+             
+            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
+
+        }catch (JAXBException e) {
+            e.printStackTrace();
         }
-        Map<String, Object> flattenAsMap = JsonFlattener.flattenAsMap(jsonData.toString());
-        flattenAsMap.entrySet().forEach(entry -> {
-            String key = entry.getKey();
-            String value = String.valueOf(entry.getValue());
-            addKeyPair(masonRequest, new String[]{key, value}, params);
-        });
-        //Add jsonData as String
-        params.put("mtgRawJson", jsonData.toString());
+
+        return object;
     }
 }

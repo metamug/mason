@@ -627,19 +627,20 @@ public class Router implements Filter {
             return;
         }
 
-        res.setContentType(APPLICATION_JSON);
+        res.setContentType(APPLICATION_JSON); //@TODO will response be always json 
+        
         //requesting a REST resource
         String resourceName = "";
         try {
             //get queries
-            Request mtgReq = RequestAdapter.create(req);
-            resourceName = mtgReq.getResource().getName();
+            Request masonRequest = RequestAdapter.create(req);
+            resourceName = masonRequest.getResource().getName();
             
-            String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
+            String jspPath = RESOURCES_FOLDER + "v" + masonRequest.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
             //File file = new File(req.getServletContext().getRealPath(jspPath));
             
-            if(resourceFileExists(resourceName, mtgReq.getResource().getVersion(), req)) {
-                req.setAttribute(MASON_REQUEST, mtgReq);
+            if(resourceFileExists(resourceName, masonRequest.getResource().getVersion(), req)) {
+                req.setAttribute(MASON_REQUEST, masonRequest);
 
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
                 req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
