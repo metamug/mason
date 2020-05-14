@@ -724,7 +724,7 @@ public class RequestAdapter {
 	        }
 	    }
 	    
-
+	    
 	    int first=0,second=0;
 	    int count=0;
         String parentName = null; //@TODO set parentName to correc value
@@ -738,6 +738,7 @@ public class RequestAdapter {
 	            }
 	        }
 	    }
+	    parentName="(ourListElements.get(first))/(ourListElements.get(second)))";
 
         Resource parent = new Resource(parentName, 1.0f);
         request.setParent(parent);
