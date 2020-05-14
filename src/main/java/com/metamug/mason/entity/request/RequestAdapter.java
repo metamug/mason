@@ -665,9 +665,9 @@ public class RequestAdapter {
         
                 else if(prevToken.equals("R")) currentToken = "I";
         
-                else if(prevToken.equals("I")){ 
-                    throw new IllegalStateException("Illegal Token Identified in given uri " + uriInput);
-                } 
+//                else if(prevToken.equals("I")){ 
+//                    throw new IllegalStateException("Illegal Token Identified in given uri " + uriInput);
+//                } 
                 
             }else{
                 currentToken = "R";
@@ -680,20 +680,20 @@ public class RequestAdapter {
         }
         
         
-    	for(String element : finalResponseElement){
-    	
-    	    System.out.print("/"+element);
-    	
-    	}    	
+//    	for(String element : finalResponseElement){
+//    	
+//    	    System.out.print("/"+element);
+//    	
+//    	}    	
 
-        
+        Request request = new Request();
     	if(finalResponseElement.get(finalResponseElement.size()-1).equals("G")){
-    	    return null;
+    	    request.setUri(null);
     	}
 
         
         int position=finalResponseElement.size()-1;
-        Request request = new Request();
+        
 
         //check for id at the last position
         if(finalResponseElement.get(position).equals("I")){
@@ -701,7 +701,7 @@ public class RequestAdapter {
             position--; //last element identified as resource id
         }
 
-
+        
         
         String resourceName = null;
 	    for(int index=position;index>=0;index--){
@@ -741,7 +741,8 @@ public class RequestAdapter {
 
         Resource parent = new Resource(null, 1.0f);
         request.setParent(parent);
-
+        
+        
 	    return request;
     }
     

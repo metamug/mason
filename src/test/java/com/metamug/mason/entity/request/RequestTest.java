@@ -738,9 +738,22 @@ public class RequestTest {
 
         List<String> ourListInput = Arrays.asList("/info/crm/people", "/info/crm/people/customer");
         Request request = RequestAdapter.uriExtraction(uriInput,ourListInput);
-        assertEquals("customer", request.getResource().getName());
+        assertEquals("people", request.getResource().getName());
         assertEquals("12", request.getId());
         assertEquals(null, request.getPid());
+        
+        
+        ourListInput = Arrays.asList("/info/crm", "/info/customer");
+        request = RequestAdapter.uriExtraction(uriInput,ourListInput);
+        assertEquals("customer", request.getResource().getName());
+        assertEquals("12", request.getId());
+        assertEquals("people", request.getPid());
+        
+        ourListInput = Arrays.asList("/info");
+        request = RequestAdapter.uriExtraction(uriInput,ourListInput);
+        assertEquals(null, request.getUri());
+        
+        
   
     }
 }
