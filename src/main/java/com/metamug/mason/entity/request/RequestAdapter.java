@@ -739,7 +739,7 @@ public class RequestAdapter {
 	        }
 	    }
 
-        Resource parent = new Resource(null, 1.0f);
+        Resource parent = new Resource(parentName, 1.0f);
         request.setParent(parent);
         
         
