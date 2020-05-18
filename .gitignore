@@ -11,6 +11,6 @@ nbactions.xml
 nb-configuration.xml
 # Exclude maven wrapper
 !/.mvn/wrapper/maven-wrapper.jar
-
+.idea/
 /nbproject/
 /bin/
