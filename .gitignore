@@ -14,3 +14,6 @@ nb-configuration.xml
 .idea/
 /nbproject/
 /bin/
+mason.iml
+.idea/**/workspace.xml
+.idea/**/libraries
