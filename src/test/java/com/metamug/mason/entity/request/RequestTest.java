@@ -741,7 +741,7 @@ public class RequestTest {
         assertEquals("people", request.getResource().getName());
         assertEquals("12", request.getId());
         assertEquals(null, request.getPid());
-        assertEquals("customer", request.getParent().getName());
+        assertEquals(null, request.getParent().getParent());
         
         
         ourListInput = Arrays.asList("/info/crm", "/info/customer");
@@ -749,7 +749,7 @@ public class RequestTest {
         assertEquals("customer", request.getResource().getName());
         assertEquals("12", request.getId());
         assertEquals("people", request.getPid());
-        assertEquals("crm", request.getParent().getName());
+        assertEquals(null, request.getParent().getParent());
         
         ourListInput = Arrays.asList("/info");
         request = RequestAdapter.uriExtraction(uriInput,ourListInput);

@@ -710,7 +710,7 @@ public class RequestAdapter {
         Resource parent = new Resource(parentName, 1.0f);
         request.setParent(parent);
         
-        
+        System.out.print(request.getParent().getName());
 	    return request;
     }
     
