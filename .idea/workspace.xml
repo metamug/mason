@@ -1,83 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1caabcb6-9198-4883-b8b9-c5dff813bd33" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/Router.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/Router.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/SimpleCORSFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/SimpleCORSFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/dao/AuthDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/dao/AuthDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/ContextMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/ContextMap.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/RootResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/RootResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/auth/JWebToken.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/auth/JWebToken.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/FormStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/FormStrategy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/HtmlStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/HtmlStrategy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/ImmutableRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/ImmutableRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/JsonStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/JsonStrategy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/MultipartFormStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/MultipartFormStrategy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/ParamExtractStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/ParamExtractStrategy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/RequestAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/RequestAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ClientErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ClientErrorResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DatasetOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DatasetOutput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DbLoggable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DbLoggable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DefaultDbLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/DefaultDbLogger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ErrorResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/FileOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/FileOutput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/InternalServerErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/InternalServerErrorResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/JSONOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/JSONOutput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/MasonOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/MasonOutput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ResponeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/ResponeBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/XMLOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/response/XMLOutput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/xrequest/XResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/xrequest/XResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/exception/MasonError.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/exception/MasonError.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/exception/MasonException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/exception/MasonException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/function/Extract.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/function/Extract.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/io/mpath/MPathUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/io/mpath/MPathUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/io/objectreturn/ObjectReturn.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/io/objectreturn/ObjectReturn.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/ConnectionProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/ConnectionProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/QueryManagerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/QueryManagerService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/UploaderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/UploaderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/XRequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/service/XRequestService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ExceptionTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ExceptionTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ExecuteTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ExecuteTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/HeaderTag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/HeaderTag.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/KeyValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/KeyValue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ParamTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ParamTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RequestTag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RequestTag.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RequestTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RequestTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ResourceTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ResourceTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RestTag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/RestTag.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ScriptTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/ScriptTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/BodyTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/BodyTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/ParamTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/ParamTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/XRequestTagHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/metamug/mason/tag/xrequest/XRequestTagHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/mtg-mason.tld" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/mtg-mason.tld" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/RouterTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/RouterTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/RootResourceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/RootResourceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/auth/JWebTokenTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/auth/JWebTokenTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/response/MasonOutputTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/entity/response/MasonOutputTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/CollectTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/CollectTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/MPathFetchValueTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/MPathFetchValueTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/MPathUnflattenTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/MPathUnflattenTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/TestData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/mpath/TestData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/ObjectReturnTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/ObjectReturnTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/testclasses/Customer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/testclasses/Customer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/testclasses/PhoneNumber.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/io/objectreturn/testclasses/PhoneNumber.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/Contact.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/Contact.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/Customer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/Customer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/RequestExample.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/RequestExample.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/ResponseExample.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/ResponseExample.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/ResultExample.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/processables/ResultExample.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/QueryManagerServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/QueryManagerServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestErrorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestErrorTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestHeaderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestHeaderTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/service/xrequest/XRequestTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/metamug/mason/tag/TagHandlerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/metamug/mason/tag/TagHandlerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/test.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test.groovy" afterDir="false" />
-    </list>
+    <list default="true" id="a5942654-3ddc-416f-9a06-8c5ad92c3f32" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -85,6 +9,32 @@
   </component>
   <component name="CoverageViewManager">
     <option name="myElementSize" value="99" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/metamug/mason/entity/request/RequestAdapter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="532">
+              <caret line="29" selection-start-line="29" selection-end-line="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/metamug/mason/service/UploaderService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="321">
+              <caret line="612" column="66" selection-start-line="612" selection-start-column="66" selection-end-line="612" selection-end-column="66" />
+              <folding>
+                <element signature="e#29295#29296#0" expanded="true" />
+                <element signature="e#29341#29342#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -94,12 +44,12 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IgnoredFileRootStore">
     <option name="generatedRoots">
@@ -109,6 +59,106 @@
     </option>
   </component>
   <component name="ProjectId" id="1Sj7L9KInl1X2KJ6kzjgZFZ9SLs" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name=".idea" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="entity" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="service" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mason" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mason" type="462c0819:PsiDirectoryNode" />
+              <item name="entity" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+    </panes>
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -127,6 +177,18 @@
       <command value="mvn release" />
       <command value="mvn test" />
       <command value="mvn clean test" />
+    </option>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
     </option>
   </component>
   <component name="RunManager">
@@ -179,14 +241,94 @@
     <option name="localTasksCounter" value="4" />
     <servers />
   </component>
+  <component name="ToolWindowManager">
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2147651" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Capture Tool" order="2" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Designer" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.18696883" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.50067115" side_tool="true" weight="0.17988668" />
+      <window_info anchor="bottom" id="Version Control" order="9" />
+      <window_info anchor="bottom" id="Messages" order="10" sideWeight="0.49932885" weight="0.101983" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.24966443" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Theme Preview" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Palette&#9;" order="6" />
+      <window_info anchor="right" id="Maven" order="7" weight="0.020134227" />
+    </layout>
+    <layout-to-restore>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23020135" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Capture Tool" order="2" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Designer" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.50067115" side_tool="true" weight="0.17988668" />
+      <window_info anchor="bottom" id="Version Control" order="9" />
+      <window_info active="true" anchor="bottom" id="Messages" order="10" sideWeight="0.49932885" visible="true" weight="0.04249292" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.24966443" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Theme Preview" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Palette&#9;" order="6" />
+      <window_info anchor="right" id="Maven" order="7" weight="0.020134227" />
+    </layout-to-restore>
+  </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
           <value>
             <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
               <option name="COLUMN_ORDER" />
             </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
           </value>
         </entry>
       </map>
