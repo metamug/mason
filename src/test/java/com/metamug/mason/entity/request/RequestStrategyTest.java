@@ -751,10 +751,10 @@ public class RequestStrategyTest {
         RequestStrategy strategy = new ParamExtractStrategy(request);
         
         Request masonRequest = strategy.getRequest();
-        assertEquals("people", masonRequest.getResource().getName());
+        assertEquals("customer", masonRequest.getResource().getName());
         assertEquals("12", masonRequest.getId());
-        assertEquals(null, masonRequest.getPid());
-        // assertEquals(null, masonRequest.getParent().getName());
+        assertEquals("people", masonRequest.getPid());
+        assertEquals("crm", masonRequest.getParent().getName());
 
         // ourListInput = Arrays.asList("/info/crm/people/customer");
         // request = RequestAdapter.uriExtraction(uriInput,ourListInput);
