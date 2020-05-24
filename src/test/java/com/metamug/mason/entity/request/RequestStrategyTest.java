@@ -749,7 +749,8 @@ public class RequestStrategyTest {
 
         request.getParameterNames();
         RequestStrategy strategy = new ParamExtractStrategy(request);
-        
+        strategy.setResourcePathList(Arrays.asList("/info/crm/people", "/info/crm/people/customer"));
+
         Request masonRequest = strategy.getRequest();
         assertEquals("people", masonRequest.getResource().getName());
         assertEquals("12", masonRequest.getId());

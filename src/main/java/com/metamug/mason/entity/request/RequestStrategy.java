@@ -528,23 +528,29 @@ public abstract class RequestStrategy {
  	private static final int VERSION_LENGTH = 3; // 1.3
  	private HttpServletRequest httpRequest; 
  	private float version;
+ 	private List<String> resourcePathList;
 
     public RequestStrategy(HttpServletRequest request) {
     	this.httpRequest = request;
     	this.version = Float.parseFloat(this.httpRequest.getPathInfo().substring(2,2+VERSION_LENGTH));
     	
-        
-    	masonRequest = buildRequest();
-    	masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
+    }
+
+    public void setResourcePathList(List<String> list){
+    	resourcePathList = list; 
     }
 
     private boolean resourceExists(String resourcePath){
     	String jspPath = Router.RESOURCES_FOLDER + "v" + version  + resourcePath + Router.JSP_EXTN;
-    	return Arrays.asList("/info/crm/people", "/info/crm/people/customer").contains(resourcePath);
+    	return resourcePathList.contains(resourcePath);
     	//new File(req.getServletContext().getRealPath(jspPath)).exists();
     }
 
-    public abstract Request getRequest();
+    public Request getRequest(){
+    	masonRequest = buildRequest();
+    	masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
+    	return masonRequest;
+    }
 
     /**
     * Extract Request information

@@ -525,6 +525,7 @@ public class ParamExtractStrategy extends RequestStrategy{
 
     @Override
     public Request getRequest() {
+    	masonRequest = super.getRequest();
         masonRequest.setParams(params);
         return new ImmutableRequest(masonRequest);
     }
