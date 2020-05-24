@@ -747,7 +747,6 @@ public class RequestStrategyTest {
         when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
         when(request.getMethod()).thenReturn("GET");
 
-        request.getParameterNames();
         RequestStrategy strategy = new ParamExtractStrategy(request);
         strategy.setResourcePathList(Arrays.asList("/info/crm/people", "/info/crm/people/customer"));
 
@@ -757,26 +756,30 @@ public class RequestStrategyTest {
         assertEquals(null, masonRequest.getPid());
         // assertEquals(null, masonRequest.getParent().getName());
 
-        // ourListInput = Arrays.asList("/info/crm/people/customer");
-        // request = RequestAdapter.uriExtraction(uriInput,ourListInput);
-        // assertEquals("customer", request.getResource().getName());
-        // assertEquals("12", request.getId());
-        // assertEquals(null, request.getPid());
+
+        strategy = new ParamExtractStrategy(request);
+        strategy.setResourcePathList(Arrays.asList("/info/crm/people/customer"));
+        masonRequest = strategy.getRequest();
+
+        assertEquals("customer", masonRequest.getResource().getName());
+        assertEquals("12", masonRequest.getId());
+        assertEquals(null, masonRequest.getPid());
         // assertEquals(null, request.getParent().getName());
         
-        // ourListInput = Arrays.asList("/info/crm", "/info/customer");
-        // request = RequestAdapter.uriExtraction(uriInput,ourListInput);
-        // assertEquals("customer", request.getResource().getName());
-        // assertEquals("12", request.getId());
-        // assertEquals("people", request.getPid());
+        strategy = new ParamExtractStrategy(request);
+        strategy.setResourcePathList(Arrays.asList("/info/crm", "/info/customer"));
+        masonRequest = strategy.getRequest();
+        assertEquals("customer", masonRequest.getResource().getName());
+        assertEquals("12", masonRequest.getId());
+        assertEquals("people",masonRequest.getPid());
         // assertEquals("crm", request.getParent().getName());
         
-        // ourListInput = Arrays.asList("/info");
-        // request = RequestAdapter.uriExtraction(uriInput,ourListInput);
-        // assertEquals(null, request.getUri());
-        // assertEquals(null, request.getParent().getName());
-        
-        
-  
+
+        strategy = new ParamExtractStrategy(request);
+        strategy.setResourcePathList(Arrays.asList("/info"));
+        masonRequest = strategy.getRequest();        
+        assertEquals("/info/crm/people/customer/12/", masonRequest.getUri());
+        assertEquals("info", masonRequest.getParent().getName());
+
     }
 }
