@@ -546,8 +546,8 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    private static final String JSP_EXTN = ".jsp";
-    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
+    public static final String JSP_EXTN = ".jsp";
+    public static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -766,7 +766,7 @@ public class Router implements Filter {
     }
     
     public static boolean resourceFileExists(String resourceName, float v, HttpServletRequest req){
-        String jspPath = RESOURCES_FOLDER + "v" + v + "/" + resourceName + JSP_EXTN;
+        String jspPath = RESOURCES_FOLDER + "v" + v  + resourceName + JSP_EXTN;
         File file = new File(req.getServletContext().getRealPath(jspPath));
         return file.exists();
     }

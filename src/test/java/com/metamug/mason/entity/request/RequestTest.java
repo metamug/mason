@@ -687,6 +687,8 @@ import java.util.Arrays;
 
 import com.metamug.entity.Resource;
 import com.metamug.entity.Request;
+import com.metamug.mason.Router;
+import java.io.File;
 
 /**
  *
@@ -721,6 +723,7 @@ public class RequestTest {
         when(request.getServletContext()).thenReturn(context);
         when(context.getContextPath()).thenReturn("backend");
 
+      
         //prepare String Writer
         stringWriter = new StringWriter();
         writer = new PrintWriter(stringWriter);
@@ -736,25 +739,39 @@ public class RequestTest {
         
         String uriInput = "/info/crm/people/customer/12";
 
-        List<String> ourListInput = Arrays.asList("/info/crm/people", "/info/crm/people/customer");
-        Request request = RequestAdapter.uriExtraction(uriInput,ourListInput);
-        assertEquals("people", request.getResource().getName());
-        assertEquals("12", request.getId());
-        assertEquals(null, request.getPid());
-        // assertEquals("customer", request.getParent().getName());
         
+
+        when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people.jsp"), mockedFile);
+        when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people/customer.jsp"), mockedFile);
+
+        File mockedFile = mock(File.class);
+        when(mockedFile.exists()).thenReturn(true);
         
-        ourListInput = Arrays.asList("/info/crm", "/info/customer");
-        request = RequestAdapter.uriExtraction(uriInput,ourListInput);
-        assertEquals("customer", request.getResource().getName());
-        assertEquals("12", request.getId());
-        assertEquals("people", request.getPid());
+        RequestStrategy strategy = new FormStrategy(request);
+        Request masonRequest = strategy.buildRequest();
+        assertEquals("customer", masonRequest.getResource().getName());
+        assertEquals("12", masonRequest.getId());
+        assertEquals(null, masonRequest.getPid());
+        assertEquals("people", masonRequest.getParent().getName());
+
+        // ourListInput = Arrays.asList("/info/crm/people/customer");
+        // request = RequestAdapter.uriExtraction(uriInput,ourListInput);
+        // assertEquals("customer", request.getResource().getName());
+        // assertEquals("12", request.getId());
+        // assertEquals(null, request.getPid());
+        // assertEquals(null, request.getParent().getName());
+        
+        // ourListInput = Arrays.asList("/info/crm", "/info/customer");
+        // request = RequestAdapter.uriExtraction(uriInput,ourListInput);
+        // assertEquals("customer", request.getResource().getName());
+        // assertEquals("12", request.getId());
+        // assertEquals("people", request.getPid());
         // assertEquals("crm", request.getParent().getName());
         
-        ourListInput = Arrays.asList("/info");
-        request = RequestAdapter.uriExtraction(uriInput,ourListInput);
-        assertEquals(null, request.getUri());
-        assertEquals(null, request.getParent().getName());
+        // ourListInput = Arrays.asList("/info");
+        // request = RequestAdapter.uriExtraction(uriInput,ourListInput);
+        // assertEquals(null, request.getUri());
+        // assertEquals(null, request.getParent().getName());
         
         
   

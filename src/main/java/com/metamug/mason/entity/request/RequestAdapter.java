@@ -519,6 +519,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.ArrayList;
+import com.metamug.mason.Router;
+
 /**
  * Convert HTTP Servlet Request Object to Mason Request
  * @author Anish Hirlekar
@@ -528,8 +530,6 @@ public class RequestAdapter {
  	
 
     public static Request create(HttpServletRequest request) throws IOException, ServletException {
-
-    	String pathInfo = request.getPathInfo(); // /v1.0/resource
 
         //String path = request.getServletPath(); gives contextPath
         
@@ -550,144 +550,5 @@ public class RequestAdapter {
         return strategy.getRequest();
         
     }
-
-
-    /**
-    * Extract resource information from the uri supplied
-    */
-    public static Request uriExtraction(String uriInput , List<String> resourceList ) {
-    	
-    	String tokensValue;
-		
-		String listInputAtPresent,listInputAtPast,listInputAtAlways;
-		
-		String listInputAtFuture="/";
-		
-		listInputAtPresent="";
-		
-		
-		listInputAtAlways="";
-		
-		listInputAtPast="";
-		
-		uriInput+="/";
-		
-		int sizeOfUriInput = uriInput.length();
-        
-        List<String> ourListElements = new ArrayList<String>(sizeOfUriInput); 
-        
-        List<String> finalResponseElement = new ArrayList<String>(sizeOfUriInput);
-        
-        int positionOfEachElement = 1;
-        
-        String prevToken = " ", currentToken = " ";
-        
-        for(int index=1;index<sizeOfUriInput;index++){
-        
-            if(uriInput.charAt(index)=='/'){
-        
-                tokensValue = uriInput.substring(positionOfEachElement,index);
-        
-                positionOfEachElement=index+1;
-        
-                ourListElements.add(tokensValue);
-        
-                listInputAtPast=listInputAtFuture+tokensValue;
-        
-            listInputAtAlways=listInputAtPresent + listInputAtPast ;
-            
-            if(!(resourceList.contains(listInputAtAlways))){
-                
-        
-                if(prevToken.equals(" ")){
-                    currentToken = "G";
-                    listInputAtPresent=listInputAtAlways;
-                }
-        
-                else if(prevToken.equals("G")){
-                    currentToken = "G";
-                    listInputAtPresent=listInputAtAlways;
-                }
-        
-                else if(prevToken.equals("R")) currentToken = "I";
-        
-//                else if(prevToken.equals("I")){ 
-//                    throw new IllegalStateException("Illegal Token Identified in given uri " + uriInput);
-//                } 
-                
-            }else{
-                currentToken = "R";
-            }
-        
-            prevToken = currentToken;
-        
-            finalResponseElement.add(prevToken);
-            }
-        }
-        
-       
-        Request request = new Request();
-    	if(finalResponseElement.get(finalResponseElement.size()-1).equals("G")){
-    	    request.setUri(null);
-    	}
-
-        
-        int position=finalResponseElement.size()-1;
-        
-
-        //check for id at the last position
-        if(finalResponseElement.get(position).equals("I")){
-            request.setId(ourListElements.get(position));
-            position--; //last element identified as resource id
-        }
-
-        
-        
-        String resourceName = null;
-	    for(int index=position;index>=0;index--){
-	        
-	        if(finalResponseElement.get(index).equals("R")){
-	            resourceName = ourListElements.get(index);
-	            position=index;
-	            break;
-	        }
-	    }
-
-	    Resource resource = new Resource(resourceName, 1.0f);
-        request.setResource(resource);        
-	            
-
-	    for(int index=position;index>=0;index--){
-	        if(finalResponseElement.get(index)=="I"){
-	            request.setPid(ourListElements.get(index));
-	            break;
-	        }
-	    }
-	    
-	    
-	    int first=0,second=0;
-	    int count=0;
-        String parentName = null; //@TODO set parentName to correc value
-	    for(int index=finalResponseElement.size()-1;index>0;index--){
-	        if(finalResponseElement.get(index)=="G" && finalResponseElement.get(index-1)=="R"){
-	            count=count+1;
-	            if(count==2){
-	                first=index-1;
-	                second=index;
-	                break;
-	            }
-	        }
-	    }
-
-	    //parentName =  ourListElements.get(first)/ourListElements.get(second);
-        Resource parent = new Resource(parentName, 1.0f);
-        request.setParent(parent);
-        
-        
-	    return request;
-    }
-    
-
-    
 
 }

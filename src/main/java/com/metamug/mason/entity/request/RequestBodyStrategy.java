@@ -532,7 +532,7 @@ public abstract class RequestBodyStrategy extends RequestStrategy{
     	}catch(IOException ioe){
     		//@TODO Handle io exception
     	}
-        return masonRequest;
+       	return new ImmutableRequest(masonRequest);
     }
 
     public void setClazz(Class clazz){
