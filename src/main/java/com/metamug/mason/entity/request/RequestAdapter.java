@@ -527,8 +527,6 @@ import com.metamug.mason.Router;
  */
 public class RequestAdapter {
 
- 	
-
     public static Request create(HttpServletRequest request) throws IOException, ServletException {
 
         //String path = request.getServletPath(); gives contextPath

@@ -695,7 +695,7 @@ import java.io.File;
  * @author deepak
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RequestTest {
+public class RequestStrategyTest {
 
     @Mock
     private HttpServletRequest request;
@@ -746,7 +746,7 @@ public class RequestTest {
         String uriInput = "/info/crm/people/customer/12";
 
         RequestStrategy strategy = new FormStrategy(request);
-        Request masonRequest = strategy.buildRequest();
+        Request masonRequest = strategy.getRequest();
         assertEquals("people", masonRequest.getResource().getName());
         assertEquals("12", masonRequest.getId());
         assertEquals(null, masonRequest.getPid());
