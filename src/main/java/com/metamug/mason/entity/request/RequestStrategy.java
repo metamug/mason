@@ -535,7 +535,7 @@ public abstract class RequestStrategy {
     	
         
     	masonRequest = buildRequest();
-    	masonRequest.setMethod(request.getMethod().toLowerCase());
+    	masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
     }
 
     private boolean resourceExists(String resourcePath){

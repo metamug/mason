@@ -515,7 +515,7 @@ import javax.servlet.http.HttpServletRequest;
  * Request Strategy designed for parameters 
  * @author D3ep4k
  */
-public abstract class ParamExtractStrategy extends RequestStrategy{
+public class ParamExtractStrategy extends RequestStrategy{
 
     protected Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     String uriPath;

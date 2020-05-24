@@ -717,18 +717,18 @@ public class RequestStrategyTest {
 
     @Before
     public void setUp() {
+
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         ServletContext context = mock(ServletContext.class);
         when(request.getServletContext()).thenReturn(context);
         
-
-        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people.jsp"), mockedFile);
-        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people/customer.jsp"), mockedFile);
-
         // File mockedFile = mock(File.class);
         // when(mockedFile.exists()).thenReturn(true);
+        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people.jsp")).thenReturn(mockedFile);
+        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people/customer.jsp")).thenReturn(mockedFile);
 
+       
       
         //prepare String Writer
         stringWriter = new StringWriter();
@@ -742,15 +742,19 @@ public class RequestStrategyTest {
   
     @Test
     public void uriTest() {
-        
-        String uriInput = "/info/crm/people/customer/12";
 
-        RequestStrategy strategy = new FormStrategy(request);
+
+        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+        when(request.getMethod()).thenReturn("GET");
+
+        request.getParameterNames();
+        RequestStrategy strategy = new ParamExtractStrategy(request);
+        
         Request masonRequest = strategy.getRequest();
         assertEquals("people", masonRequest.getResource().getName());
         assertEquals("12", masonRequest.getId());
         assertEquals(null, masonRequest.getPid());
-        assertEquals(null, masonRequest.getParent().getName());
+        // assertEquals(null, masonRequest.getParent().getName());
 
         // ourListInput = Arrays.asList("/info/crm/people/customer");
         // request = RequestAdapter.uriExtraction(uriInput,ourListInput);
