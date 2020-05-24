@@ -543,6 +543,7 @@ public abstract class RequestStrategy {
     private boolean resourceExists(String resourcePath){
     	String jspPath = Router.RESOURCES_FOLDER + "v" + version  + resourcePath + Router.JSP_EXTN;
     	return resourcePathList.contains(resourcePath);
+
     	//new File(req.getServletContext().getRealPath(jspPath)).exists();
     }
 
@@ -659,28 +660,22 @@ public abstract class RequestStrategy {
 	            
 
 	    for(int index=position;index>=0;index--){
-	        if(finalResponseElement.get(index)=="I"){
+	        if(finalResponseElement.get(index).equals("I")){
 	            request.setPid(ourListElements.get(index));
 	            break;
 	        }
 	    }
 	    
-	    
-	    int first=0,second=0;
-	    int count=0;
-        String parentName = null; //@TODO set parentName to correc value
-	    for(int index=finalResponseElement.size()-1;index>0;index--){
-	        if(finalResponseElement.get(index)=="G" && finalResponseElement.get(index-1)=="R"){
-	            count=count+1;
-	            if(count==2){
-	                first=index-1;
-	                second=index;
-	                break;
-	            }
+	  
+	    String parentName = null; //@TODO set parentName to correc value
+	    for(int index=position-1;index>=0;index--){
+	        if(finalResponseElement.get(index).equals("R")){
+	        	parentName=(ourListElements.get(index));
+	            break;
 	        }
 	    }
 
-	    parentName =  ourListElements.get(first); ///ourListElements.get(second);
+	     ///ourListElements.get(second);
         Resource parent = new Resource(parentName, version);
         request.setParent(parent);
         
