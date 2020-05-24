@@ -552,7 +552,7 @@ public class XRequestService {
                 }
             }
             if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), headerMap, XREQUEST_ERROR + response, true, outputHeaders);
+                xr = new XResponse(response.code(), headerMap, response.message(), true, outputHeaders);
 
             } else {
                 xr = new XResponse(response.code(), headerMap, response.body().string().trim(), false, outputHeaders);
