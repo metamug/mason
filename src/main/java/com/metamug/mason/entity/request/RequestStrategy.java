@@ -507,19 +507,30 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
+import com.metamug.entity.Resource;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
-
+import java.util.Arrays;
 /**
  *
  * @author D3ep4k
  */
 public abstract class RequestStrategy {
 
-    protected Request masonRequest = new Request();
+    protected Request masonRequest;
+
+    public static final String VERSION_REGEX = "^.*(v\\d+\\.\\d+).*$";
+ 	private static final int VERSION_LENGTH = 3; // 1.3
 
     public RequestStrategy(HttpServletRequest request) {
+    	String resourceUri = request.getPathInfo().substring(5);
+    	masonRequest = RequestAdapter.uriExtraction(resourceUri, Arrays.asList(""));
+    	masonRequest.setUri(resourceUri);
+    	masonRequest.setMethod(request.getMethod().toLowerCase());
+    	Resource resource = masonRequest.getResource();
+    	float version = Float.parseFloat(request.getPathInfo().substring(2,2+VERSION_LENGTH));
+    	//resource.setVersion(version); //remove "/v")
     }
 
     public abstract Request getRequest();

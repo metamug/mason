@@ -525,24 +525,14 @@ import java.util.ArrayList;
  */
 public class RequestAdapter {
 
+ 	
+
     public static Request create(HttpServletRequest request) throws IOException, ServletException {
 
-        String path = request.getServletPath();
-        String[] tokens = path.split("/");  //without query string
-        int versionTokenIndex = -1;
+    	String pathInfo = request.getPathInfo(); // /v1.0/resource
 
-        //find index of version in the url
-        for (int i = 0; i < tokens.length; i++) {
-            if (tokens[i].matches("^.*(v\\d+\\.\\d+).*$")) {
-                versionTokenIndex = i;
-                break;
-            }
-        } //The uri may always not have a context. This can deal with no context as well.
-
-        float version = Float.parseFloat(tokens[versionTokenIndex].substring(1)); //remove "v"
+        //String path = request.getServletPath(); gives contextPath
         
-        String method = request.getMethod().toLowerCase();
-
         RequestStrategy strategy;
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
                 ? APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
@@ -557,19 +547,8 @@ public class RequestAdapter {
             strategy = new FormStrategy(request); //works for GET request as well
         }
 
-        Request masonRequest = strategy.getRequest();
-        // Resource parentResource = null;
-       
-        // if( resourceFileExists(parentName,version,request) ) {
-
-        // }
-
-        // Resource resource = new Resource(resourceName, version, String.join("/", tokens), parentResource); //@TODO why not use path from above
-        // masonRequest.setResource(resource);
-        // masonRequest.setMethod(method);
-        // masonRequest.setUri(tokens[versionTokenIndex + 1]);
-
-        return new ImmutableRequest(masonRequest);
+        return strategy.getRequest();
+        
     }
 
 
@@ -646,13 +625,7 @@ public class RequestAdapter {
             }
         }
         
-        
-//    	for(String element : finalResponseElement){
-//    	
-//    	    System.out.print("/"+element);
-//    	
-//    	}    	
-
+       
         Request request = new Request();
     	if(finalResponseElement.get(finalResponseElement.size()-1).equals("G")){
     	    request.setUri(null);
@@ -705,16 +678,16 @@ public class RequestAdapter {
 	            }
 	        }
 	    }
-	    parentName="(ourListElements.get(first))/(ourListElements.get(second)))";
 
+	    //parentName =  ourListElements.get(first)/ourListElements.get(second);
         Resource parent = new Resource(parentName, 1.0f);
         request.setParent(parent);
         
-        System.out.print(request.getParent().getName());
+        
 	    return request;
     }
     
 
-    private static final int VERSION_LENGTH = 4; // v1.3
+    
 
 }

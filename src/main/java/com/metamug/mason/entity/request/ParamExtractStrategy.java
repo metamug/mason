@@ -518,7 +518,7 @@ import javax.servlet.http.HttpServletRequest;
 public abstract class ParamExtractStrategy extends RequestStrategy{
 
     protected Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
+    String uriPath;
     public ParamExtractStrategy(HttpServletRequest request) {
     	super(request);
     }
@@ -526,7 +526,7 @@ public abstract class ParamExtractStrategy extends RequestStrategy{
     @Override
     public Request getRequest() {
         masonRequest.setParams(params);
-        return masonRequest;
+        return new ImmutableRequest(masonRequest);
     }
 
     /**
