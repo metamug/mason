@@ -149,4 +149,3 @@ Fork this repo and submit a PR against the listed issues. Any donations for this
 [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=metamug_mason)
  [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=metamug_mason&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=metamug_mason) [![Total alerts](https://img.shields.io/lgtm/alerts/g/metamug/mason.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/metamug/mason/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/metamug/mason.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/metamug/mason/context:java) 
  
- 

@@ -19,6 +19,7 @@ import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import com.metamug.exec.RequestProcessable;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -32,10 +33,7 @@ public class FileDownloadPlugin implements RequestProcessable {
     @Override
     public Response process(Request request, DataSource ds, Map<String, Object> args) throws Exception {
 
-        SFTP sftp = new SFTP((String) args.get("host"),
-                (String) args.get("user"), (String) args.get("password"), (String) args.get("dir"));
-
-        InputStream is = sftp.download(request.getParameter("file"));
+        InputStream is = new ByteArrayInputStream("test data".getBytes());
         Attachment attachment = new Attachment(is);
         attachment.setName(request.getParameter("file"));
         Response response = new Response(attachment);

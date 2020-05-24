@@ -507,90 +507,27 @@
 package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Response;
-import org.json.JSONObject;
-import org.json.XML;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.json.JSONObject;
+import org.json.XML;
 
 /**
  * Generic Output Object
  */
-public class XMLOutput extends MasonOutput<Document> {
+public class XMLOutput extends JSONOutput {
 
-    /**
-     * Convert JSONObject into XML DOcument Object
-     *
-     * @param jsonObject
-     * @return
-     */
-    private Document getXml(JSONObject jsonObject) {
-        StringBuilder xmlBuilder = new StringBuilder();
-        xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        xmlBuilder.append("<response>");
-        xmlBuilder.append(XML.toString(jsonObject));
-        xmlBuilder.append("</response>");
-        Document doc = null;
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.FALSE);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            doc = builder.parse(new InputSource(new StringReader(xmlBuilder.toString())));
-            return doc;
-        } catch (IOException | SAXException | ParserConfigurationException e) {
-            Logger.getLogger(XMLOutput.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-            return doc;
-        }
-
-    }
-
-    @Override
-    protected Document getContent() {
-        Response response = new ResponeBuilder(JSONOutput.class).build(outputMap);
-        return getXml((JSONObject) response.getPayload());
-    }
-
+   
     @Override
     public String getContentType() {
         return HEADER_XML;
     }
 
-    public String getStringFromDocument(Document doc) {
-        try {
-            DOMSource domSource = new DOMSource(doc);
-            StringWriter writer = new StringWriter();
-            StreamResult result = new StreamResult(writer);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-            Transformer transformer = tf.newTransformer();
-            transformer.transform(domSource, result);
-            return writer.toString();
-        } catch (TransformerException e) {
-            Logger.getLogger(XMLOutput.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-            return null;
-        }
-    }
 
     @Override
     public String format(Response response) {
-        return getStringFromDocument((Document) response.getPayload());
+        JSONObject json = (JSONObject) response.getPayload();
+        return XML.toString(json);
     }
 
     @Override

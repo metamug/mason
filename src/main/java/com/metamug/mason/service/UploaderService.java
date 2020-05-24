@@ -606,8 +606,8 @@ public class UploaderService {
 
     private void uploadPart(HttpServletRequest request, String listenerClass) throws Exception {
         try {
-            String uploadFilePath = System.getProperty("catalina.base") + File.separator + UPLOAD_DIR + request.getContextPath();
-            Files.createDirectories(Paths.get(uploadFilePath));
+            String uploadFileLocation = System.getProperty("catalina.base") + File.separator + UPLOAD_DIR + request.getContextPath();
+            Files.createDirectories(Paths.get(uploadFileLocation));
 
             //Get all the parts from request and write it to the file on server
             // Retrieves <input type="file" name="file" multiple="true">
@@ -617,7 +617,7 @@ public class UploaderService {
             String fileName;
             for (Part filePart : fileParts) { //for multiple files
                 fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-                File uploadedFile = new File(uploadFilePath + File.separator + fileName);
+                File uploadedFile = new File(uploadFileLocation + File.separator + filePart.getSubmittedFileName());
                 if (!uploadedFile.isDirectory()) {
                     try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
                         int read;

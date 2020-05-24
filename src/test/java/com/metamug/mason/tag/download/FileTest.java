@@ -92,24 +92,20 @@ public class FileTest {
 
     }
 
-//    @Test
+    @Test
     public void fileDownloadTest() throws JspException {
         when(masonRequest.getParameter("file")).thenReturn("pom.xml");
        
         executeTag.setVar("fileDownload");
         executeTag.setOutput(true);
         executeTag.setClassName("com.metamug.mason.tag.download.FileDownloadPlugin");
-        executeTag.addParameter("host", "server.metamug.net");
-        executeTag.addParameter("user", "ubuntu");
-        executeTag.addParameter("password", System.getProperty("password"));
-        executeTag.addParameter("dir", "/home/ubuntu/crap/myproject");
         executeTag.setParam(masonRequest);
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
         
         Attachment attachment = (Attachment) masonResponse.get("fileDownload");
         String output = slurp(attachment.getStream(), 2048);
-        //assertTrue(output.length() > -1);
+        assertEquals(9, output.length());
    
     }
     
