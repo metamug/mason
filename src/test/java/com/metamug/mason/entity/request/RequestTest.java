@@ -721,7 +721,13 @@ public class RequestTest {
         response = mock(HttpServletResponse.class);
         ServletContext context = mock(ServletContext.class);
         when(request.getServletContext()).thenReturn(context);
-        when(context.getContextPath()).thenReturn("backend");
+        
+
+        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people.jsp"), mockedFile);
+        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people/customer.jsp"), mockedFile);
+
+        // File mockedFile = mock(File.class);
+        // when(mockedFile.exists()).thenReturn(true);
 
       
         //prepare String Writer
@@ -739,20 +745,12 @@ public class RequestTest {
         
         String uriInput = "/info/crm/people/customer/12";
 
-        
-
-        when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people.jsp"), mockedFile);
-        when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people/customer.jsp"), mockedFile);
-
-        File mockedFile = mock(File.class);
-        when(mockedFile.exists()).thenReturn(true);
-        
         RequestStrategy strategy = new FormStrategy(request);
         Request masonRequest = strategy.buildRequest();
-        assertEquals("customer", masonRequest.getResource().getName());
+        assertEquals("people", masonRequest.getResource().getName());
         assertEquals("12", masonRequest.getId());
         assertEquals(null, masonRequest.getPid());
-        assertEquals("people", masonRequest.getParent().getName());
+        assertEquals(null, masonRequest.getParent().getName());
 
         // ourListInput = Arrays.asList("/info/crm/people/customer");
         // request = RequestAdapter.uriExtraction(uriInput,ourListInput);

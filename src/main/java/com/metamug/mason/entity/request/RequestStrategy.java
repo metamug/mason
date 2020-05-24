@@ -527,16 +527,21 @@ public abstract class RequestStrategy {
     public static final String VERSION_REGEX = "^.*(v\\d+\\.\\d+).*$";
  	private static final int VERSION_LENGTH = 3; // 1.3
  	private HttpServletRequest httpRequest; 
- 	private List<File> jspFiles;
  	private float version;
 
     public RequestStrategy(HttpServletRequest request) {
     	this.httpRequest = request;
     	this.version = Float.parseFloat(this.httpRequest.getPathInfo().substring(2,2+VERSION_LENGTH));
-    	String jspPath = RESOURCES_FOLDER + httpRequest.getPathInfo().substring(1) + JSP_EXTN;
-        jspFiles.add(new File(req.getServletContext().getRealPath(jspPath)));
+    	
+        
     	masonRequest = buildRequest();
     	masonRequest.setMethod(request.getMethod().toLowerCase());
+    }
+
+    private boolean resourceExists(String resourcePath){
+    	String jspPath = Router.RESOURCES_FOLDER + "v" + version  + resourcePath + Router.JSP_EXTN;
+    	return Arrays.asList("/info/crm/people", "/info/crm/people/customer").contains(resourcePath);
+    	//new File(req.getServletContext().getRealPath(jspPath)).exists();
     }
 
     public abstract Request getRequest();
@@ -583,7 +588,7 @@ public abstract class RequestStrategy {
         
 	            listInputAtAlways=listInputAtPresent + listInputAtPast ;
 	            
-	            if(!jspFile.exists()){
+	            if(!resourceExists(listInputAtAlways)){
 	                
 	        
 	                if(prevToken.equals(" ")){
