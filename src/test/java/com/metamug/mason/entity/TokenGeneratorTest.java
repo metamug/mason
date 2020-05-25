@@ -653,7 +653,7 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
-package com.metamug.mason.entity.request;
+package com.metamug.mason.entity;
 
 import com.metamug.mason.RouterTest;
 import com.metamug.mason.dao.AuthDAO;
@@ -663,15 +663,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Connection;
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import static org.junit.Assert.assertEquals;
+import com.metamug.entity.Request;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -681,31 +681,24 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays; 
-
-import com.metamug.entity.Resource;
 import com.metamug.entity.Request;
-import com.metamug.mason.Router;
-import java.io.File;
+import com.metamug.entity.Response;
+import java.util.HashMap;
+import com.metamug.exec.RequestProcessable;
 
 /**
  *
- * @author deepak
+ * @author GAURI
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RequestStrategyTest {
+public class TokenGeneratorTest {
 
     @Mock
-    private HttpServletRequest request;
-    @Mock
-    private HttpServletResponse response;
+    private Request request;
 
-    private StringWriter stringWriter;
-    private PrintWriter writer;
     @Mock
-    private ConnectionProvider provider;
+    private DataSource ds;
+
     @Mock
     Connection connection;
 
@@ -717,71 +710,34 @@ public class RequestStrategyTest {
 
     @Before
     public void setUp() {
-
-        request = mock(HttpServletRequest.class);
-        response = mock(HttpServletResponse.class);
-        ServletContext context = mock(ServletContext.class);
-        when(request.getServletContext()).thenReturn(context);
-        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getMethod()).thenReturn("GET");
-
-        
-        // File mockedFile = mock(File.class);
-        // when(mockedFile.exists()).thenReturn(true);
-        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people.jsp")).thenReturn(mockedFile);
-        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people/customer.jsp")).thenReturn(mockedFile);
-
-       
-      
-        //prepare String Writer
-        stringWriter = new StringWriter();
-        writer = new PrintWriter(stringWriter);
-        try {
-            when(response.getWriter()).thenReturn(writer);
-        } catch (IOException ex) {
-            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        request = mock(Request.class);        
     }
   
+    @Ignore
     @Test
-    public void uriTest() {
+    public void testJwtAuthCall() throws Exception{
+        try {
+    
+            when(request.getParameter("auth")).thenReturn("bearer");
+            when(request.getParameter("userid")).thenReturn("1234");
+            when(request.getParameter("password")).thenReturn("pass");
+            when(ds.getConnection()).thenReturn(connection);
+            when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
+            when(statement.executeQuery()).thenReturn(resultSet);
+            //result set should return true for config function to give auth query
+            //second time inside createBearer function and then it should return false.
+            when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
+            when(resultSet.getString("auth_query")).thenReturn("some query mocked");
+            when(resultSet.getString(1)).thenReturn("1234");
+            when(resultSet.getString(2)).thenReturn("admin");
 
-
-        
-        RequestStrategy strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info/crm/people", "/info/crm/customer"));
-
-        Request masonRequest = strategy.getRequest();
-        assertEquals("customer", masonRequest.getResource().getName());
-        assertEquals("12", masonRequest.getId());
-        assertEquals(null, masonRequest.getPid());
-        assertEquals("people", masonRequest.getParent().getName());
-
-
-        strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info/crm/people/customer"));
-        masonRequest = strategy.getRequest();
-
-        assertEquals("customer", masonRequest.getResource().getName());
-        assertEquals("12", masonRequest.getId());
-        assertEquals(null, masonRequest.getPid());
-        assertEquals(null,masonRequest.getParent().getName());
-        
-        strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info/crm", "/info/customer"));
-        masonRequest = strategy.getRequest();
-        assertEquals("customer", masonRequest.getResource().getName());
-        assertEquals("12", masonRequest.getId());
-        assertEquals("people",masonRequest.getPid());
-        assertEquals("crm",masonRequest.getParent().getName());
-
-        
-
-        strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info"));
-        masonRequest = strategy.getRequest();        
-        assertEquals("/info/crm/people/customer/12/", masonRequest.getUri());
-        assertEquals(null, masonRequest.getParent().getName());
-
+            RequestProcessable processable = new TokenGenerator();
+            Response response = processable.process(request, ds, new HashMap<String, Object>());
+            //verify(statement.executeQuery())
+            System.out.println(response.getPayload());
+            assertTrue(response.getPayload() != null);
+        } catch (SQLException ex) {
+            Logger.getLogger(TokenGeneratorTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
     }
 }
