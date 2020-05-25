@@ -583,16 +583,5 @@ public class AuthService{
         }
     }
 
-    /**
-     * Create Bearer token with username and password. Uses JWT Scheme
-     *
-     * @param user
-     * @param pass
-     * @param authQuery
-     * @return
-     */
-    public String createBearer(String user, String pass, String authQuery) {
-        JSONObject payload = dao.getBearerDetails(user, pass, authQuery);
-        return new JWebToken(payload).toString();
-    }
+   
 }

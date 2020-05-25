@@ -517,7 +517,7 @@ import java.util.ArrayList;
 import com.metamug.mason.Router;
 
 /**
- *
+ * Strategy to build Request Object from HttpServletRequest
  * @author D3ep4k
  */
 public abstract class RequestStrategy {
@@ -541,10 +541,7 @@ public abstract class RequestStrategy {
     }
 
     private boolean resourceExists(String resourcePath){
-    	String jspPath = Router.RESOURCES_FOLDER + "v" + version  + resourcePath + Router.JSP_EXTN;
     	return resourcePathList.contains(resourcePath);
-
-    	//new File(req.getServletContext().getRealPath(jspPath)).exists();
     }
 
     public Request getRequest(){

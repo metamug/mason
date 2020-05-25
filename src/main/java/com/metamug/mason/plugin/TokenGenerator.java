@@ -498,40 +498,47 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.entity;
+package com.metamug.mason.plugin;
 
-import com.metamug.mason.service.AuthService;
 import java.util.Map;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import com.metamug.exec.RequestProcessable;
 import javax.sql.DataSource;
-import com.metamug.mason.Router;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.metamug.mason.entity.auth.JWebToken;
 
 /**
  * Generate JWT Token based on query
+ * auth=bearer&user=foo&pass=pass
  * @author Deepak
  */
 public class TokenGenerator implements RequestProcessable {
 
-
-
+	private static final int EXPIRY_DAYS = 90;
+	
     public Response process(Request request, DataSource ds, Map<String, Object> args){
 
-        Response response = new Response();
-        if ("bearer".equals(request.getParameter("auth"))) {
-            //auth=bearer&userid=foo&password=pass
-            String user = request.getParameter("userid");
-            String pass = request.getParameter("password");
-
-            AuthService service = new AuthService(ds);
-
-            //auth query set as global variable
-            String authQuery = "";  //@TODO (String) request.getServletContext().getAttribute(Router.MTG_AUTH_BEARER);
-            String token = service.createBearer(user, pass, authQuery.trim());
-            response.setPayload(token);
+    	JSONObject jwtPayload = new JSONObject();
+        jwtPayload.put("status", 0);
         
-        }
+        JSONArray audArray = new JSONArray();
+        audArray.put(args.get("aud")); //need a loop for multiple records
+        jwtPayload.put("sub", args.get("sub"));
+
+        jwtPayload.put("aud", audArray);
+        LocalDateTime ldt = LocalDateTime.now().plusDays(EXPIRY_DAYS);
+        jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //this needs to be configured
+                
+        String token = new JWebToken(jwtPayload).toString();
+
+        Response response = new Response();
+        response.setPayload(token);
+        
         return response;
     }
 

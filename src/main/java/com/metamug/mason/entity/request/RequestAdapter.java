@@ -549,4 +549,9 @@ public class RequestAdapter {
         
     }
 
+    // private List<String> buildPathList(){
+    // 	String jspPath = Router.RESOURCES_FOLDER + "v" + version  + resourcePath + Router.JSP_EXTN;
+    // 	new File(req.getServletContext().getRealPath(jspPath)).exists();
+    // }
+
 }
