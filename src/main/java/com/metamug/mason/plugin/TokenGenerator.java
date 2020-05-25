@@ -542,17 +542,4 @@ public class TokenGenerator implements RequestProcessable {
         return response;
     }
 
-    // private void writeError(int status, String message) throws IOException {
-    //     try (PrintWriter writer = response.getWriter()) {
-    //         response.setContentType("application/json;charset=UTF-8");
-    //         response.setCharacterEncoding("UTF-8");
-    //         response.setStatus(status);
-    //         JSONObject obj = new JSONObject();
-    //         obj.put("status", status);
-    //         obj.put("message", message);
-    //         writer.print(obj.toString());
-    //         writer.flush();
-    //     }
-    // }
-
 }
