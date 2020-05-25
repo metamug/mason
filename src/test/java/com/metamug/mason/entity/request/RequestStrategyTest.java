@@ -722,6 +722,9 @@ public class RequestStrategyTest {
         response = mock(HttpServletResponse.class);
         ServletContext context = mock(ServletContext.class);
         when(request.getServletContext()).thenReturn(context);
+        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+        when(request.getMethod()).thenReturn("GET");
+
         
         // File mockedFile = mock(File.class);
         // when(mockedFile.exists()).thenReturn(true);
@@ -744,9 +747,7 @@ public class RequestStrategyTest {
     public void uriTest() {
 
 
-        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getMethod()).thenReturn("GET");
-
+        
         RequestStrategy strategy = new ParamExtractStrategy(request);
         strategy.setResourcePathList(Arrays.asList("/info/crm/people", "/info/crm/people/customer"));
 

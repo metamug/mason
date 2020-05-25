@@ -22,8 +22,13 @@ public class JsonBodyStrategyTest {
 
     @Before
     public void setUp() throws IOException {
-        System.setProperty("javax.xml.bind.context.factory","org.eclipse.persistence.jaxb.JAXBContextFactory");
+
         request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+        when(request.getMethod()).thenReturn("GET");
+
+        System.setProperty("javax.xml.bind.context.factory","org.eclipse.persistence.jaxb.JAXBContextFactory");
+
         String json = "{\n" +
                 "\t\"customer\": {\n" +
                 "      \"name\": \"John Doeyy.\",\n" +
@@ -45,7 +50,7 @@ public class JsonBodyStrategyTest {
     @Test
     public void jsonBodyUnmarshal() throws IOException {
 
-            JsonBodyStrategy masonRequest = new JsonBodyStrategy(request);
+            RequestBodyStrategy masonRequest = new JsonBodyStrategy(request);
             //System.out.println(request.getInputStream());
             masonRequest.setClazz(Customer.class);
             Object object = masonRequest.getBodyObject();
