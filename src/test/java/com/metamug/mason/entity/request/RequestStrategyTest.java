@@ -780,7 +780,7 @@ public class RequestStrategyTest {
         strategy = new ParamExtractStrategy(request);
         strategy.setResourcePathList(Arrays.asList("/info"));
         masonRequest = strategy.getRequest();        
-        assertEquals("/info/crm/people/customer/12/", masonRequest.getUri());
+        assertEquals("/info/crm/people/customer/12", masonRequest.getUri());
         assertEquals(null, masonRequest.getParent().getName());
 
     }

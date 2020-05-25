@@ -547,71 +547,95 @@ public abstract class RequestStrategy {
 
     //new File(req.getServletContext().getRealPath(jspPath)).exists();
     }
-    private List<String> uriExtraction(String resourceUri){
-    String tokensValue;
-
-String listInputAtPresent,listInputAtPast,listInputAtAlways;
-
-String listInputAtFuture="/";
-listInputAtPresent="";
-listInputAtAlways="";
-listInputAtPast="";
-resourceUri+="/";
-
-int sizeOfresourceUri = resourceUri.length();
-       
-        List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
-       
-        List<String> finalResponseElement = new ArrayList<String>(sizeOfresourceUri);
-       
-        int positionOfEachElement = 1;
-       
-        String prevToken = " ", currentToken = " ";
-       
-        for(int index=1;index<sizeOfresourceUri;index++){
-       
-            if(resourceUri.charAt(index)=='/'){
-       
-                tokensValue = resourceUri.substring(positionOfEachElement,index);
-       
-                positionOfEachElement=index+1;
-       
-                ourListElements.add(tokensValue);
-       
-                listInputAtPast=listInputAtFuture+tokensValue;
-       
-           listInputAtAlways=listInputAtPresent + listInputAtPast ;
-           
-           if(!resourceExists(listInputAtAlways)){
-               
-       
-               if(prevToken.equals(" ")){
-                   currentToken = "G";
-                   listInputAtPresent=listInputAtAlways;
-               }
-       
-               else if(prevToken.equals("G")){
-                   currentToken = "G";
-                   listInputAtPresent=listInputAtAlways;
-               }
-       
-               else if(prevToken.equals("R")) currentToken = "I";
-       
-//                else if(prevToken.equals("I")){
-//                    throw new IllegalStateException("Illegal Token Identified in given uri " + resourceUri);
-//                }
-               
-           }else{
-               currentToken = "R";
-           }
-       
-           prevToken = currentToken;
-       
-           finalResponseElement.add(prevToken);
-            }
+    private List<String> inputUriExtraction(String resourceUri){
+        String tokensValue;
+	    resourceUri+="/";
+	    int sizeOfresourceUri = resourceUri.length();
+	           
+	            List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
+	           
+	            List<String> finalResponseElement = new ArrayList<String>(sizeOfresourceUri);
+	           
+	            int positionOfEachElement = 1;
+	           
+	            for(int index=1;index<sizeOfresourceUri;index++){
+	           
+	                if(resourceUri.charAt(index)=='/'){
+	           
+	                    tokensValue = resourceUri.substring(positionOfEachElement,index);
+	           
+	                    positionOfEachElement=index+1;
+	           
+	                    ourListElements.add(tokensValue);
+	           
+	                }
+	            }
+            return ourListElements;
         }
+    
+    private List<String> resultUriExtraction(String resourceUri){
+	    String tokensValue;
+	
+		String listInputAtPresent,listInputAtPast,listInputAtAlways;
+		
+		String listInputAtFuture="/";
+		listInputAtPresent="";
+		listInputAtAlways="";
+		listInputAtPast="";
+		resourceUri+="/";
+	
+		int sizeOfresourceUri = resourceUri.length();
+	       
+	        List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
+	       
+	        List<String> finalResponseElement = new ArrayList<String>(sizeOfresourceUri);
+	       
+	        int positionOfEachElement = 1;
+	       
+	        String prevToken = " ", currentToken = " ";
+	       
+	        for(int index=1;index<sizeOfresourceUri;index++){
+	       
+	            if(resourceUri.charAt(index)=='/'){
+	       
+	                tokensValue = resourceUri.substring(positionOfEachElement,index);
+	       
+	                positionOfEachElement=index+1;
+	       
+	                ourListElements.add(tokensValue);
+	       
+	                listInputAtPast=listInputAtFuture+tokensValue;
+	       
+	           listInputAtAlways=listInputAtPresent + listInputAtPast ;
+	           
+	           if(!resourceExists(listInputAtAlways)){
+	               
+	       
+	               if(prevToken.equals(" ")){
+	                   currentToken = "G";
+	                   listInputAtPresent=listInputAtAlways;
+	               }
+	       
+	               else if(prevToken.equals("G")){
+	                   currentToken = "G";
+	                   listInputAtPresent=listInputAtAlways;
+	               }
+	       
+	               else if(prevToken.equals("R")) currentToken = "I";
+	       
+	
+	           }else{
+	               currentToken = "R";
+	           }
+	       
+	           prevToken = currentToken;
+	       
+	           finalResponseElement.add(prevToken);
+	            }
+	        }
         return finalResponseElement;
     }
+    
 
     public Request getRequest(){
     masonRequest = buildRequest();
@@ -629,24 +653,14 @@ int sizeOfresourceUri = resourceUri.length();
     String resourceUri = this.httpRequest.getPathInfo().substring(5); //after /v1.0
    
     String tokensValue;
-int sizeOfresourceUri = resourceUri.length();
+    int sizeOfresourceUri = resourceUri.length();
        
         List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
        
         List<String> finalResponseElement = new ArrayList<String>(sizeOfresourceUri);
        
-        int positionOfEachElement = 1;
-        for(int index=1;index<sizeOfresourceUri;index++){
-       
-            if(resourceUri.charAt(index)=='/'){
-       
-                tokensValue = resourceUri.substring(positionOfEachElement,index);
-                positionOfEachElement=index+1;
-       
-                ourListElements.add(tokensValue);
-        }
-      }
-       finalResponseElement.addAll(uriExtraction(resourceUri));
+       ourListElements.addAll(inputUriExtraction(resourceUri)); 
+       finalResponseElement.addAll(resultUriExtraction(resourceUri));
        
         Request request = new Request();
         request.setUri(resourceUri);
@@ -654,7 +668,6 @@ int sizeOfresourceUri = resourceUri.length();
     if(finalResponseElement.get(finalResponseElement.size()-1).equals("G")){
        request.setUri(null);
     }
-
        
         int position=finalResponseElement.size()-1;
        
