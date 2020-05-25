@@ -507,7 +507,6 @@
 package com.metamug.mason;
 
 import com.metamug.entity.Request;
-import com.metamug.mason.entity.RootResource;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
@@ -593,13 +592,8 @@ public class Router implements Filter {
                 break;
             }
         }
-        //check auth request
-        if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post") && !path.contains("query")) {
-            RootResource rootResource = new RootResource(req, res);
-            rootResource.processAuth(new AuthService(connectionProvider));
-            return;
-        }
-        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
+       
+        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) { //request for docs
             chain.doFilter(request, response);
             return;
         }

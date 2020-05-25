@@ -16,6 +16,12 @@ import org.junit.Assert;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import com.metamug.mason.plugin.TokenGenerator;
+import com.metamug.exec.RequestProcessable;
+import java.util.Map;
+import java.util.HashMap;
+import com.metamug.entity.Response;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -46,6 +52,20 @@ public class JWebTokenTest {
 
     @After
     public void tearDown() {
+    }
+
+    @org.junit.Test
+    public void generateToken() throws Exception{
+        
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("aud", "1234");
+        args.put("sub", "admin");
+        RequestProcessable processable = new TokenGenerator();
+        Response response = processable.process(null, null, args);
+        //verify(statement.executeQuery())
+        System.out.println(response.getPayload());
+        assertTrue(response.getPayload() != null);
+        
     }
 
     /**

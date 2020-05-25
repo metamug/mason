@@ -774,6 +774,7 @@ public class RequestStrategyTest {
         assertEquals("12", masonRequest.getId());
         assertEquals("people",masonRequest.getPid());
         assertEquals("crm",masonRequest.getParent().getName());
+
         
 
         strategy = new ParamExtractStrategy(request);

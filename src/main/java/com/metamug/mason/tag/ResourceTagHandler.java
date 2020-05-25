@@ -639,7 +639,8 @@ public class ResourceTagHandler extends RestTag {
             throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
         }
         Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
-        authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));
+        ConnectionProvider provider = (ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER);
+        authService = new AuthService(provider.getMasonDatasource());
         try {
             if (header.contains("Basic ")) {
                 String authQuery = (String) request.getServletContext().getAttribute(Router.MTG_AUTH_BASIC);
