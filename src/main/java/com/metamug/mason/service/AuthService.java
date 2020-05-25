@@ -515,22 +515,25 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import javax.servlet.jsp.JspException;
 import org.json.JSONObject;
+import javax.sql.DataSource;
 
 /**
  *
  * @author Kaisteel
  */
-public class AuthService {
+public class AuthService{
+
 
     private AuthDAO dao;
 
-    public AuthService(ConnectionProvider instance) {
+    public AuthService(DataSource instance) {
         this.dao = new AuthDAO(instance);
     }
 
     public AuthService(AuthDAO dao) {
         this.dao = dao;
     }
+
 
     public String validateBasic(String header, String roleName, String authQuery) throws JspException {
 

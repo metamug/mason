@@ -749,13 +749,13 @@ public class RequestStrategyTest {
 
         
         RequestStrategy strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info/crm/people", "/info/crm/people/customer"));
+        strategy.setResourcePathList(Arrays.asList("/info/crm/people", "/info/crm/customer"));
 
         Request masonRequest = strategy.getRequest();
         assertEquals("customer", masonRequest.getResource().getName());
         assertEquals("12", masonRequest.getId());
-        assertEquals("people", masonRequest.getPid());
-        assertEquals("crm", masonRequest.getParent().getName());
+        assertEquals(null, masonRequest.getPid());
+        assertEquals("people", masonRequest.getParent().getName());
 
 
         strategy = new ParamExtractStrategy(request);
@@ -773,6 +773,7 @@ public class RequestStrategyTest {
         assertEquals("customer", masonRequest.getResource().getName());
         assertEquals("12", masonRequest.getId());
         assertEquals("people",masonRequest.getPid());
+
         // assertEquals("crm", request.getParent().getName());
         
 

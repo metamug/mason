@@ -506,8 +506,9 @@
  */
 package com.metamug.mason.dao;
 
-import com.metamug.mason.service.ConnectionProvider;
+
 import java.sql.Connection;
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -524,18 +525,18 @@ import org.json.JSONObject;
  */
 public class AuthDAO {
 
-    ConnectionProvider provider;
+    DataSource ds;
     private static final String STATUS = "status";
     private static final int EXPIRY_DAYS = 90;
 
-    public AuthDAO(ConnectionProvider provider) {
-        this.provider = provider;
+    public AuthDAO(DataSource ds) {
+        this.ds = ds;
     }
 
     public JSONObject validateBasic(String userName, String password, String roleName, String authQuery) {
         JSONObject status = new JSONObject();
         status.put(STATUS, 0);
-        try (Connection con = provider.getConnection()) {
+        try (Connection con = ds.getConnection()) {
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, userName);
@@ -571,7 +572,7 @@ public class AuthDAO {
     public JSONObject getBearerDetails(String user, String pass, String authQuery) {
         JSONObject jwtPayload = new JSONObject();
         jwtPayload.put(STATUS, 0);
-        try (Connection con = provider.getConnection()) {
+        try (Connection con = ds.getConnection()) {
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement stmt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     stmt.setString(1, user);
