@@ -683,7 +683,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays; 
+import java.util.Arrays;
 
 import com.metamug.entity.Resource;
 import com.metamug.entity.Request;
@@ -697,91 +697,83 @@ import java.io.File;
 @RunWith(MockitoJUnitRunner.class)
 public class RequestStrategyTest {
 
-    @Mock
-    private HttpServletRequest request;
-    @Mock
-    private HttpServletResponse response;
+	@Mock
+	private HttpServletRequest request;
+	@Mock
+	private HttpServletResponse response;
 
-    private StringWriter stringWriter;
-    private PrintWriter writer;
-    @Mock
-    private ConnectionProvider provider;
-    @Mock
-    Connection connection;
+	private StringWriter stringWriter;
+	private PrintWriter writer;
+	@Mock
+	private ConnectionProvider provider;
+	@Mock
+	Connection connection;
 
-    @Mock
-    private PreparedStatement statement;
+	@Mock
+	private PreparedStatement statement;
 
-    @Mock
-    private ResultSet resultSet;
+	@Mock
+	private ResultSet resultSet;
 
-    @Before
-    public void setUp() {
+	@Before
+	public void setUp() {
 
-        request = mock(HttpServletRequest.class);
-        response = mock(HttpServletResponse.class);
-        ServletContext context = mock(ServletContext.class);
-        when(request.getServletContext()).thenReturn(context);
-        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getMethod()).thenReturn("GET");
+		request = mock(HttpServletRequest.class);
+		response = mock(HttpServletResponse.class);
+		ServletContext context = mock(ServletContext.class);
+		when(request.getServletContext()).thenReturn(context);
+		when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+		when(request.getMethod()).thenReturn("GET");
 
-        
-        // File mockedFile = mock(File.class);
-        // when(mockedFile.exists()).thenReturn(true);
-        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people.jsp")).thenReturn(mockedFile);
-        // when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people/customer.jsp")).thenReturn(mockedFile);
+		// File mockedFile = mock(File.class);
+		// when(mockedFile.exists()).thenReturn(true);
+		// when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people.jsp")).thenReturn(mockedFile);
+		// when(request.getServletContext().getRealPath(Router.RESOURCES_FOLDER+"/v1.0"+"/info/crm/people/customer.jsp")).thenReturn(mockedFile);
 
-       
-      
-        //prepare String Writer
-        stringWriter = new StringWriter();
-        writer = new PrintWriter(stringWriter);
-        try {
-            when(response.getWriter()).thenReturn(writer);
-        } catch (IOException ex) {
-            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-    }
-  
-    @Test
-    public void uriTest() {
+		// prepare String Writer
+		stringWriter = new StringWriter();
+		writer = new PrintWriter(stringWriter);
+		try {
+			when(response.getWriter()).thenReturn(writer);
+		} catch (IOException ex) {
+			Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		}
+	}
 
+	@Test
+	public void uriTest() {
 
-        
-        RequestStrategy strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info/crm/people", "/info/crm/customer"));
+		RequestStrategy strategy = new ParamExtractStrategy(request);
+		strategy.setResourcePathList(Arrays.asList("/info/crm/people", "/info/crm/customer"));
 
-        Request masonRequest = strategy.getRequest();
-        assertEquals("customer", masonRequest.getResource().getName());
-        assertEquals("12", masonRequest.getId());
-        assertEquals(null, masonRequest.getPid());
-        assertEquals("people", masonRequest.getParent().getName());
+		Request masonRequest = strategy.getRequest();
+		assertEquals("customer", masonRequest.getResource().getName());
+		assertEquals("12", masonRequest.getId());
+		assertEquals(null, masonRequest.getPid());
+		assertEquals("people", masonRequest.getParent().getName());
 
+		strategy = new ParamExtractStrategy(request);
+		strategy.setResourcePathList(Arrays.asList("/info/crm/people/customer"));
+		masonRequest = strategy.getRequest();
 
-        strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info/crm/people/customer"));
-        masonRequest = strategy.getRequest();
+		assertEquals("customer", masonRequest.getResource().getName());
+		assertEquals("12", masonRequest.getId());
+		assertEquals(null, masonRequest.getPid());
+		assertEquals(null, masonRequest.getParent().getName());
 
-        assertEquals("customer", masonRequest.getResource().getName());
-        assertEquals("12", masonRequest.getId());
-        assertEquals(null, masonRequest.getPid());
-        assertEquals(null,masonRequest.getParent().getName());
-        
-        strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info/crm", "/info/customer"));
-        masonRequest = strategy.getRequest();
-        assertEquals("customer", masonRequest.getResource().getName());
-        assertEquals("12", masonRequest.getId());
-        assertEquals("people",masonRequest.getPid());
-        assertEquals("crm",masonRequest.getParent().getName());
+		strategy = new ParamExtractStrategy(request);
+		strategy.setResourcePathList(Arrays.asList("/info/crm", "/info/customer"));
+		masonRequest = strategy.getRequest();
+		assertEquals("customer", masonRequest.getResource().getName());
+		assertEquals("12", masonRequest.getId());
+		assertEquals("people", masonRequest.getPid());
+		assertEquals("crm", masonRequest.getParent().getName());
 
-        
+		strategy = new ParamExtractStrategy(request);
+		strategy.setResourcePathList(Arrays.asList("/info"));
+		masonRequest = strategy.getRequest();
+		assertEquals("/info/crm/people/customer/12", masonRequest.getUri());
+		assertEquals(null, masonRequest.getParent().getName());
 
-        strategy = new ParamExtractStrategy(request);
-        strategy.setResourcePathList(Arrays.asList("/info"));
-        masonRequest = strategy.getRequest();        
-        assertEquals("/info/crm/people/customer/12", masonRequest.getUri());
-        assertEquals(null, masonRequest.getParent().getName());
-
-    }
+	}
 }
