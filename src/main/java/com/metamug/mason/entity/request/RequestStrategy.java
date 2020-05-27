@@ -524,7 +524,6 @@ import com.metamug.mason.Router;
 public abstract class RequestStrategy {
 
 	protected Request masonRequest;
-
 	public static final String VERSION_REGEX = "^.*(v\\d+\\.\\d+).*$";
 	private static final int VERSION_LENGTH = 3; // 1.3
 	private HttpServletRequest httpRequest;
@@ -548,6 +547,15 @@ public abstract class RequestStrategy {
 		// new File(req.getServletContext().getRealPath(jspPath)).exists();
 	}
 
+	/**
+	 * *
+	 * 
+	 * @auther BISWAS05 This method is used to extract the resource uri as a list.
+	 *         Using this output we can easily define our parent id resource
+	 *         id,parent name,resource name and also we can find the uri is valid or
+	 *         not using this.
+	 * @return ourListElements This returns the extracted list or reource uri.
+	 */
 	private List<String> inputUriExtraction(String resourceUri) {
 		String tokensValue;
 		resourceUri += "/";
@@ -574,60 +582,47 @@ public abstract class RequestStrategy {
 		return ourListElements;
 	}
 
+	/**
+	 * *
+	 * 
+	 * @auther BISWAS05 This method is used to extract the resource uri as a the
+	 *         final responce as output.. Here we will get the output according to
+	 *         the input and the formula. This will look like R/G/I/R/I.
+	 * @return finalResponseElement This returns the extracted list as the output.
+	 */
 	private List<String> resultUriExtraction(String resourceUri) {
 		String tokensValue;
-
 		String listInputAtPresent, listInputAtPast, listInputAtAlways;
-
 		String listInputAtFuture = "/";
 		listInputAtPresent = "";
 		listInputAtAlways = "";
 		listInputAtPast = "";
 		resourceUri += "/";
-
 		int sizeOfresourceUri = resourceUri.length();
-
 		List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
-
 		List<String> finalResponseElement = new ArrayList<String>(sizeOfresourceUri);
-
 		int positionOfEachElement = 1;
-
 		String prevToken = " ", currentToken = " ";
-
 		for (int index = 1; index < sizeOfresourceUri; index++) {
-
 			if (resourceUri.charAt(index) == '/') {
-
 				tokensValue = resourceUri.substring(positionOfEachElement, index);
-
 				positionOfEachElement = index + 1;
-
 				ourListElements.add(tokensValue);
-
 				listInputAtPast = listInputAtFuture + tokensValue;
-
 				listInputAtAlways = listInputAtPresent + listInputAtPast;
-
 				if (!resourceExists(listInputAtAlways)) {
-
 					if (prevToken.equals(" ")) {
 						currentToken = "G";
 						listInputAtPresent = listInputAtAlways;
-					}
-
-					else if (prevToken.equals("G")) {
+					} else if (prevToken.equals("G")) {
 						currentToken = "G";
 						listInputAtPresent = listInputAtAlways;
-					}
-
-					else if (prevToken.equals("R"))
+					} else if (prevToken.equals("R"))
 						currentToken = "I";
 
 				} else {
 					currentToken = "R";
 				}
-
 				prevToken = currentToken;
 
 				finalResponseElement.add(prevToken);
@@ -636,6 +631,7 @@ public abstract class RequestStrategy {
 		return finalResponseElement;
 	}
 
+	// grtting mason request
 	public Request getRequest() {
 		masonRequest = buildRequest();
 		masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
@@ -649,52 +645,45 @@ public abstract class RequestStrategy {
 
 		// https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
 		String resourceUri = this.httpRequest.getPathInfo().substring(5); // after /v1.0
-
 		String tokensValue;
 		int sizeOfresourceUri = resourceUri.length();
-
 		List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
-
 		List<String> finalResponseElement = new ArrayList<String>(sizeOfresourceUri);
-
+		// using function of input extraction
 		ourListElements.addAll(inputUriExtraction(resourceUri));
+		// using function to find the output uri
 		finalResponseElement.addAll(resultUriExtraction(resourceUri));
-
 		Request request = new Request();
 		request.setUri(resourceUri);
-
+		// checking uri is valid or not
 		if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {
 			request.setUri(null);
 		}
-
 		int position = finalResponseElement.size() - 1;
-
-		// check for id at the last position
+		// check for id at the last position as resource id
 		if (finalResponseElement.get(position).equals("I")) {
 			request.setId(ourListElements.get(position));
 			position--; // last element identified as resource id
 		}
-
 		String resourceName = null;
+		// finding resource name
 		for (int index = position; index >= 0; index--) {
-
 			if (finalResponseElement.get(index).equals("R")) {
 				resourceName = ourListElements.get(index);
 				position = index;
 				break;
 			}
 		}
-
 		Resource resource = new Resource(resourceName, version);
 		request.setResource(resource);
-
+		// finding parent id
 		for (int index = position; index >= 0; index--) {
 			if (finalResponseElement.get(index).equals("I")) {
 				request.setPid(ourListElements.get(index));
 				break;
 			}
 		}
-
+		// finding parent name
 		String parentName = null; // @TODO set parentName to correc value
 		for (int index = position - 1; index >= 0; index--) {
 			if (finalResponseElement.get(index).equals("R")) {
@@ -702,11 +691,8 @@ public abstract class RequestStrategy {
 				break;
 			}
 		}
-
 		Resource parent = new Resource(parentName, version);
 		request.setParent(parent);
-
 		return request;
 	}
-
 }
