@@ -552,7 +552,11 @@ public class XRequestService {
                 }
             }
             if (!response.isSuccessful()) {
-                xr = new XResponse(response.code(), headerMap, response.message(), true, outputHeaders);
+                String msg = response.message();
+                if(response.code()==404){
+                    msg = "Resource not found!";
+                }
+                xr = new XResponse(response.code(), headerMap, msg, true, outputHeaders);
 
             } else {
                 xr = new XResponse(response.code(), headerMap, response.body().string().trim(), false, outputHeaders);
