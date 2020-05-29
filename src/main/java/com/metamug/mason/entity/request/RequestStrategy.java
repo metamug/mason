@@ -678,14 +678,14 @@ public abstract class RequestStrategy {
 				break;
 			}
 		}
-		
-		if(finalResponseElement.size()==1) {
+
+		if (finalResponseElement.size() == 1) {
 			resourceName = null;
 			request.setId(null);
 		}
 		// check if only one R exist then giving error
 		if (finalResponseElement.get(0).equals("R") && finalResponseElement.get(1).equals("I")
-				&& finalResponseElement.get(2).equals("I") && finalResponseElement.size()!=1) {
+				&& finalResponseElement.get(2).equals("I") && finalResponseElement.size() != 1) {
 			resourceName = null;
 			request.setId(null);
 		}
