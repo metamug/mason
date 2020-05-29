@@ -682,6 +682,7 @@ public abstract class RequestStrategy {
 		if (finalResponseElement.get(0).equals("R") && finalResponseElement.get(1).equals("I")
 				&& finalResponseElement.get(2).equals("I")) {
 			resourceName = null;
+			request.setId(null);
 		}
 		Resource resource = new Resource(resourceName, version);
 		request.setResource(resource);
