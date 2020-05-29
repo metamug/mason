@@ -753,6 +753,7 @@ public class RequestStrategyTest {
 		when(jspResource.resourceExists("/info", strategy.getVersion())).thenReturn(true);
 		masonRequest = strategy.getRequest();
 		assertEquals(null, masonRequest.getResource().getName());
+                assertEquals(null, masonRequest.getId());
 		assertEquals(null, masonRequest.getParent().getName());
 
 	}
