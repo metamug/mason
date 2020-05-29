@@ -25,6 +25,7 @@ public class JsonBodyStrategyTest {
 
         request = mock(HttpServletRequest.class);
         when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
         when(request.getMethod()).thenReturn("GET");
 
         System.setProperty("javax.xml.bind.context.factory","org.eclipse.persistence.jaxb.JAXBContextFactory");
