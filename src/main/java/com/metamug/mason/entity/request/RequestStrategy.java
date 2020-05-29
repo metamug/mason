@@ -669,23 +669,20 @@ public abstract class RequestStrategy {
 			request.setId(ourListElements.get(position));
 			position--; // last element identified as resource id
 		}
+		int count = 0;
 		String resourceName = null;
 		// finding resource name
 		for (int index = position; index >= 0; index--) {
 			if (finalResponseElement.get(index).equals("R")) {
 				resourceName = ourListElements.get(index);
+				count = count + 1;
 				position = index;
 				break;
 			}
 		}
 
-		if (finalResponseElement.size() == 1) {
-			resourceName = null;
-			request.setId(null);
-		}
 		// check if only one R exist then giving error
-		if (finalResponseElement.get(0).equals("R") && finalResponseElement.get(1).equals("I")
-				&& finalResponseElement.get(2).equals("I") && finalResponseElement.size() != 1) {
+		if (finalResponseElement.get(0).equals("R") && count == 1) {
 			resourceName = null;
 			request.setId(null);
 		}
