@@ -507,7 +507,6 @@
 package com.metamug.mason;
 
 import com.metamug.entity.Request;
-import com.metamug.mason.entity.RootResource;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
@@ -546,8 +545,8 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    private static final String JSP_EXTN = ".jsp";
-    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
+    public static final String JSP_EXTN = ".jsp";
+    public static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -593,13 +592,8 @@ public class Router implements Filter {
                 break;
             }
         }
-        //check auth request
-        if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post") && !path.contains("query")) {
-            RootResource rootResource = new RootResource(req, res);
-            rootResource.processAuth(new AuthService(connectionProvider));
-            return;
-        }
-        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
+       
+        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) { //request for docs
             chain.doFilter(request, response);
             return;
         }
@@ -627,19 +621,20 @@ public class Router implements Filter {
             return;
         }
 
-        res.setContentType(APPLICATION_JSON);
+        res.setContentType(APPLICATION_JSON); //@TODO will response be always json 
+        
         //requesting a REST resource
         String resourceName = "";
         try {
             //get queries
-            Request mtgReq = RequestAdapter.create(req);
-            resourceName = mtgReq.getResource().getName();
+            Request masonRequest = RequestAdapter.create(req);
+            resourceName = masonRequest.getResource().getName();
             
-            String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
+            String jspPath = RESOURCES_FOLDER + "v" + masonRequest.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
             //File file = new File(req.getServletContext().getRealPath(jspPath));
             
-            if(resourceFileExists(resourceName, Float.toString(mtgReq.getResource().getVersion()), req)) {
-                req.setAttribute(MASON_REQUEST, mtgReq);
+            if(resourceFileExists(resourceName, masonRequest.getResource().getVersion(), req)) {
+                req.setAttribute(MASON_REQUEST, masonRequest);
 
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
                 req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
@@ -764,8 +759,8 @@ public class Router implements Filter {
         }
     }
     
-    public static boolean resourceFileExists(String resourceName, String v, HttpServletRequest req){
-        String jspPath = RESOURCES_FOLDER + "v" + v + "/" + resourceName + JSP_EXTN;
+    public static boolean resourceFileExists(String resourceName, float v, HttpServletRequest req){
+        String jspPath = RESOURCES_FOLDER + "v" + v  + resourceName + JSP_EXTN;
         File file = new File(req.getServletContext().getRealPath(jspPath));
         return file.exists();
     }

@@ -506,7 +506,7 @@
  */
 package com.metamug.mason.service;
 
-import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+// import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -564,9 +564,12 @@ public class ConnectionProvider {
         //}
         if (driver.contains("hsql")) {
         } else if (driver.contains("mysql")) {
+        	//@TODO write db specific code 
+        	
+        	//import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
             //set this for mysql driver
             //https://stackoverflow.com/a/19027873/4800126
-            AbandonedConnectionCleanupThread.checkedShutdown();
+            // AbandonedConnectionCleanupThread.checkedShutdown();
         }
     }
 }

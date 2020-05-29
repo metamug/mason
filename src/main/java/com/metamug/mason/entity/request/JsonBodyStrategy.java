@@ -504,165 +504,60 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.tag;
+package com.metamug.mason.entity.request;
 
-import com.metamug.entity.Attachment;
-import com.metamug.entity.Request;
-import com.metamug.entity.Response;
-import static com.metamug.mason.Router.MASON_REQUEST;
-import com.metamug.mason.entity.response.FileOutput;
-import com.metamug.mason.entity.response.DatasetOutput;
-import com.metamug.mason.entity.response.JSONOutput;
-import com.metamug.mason.entity.response.MasonOutput;
-import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
-import com.metamug.mason.entity.response.ResponeBuilder;
-import com.metamug.mason.entity.response.XMLOutput;
-import com.metamug.mason.service.UploaderService;
+import com.github.wnameless.json.flattener.JsonFlattener;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.io.InputStreamReader;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import org.eclipse.persistence.jaxb.MarshallerProperties;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
 /**
  *
- * @author anishhirlekar
+ * @author D3ep4k
  */
-public class RequestTagHandler extends RequestTag {
-
-    private boolean item;
-    private boolean evaluate;
-
-    private Request masonRequest;
+public class JsonBodyStrategy extends RequestBodyStrategy {
     
-    protected ResourceTagHandler parent;
+    private HttpServletRequest request;
 
-    @Override
-    public int doStartTag() throws JspException {
-        super.doStartTag();
-        
-        parent = (ResourceTagHandler)getParent();
-        //add http method of this request tag to parent's list
-        parent.addChildMethod(method);
-        
-        masonRequest = (Request) request.getAttribute(MASON_REQUEST);
-
-        if (method.equalsIgnoreCase(masonRequest.getMethod())) {
-            evaluate = (masonRequest.getId() != null) == item; //evaluate
-            if (evaluate) {
-                //initialize only when this request is executed.
-                //Holds var names to be printed in output
-                //to maintain the order of insertion
-                Map<String, Object> output = new HashMap<>();
-                pageContext.setAttribute(MASON_OUTPUT, output);
-
-                //@TODO Also check for multipart
-                if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
-                    UploaderService uploader = new UploaderService(pageContext);
-                    uploader.upload();
-                }
-
-                return EVAL_BODY_INCLUDE;
-            }
-        }
-
-        return SKIP_BODY;
+    /**
+     *
+     * @param request
+     */
+    public JsonBodyStrategy(HttpServletRequest request) {
+        super(request);
+        this.request = request;
     }
 
     @Override
-    public int doEndTag() throws JspException {
-        if (evaluate) {
-            processOutput();
-            return SKIP_PAGE;
-        } else {
-            return EVAL_PAGE;
-        }
-    }
+    public Object getBodyObject() throws IOException{
 
-    private void processOutput() {
-        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+    	JAXBContext jaxbContext;
+    	Object object = null;
+        try{
 
-        boolean hasAttachment = false;
+            jaxbContext = JAXBContext.newInstance(clazz);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+             
+            //Set JSON type
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
+             
+            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
 
-        Map<String, Object> outputMap = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
-        //get response objects to be printed in output        
-        for (Entry<String, Object> tag : outputMap.entrySet()) {
-            //check for Attachment
-            if (tag.getValue() instanceof Attachment) {
-                hasAttachment = true;
-                break;
-            }
+        }catch (JAXBException e) {
+            e.printStackTrace();
         }
 
-        //set response headers
-        if(headers != null) {
-            headers.entrySet().forEach( entry -> {
-                response.setHeader(entry.getKey(), entry.getValue());
-            });
-        }
-        
-        //write response
-        try (OutputStream outputStream = response.getOutputStream()) {
-
-            if (!hasAttachment) {
-
-                MasonOutput output = null;
-                List list = Arrays.asList(header.split("/"));
-                if (list.contains("xml")) { //Accept: application/xml, text/xml
-                    output = new XMLOutput();
-                } else if (list.contains("json+dataset")) { //Accept: application/json+dataset
-                    output = new DatasetOutput();
-                } else { //Accept: application/json OR default
-                    output = new JSONOutput();
-                }
-
-                //cannnot use print writer since it we are already using outputstream
-                Response masonResponse = new ResponeBuilder(output).build(outputMap);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String)k, (String)v));
-                byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
-                response.setContentLength(bytes.length);
-                outputStream.write(bytes);
-                outputStream.flush();
-
-            } else {
-                //has file in response
-                Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String)k, (String)v));
-                InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
-                try (ReadableByteChannel in = Channels.newChannel(inputStream);
-                    WritableByteChannel out = Channels.newChannel(outputStream);) {
-                    /**
-                     * Don't set Content Length. Max buffer for output stream is
-                     * 2KB and it is flushed
-                     */
-
-                    ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
-                    while (in.read(buffer) != -1) {
-                        buffer.flip();
-                        out.write(buffer);
-                        buffer.clear();
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            //@TODO write error response if there is an error in file read or something else
-            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void setItem(boolean i) {
-        item = i;
+        return object;
     }
 }

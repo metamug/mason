@@ -506,8 +506,9 @@
  */
 package com.metamug.mason.dao;
 
-import com.metamug.mason.service.ConnectionProvider;
+
 import java.sql.Connection;
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -524,18 +525,17 @@ import org.json.JSONObject;
  */
 public class AuthDAO {
 
-    ConnectionProvider provider;
-    private static final String STATUS = "status";
-    private static final int EXPIRY_DAYS = 90;
+    private DataSource ds;
+    public static final String STATUS = "status";
 
-    public AuthDAO(ConnectionProvider provider) {
-        this.provider = provider;
+    public AuthDAO(DataSource ds) {
+        this.ds = ds;
     }
 
     public JSONObject validateBasic(String userName, String password, String roleName, String authQuery) {
         JSONObject status = new JSONObject();
         status.put(STATUS, 0);
-        try (Connection con = provider.getConnection()) {
+        try (Connection con = ds.getConnection()) {
             if (!authQuery.isEmpty()) {
                 try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
                     basicStmnt.setString(1, userName);
@@ -558,41 +558,6 @@ public class AuthDAO {
             Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         return status;
-    }
-
-    /**
-     * This is used by to generate the token.
-     *
-     * @param user username to be matched in the auth query
-     * @param pass password to be matched in auth query
-     * @param authQuery The Bearer Auth query in web.xml
-     * @return
-     */
-    public JSONObject getBearerDetails(String user, String pass, String authQuery) {
-        JSONObject jwtPayload = new JSONObject();
-        jwtPayload.put(STATUS, 0);
-        try (Connection con = provider.getConnection()) {
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement stmt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    stmt.setString(1, user);
-                    stmt.setString(2, pass);
-                    try (ResultSet result = stmt.executeQuery()) {
-                        JSONArray audArray = new JSONArray();
-                        while (result.next()) {
-                            jwtPayload.put("sub", result.getString(1));
-                            audArray.put(result.getString(2));
-                        }
-                        jwtPayload.put("aud", audArray);
-                        LocalDateTime ldt = LocalDateTime.now().plusDays(EXPIRY_DAYS);
-//                        LocalDateTime.now();
-                        jwtPayload.put("exp", ldt.toEpochSecond(ZoneOffset.UTC)); //this needs to be configured
-                    }
-                }
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return jwtPayload;
     }
 
 }
