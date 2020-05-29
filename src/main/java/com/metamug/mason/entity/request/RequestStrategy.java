@@ -529,19 +529,19 @@ public abstract class RequestStrategy {
 	private HttpServletRequest httpRequest;
 	private float version;
 	JspResource jspResource;
-        private String resourceUri;
-        
+	private String resourceUri;
+
 	public RequestStrategy(HttpServletRequest request) {
 		this.httpRequest = request;
-                String resourcePath = this.httpRequest.getServletPath();
+		String resourcePath = this.httpRequest.getServletPath();
 		this.version = Float.parseFloat(resourcePath.substring(2, 2 + VERSION_LENGTH));
-                // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
+		// https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
 		resourceUri = resourcePath.substring(5); // after /v1.0
 	}
-        
-        public float getVersion(){
-            return this.version;
-        }
+
+	public float getVersion() {
+		return this.version;
+	}
 
 //        private List<String> resourcePathList;
 	public void setJspResource(JspResource jspResource) {
@@ -554,7 +554,7 @@ public abstract class RequestStrategy {
 		masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
 		return masonRequest;
 	}
-        
+
 	/**
 	 * *
 	 * 
@@ -599,8 +599,8 @@ public abstract class RequestStrategy {
 	 * @return finalResponseElement This returns the extracted list as the output.
 	 */
 	private List<String> resultUriExtraction(String resourceUri) {
-		
-                String tokensValue;
+
+		String tokensValue;
 		String listInputAtPresent, listInputAtPast, listInputAtAlways;
 		String listInputAtFuture = "/";
 		listInputAtPresent = "";
@@ -608,12 +608,10 @@ public abstract class RequestStrategy {
 		listInputAtPast = "";
 		resourceUri += "/";
 		int sizeOfresourceUri = resourceUri.length();
-                
-                
-		
-                List<String> ourListElements = new ArrayList<>(sizeOfresourceUri);
+
+		List<String> ourListElements = new ArrayList<>(sizeOfresourceUri);
 		List<String> finalResponseElement = new ArrayList<>(sizeOfresourceUri);
-                
+
 		int positionOfEachElement = 1;
 		String prevToken = " ", currentToken = " ";
 		for (int index = 1; index < sizeOfresourceUri; index++) {
@@ -644,23 +642,21 @@ public abstract class RequestStrategy {
 		return finalResponseElement;
 	}
 
-
 	/**
 	 * Extract Request information
 	 */
 	public Request buildRequest() {
 
-		
 		String tokensValue;
 		int sizeOfresourceUri = resourceUri.length();
 		List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
-		
+
 		// using function of input extraction
 		ourListElements.addAll(inputUriExtraction(resourceUri));
-                
+
 		// using function to find the output uri
 		List<String> finalResponseElement = resultUriExtraction(resourceUri);
-                
+
 		Request request = new Request();
 		request.setUri(resourceUri);
 		// checking uri is valid or not
@@ -681,6 +677,11 @@ public abstract class RequestStrategy {
 				position = index;
 				break;
 			}
+		}
+		// check if only one R exist then giving error
+		if (finalResponseElement.get(0).equals("R") && finalResponseElement.get(1).equals("I")
+				&& finalResponseElement.get(2).equals("I")) {
+			resourceName = null;
 		}
 		Resource resource = new Resource(resourceName, version);
 		request.setResource(resource);
