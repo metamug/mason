@@ -705,6 +705,8 @@ public class RequestStrategyTest {
 		request = mock(HttpServletRequest.class);
                 
 		when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+                when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
+                
 		when(request.getMethod()).thenReturn("GET");
                 jspResource = mock(JspResource.class);
                
@@ -755,7 +757,7 @@ public class RequestStrategyTest {
                 strategy.setJspResource(jspResource);
                 when(jspResource.resourceExists("/info", strategy.getVersion())).thenReturn(true);
 		masonRequest = strategy.getRequest();
-		assertEquals("/info/crm/people/customer/12", masonRequest.getUri());
+                assertEquals(null, masonRequest.getResource().getName());
 		assertEquals(null, masonRequest.getParent().getName());
 
 	}

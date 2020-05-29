@@ -20,19 +20,16 @@ import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
+ * Version of JSP
  * @author pc
  */
 public class JspResource {
     
-    private float version;
     private HttpServletRequest request;
 
     public JspResource(HttpServletRequest request) {
         this.request = request;
     }
-    
-   
     
     protected  boolean resourceExists(String resourcePath, float version) {
 		String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + Router.JSP_EXTN;

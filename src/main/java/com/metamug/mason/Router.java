@@ -592,7 +592,7 @@ public class Router implements Filter {
                 break;
             }
         }
-       
+
         if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) { //request for docs
             chain.doFilter(request, response);
             return;
@@ -622,7 +622,7 @@ public class Router implements Filter {
         }
 
         res.setContentType(APPLICATION_JSON); //@TODO will response be always json 
-        
+
         //requesting a REST resource
         String resourceName = "";
         try {
@@ -630,10 +630,12 @@ public class Router implements Filter {
             Request masonRequest = RequestAdapter.create(req);
             resourceName = masonRequest.getResource().getName();
             
-            String jspPath = RESOURCES_FOLDER + "v" + masonRequest.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
-            //File file = new File(req.getServletContext().getRealPath(jspPath));
+            String jspPath = Router.RESOURCES_FOLDER + "v" 
+                    + masonRequest.getResource().getVersion() 
+                    + masonRequest.getResource().getUrl() 
+                    + Router.JSP_EXTN;
             
-            if(resourceFileExists(resourceName, masonRequest.getResource().getVersion(), req)) {
+            if (masonRequest.getResource().getName() != null) {
                 req.setAttribute(MASON_REQUEST, masonRequest);
 
                 //Adding to request, otherwise the user has to write ${applicationScope.datasource}
@@ -648,22 +650,22 @@ public class Router implements Filter {
                 //https://stackoverflow.com/a/46489035
                 req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
                 req.getRequestDispatcher(jspPath).forward(
-                    new HttpServletRequestWrapper(req) {
-                        @Override
-                        public String getMethod() {
-                            String method = super.getMethod();
-                            if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                                return "POST";
-                            } else {
-                                return method;
-                            }
+                        new HttpServletRequestWrapper(req) {
+                    @Override
+                    public String getMethod() {
+                        String method = super.getMethod();
+                        if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
+                            return "POST";
+                        } else {
+                            return method;
                         }
-                    }, res
+                    }
+                }, res
                 );
             } else {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
             }
-            
+
         } catch (IOException | ServletException | JSONException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
@@ -678,6 +680,7 @@ public class Router implements Filter {
             }
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (NullPointerException ex) {
+            ex.printStackTrace();
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
             //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
             writeError(res, 404, "Resource doesn't exist." + ex.getMessage());
@@ -758,9 +761,9 @@ public class Router implements Filter {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
         }
     }
-    
-    public static boolean resourceFileExists(String resourceName, float v, HttpServletRequest req){
-        String jspPath = RESOURCES_FOLDER + "v" + v  + resourceName + JSP_EXTN;
+
+    public static boolean resourceFileExists(String resourceName, float v, HttpServletRequest req) {
+        String jspPath = RESOURCES_FOLDER + "v" + v + resourceName + JSP_EXTN;
         File file = new File(req.getServletContext().getRealPath(jspPath));
         return file.exists();
     }

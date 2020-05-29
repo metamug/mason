@@ -529,11 +529,14 @@ public abstract class RequestStrategy {
 	private HttpServletRequest httpRequest;
 	private float version;
 	JspResource jspResource;
+        private String resourceUri;
         
 	public RequestStrategy(HttpServletRequest request) {
 		this.httpRequest = request;
-		this.version = Float.parseFloat(this.httpRequest.getPathInfo().substring(2, 2 + VERSION_LENGTH));
-                
+                String resourcePath = this.httpRequest.getServletPath();
+		this.version = Float.parseFloat(resourcePath.substring(2, 2 + VERSION_LENGTH));
+                // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
+		resourceUri = resourcePath.substring(5); // after /v1.0
 	}
         
         public float getVersion(){
@@ -545,6 +548,13 @@ public abstract class RequestStrategy {
 		this.jspResource = jspResource;
 	}
 
+	// grtting mason request
+	public Request getRequest() {
+		masonRequest = buildRequest();
+		masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
+		return masonRequest;
+	}
+        
 	/**
 	 * *
 	 * 
@@ -634,20 +644,13 @@ public abstract class RequestStrategy {
 		return finalResponseElement;
 	}
 
-	// grtting mason request
-	public Request getRequest() {
-		masonRequest = buildRequest();
-		masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
-		return masonRequest;
-	}
 
 	/**
 	 * Extract Request information
 	 */
 	public Request buildRequest() {
 
-		// https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
-		String resourceUri = this.httpRequest.getPathInfo().substring(5); // after /v1.0
+		
 		String tokensValue;
 		int sizeOfresourceUri = resourceUri.length();
 		List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
