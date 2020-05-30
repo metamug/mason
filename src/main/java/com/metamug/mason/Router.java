@@ -648,9 +648,12 @@ public class Router implements Filter {
             //save method as attribute because jsp only accepts GET and POST
             //https://stackoverflow.com/a/46489035
             req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
-            req.getRequestDispatcher(jspPath).forward(
-                    new HttpRequestWrapper(req), res
-            );
+//            req.getRequestDispatcher(jspPath).forward(
+//                    new HttpRequestWrapper(req), res
+//            );
+            
+            req.getRequestDispatcher(jspPath).forward(req, res);
+            
 
         } catch (IOException | ServletException | JSONException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
