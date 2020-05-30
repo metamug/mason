@@ -756,12 +756,10 @@ public class RequestStrategyTest {
 		assertEquals(null, masonRequest.getId());
 		assertEquals(null, masonRequest.getPid());
 		assertEquals(null, masonRequest.getParent().getName());
-                
-                
-                
-                when(request.getServletPath()).thenReturn("/v1.0/execute");
-                reset(jspResource);
-                strategy = new ParamExtractStrategy(request);
+
+		when(request.getServletPath()).thenReturn("/v1.0/execute");
+		reset(jspResource);
+		strategy = new ParamExtractStrategy(request);
 		strategy.setJspResource(jspResource);
 		when(jspResource.resourceExists("/execute", strategy.getVersion())).thenReturn(true);
 		masonRequest = strategy.getRequest();
@@ -769,11 +767,10 @@ public class RequestStrategyTest {
 		assertEquals(null, masonRequest.getId());
 		assertEquals(null, masonRequest.getPid());
 		assertEquals(null, masonRequest.getParent().getName());
-                
-                
-                when(request.getServletPath()).thenReturn("/v1.0/execute/23");
-                reset(jspResource);
-                strategy = new ParamExtractStrategy(request);
+
+		when(request.getServletPath()).thenReturn("/v1.0/execute/23");
+		reset(jspResource);
+		strategy = new ParamExtractStrategy(request);
 		strategy.setJspResource(jspResource);
 		when(jspResource.resourceExists("/execute", strategy.getVersion())).thenReturn(true);
 		masonRequest = strategy.getRequest();
@@ -781,7 +778,6 @@ public class RequestStrategyTest {
 		assertEquals("23", masonRequest.getId());
 		assertEquals(null, masonRequest.getPid());
 		assertEquals(null, masonRequest.getParent().getName());
-                
 
 	}
 }

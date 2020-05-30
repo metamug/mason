@@ -628,8 +628,9 @@ public abstract class RequestStrategy {
 					} else if (prevToken.equals("G")) {
 						currentToken = "G";
 						listInputAtPresent = listInputAtAlways;
-					} else if (prevToken.equals("R"))
+					} else if (prevToken.equals("R")) {
 						currentToken = "I";
+					}
 
 				} else {
 					currentToken = "R";
@@ -649,10 +650,9 @@ public abstract class RequestStrategy {
 
 		String tokensValue;
 		int sizeOfresourceUri = resourceUri.length();
-		List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
 
 		// using function of input extraction
-		ourListElements.addAll(inputUriExtraction(resourceUri));
+		List<String> ourListElements = inputUriExtraction(resourceUri);
 
 		// using function to find the output uri
 		List<String> finalResponseElement = resultUriExtraction(resourceUri);
@@ -682,9 +682,12 @@ public abstract class RequestStrategy {
 		}
 
 		// check if only one R exist then giving error
-		if (finalResponseElement.get(0).equals("R") && count == 1) {
-			resourceName = null;
-			request.setId(null);
+		for (int index = 0; index < finalResponseElement.size() - 1; index++) {
+			if (finalResponseElement.get(index).equals("I") && finalResponseElement.get(index + 1).equals("I")) {
+				resourceName = null;
+				request.setId(null);
+				break;
+			}
 		}
 		Resource resource = new Resource(resourceName, version);
 		request.setResource(resource);
