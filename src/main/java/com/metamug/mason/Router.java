@@ -632,7 +632,7 @@ public class Router implements Filter {
             
             String jspPath = Router.RESOURCES_FOLDER + "v" 
                     + masonRequest.getResource().getVersion() 
-                    + masonRequest.getResource().getUrl() 
+                    + masonRequest.getUri()
                     + Router.JSP_EXTN;
             
             if (masonRequest.getResource().getName() != null) {
