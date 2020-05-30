@@ -536,7 +536,7 @@ public class TokenGenerator implements RequestProcessable {
                 
         String token = new JWebToken(jwtPayload).toString();
 
-        Response response = new Response();
+        Response<String> response = new Response<>();
         response.setPayload(token);
         
         return response;

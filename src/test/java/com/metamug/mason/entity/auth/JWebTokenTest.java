@@ -5,23 +5,23 @@
  */
 package com.metamug.mason.entity.auth;
 
+import com.metamug.entity.Response;
+import com.metamug.exec.RequestProcessable;
+import com.metamug.mason.plugin.TokenGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import com.metamug.mason.plugin.TokenGenerator;
-import com.metamug.exec.RequestProcessable;
-import java.util.Map;
-import java.util.HashMap;
-import com.metamug.entity.Response;
-import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -64,7 +64,7 @@ public class JWebTokenTest {
         Response response = processable.process(null, null, args);
         //verify(statement.executeQuery())
         System.out.println(response.getPayload());
-        assertTrue(response.getPayload() != null);
+        assertNotNull(response.getPayload());
         
     }
 

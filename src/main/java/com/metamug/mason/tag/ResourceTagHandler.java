@@ -640,7 +640,7 @@ public class ResourceTagHandler extends RestTag {
         }
         Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
         ConnectionProvider provider = (ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER);
-        authService = new AuthService(provider.getMasonDatasource());
+        authService = new AuthService(ConnectionProvider.getMasonDatasource());
         try {
             if (header.contains("Basic ")) {
                 String authQuery = (String) request.getServletContext().getAttribute(Router.MTG_AUTH_BASIC);
@@ -649,7 +649,7 @@ public class ResourceTagHandler extends RestTag {
                 String bearerToken = header.replaceFirst(BEARER_, "");
                 //check jwt format
                 //validateJwt - check aud against val, exp
-                masonReq.setUid(authService.validateBearer(bearerToken.trim(), auth));
+                masonReq.setUid(authService.validateBearer(bearerToken.trim(), auth)); //does not require connection
             } else {
                 throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
             }

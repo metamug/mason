@@ -648,12 +648,9 @@ public class Router implements Filter {
             //save method as attribute because jsp only accepts GET and POST
             //https://stackoverflow.com/a/46489035
             req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
-//            req.getRequestDispatcher(jspPath).forward(
-//                    new HttpRequestWrapper(req), res
-//            );
-            
-            req.getRequestDispatcher(jspPath).forward(req, res);
-            
+
+            req.getRequestDispatcher(jspPath).forward(new HttpRequestWrapper(req), res);    
+//            req.getRequestDispatcher(jspPath).forward(req, res);
 
         } catch (IOException | ServletException | JSONException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
@@ -669,7 +666,6 @@ public class Router implements Filter {
             }
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (NullPointerException ex) {
-            ex.printStackTrace();
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
             //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
             writeError(res, 404, "Resource doesn't exist." + ex.getMessage());

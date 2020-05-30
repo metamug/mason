@@ -506,19 +506,14 @@
  */
 package com.metamug.mason.entity.request;
 
-import com.github.wnameless.json.flattener.JsonFlattener;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
 /**
@@ -554,8 +549,8 @@ public class JsonBodyStrategy extends RequestBodyStrategy {
              
             object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
 
-        }catch (JAXBException e) {
-            e.printStackTrace();
+        }catch (JAXBException ex) {
+           Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
         }
 
         return object;

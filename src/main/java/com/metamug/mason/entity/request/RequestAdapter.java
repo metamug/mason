@@ -507,9 +507,7 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
-import com.metamug.entity.Resource;
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
-import static com.metamug.mason.Router.resourceFileExists;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
@@ -517,9 +515,6 @@ import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_F
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.ArrayList;
-import com.metamug.mason.Router;
 
 /**
  * Convert HTTP Servlet Request Object to Mason Request
