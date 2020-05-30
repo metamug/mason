@@ -682,12 +682,14 @@ public abstract class RequestStrategy {
 		}
 
 		// check if only one R exist then giving error
+		if(finalResponseElement.size()>1) {
 		for (int index = 0; index < finalResponseElement.size() - 1; index++) {
 			if (finalResponseElement.get(index).equals("I") && finalResponseElement.get(index + 1).equals("I")) {
 				resourceName = null;
 				request.setId(null);
 				break;
 			}
+		}
 		}
 		Resource resource = new Resource(resourceName, version);
 		request.setResource(resource);
