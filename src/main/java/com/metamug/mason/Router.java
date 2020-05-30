@@ -512,7 +512,6 @@ import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
 import com.metamug.mason.entity.request.RequestAdapter;
 import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
-import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
 import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
@@ -576,8 +575,10 @@ public class Router implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+
         //Setting character encoding
         if (null == request.getCharacterEncoding()) {
             request.setCharacterEncoding(encoding);
@@ -610,13 +611,7 @@ public class Router implements Filter {
      */
     private void processRequest(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
-        String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
-        String method = req.getMethod().toLowerCase();
-
-        boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
-                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON) || contentType.contains(MULTIPART_FORM_DATA);
-
-        if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
+        if (!validContentType(req)) {
             writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
             return;
         }
@@ -629,48 +624,39 @@ public class Router implements Filter {
             //get queries
             Request masonRequest = RequestAdapter.create(req);
             resourceName = masonRequest.getResource().getName();
-            
-            String jspPath = Router.RESOURCES_FOLDER + "v" 
-                    + masonRequest.getResource().getVersion() 
+
+            String jspPath = Router.RESOURCES_FOLDER + "v"
+                    + masonRequest.getResource().getVersion()
                     + masonRequest.getUri()
                     + Router.JSP_EXTN;
-            
-            if (masonRequest.getResource().getName() != null) {
-                req.setAttribute(MASON_REQUEST, masonRequest);
 
-                //Adding to request, otherwise the user has to write ${applicationScope.datasource}
-                req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
-                req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
-
-                //Query map of stored queries in a file
-                Object queryMap = req.getServletContext().getAttribute(MASON_QUERY);
-                req.setAttribute(MASON_QUERY, queryMap);
-
-                //save method as attribute because jsp only accepts GET and POST
-                //https://stackoverflow.com/a/46489035
-                req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
-                req.getRequestDispatcher(jspPath).forward(
-                        new HttpServletRequestWrapper(req) {
-                    @Override
-                    public String getMethod() {
-                        String method = super.getMethod();
-                        if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                            return "POST";
-                        } else {
-                            return method;
-                        }
-                    }
-                }, res
-                );
-            } else {
+            if (masonRequest.getResource().getName() == null) {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
+                return;
             }
+
+            req.setAttribute(MASON_REQUEST, masonRequest);
+
+            //Adding to request, otherwise the user has to write ${applicationScope.datasource}
+            req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
+            req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
+
+            //Query map of stored queries in a file
+            Object queryMap = req.getServletContext().getAttribute(MASON_QUERY);
+            req.setAttribute(MASON_QUERY, queryMap);
+
+            //save method as attribute because jsp only accepts GET and POST
+            //https://stackoverflow.com/a/46489035
+            req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
+            req.getRequestDispatcher(jspPath).forward(
+                    new HttpRequestWrapper(req), res
+            );
 
         } catch (IOException | ServletException | JSONException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
             } else if (ex.getCause() != null) {
-                String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+                String cause = ex.getCause().toString(); //.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
                 writeError(res, 500, cause);
             } else if (ex.getMessage().contains("ELException")) {
                 writeError(res, 512, "Incorrect test condition in '" + resourceName + "' resource");
@@ -766,5 +752,36 @@ public class Router implements Filter {
         String jspPath = RESOURCES_FOLDER + "v" + v + resourceName + JSP_EXTN;
         File file = new File(req.getServletContext().getRealPath(jspPath));
         return file.exists();
+    }
+
+    private boolean validContentType(HttpServletRequest req) {
+        String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
+        String method = req.getMethod().toLowerCase();
+
+        boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
+                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON) || contentType.contains(MULTIPART_FORM_DATA);
+
+        if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
+            return false;
+        }
+        return true;
+    }
+
+    private static class HttpRequestWrapper extends HttpServletRequestWrapper {
+
+        public HttpRequestWrapper(HttpServletRequest request) {
+            super(request);
+        }
+
+        @Override
+        public String getMethod() {
+            String method = super.getMethod();
+            if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
+                return "POST";
+            } else {
+                return method;
+            }
+        }
+
     }
 }
