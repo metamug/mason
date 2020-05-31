@@ -508,13 +508,9 @@ package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
-import java.util.Map;
-import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
-import com.metamug.mason.Router;
 
 /**
  *
@@ -522,191 +518,190 @@ import com.metamug.mason.Router;
  */
 public abstract class RequestStrategy {
 
-    protected Request masonRequest;
-    public static final String VERSION_REGEX = "^.*(v\\d+\\.\\d+).*$";
-    private static final int VERSION_LENGTH = 3; // 1.3
-    private HttpServletRequest httpRequest;
-    private float version;
-    private JspResource jspResource;
-    private String resourceUri;
+	protected Request masonRequest;
+	public static final String VERSION_REGEX = "^.*(v\\d+\\.\\d+).*$";
+	private static final int VERSION_LENGTH = 3; // 1.3
+	private HttpServletRequest httpRequest;
+	private float version;
+	private JspResource jspResource;
+	private String resourceUri;
 
-    public RequestStrategy(HttpServletRequest request) {
-        this.httpRequest = request;
-        String resourcePath = this.httpRequest.getServletPath();
-        this.version = Float.parseFloat(resourcePath.substring(2, 2 + VERSION_LENGTH));
-        // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
-        resourceUri = resourcePath.substring(5); // after /v1.0
-    }
+	public RequestStrategy(HttpServletRequest request) {
+		this.httpRequest = request;
+		String resourcePath = this.httpRequest.getServletPath();
+		this.version = Float.parseFloat(resourcePath.substring(2, 2 + VERSION_LENGTH));
+		// https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
+		resourceUri = resourcePath.substring(5); // after /v1.0
+	}
 
-    public float getVersion() {
-        return this.version;
-    }
+	public float getVersion() {
+		return this.version;
+	}
 
-    public void setJspResource(JspResource jspResource) {
-        this.jspResource = jspResource;
-    }
+	public void setJspResource(JspResource jspResource) {
+		this.jspResource = jspResource;
+	}
 
-    public Request getRequest() {
-        masonRequest = buildRequest();
-        masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
-        return masonRequest;
-    }
+	public Request getRequest() {
+		masonRequest = buildRequest();
+		masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
+		return masonRequest;
+	}
 
-    /**
-     * *
-     *
-     * @auther BISWAS05 This method is used to extract the resource uri as a
-     * list. Using this output we can easily define our parent id resource
-     * id,parent name,resource name and also we can find the uri is valid or not
-     * using this.
-     * @return ourListElements This returns the extracted list or reource uri.
-     */
-    private List<String> inputUriExtraction(String resourceUri) {
-        String tokensValue;
-        resourceUri += "/";
-        int sizeOfresourceUri = resourceUri.length();
+	/**
+	 * *
+	 *
+	 * @auther BISWAS05 This method is used to extract the resource uri as a list.
+	 *         Using this output we can easily define our parent id resource
+	 *         id,parent name,resource name and also we can find the uri is valid or
+	 *         not using this.
+	 * @return ourListElements This returns the extracted list or reource uri.
+	 */
+	private List<String> inputUriExtraction(String resourceUri) {
+		String tokensValue;
+		resourceUri += "/";
+		int sizeOfresourceUri = resourceUri.length();
 
-        List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
+		List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
 
-        List<String> finalResponseElement = new ArrayList<String>(sizeOfresourceUri);
+		int positionOfEachElement = 1;
 
-        int positionOfEachElement = 1;
+		for (int index = 1; index < sizeOfresourceUri; index++) {
 
-        for (int index = 1; index < sizeOfresourceUri; index++) {
+			if (resourceUri.charAt(index) == '/') {
 
-            if (resourceUri.charAt(index) == '/') {
+				tokensValue = resourceUri.substring(positionOfEachElement, index);
 
-                tokensValue = resourceUri.substring(positionOfEachElement, index);
+				positionOfEachElement = index + 1;
 
-                positionOfEachElement = index + 1;
+				ourListElements.add(tokensValue);
 
-                ourListElements.add(tokensValue);
+			}
+		}
+		return ourListElements;
+	}
 
-            }
-        }
-        return ourListElements;
-    }
+	/**
+	 * *
+	 *
+	 * @auther BISWAS05 This method is used to extract the resource uri as a the
+	 *         final responce as output.. Here we will get the output according to
+	 *         the input and the formula. This will look like R/G/I/R/I.
+	 * @return finalResponseElement This returns the extracted list as the output.
+	 */
+	private List<String> resultUriExtraction(String resourceUri) {
 
-    /**
-     * *
-     *
-     * @auther BISWAS05 This method is used to extract the resource uri as a the
-     * final responce as output.. Here we will get the output according to the
-     * input and the formula. This will look like R/G/I/R/I.
-     * @return finalResponseElement This returns the extracted list as the
-     * output.
-     */
-    private List<String> resultUriExtraction(String resourceUri) {
+		String tokensValue;
+		String listInputAtPresent;
+		String listInputAtPast;
+		String listInputAtAlways;
+		String listInputAtFuture = "/";
+		listInputAtPresent = "";
+		listInputAtAlways = "";
+		listInputAtPast = "";
+		resourceUri += "/";
+		int sizeOfresourceUri = resourceUri.length();
 
-        String tokensValue;
-        String listInputAtPresent, listInputAtPast, listInputAtAlways;
-        String listInputAtFuture = "/";
-        listInputAtPresent = "";
-        listInputAtAlways = "";
-        listInputAtPast = "";
-        resourceUri += "/";
-        int sizeOfresourceUri = resourceUri.length();
+		List<String> ourListElements = new ArrayList<>(sizeOfresourceUri);
+		List<String> finalResponseElement = new ArrayList<>(sizeOfresourceUri);
 
-        List<String> ourListElements = new ArrayList<>(sizeOfresourceUri);
-        List<String> finalResponseElement = new ArrayList<>(sizeOfresourceUri);
+		int positionOfEachElement = 1;
+		String prevToken = " ", currentToken = " ";
+		for (int index = 1; index < sizeOfresourceUri; index++) {
+			if (resourceUri.charAt(index) == '/') {
+				tokensValue = resourceUri.substring(positionOfEachElement, index);
+				positionOfEachElement = index + 1;
+				ourListElements.add(tokensValue);
+				listInputAtPast = listInputAtFuture + tokensValue;
+				listInputAtAlways = listInputAtPresent + listInputAtPast;
+				if (!jspResource.resourceExists(listInputAtAlways, version)) {
+					if (prevToken.equals(" ")) {
+						currentToken = "G";
+						listInputAtPresent = listInputAtAlways;
+					} else if (prevToken.equals("G")) {
+						currentToken = "G";
+						listInputAtPresent = listInputAtAlways;
+					} else if (prevToken.equals("R")) {
+						currentToken = "I";
+					}
 
-        int positionOfEachElement = 1;
-        String prevToken = " ", currentToken = " ";
-        for (int index = 1; index < sizeOfresourceUri; index++) {
-            if (resourceUri.charAt(index) == '/') {
-                tokensValue = resourceUri.substring(positionOfEachElement, index);
-                positionOfEachElement = index + 1;
-                ourListElements.add(tokensValue);
-                listInputAtPast = listInputAtFuture + tokensValue;
-                listInputAtAlways = listInputAtPresent + listInputAtPast;
-                if (!jspResource.resourceExists(listInputAtAlways, version)) {
-                    if (prevToken.equals(" ")) {
-                        currentToken = "G";
-                        listInputAtPresent = listInputAtAlways;
-                    } else if (prevToken.equals("G")) {
-                        currentToken = "G";
-                        listInputAtPresent = listInputAtAlways;
-                    } else if (prevToken.equals("R")) {
-                        currentToken = "I";
-                    }
+				} else {
+					currentToken = "R";
+				}
+				prevToken = currentToken;
 
-                } else {
-                    currentToken = "R";
-                }
-                prevToken = currentToken;
+				finalResponseElement.add(prevToken);
+			}
+		}
+		return finalResponseElement;
+	}
 
-                finalResponseElement.add(prevToken);
-            }
-        }
-        return finalResponseElement;
-    }
+	/**
+	 * Extract Request information
+	 */
+	public Request buildRequest() {
 
-    /**
-     * Extract Request information
-     */
-    public Request buildRequest() {
+		// using function of input extraction
+		List<String> ourListElements = inputUriExtraction(resourceUri);
 
-        // using function of input extraction
-        List<String> ourListElements = inputUriExtraction(resourceUri);
+		// using function to find the output uri
+		List<String> finalResponseElement = resultUriExtraction(resourceUri);
 
-        // using function to find the output uri
-        List<String> finalResponseElement = resultUriExtraction(resourceUri);
+		Request request = new Request();
+		request.setUri(resourceUri);
+		// checking uri is valid or not
+		if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {
+			request.setUri(null);
+		}
+		int position = finalResponseElement.size() - 1;
+		// check for id at the last position as resource id
+		if (finalResponseElement.get(position).equals("I")) {
+			request.setId(ourListElements.get(position));
+			position--; // last element identified as resource id
+		}
+		int count = 0;
+		String resourceName = null;
+		// finding resource name
+		for (int index = position; index >= 0; index--) {
+			if (finalResponseElement.get(index).equals("R")) {
+				resourceName = ourListElements.get(index);
+				count = count + 1;
+				position = index;
+				break;
+			}
+		}
 
-        Request request = new Request();
-        request.setUri(resourceUri);
-        // checking uri is valid or not
-        if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {
-            request.setUri(null);
-        }
-        int position = finalResponseElement.size() - 1;
-        // check for id at the last position as resource id
-        if (finalResponseElement.get(position).equals("I")) {
-            request.setId(ourListElements.get(position));
-            position--; // last element identified as resource id
-        }
-        int count = 0;
-        String resourceName = null;
-        // finding resource name
-        for (int index = position; index >= 0; index--) {
-            if (finalResponseElement.get(index).equals("R")) {
-                resourceName = ourListElements.get(index);
-                count = count + 1;
-                position = index;
-                break;
-            }
-        }
+		// check if only one R exist then giving error
+		if (finalResponseElement.size() > 1) {
+			for (int index = 0; index < finalResponseElement.size() - 1; index++) {
+				if (finalResponseElement.get(index).equals("I") && finalResponseElement.get(index + 1).equals("I")) {
+					resourceName = null;
+					request.setId(null);
+					break;
+				}
+			}
+		}
 
-        // check if only one R exist then giving error
-        if (finalResponseElement.size() > 1) {
-            for (int index = 0; index < finalResponseElement.size() - 1; index++) {
-                if (finalResponseElement.get(index).equals("I") && finalResponseElement.get(index + 1).equals("I")) {
-                    resourceName = null;
-                    request.setId(null);
-                    break;
-                }
-            }
-        }
-        
-        Resource resource = new Resource(resourceName, version);
-        request.setResource(resource);
-        
-        // finding parent id
-        for (int index = position; index >= 0; index--) {
-            if (finalResponseElement.get(index).equals("I")) {
-                request.setPid(ourListElements.get(index));
-                break;
-            }
-        }
-        
-        // finding parent name
-        Resource parentResource = null; // @TODO set parentName to correc value
-        for (int index = position - 1; index >= 0; index--) {
-            if (finalResponseElement.get(index).equals("R")) {
-                parentResource = new Resource((ourListElements.get(index)), version);
-                break;
-            }
-        }
-        request.setParent(parentResource);
-        return request;
-    }
+		Resource resource = new Resource(resourceName, version);
+		request.setResource(resource);
+
+		// finding parent id
+		for (int index = position; index >= 0; index--) {
+			if (finalResponseElement.get(index).equals("I")) {
+				request.setPid(ourListElements.get(index));
+				break;
+			}
+		}
+
+		// finding parent name
+		Resource parentResource = null; // @TODO set parentName to correc value
+		for (int index = position - 1; index >= 0; index--) {
+			if (finalResponseElement.get(index).equals("R")) {
+				parentResource = new Resource((ourListElements.get(index)), version);
+				break;
+			}
+		}
+		request.setParent(parentResource);
+		return request;
+	}
 }
