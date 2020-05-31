@@ -513,7 +513,7 @@ import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
-import com.metamug.mason.service.ConnectionProvider;
+//import com.metamug.mason.service.ConnectionProvider;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
@@ -531,7 +531,7 @@ public class ExecuteTagHandler extends RequestTag {
     private String className;
     private Object param; //input for execution sql result(ResultProcessable) or http request(RequestProcessable)
     private String var;
-    private DataSource ds;
+//    private DataSource ds;
 
     private boolean output; //default value
     private String onerror;
@@ -573,9 +573,9 @@ public class ExecuteTagHandler extends RequestTag {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));
                     }                    
-                    ds = ConnectionProvider.getMasonDatasource();
+//                    ds = ConnectionProvider.getMasonDatasource();
                     //no bus
-                    result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
+                    result = reqProcessable.process(masonReq, null, parameters); //@TODO add actual args and resource
                 }
             } else {
                 throw new JspException("", new MasonException(MasonError.CLASS_NOT_IMPLEMENTED,

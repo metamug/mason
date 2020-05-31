@@ -655,19 +655,7 @@ That's all there is to it!
  */
 package com.metamug.mason.entity.request;
 
-import com.metamug.mason.RouterTest;
-import com.metamug.mason.service.ConnectionProvider;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
@@ -676,12 +664,8 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
-import java.util.Arrays;
 
 import com.metamug.entity.Request;
-import java.io.File;
-import org.mockito.Mockito;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.reset;
 
 /**

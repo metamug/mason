@@ -179,8 +179,8 @@
         </attribute>
     </tag>
     <tag>
-        <name>arg</name>
-        <tag-class>com.metamug.mason.tag.xrequest.ParamTagHandler</tag-class>
+        <name>arg</name> <!-- For Execute Tag -->
+        <tag-class>com.metamug.mason.tag.NameValueTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
@@ -196,8 +196,8 @@
         </attribute>
     </tag>
     <tag>
-        <name>xparam</name>
-        <tag-class>com.metamug.mason.tag.xrequest.ParamTagHandler</tag-class>
+        <name>xparam</name> <!-- For XRequest Tag -->
+        <tag-class>com.metamug.mason.tag.NameValueTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>

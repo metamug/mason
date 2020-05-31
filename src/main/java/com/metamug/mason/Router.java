@@ -649,14 +649,15 @@ public class Router implements Filter {
             //https://stackoverflow.com/a/46489035
             req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
 
-            req.getRequestDispatcher(jspPath).forward(new HttpRequestWrapper(req), res);    
+            req.getRequestDispatcher(jspPath).forward(new HttpRequestWrapper(req), res);
 //            req.getRequestDispatcher(jspPath).forward(req, res);
 
         } catch (IOException | ServletException | JSONException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
             } else if (ex.getCause() != null) {
-                String cause = ex.getCause().toString(); //.split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+                String[] causeSplit = ex.getCause().toString().split(": ");
+                String cause = causeSplit.length > 1 ? causeSplit[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") : "";
                 writeError(res, 500, cause);
             } else if (ex.getMessage().contains("ELException")) {
                 writeError(res, 512, "Incorrect test condition in '" + resourceName + "' resource");

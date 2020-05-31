@@ -58,8 +58,8 @@ public class JWebTokenTest {
     public void generateToken() throws Exception{
         
         Map<String, Object> args = new HashMap<String, Object>();
-        args.put("aud", "1234");
-        args.put("sub", "admin");
+        args.put("aud", "admin");
+        args.put("sub", "1234");
         RequestProcessable processable = new TokenGenerator();
         Response response = processable.process(null, null, args);
         //verify(statement.executeQuery())
