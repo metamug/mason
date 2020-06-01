@@ -537,8 +537,8 @@ public class ConnectionProvider {
         return null;
     }
 
-    public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
-        masonDatasource = masonDatasource;
+    public ConnectionProvider(String jndiDsUrl) throws SQLException, NamingException {
+        masonDatasource = jndiDsUrl;
         ds = getMasonDatasource();
     }
 
@@ -564,9 +564,9 @@ public class ConnectionProvider {
         //}
         if (driver.contains("hsql")) {
         } else if (driver.contains("mysql")) {
-        	//@TODO write db specific code 
-        	
-        	//import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+            //@TODO write db specific code 
+
+            //import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
             //set this for mysql driver
             //https://stackoverflow.com/a/19027873/4800126
             // AbandonedConnectionCleanupThread.checkedShutdown();
