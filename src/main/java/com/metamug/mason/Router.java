@@ -628,12 +628,6 @@ public class Router implements Filter {
             req.setAttribute(JSP_RESOURCE, jspResource);
             Request masonRequest = RequestAdapter.create(req);
             resourceName = masonRequest.getResource().getName();
-            
-            
-//            String jspPath = Router.RESOURCES_FOLDER + "v"
-//                    + masonRequest.getResource().getVersion()
-//                    + masonRequest.getUri()
-//                    + Router.JSP_EXTN;
 
             if (masonRequest.getResource().getName() == null) {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
@@ -654,7 +648,7 @@ public class Router implements Filter {
             //https://stackoverflow.com/a/46489035
             req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
 
-            req.getRequestDispatcher(jspResource.jspPath()).forward(new HttpRequestWrapper(req), res);
+            req.getRequestDispatcher(jspResource.getJspPath()).forward(new HttpRequestWrapper(req), res);
 //            req.getRequestDispatcher(jspPath).forward(req, res);
 
         } catch (IOException | ServletException | JSONException ex) {
@@ -753,13 +747,7 @@ public class Router implements Filter {
         } catch (NullPointerException nx) {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
         }
-    }
-
-    public static boolean resourceFileExists(String resourceName, float v, HttpServletRequest req) {
-        String jspPath = RESOURCES_FOLDER + "v" + v + resourceName + JSP_EXTN;
-        File file = new File(req.getServletContext().getRealPath(jspPath));
-        return file.exists();
-    }
+    } 
 
     private boolean validContentType(HttpServletRequest req) {
         String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();

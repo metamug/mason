@@ -670,7 +670,7 @@ import com.metamug.mason.Router;
 import static org.mockito.Mockito.reset;
 
 /**
- *
+ * Mock Request Path
  * @author deepak
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -686,22 +686,25 @@ public class RequestStrategyTest {
     public void setUp() {
 
         request = mock(HttpServletRequest.class);
-
-        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
-
         when(request.getMethod()).thenReturn("GET");
         jspResource = mock(JspResource.class);
 
     }
 
+    private RequestStrategy mockStrategy(String resourceUri) {
+        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource); //since this is removed after each strategy call.
+        reset(jspResource);
+        when(jspResource.getVersion()).thenReturn(1.0f);
+        when(jspResource.getResourceUri()).thenReturn(resourceUri);
+        return new ParamExtractStrategy(request);
+    }
+
     @Test
     public void uriTest() {
 
-        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource);
-        RequestStrategy strategy = new ParamExtractStrategy(request);
-        when(jspResource.resourceExists("/info/crm/people", strategy.getVersion())).thenReturn(true);
-        when(jspResource.resourceExists("/info/crm/customer", strategy.getVersion())).thenReturn(true);
+        RequestStrategy strategy = mockStrategy("/info/crm/people/customer/12");
+        when(jspResource.resourceExists("/info/crm/people")).thenReturn(true);
+        when(jspResource.resourceExists("/info/crm/customer")).thenReturn(true);
 
         Request masonRequest = strategy.getRequest();
         assertEquals("customer", masonRequest.getResource().getName());
@@ -709,10 +712,8 @@ public class RequestStrategyTest {
         assertEquals(null, masonRequest.getPid());
         assertEquals("people", masonRequest.getParent().getName());
 
-        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource);
-        reset(jspResource);
-        strategy = new ParamExtractStrategy(request);
-        when(jspResource.resourceExists("/info/crm/people/customer", strategy.getVersion())).thenReturn(true);
+        strategy = mockStrategy("/info/crm/people/customer/12");
+        when(jspResource.resourceExists("/info/crm/people/customer")).thenReturn(true);
         masonRequest = strategy.getRequest();
 
         assertEquals("customer", masonRequest.getResource().getName());
@@ -720,55 +721,44 @@ public class RequestStrategyTest {
         assertEquals(null, masonRequest.getPid());
         assertEquals(null, masonRequest.getParent());
 
-        reset(jspResource);
-        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource);
-        strategy = new ParamExtractStrategy(request);
-        when(jspResource.resourceExists("/info/crm", strategy.getVersion())).thenReturn(true);
-        when(jspResource.resourceExists("/info/customer", strategy.getVersion())).thenReturn(true);
+        strategy = mockStrategy("/info/crm/people/customer/12");
+        when(jspResource.resourceExists("/info/crm")).thenReturn(true);
+        when(jspResource.resourceExists("/info/customer")).thenReturn(true);
         masonRequest = strategy.getRequest();
         assertEquals("customer", masonRequest.getResource().getName());
         assertEquals("12", masonRequest.getId());
         assertEquals("people", masonRequest.getPid());
         assertEquals("crm", masonRequest.getParent().getName());
 
-        strategy = new ParamExtractStrategy(request);
-        reset(jspResource);
-        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource);
-        when(jspResource.resourceExists("/info", strategy.getVersion())).thenReturn(true);
+        strategy = mockStrategy("/info/crm/people/customer/12");
+        when(jspResource.resourceExists("/info")).thenReturn(true);
         masonRequest = strategy.getRequest();
         assertEquals(null, masonRequest.getResource().getName());
         assertEquals(null, masonRequest.getId());
         assertEquals(null, masonRequest.getPid());
         assertEquals(null, masonRequest.getParent());
 
-        when(request.getServletPath()).thenReturn("/v1.0/execute");
-        reset(jspResource);
-        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource);
-        strategy = new ParamExtractStrategy(request);
-        when(jspResource.resourceExists("/execute", strategy.getVersion())).thenReturn(true);
+        
+        strategy = mockStrategy("/execute");
+        when(jspResource.resourceExists("/execute")).thenReturn(true);
         masonRequest = strategy.getRequest();
         assertEquals("execute", masonRequest.getResource().getName());
         assertEquals(null, masonRequest.getId());
         assertEquals(null, masonRequest.getPid());
         assertEquals(null, masonRequest.getParent());
 
-        when(request.getServletPath()).thenReturn("/v1.0/execute/23");
-        reset(jspResource);
-        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource);
-        strategy = new ParamExtractStrategy(request);
-        when(jspResource.resourceExists("/execute", strategy.getVersion())).thenReturn(true);
+        strategy = mockStrategy("/execute/23");
+        when(jspResource.resourceExists("/execute")).thenReturn(true);
         masonRequest = strategy.getRequest();
         assertEquals("execute", masonRequest.getResource().getName());
         assertEquals("23", masonRequest.getId());
         assertEquals(null, masonRequest.getPid());
         assertEquals(null, masonRequest.getParent());
 
-        when(request.getServletPath()).thenReturn("/v1.0/parent/21/execute/23");
-        reset(jspResource);
-        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource);
-        strategy = new ParamExtractStrategy(request);
-        when(jspResource.resourceExists("/execute", strategy.getVersion())).thenReturn(true);
-        when(jspResource.resourceExists("/parent", strategy.getVersion())).thenReturn(true);
+        
+        strategy = mockStrategy("/parent/21/execute/23");
+        when(jspResource.resourceExists("/execute")).thenReturn(true);
+        when(jspResource.resourceExists("/parent")).thenReturn(true);
         masonRequest = strategy.getRequest();
         assertEquals("execute", masonRequest.getResource().getName());
         assertEquals("23", masonRequest.getId());

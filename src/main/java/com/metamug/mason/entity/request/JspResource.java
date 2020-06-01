@@ -20,7 +20,7 @@ import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Version of JSP
+ * Represents the requested jsp file
  *
  * @author pc
  */
@@ -28,12 +28,23 @@ public class JspResource {
 
     private HttpServletRequest request;
     private String jspPath;
+    private float version;
+    private String resourceUri;
+    private static final int VERSION_LENGTH = 3; // 1.3
+
+    public String getResourceUri() {
+        return resourceUri;
+    }
 
     public JspResource(HttpServletRequest request) {
         this.request = request;
+        String resourcePath = this.request.getServletPath();
+        this.version = Float.parseFloat(resourcePath.substring(2, 2 + VERSION_LENGTH));
+        // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
+        resourceUri = resourcePath.substring(5); // after /v1.0
     }
 
-    protected boolean resourceExists(String resourcePath, float version) {
+    protected boolean resourceExists(String resourcePath) {
         String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + Router.JSP_EXTN;
         boolean exists = new File(request.getServletContext().getRealPath(jspPath)).exists();
         if (exists) {
@@ -47,7 +58,11 @@ public class JspResource {
      *
      * @return
      */
-    public String jspPath() {
+    public String getJspPath() {
         return jspPath;
+    }
+
+    public float getVersion() {
+        return this.version;
     }
 }

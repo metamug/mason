@@ -521,29 +521,16 @@ public abstract class RequestStrategy {
 
     protected Request masonRequest;
     public static final String VERSION_REGEX = "^.*(v\\d+\\.\\d+).*$";
-    private static final int VERSION_LENGTH = 3; // 1.3
+
     private HttpServletRequest httpRequest;
-    private float version;
+
     private JspResource jspResource;
-    private String resourceUri;
 
     public RequestStrategy(HttpServletRequest request) {
         this.httpRequest = request;
-        String resourcePath = this.httpRequest.getServletPath();
-        this.version = Float.parseFloat(resourcePath.substring(2, 2 + VERSION_LENGTH));
-        // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
-        resourceUri = resourcePath.substring(5); // after /v1.0
         jspResource = (JspResource) request.getAttribute(JSP_RESOURCE);
         request.removeAttribute(JSP_RESOURCE); //remove attribute after getting its reference;
     }
-
-    public float getVersion() {
-        return this.version;
-    }
-
-//    public void setJspResource(JspResource jspResource) {
-//        this.jspResource = jspResource;
-//    }
 
     public Request getRequest() {
         masonRequest = buildRequest();
@@ -619,7 +606,7 @@ public abstract class RequestStrategy {
                 listInputAtPast = listInputAtFuture + tokensValue;
                 listInputAtAlways = listInputAtPresent + listInputAtPast;
 
-                if (!jspResource.resourceExists(listInputAtAlways, version)) {
+                if (!jspResource.resourceExists(listInputAtAlways)) {
                     if (prevToken.equals(" ")) {
                         currentToken = "G";
                         listInputAtPresent = listInputAtAlways;
@@ -647,13 +634,13 @@ public abstract class RequestStrategy {
     public Request buildRequest() {
 
         // using function of input extraction
-        List<String> ourListElements = inputUriExtraction(resourceUri);
+        List<String> ourListElements = inputUriExtraction(jspResource.getResourceUri());
 
         // using function to find the output uri
-        List<String> finalResponseElement = resultUriExtraction(resourceUri);
+        List<String> finalResponseElement = resultUriExtraction(jspResource.getResourceUri());
 
         Request request = new Request();
-        request.setUri(resourceUri);
+        request.setUri(jspResource.getResourceUri());
         // checking uri is valid or not
         if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {
             request.setUri(null);
@@ -687,7 +674,7 @@ public abstract class RequestStrategy {
             }
         }
 
-        Resource resource = new Resource(resourceName, version);
+        Resource resource = new Resource(resourceName, jspResource.getVersion());
         request.setResource(resource);
 
         // finding parent id
@@ -702,7 +689,7 @@ public abstract class RequestStrategy {
         Resource parentResource = null; // @TODO set parentName to correc value
         for (int index = position - 1; index >= 0; index--) {
             if (finalResponseElement.get(index).equals("R")) {
-                parentResource = new Resource((ourListElements.get(index)), version);
+                parentResource = new Resource((ourListElements.get(index)), resource.getVersion());
                 break;
             }
         }
