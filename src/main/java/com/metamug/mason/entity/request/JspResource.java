@@ -21,18 +21,33 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * Version of JSP
+ *
  * @author pc
  */
 public class JspResource {
-    
+
     private HttpServletRequest request;
+    private String jspPath;
 
     public JspResource(HttpServletRequest request) {
         this.request = request;
     }
-    
-    protected  boolean resourceExists(String resourcePath, float version) {
-		String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + Router.JSP_EXTN;
-                return new File(request.getServletContext().getRealPath(jspPath)).exists();
+
+    protected boolean resourceExists(String resourcePath, float version) {
+        String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + Router.JSP_EXTN;
+        boolean exists = new File(request.getServletContext().getRealPath(jspPath)).exists();
+        if (exists) {
+            this.jspPath = jspPath; //set as instance variable
+        }
+        return exists;
+    }
+
+    /**
+     * Get JSP Path of a valid resource
+     *
+     * @return
+     */
+    public String jspPath() {
+        return jspPath;
     }
 }

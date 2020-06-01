@@ -540,8 +540,7 @@ public class RequestAdapter {
             strategy = new FormStrategy(request); //works for GET request as well
         }
         
-        JspResource jspResource = new JspResource(request);
-        strategy.setJspResource(jspResource);
+       
         return strategy.getRequest();
         
     }

@@ -510,6 +510,7 @@ import com.metamug.entity.Request;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
 import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import com.metamug.mason.entity.request.JspResource;
 import com.metamug.mason.entity.request.RequestAdapter;
 import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.service.ConnectionProvider;
@@ -558,7 +559,8 @@ public class Router implements Filter {
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
     public static final String MASON_REQUEST = "mtgReq";
-
+    public static final String JSP_RESOURCE = "jspResource";
+    
     public Router() {
 
     }
@@ -622,13 +624,16 @@ public class Router implements Filter {
         String resourceName = "";
         try {
             //get queries
+            JspResource jspResource = new JspResource(req);
+            req.setAttribute(JSP_RESOURCE, jspResource);
             Request masonRequest = RequestAdapter.create(req);
             resourceName = masonRequest.getResource().getName();
-
-            String jspPath = Router.RESOURCES_FOLDER + "v"
-                    + masonRequest.getResource().getVersion()
-                    + masonRequest.getUri()
-                    + Router.JSP_EXTN;
+            
+            
+//            String jspPath = Router.RESOURCES_FOLDER + "v"
+//                    + masonRequest.getResource().getVersion()
+//                    + masonRequest.getUri()
+//                    + Router.JSP_EXTN;
 
             if (masonRequest.getResource().getName() == null) {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
@@ -649,7 +654,7 @@ public class Router implements Filter {
             //https://stackoverflow.com/a/46489035
             req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
 
-            req.getRequestDispatcher(jspPath).forward(new HttpRequestWrapper(req), res);
+            req.getRequestDispatcher(jspResource.jspPath()).forward(new HttpRequestWrapper(req), res);
 //            req.getRequestDispatcher(jspPath).forward(req, res);
 
         } catch (IOException | ServletException | JSONException ex) {
@@ -669,9 +674,11 @@ public class Router implements Filter {
         } catch (NullPointerException ex) {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
             //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
-            writeError(res, 404, "Resource doesn't exist." + ex.getMessage());
+            writeError(res, 404, MSG_RESOURCE_NOT_FOUND + ex.getMessage());
         }
     }
+    
+    
 
     /**
      * Error message to be returned
