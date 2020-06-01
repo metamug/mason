@@ -509,10 +509,9 @@ That's all there is to it!
 package com.metamug.mason.tag;
 
 /**
- *
  * @author pc
  */
 public interface KeyValue {
 
-    public void put(String key, Object value);
+    void put(String key, Object value);
 }

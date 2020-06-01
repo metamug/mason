@@ -4,6 +4,6 @@
  * and open the template in the editor.
  */
 
-def name='pc'
+def name = 'pc'
 
 println "Hello $name!"

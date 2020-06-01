@@ -6,9 +6,15 @@
 package com.metamug.mason;
 
 
-import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
-import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
-import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import org.json.JSONObject;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,30 +24,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.FilterChain;
-import javax.servlet.ReadListener;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
+import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
+import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 /**
- *
  * @author user
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -139,11 +129,11 @@ public class RouterTest {
         //System.out.println(stringWriter.toString());
         assertTrue(stringWriter.toString().contains("404"));
     }
-    
-    private ServletInputStream getServletInputStream(ByteArrayInputStream bytestream){
-        return new ServletInputStream(){
+
+    private ServletInputStream getServletInputStream(ByteArrayInputStream bytestream) {
+        return new ServletInputStream() {
             public int read() throws IOException {
-              return bytestream.read();
+                return bytestream.read();
             }
 
             @Override

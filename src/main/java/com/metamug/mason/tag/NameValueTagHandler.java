@@ -507,10 +507,10 @@
 package com.metamug.mason.tag;
 
 import com.metamug.mason.tag.RequestTag;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
  * Can be used for a tag with String,Object Key Value Format

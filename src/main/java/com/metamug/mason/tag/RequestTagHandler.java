@@ -605,7 +605,7 @@ public class RequestTagHandler extends RequestTag {
                 break;
             }
         }
-
+        
         //set response headers
         if(headers != null) {
             headers.entrySet().forEach( entry -> {
@@ -656,6 +656,7 @@ public class RequestTagHandler extends RequestTag {
                     }
                 }
             }
+            
         } catch (IOException ex) {
             //@TODO write error response if there is an error in file read or something else
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);

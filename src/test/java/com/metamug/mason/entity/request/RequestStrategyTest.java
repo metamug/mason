@@ -663,11 +663,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import com.metamug.entity.Request;
 import com.metamug.mason.Router;
 import static org.mockito.Mockito.reset;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Mock Request Path

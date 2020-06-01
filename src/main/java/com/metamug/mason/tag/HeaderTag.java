@@ -513,7 +513,6 @@ import javax.servlet.jsp.JspTagException;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
- *
  * @author pc
  */
 public class HeaderTag extends NameValueTagHandler {
@@ -526,7 +525,7 @@ public class HeaderTag extends NameValueTagHandler {
         if (parent == null) {
             throw new JspTagException("Header Tag doesnt have a valid parent!");
         }
-        
+
         if (value == null) {
             value = getBodyContent().getString().trim();
         }

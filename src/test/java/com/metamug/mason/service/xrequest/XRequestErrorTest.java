@@ -511,14 +511,14 @@ package com.metamug.mason.service.xrequest;
 import com.metamug.entity.Response;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
-import java.util.HashMap;
-import java.util.Map;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- *
  * @author anishhirlekar
  */
 public class XRequestErrorTest {
@@ -526,20 +526,20 @@ public class XRequestErrorTest {
     private static final int STATUS_FAILED_REQUEST = 0;
 
     public static final String ACCEPT_JSON = "application/json";
-    
+
     private final XRequestService xRequestService;
 
     public XRequestErrorTest() {
         xRequestService = new XRequestService(true);
     }
-    
+
     @Test
     public void testGetJSONNotFound() {
         Map<String, Object> params = new HashMap<>();
         Map<String, String> headers = new HashMap<>();
         XResponse xr = xRequestService.get("https://postman-echo.com/xxx", headers, params);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
+        JSONObject body = (JSONObject) response.getPayload();
         //System.out.println();
         Assert.assertEquals(STATUS_CODE_NOT_FOUND, body.getInt("statusCode"));
         Assert.assertEquals(STATUS_CODE_NOT_FOUND, xr.getStatusCode());
@@ -551,12 +551,12 @@ public class XRequestErrorTest {
         Map<String, String> headers = new HashMap<>();
         XResponse xr = xRequestService.get("https://wrongurl/abc", headers, params);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
-        JSONObject body = (JSONObject)response.getPayload();
+        JSONObject body = (JSONObject) response.getPayload();
 
         Assert.assertEquals(STATUS_FAILED_REQUEST, body.getInt("statusCode"));
         Assert.assertEquals(STATUS_FAILED_REQUEST, xr.getStatusCode());
     }
-    
+
     @Test
     public void testPostNotFound() {
         Map<String, Object> params = new HashMap<>();
@@ -580,7 +580,7 @@ public class XRequestErrorTest {
         XResponse xr = xRequestService.post("https://wrongurl/abc", headers, params, null);
         Assert.assertEquals(STATUS_FAILED_REQUEST, xr.getStatusCode());
     }
-    
+
     @Test
     public void testPutNotFound() {
         Map<String, Object> params = new HashMap<>();
@@ -604,7 +604,7 @@ public class XRequestErrorTest {
         XResponse xr = xRequestService.put("https://wrongurl/abc", headers, params, null);
         Assert.assertEquals(STATUS_FAILED_REQUEST, xr.getStatusCode());
     }
-    
+
     @Test
     public void testDeleteNotFound() {
         Map<String, Object> params = new HashMap<>();

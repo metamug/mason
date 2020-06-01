@@ -507,9 +507,10 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Request Strategy designed for parameters 

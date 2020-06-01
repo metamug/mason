@@ -510,9 +510,16 @@ import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import com.metamug.event.UploadEvent;
 import com.metamug.event.UploadListener;
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
+
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.PageContext;
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -524,16 +531,10 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
-import javax.sql.DataSource;
+
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 
 /**
- *
  * @author Kaisteel
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
@@ -549,7 +550,7 @@ public class UploaderService {
 
     public boolean upload() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        if (request.getContentType()!=null && request.getContentType().contains(MULTIPART_FORM_DATA)) {
+        if (request.getContentType() != null && request.getContentType().contains(MULTIPART_FORM_DATA)) {
 
             try {
                 String listenerClass;
@@ -578,8 +579,8 @@ public class UploaderService {
         return true;
     }
 
-    private void callUploadEvent(File uploadedFile, String listenerClass, Request req) throws ClassNotFoundException, 
-            InstantiationException, IllegalAccessException, Exception{
+    private void callUploadEvent(File uploadedFile, String listenerClass, Request req) throws
+            Exception {
         Object result = null;
 
         Class cls = Class.forName(listenerClass);
@@ -603,10 +604,10 @@ public class UploaderService {
         }
     }
 
-    private void uploadPart(HttpServletRequest request, String listenerClass) throws JspTagException, IOException, Exception {
+    private void uploadPart(HttpServletRequest request, String listenerClass) throws Exception {
         try {
-            String uploadFilePath = System.getProperty("catalina.base") + File.separator + UPLOAD_DIR + request.getContextPath();
-            Files.createDirectories(Paths.get(uploadFilePath));
+            String uploadFileLocation = System.getProperty("catalina.base") + File.separator + UPLOAD_DIR + request.getContextPath();
+            Files.createDirectories(Paths.get(uploadFileLocation));
 
             //Get all the parts from request and write it to the file on server
             // Retrieves <input type="file" name="file" multiple="true">
@@ -616,7 +617,7 @@ public class UploaderService {
             String fileName;
             for (Part filePart : fileParts) { //for multiple files
                 fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-                File uploadedFile = new File(uploadFilePath + File.separator + fileName);
+                File uploadedFile = new File(uploadFileLocation + File.separator + filePart.getSubmittedFileName());
                 if (!uploadedFile.isDirectory()) {
                     try (FileOutputStream fos = new FileOutputStream(uploadedFile); InputStream fileContent = filePart.getInputStream()) {
                         int read;

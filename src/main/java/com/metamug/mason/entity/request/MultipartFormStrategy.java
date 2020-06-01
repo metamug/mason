@@ -506,24 +506,22 @@
  */
 package com.metamug.mason.entity.request;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 
 /**
- *
  * @author anishhirlekar
  */
 public class MultipartFormStrategy extends ParamExtractStrategy {
 
-        public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+    public static final String MULTIPART_FORM_DATA = "multipart/form-data";
 
     /**
-     *
      * @param request
      * @throws java.io.IOException
      * @throws javax.servlet.ServletException

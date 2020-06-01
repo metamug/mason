@@ -507,22 +507,22 @@
 package com.metamug.mason.entity.request;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
 
 /**
- *
  * @author D3ep4k
  */
 public class JsonStrategy extends ParamExtractStrategy {
     public static final String APPLICATION_JSON = "application/json";
+
     /**
-     *
      * @param request
      */
     public JsonStrategy(HttpServletRequest request) {

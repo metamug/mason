@@ -15,31 +15,30 @@
  */
 package com.metamug.mason.entity.response;
 
-import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
+import java.util.UUID;
 
 /**
- *
  * @author anishhirlekar
  */
 public class InternalServerErrorResponse extends ErrorResponse {
-    
+
     protected String errorId;
-    
+
     public InternalServerErrorResponse() {
         super(512, "Internal Server Error", "API Error. Please contact your API administrator.");
         String timestamp = String.valueOf(System.currentTimeMillis());
         long hash = UUID.nameUUIDFromBytes(timestamp.getBytes()).getMostSignificantBits();
         errorId = String.valueOf(Math.abs(hash));
     }
-    
-    public InternalServerErrorResponse(DbLoggable dbLoggable, DataSource ds, HttpServletRequest request, 
-            String exceptionMessage, StringBuilder errorTraceBuilder) {
+
+    public InternalServerErrorResponse(DbLoggable dbLoggable, DataSource ds, HttpServletRequest request,
+                                       String exceptionMessage, StringBuilder errorTraceBuilder) {
         this();
         dbLoggable.log(errorId, request, ds, exceptionMessage, errorTraceBuilder);
     }
-    
+
     public String getErrorId() {
         return errorId;
     }

@@ -509,16 +509,15 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Request;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
+
+import javax.servlet.jsp.JspException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.servlet.jsp.JspException;
-import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
- *
  * @author Kaisteel
  */
 public class ParamTagHandler extends RestTag {
@@ -627,7 +626,7 @@ public class ParamTagHandler extends RestTag {
                             }
                         }
                     } catch (NumberFormatException ex) {
-                        throw new JspException("", new MasonException(MasonError.INPUT_VALIDATION_ERROR, "Empty or invalid parameter \'" + name + "\' value"));
+                        throw new JspException("", new MasonException(MasonError.INPUT_VALIDATION_ERROR, "Empty or invalid parameter '" + name + "' value"));
                     }
                     break;
                 case "text":
