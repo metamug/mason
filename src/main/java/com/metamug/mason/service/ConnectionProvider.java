@@ -506,18 +506,18 @@
  */
 package com.metamug.mason.service;
 
-import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+// import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 /**
+ *
  * @author Kainix
  */
 public class ConnectionProvider {
@@ -538,11 +538,11 @@ public class ConnectionProvider {
     }
 
     public ConnectionProvider(String masonDatasource) throws SQLException, NamingException {
-        ConnectionProvider.masonDatasource = masonDatasource;
+        masonDatasource = masonDatasource;
         ds = getMasonDatasource();
     }
 
-    //    public static ConnectionProvider getInstance() throws SQLException, NamingException {
+//    public static ConnectionProvider getInstance() throws SQLException, NamingException {
 //        return new ConnectionProvider();
 //    }
     public Connection getConnection() {
@@ -564,9 +564,12 @@ public class ConnectionProvider {
         //}
         if (driver.contains("hsql")) {
         } else if (driver.contains("mysql")) {
+        	//@TODO write db specific code 
+        	
+        	//import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
             //set this for mysql driver
             //https://stackoverflow.com/a/19027873/4800126
-            AbandonedConnectionCleanupThread.checkedShutdown();
+            // AbandonedConnectionCleanupThread.checkedShutdown();
         }
     }
 }

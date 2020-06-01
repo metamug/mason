@@ -509,28 +509,27 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
 import com.metamug.mason.Router;
+import static com.metamug.mason.Router.CONNECTION_PROVIDER;
+import static com.metamug.mason.Router.MASON_REQUEST;
+import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.servlet.jsp.JspException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.metamug.mason.Router.CONNECTION_PROVIDER;
-import static com.metamug.mason.Router.MASON_REQUEST;
-import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
+import javax.servlet.jsp.JspException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
+ *
  * @author anishhirlekar
  */
 public class ResourceTagHandler extends RestTag {
-
+    
     private Request masonRequest;
 
     private String auth;
@@ -541,25 +540,24 @@ public class ResourceTagHandler extends RestTag {
     public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";
     public static final int STATUS_RESOURCE_NOT_FOUND = 404;
     public static final String MSG_RESOURCE_NOT_FOUND = "Resource not found";
-
+    
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
     public static final String ACCESS_FORBIDDEN = "Access Denied due to unauthorization!";
     public static final String BEARER_ = "Bearer ";
-
+    
     private List<String> childMethods = new ArrayList<>(); //holds http methods of child request tags
 
     public void setAuth(String auth) {
         this.auth = auth;
     }
-
+    
     public void addChildMethod(String method) {
         childMethods.add(method.toLowerCase());
     }
-
+    
     /**
      * cannot name is setParent since Tag Support class already exists
-     *
-     * @param parentName
+     * @param parentName 
      */
     public void setParentName(String parentName) {
         this.parentName = parentName;
@@ -568,7 +566,7 @@ public class ResourceTagHandler extends RestTag {
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-
+        
         if (StringUtils.isNotBlank(auth)) {
             processAuth();
         }
@@ -585,8 +583,8 @@ public class ResourceTagHandler extends RestTag {
     @Override
     public int doEndTag() throws JspException {
         String requestMethod = masonRequest.getMethod().toLowerCase();
-
-        if (!childMethods.contains(requestMethod)) {
+        
+        if(!childMethods.contains(requestMethod)) {
             //incoming request has method which is not handled by any child
             print405();
         } else {
@@ -594,10 +592,10 @@ public class ResourceTagHandler extends RestTag {
             //but the flow reached the end tag of <m:resource>
             print404();
         }
-
+        
         return SKIP_PAGE;
     }
-
+    
     private void print404() {
         response.setContentType(HEADER_JSON);
         response.setStatus(STATUS_RESOURCE_NOT_FOUND);
@@ -641,7 +639,8 @@ public class ResourceTagHandler extends RestTag {
             throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
         }
         Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
-        authService = new AuthService((ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER));
+        ConnectionProvider provider = (ConnectionProvider) request.getAttribute(CONNECTION_PROVIDER);
+        authService = new AuthService(ConnectionProvider.getMasonDatasource());
         try {
             if (header.contains("Basic ")) {
                 String authQuery = (String) request.getServletContext().getAttribute(Router.MTG_AUTH_BASIC);
@@ -650,7 +649,7 @@ public class ResourceTagHandler extends RestTag {
                 String bearerToken = header.replaceFirst(BEARER_, "");
                 //check jwt format
                 //validateJwt - check aud against val, exp
-                masonReq.setUid(authService.validateBearer(bearerToken.trim(), auth));
+                masonReq.setUid(authService.validateBearer(bearerToken.trim(), auth)); //does not require connection
             } else {
                 throw new JspException(ACCESS_DENIED, new MasonException(MasonError.ROLE_ACCESS_DENIED));
             }

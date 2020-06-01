@@ -653,103 +653,117 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
-package com.metamug.mason.entity;
+package com.metamug.mason.entity.request;
 
-import com.metamug.mason.RouterTest;
-import com.metamug.mason.dao.AuthDAO;
-import com.metamug.mason.service.AuthService;
-import com.metamug.mason.service.ConnectionProvider;
+import javax.servlet.http.HttpServletRequest;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.metamug.entity.Request;
+import com.metamug.mason.Router;
+import static org.mockito.Mockito.reset;
+import org.mockito.runners.MockitoJUnitRunner;
+
 /**
- * @author GAURI
+ * Mock Request Path
+ * @author deepak
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RootResourceTest {
+public class RequestStrategyTest {
 
     @Mock
     private HttpServletRequest request;
-    @Mock
-    private HttpServletResponse response;
-
-    private StringWriter stringWriter;
-    private PrintWriter writer;
-    @Mock
-    private ConnectionProvider provider;
-    @Mock
-    Connection connection;
 
     @Mock
-    private PreparedStatement statement;
-
-    @Mock
-    private ResultSet resultSet;
+    private JspResource jspResource;
 
     @Before
     public void setUp() {
-        request = mock(HttpServletRequest.class);
-        response = mock(HttpServletResponse.class);
-        ServletContext context = mock(ServletContext.class);
-        when(request.getServletContext()).thenReturn(context);
-        when(context.getContextPath()).thenReturn("backend");
 
-        //prepare String Writer
-        stringWriter = new StringWriter();
-        writer = new PrintWriter(stringWriter);
-        try {
-            when(response.getWriter()).thenReturn(writer);
-        } catch (IOException ex) {
-            Logger.getLogger(RouterTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("GET");
+        jspResource = mock(JspResource.class);
+
     }
 
-    @Ignore
-    @Test
-    public void testJwtAuthCall() {
-        try {
-            when(request.getParameter("auth")).thenReturn("bearer");
-            when(request.getParameter("userid")).thenReturn("1234");
-            when(request.getParameter("password")).thenReturn("pass");
-            when(provider.getConnection()).thenReturn(connection);
-            when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
-            when(statement.executeQuery()).thenReturn(resultSet);
-            //result set should return true for config function to give auth query
-            //second time inside createBearer function and then it should return false.
-            when(resultSet.next()).thenReturn(Boolean.TRUE).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
-            when(resultSet.getString("auth_query")).thenReturn("some query mocked");
-            when(resultSet.getString(1)).thenReturn("1234");
-            when(resultSet.getString(2)).thenReturn("admin");
+    private RequestStrategy mockStrategy(String resourceUri) {
+        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource); //since this is removed after each strategy call.
+        reset(jspResource);
+        when(jspResource.getVersion()).thenReturn(1.0f);
+        when(jspResource.getResourceUri()).thenReturn(resourceUri);
+        return new ParamExtractStrategy(request);
+    }
 
-            RootResource root = new RootResource(request, response);
-            root.processAuth(new AuthService(new AuthDAO(provider)));
-            //verify(statement.executeQuery())
-            System.out.println(stringWriter.toString());
-            assertTrue(stringWriter.toString().contains("token\":"));
-        } catch (SQLException ex) {
-            Logger.getLogger(RootResourceTest.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
+    @Test
+    public void uriTest() {
+
+        RequestStrategy strategy = mockStrategy("/info/crm/people/customer/12");
+        when(jspResource.resourceExists("/info/crm/people")).thenReturn(true);
+        when(jspResource.resourceExists("/info/crm/customer")).thenReturn(true);
+
+        Request masonRequest = strategy.getRequest();
+        assertEquals("customer", masonRequest.getResource().getName());
+        assertEquals("12", masonRequest.getId());
+        assertEquals(null, masonRequest.getPid());
+        assertEquals("people", masonRequest.getParent().getName());
+
+        strategy = mockStrategy("/info/crm/people/customer/12");
+        when(jspResource.resourceExists("/info/crm/people/customer")).thenReturn(true);
+        masonRequest = strategy.getRequest();
+
+        assertEquals("customer", masonRequest.getResource().getName());
+        assertEquals("12", masonRequest.getId());
+        assertEquals(null, masonRequest.getPid());
+        assertEquals(null, masonRequest.getParent());
+
+        strategy = mockStrategy("/info/crm/people/customer/12");
+        when(jspResource.resourceExists("/info/crm")).thenReturn(true);
+        when(jspResource.resourceExists("/info/customer")).thenReturn(true);
+        masonRequest = strategy.getRequest();
+        assertEquals("customer", masonRequest.getResource().getName());
+        assertEquals("12", masonRequest.getId());
+        assertEquals("people", masonRequest.getPid());
+        assertEquals("crm", masonRequest.getParent().getName());
+
+        strategy = mockStrategy("/info/crm/people/customer/12");
+        when(jspResource.resourceExists("/info")).thenReturn(true);
+        masonRequest = strategy.getRequest();
+        assertEquals(null, masonRequest.getResource().getName());
+        assertEquals(null, masonRequest.getId());
+        assertEquals(null, masonRequest.getPid());
+        assertEquals(null, masonRequest.getParent());
+
+        
+        strategy = mockStrategy("/execute");
+        when(jspResource.resourceExists("/execute")).thenReturn(true);
+        masonRequest = strategy.getRequest();
+        assertEquals("execute", masonRequest.getResource().getName());
+        assertEquals(null, masonRequest.getId());
+        assertEquals(null, masonRequest.getPid());
+        assertEquals(null, masonRequest.getParent());
+
+        strategy = mockStrategy("/execute/23");
+        when(jspResource.resourceExists("/execute")).thenReturn(true);
+        masonRequest = strategy.getRequest();
+        assertEquals("execute", masonRequest.getResource().getName());
+        assertEquals("23", masonRequest.getId());
+        assertEquals(null, masonRequest.getPid());
+        assertEquals(null, masonRequest.getParent());
+
+        
+        strategy = mockStrategy("/parent/21/execute/23");
+        when(jspResource.resourceExists("/execute")).thenReturn(true);
+        when(jspResource.resourceExists("/parent")).thenReturn(true);
+        masonRequest = strategy.getRequest();
+        assertEquals("execute", masonRequest.getResource().getName());
+        assertEquals("23", masonRequest.getId());
+        assertEquals("21", masonRequest.getPid());
+        assertEquals("parent", masonRequest.getParent().getName());
+
     }
 }

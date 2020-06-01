@@ -504,60 +504,44 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.dao;
+package com.metamug.mason.entity.request;
 
+import com.metamug.entity.Request;
+import java.util.Map;
+import java.util.TreeMap;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
-import java.sql.Connection;
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
- *
- * @author Kaisteel
+ * Request body mapped to a class object. No parameter mapped needed here
+ * @author D3ep4k
  */
-public class AuthDAO {
+public abstract class RequestBodyStrategy extends RequestStrategy{
 
-    private DataSource ds;
-    public static final String STATUS = "status";
-
-    public AuthDAO(DataSource ds) {
-        this.ds = ds;
+	protected Class clazz;
+	
+    public RequestBodyStrategy(HttpServletRequest request) {
+    	super(request);
     }
 
-    public JSONObject validateBasic(String userName, String password, String roleName, String authQuery) {
-        JSONObject status = new JSONObject();
-        status.put(STATUS, 0);
-        try (Connection con = ds.getConnection()) {
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    basicStmnt.setString(1, userName);
-                    basicStmnt.setString(2, password);
-                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
-                        while (basicResult.next()) {
-                            status.put("user_id", basicResult.getString(1));
-                            status.put("role", basicResult.getString(2));
-                            if (basicResult.getString(2).equalsIgnoreCase(roleName)) {
-                                status.put(STATUS, 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                status.put(STATUS, -1);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return status;
+    @Override
+    public Request getRequest() {
+    	try{
+        	masonRequest.setBody(getBodyObject());
+    	}catch(IOException ioe){
+    		//@TODO Handle io exception
+    	}
+       	return new ImmutableRequest(masonRequest);
     }
+
+    public void setClazz(Class clazz){
+    	this.clazz = clazz;
+    }
+
+    /**
+    * Strategy method to implement and construct the request body depending on content type
+    */
+    protected abstract Object getBodyObject() throws IOException;
 
 }

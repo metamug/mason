@@ -504,60 +504,196 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.dao;
+package com.metamug.mason.entity.request;
 
-
-import java.sql.Connection;
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.metamug.entity.Request;
+import com.metamug.entity.Resource;
+import static com.metamug.mason.Router.JSP_RESOURCE;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
- * @author Kaisteel
+ * @author D3ep4k
  */
-public class AuthDAO {
+public abstract class RequestStrategy {
 
-    private DataSource ds;
-    public static final String STATUS = "status";
+    protected Request masonRequest;
+    public static final String VERSION_REGEX = "^.*(v\\d+\\.\\d+).*$";
 
-    public AuthDAO(DataSource ds) {
-        this.ds = ds;
+    private HttpServletRequest httpRequest;
+
+    private JspResource jspResource;
+
+    public RequestStrategy(HttpServletRequest request) {
+        this.httpRequest = request;
+        jspResource = (JspResource) request.getAttribute(JSP_RESOURCE);
+        request.removeAttribute(JSP_RESOURCE); //remove attribute after getting its reference;
     }
 
-    public JSONObject validateBasic(String userName, String password, String roleName, String authQuery) {
-        JSONObject status = new JSONObject();
-        status.put(STATUS, 0);
-        try (Connection con = ds.getConnection()) {
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    basicStmnt.setString(1, userName);
-                    basicStmnt.setString(2, password);
-                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
-                        while (basicResult.next()) {
-                            status.put("user_id", basicResult.getString(1));
-                            status.put("role", basicResult.getString(2));
-                            if (basicResult.getString(2).equalsIgnoreCase(roleName)) {
-                                status.put(STATUS, 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                status.put(STATUS, -1);
+    public Request getRequest() {
+        masonRequest = buildRequest();
+        masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
+        return masonRequest;
+    }
+
+    /**
+     * *
+     *
+     * @auther BISWAS05 This method is used to extract the resource uri as a
+     * list. Using this output we can easily define our parent id resource
+     * id,parent name,resource name and also we can find the uri is valid or not
+     * using this.
+     * @return ourListElements This returns the extracted list or reource uri.
+     */
+    private List<String> inputUriExtraction(String resourceUri) {
+        String tokensValue;
+        resourceUri += "/";
+        int sizeOfresourceUri = resourceUri.length();
+
+        List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
+
+        int positionOfEachElement = 1;
+
+        for (int index = 1; index < sizeOfresourceUri; index++) {
+
+            if (resourceUri.charAt(index) == '/') {
+
+                tokensValue = resourceUri.substring(positionOfEachElement, index);
+
+                positionOfEachElement = index + 1;
+
+                ourListElements.add(tokensValue);
+
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
-        return status;
+        return ourListElements;
     }
 
+    /**
+     * *
+     *
+     * @auther BISWAS05 This method is used to extract the resource uri as a the
+     * final responce as output.. Here we will get the output according to the
+     * input and the formula. This will look like R/G/I/R/I.
+     * @return finalResponseElement This returns the extracted list as the
+     * output.
+     */
+    private List<String> resultUriExtraction(String resourceUri) {
+
+        String tokensValue;
+        String listInputAtPresent;
+        String listInputAtPast;
+        String listInputAtAlways;
+        String listInputAtFuture = "/";
+        listInputAtPresent = "";
+        listInputAtAlways = "";
+        listInputAtPast = "";
+        resourceUri += "/";
+        int sizeOfresourceUri = resourceUri.length();
+
+        List<String> ourListElements = new ArrayList<>(sizeOfresourceUri);
+        List<String> finalResponseElement = new ArrayList<>(sizeOfresourceUri);
+
+        int positionOfEachElement = 1;
+        String prevToken = " ", currentToken = " ";
+        for (int index = 1; index < sizeOfresourceUri; index++) {
+            if (resourceUri.charAt(index) == '/') {
+                tokensValue = resourceUri.substring(positionOfEachElement, index);
+                positionOfEachElement = index + 1;
+                ourListElements.add(tokensValue);
+                listInputAtPast = listInputAtFuture + tokensValue;
+                listInputAtAlways = listInputAtPresent + listInputAtPast;
+
+                if (!jspResource.resourceExists(listInputAtAlways)) {
+                    if (prevToken.equals(" ")) {
+                        currentToken = "G";
+                        listInputAtPresent = listInputAtAlways;
+                    } else if (prevToken.equals("G")) {
+                        currentToken = "G";
+                        listInputAtPresent = listInputAtAlways;
+                    } else if (prevToken.equals("R")) {
+                        currentToken = "I";
+                    }
+
+                } else {
+                    currentToken = "R";
+                }
+                prevToken = currentToken;
+
+                finalResponseElement.add(prevToken);
+            }
+        }
+        return finalResponseElement;
+    }
+
+    /**
+     * Extract Request information
+     */
+    public Request buildRequest() {
+
+        // using function of input extraction
+        List<String> ourListElements = inputUriExtraction(jspResource.getResourceUri());
+
+        // using function to find the output uri
+        List<String> finalResponseElement = resultUriExtraction(jspResource.getResourceUri());
+
+        Request request = new Request();
+        request.setUri(jspResource.getResourceUri());
+        // checking uri is valid or not
+        if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {
+            request.setUri(null);
+        }
+        int position = finalResponseElement.size() - 1;
+        // check for id at the last position as resource id
+        if (finalResponseElement.get(position).equals("I")) {
+            request.setId(ourListElements.get(position));
+            position--; // last element identified as resource id
+        }
+        int count = 0;
+        String resourceName = null;
+        // finding resource name
+        for (int index = position; index >= 0; index--) {
+            if (finalResponseElement.get(index).equals("R")) {
+                resourceName = ourListElements.get(index);
+                count = count + 1;
+                position = index;
+                break;
+            }
+        }
+
+        // check if only one R exist then giving error
+        if (finalResponseElement.size() > 1) {
+            for (int index = 0; index < finalResponseElement.size() - 1; index++) {
+                if (finalResponseElement.get(index).equals("I") && finalResponseElement.get(index + 1).equals("I")) {
+                    resourceName = null;
+                    request.setId(null);
+                    break;
+                }
+            }
+        }
+
+        Resource resource = new Resource(resourceName, jspResource.getVersion());
+        request.setResource(resource);
+
+        // finding parent id
+        for (int index = position; index >= 0; index--) {
+            if (finalResponseElement.get(index).equals("I")) {
+                request.setPid(ourListElements.get(index));
+                break;
+            }
+        }
+
+        // finding parent name
+        Resource parentResource = null; // @TODO set parentName to correc value
+        for (int index = position - 1; index >= 0; index--) {
+            if (finalResponseElement.get(index).equals("R")) {
+                parentResource = new Resource((ourListElements.get(index)), resource.getVersion());
+                break;
+            }
+        }
+        request.setParent(parentResource);
+        return request;
+    }
 }

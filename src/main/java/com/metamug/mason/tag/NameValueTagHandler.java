@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.tag.xrequest;
+package com.metamug.mason.tag;
 
 import com.metamug.mason.tag.RequestTag;
 
@@ -513,11 +513,12 @@ import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
 /**
+ * Can be used for a tag with String,Object Key Value Format
  * @author anishhirlekar
  */
-public class ParamTagHandler extends BodyTagSupport {
+public class NameValueTagHandler extends BodyTagSupport {
 
-    private String name;
+    protected String name;
     private Object value;
     protected RequestTag parent;
 

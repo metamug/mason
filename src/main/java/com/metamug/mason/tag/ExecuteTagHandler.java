@@ -513,18 +513,17 @@ import com.metamug.exec.RequestProcessable;
 import com.metamug.exec.ResultProcessable;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
-import com.metamug.mason.service.ConnectionProvider;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
-
-import javax.servlet.jsp.JspException;
-import javax.sql.DataSource;
+//import com.metamug.mason.service.ConnectionProvider;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.servlet.jsp.JspException;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
+import javax.sql.DataSource;
+import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 
 /**
+ *
  * @author Kainix
  */
 public class ExecuteTagHandler extends RequestTag {
@@ -532,7 +531,7 @@ public class ExecuteTagHandler extends RequestTag {
     private String className;
     private Object param; //input for execution sql result(ResultProcessable) or http request(RequestProcessable)
     private String var;
-    private DataSource ds;
+//    private DataSource ds;
 
     private boolean output; //default value
     private String onerror;
@@ -546,22 +545,22 @@ public class ExecuteTagHandler extends RequestTag {
             Object newInstance = cls.newInstance();
             ResultProcessable resProcessable;
             RequestProcessable reqProcessable;
-
+            
             if (ResultProcessable.class.isAssignableFrom(cls)) {
                 resProcessable = (ResultProcessable) newInstance;
                 if (param instanceof ResultImpl) {
                     ResultImpl ri = (ResultImpl) param;
                     //@TODO remove cast
                     Result sqlResult = new Result(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-
+                    
                     result = resProcessable.process(sqlResult);
                 }
             } else if (RequestProcessable.class.isAssignableFrom(cls)) {
-
+                
                 reqProcessable = (RequestProcessable) newInstance;
                 if (param instanceof Request) {
                     Request masonReq = (Request) param;
-
+                    
                     Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     masonReq.getParams().entrySet().forEach(entry -> {
                         String key = entry.getKey();
@@ -573,10 +572,10 @@ public class ExecuteTagHandler extends RequestTag {
                     while (headerNames.hasMoreElements()) {
                         String header = headerNames.nextElement();
                         requestHeaders.put(header, request.getHeader(header));
-                    }
-                    ds = ConnectionProvider.getMasonDatasource();
+                    }                    
+//                    ds = ConnectionProvider.getMasonDatasource();
                     //no bus
-                    result = reqProcessable.process(masonReq, ds, parameters); //@TODO add actual args and resource
+                    result = reqProcessable.process(masonReq, null, parameters); //@TODO add actual args and resource
                 }
             } else {
                 throw new JspException("", new MasonException(MasonError.CLASS_NOT_IMPLEMENTED,
@@ -590,21 +589,12 @@ public class ExecuteTagHandler extends RequestTag {
                 addToOutput(var, result);
             }
 
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-            Logger.getLogger(ExecuteTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-            if (onerror == null) {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
-            } else {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, onerror));
-            }
         } catch (Exception ex) {
-            Logger.getLogger(ExecuteTagHandler.class.getName()).log(Level.SEVERE, null, ex);
             if (onerror == null) {
                 throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
             } else {
                 throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, onerror));
             }
-
         }
 
         return EVAL_PAGE;

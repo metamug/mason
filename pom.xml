@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.metamug</groupId>
     <artifactId>mason</artifactId>
-    <version>3.4</version>
+    <version>4.2.5</version>
     <packaging>jar</packaging>
-    <name>metamug-mason</name>
-    <description>API SDK</description>
+    <name>com.metamug:mason</name>
+    <description>JSP REST API Library</description>
     <url>https://metamug.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,7 +25,7 @@
             <name>Anish Hirlekar</name>
             <email>anish.hirlekar@metamug.com</email>
             <organization>Metamug Technologies</organization>
-            <organizationUrl>http://www.metamug.com</organizationUrl>
+            <organizationUrl>https://metamug.com</organizationUrl>
             <roles>
                 <role>Developer</role>
             </roles>
@@ -35,7 +35,7 @@
             <name>Deepak Mishra</name>
             <email>deepak.mishra@metamug.com</email>
             <organization>Metamug Technologies</organization>
-            <organizationUrl>http://www.metamug.com</organizationUrl>
+            <organizationUrl>https://metamug.com</organizationUrl>
             <roles>
                 <role>Developer</role>
             </roles>
@@ -45,7 +45,7 @@
             <name>Kaustubh Damle</name>
             <email>kaustubh.damle@metamug.com</email>
             <organization>Metamug Technologies</organization>
-            <organizationUrl>http://www.metamug.com</organizationUrl>
+            <organizationUrl>https://metamug.com</organizationUrl>
             <roles>
                 <role>Developer</role>
             </roles>
@@ -171,7 +171,7 @@
                             </execution>
                             <execution>
                                 <id>report</id>
-                                <phase>test</phase>
+                                <phase>prepare-package</phase>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
@@ -196,57 +196,23 @@
     </profiles>
 
     <dependencies>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.4.15</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ivy</groupId>
-            <artifactId>ivy</artifactId>
-            <version>2.4.0</version>
-        </dependency>
+
+
+        <!-- Http Client -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>3.10.0</version>
         </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.15</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.protobuf</groupId>
-                    <artifactId>protobuf-java</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20190722</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.wnameless.json</groupId>
-            <artifactId>json-flattener</artifactId>
-            <version>0.7.1</version>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.6</version>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>org.eclipse.persistence.moxy</artifactId>
-            <version>2.6.4</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
-        </dependency>
+        
+        
+        <!-- Unit Testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -265,56 +231,69 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
+
+
+        <!-- Java Web Dependencies -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>4.0.1</version>
         </dependency>
+         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
         <dependency>
             <groupId>com.metamug</groupId>
             <artifactId>mtg-api</artifactId>
-            <version>1.5</version>
+            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>8.0</version>
         </dependency>
+        
+        
+        <!-- JSON Dependencies -->
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>2.4.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20180813</version>
+        </dependency>
+       
+        <dependency>
+            <groupId>com.github.wnameless.json</groupId>
+            <artifactId>json-flattener</artifactId>
+            <version>0.7.1</version>
+        </dependency>
+        
+         <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.moxy</artifactId>
+            <version>2.6.4</version>
+        </dependency>
+
+
+        <!-- Groovy  -->
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.4.15</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ivy</groupId>
+            <artifactId>ivy</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+
+
     </dependencies>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.3.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <!-- attached to Maven test phase -->
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

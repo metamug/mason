@@ -507,20 +507,15 @@
 package com.metamug.mason;
 
 import com.metamug.entity.Request;
-import com.metamug.mason.entity.RootResource;
+import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
+import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
+import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import com.metamug.mason.entity.request.JspResource;
 import com.metamug.mason.entity.request.RequestAdapter;
-import com.metamug.mason.service.AuthService;
+import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import javax.naming.NamingException;
-import javax.servlet.*;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -528,12 +523,19 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
-import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
-import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
-import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
+import javax.naming.NamingException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Rest Controller. Handles all the incoming requests
@@ -543,8 +545,8 @@ import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    private static final String JSP_EXTN = ".jsp";
-    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
+    public static final String JSP_EXTN = ".jsp";
+    public static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -557,23 +559,28 @@ public class Router implements Filter {
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
     public static final String MASON_REQUEST = "mtgReq";
-
+    public static final String JSP_RESOURCE = "jspResource";
+    
     public Router() {
 
     }
 
     /**
-     * @param request  The servlet request we are processing
+     *
+     * @param request The servlet request we are processing
      * @param response The servlet response we are creating
-     * @param chain    The filter chain we are processing
-     * @throws IOException      if an input/output error occurs
-     * @throws ServletException if a servlet error occurs
+     * @param chain The filter chain we are processing
+     *
+     * @exception IOException if an input/output error occurs
+     * @exception ServletException if a servlet error occurs
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+
         //Setting character encoding
         if (null == request.getCharacterEncoding()) {
             request.setCharacterEncoding(encoding);
@@ -588,13 +595,8 @@ public class Router implements Filter {
                 break;
             }
         }
-        //check auth request
-        if (versionTokenIndex == -1 && req.getMethod().equalsIgnoreCase("post") && !path.contains("query")) {
-            RootResource rootResource = new RootResource(req, res);
-            rootResource.processAuth(new AuthService(connectionProvider));
-            return;
-        }
-        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) {
+
+        if (tokens.length <= 2 || path.contains("index") || path.contains("docs")) { //request for docs
             chain.doFilter(request, response);
             return;
         }
@@ -609,67 +611,52 @@ public class Router implements Filter {
      * @param res
      * @throws IOException
      */
-    private void processRequest(HttpServletRequest req, HttpServletResponse res)
-            throws IOException {
+    private void processRequest(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
-        String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
-        String method = req.getMethod().toLowerCase();
-
-        boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
-                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON) || contentType.contains(MULTIPART_FORM_DATA);
-
-        if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
+        if (!validContentType(req)) {
             writeError(res, 415, "Unsupported Media Type"); //methods having content(POST,DELETE) in body, sent with invalid contentType
             return;
         }
 
-        res.setContentType(APPLICATION_JSON);
+        res.setContentType(APPLICATION_JSON); //@TODO will response be always json 
+
         //requesting a REST resource
         String resourceName = "";
         try {
             //get queries
-            Request mtgReq = RequestAdapter.create(req);
-            resourceName = mtgReq.getResource().getName();
+            JspResource jspResource = new JspResource(req);
+            req.setAttribute(JSP_RESOURCE, jspResource);
+            Request masonRequest = RequestAdapter.create(req);
+            resourceName = masonRequest.getResource().getName();
 
-            String jspPath = RESOURCES_FOLDER + "v" + mtgReq.getResource().getVersion() + "/" + resourceName + JSP_EXTN;
-            File file = new File(req.getServletContext().getRealPath(jspPath));
-
-            if (file.exists()) {
-                req.setAttribute(MASON_REQUEST, mtgReq);
-
-                //Adding to request, otherwise the user has to write ${applicationScope.datasource}
-                req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
-                req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
-
-                //Query map of stored queries in a file
-                Object queryMap = req.getServletContext().getAttribute(MASON_QUERY);
-                req.setAttribute(MASON_QUERY, queryMap);
-
-                //save method as attribute because jsp only accepts GET and POST
-                //https://stackoverflow.com/a/46489035
-                req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
-                req.getRequestDispatcher(jspPath).forward(
-                        new HttpServletRequestWrapper(req) {
-                            @Override
-                            public String getMethod() {
-                                String method = super.getMethod();
-                                if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                                    return "POST";
-                                } else {
-                                    return method;
-                                }
-                            }
-                        }, res
-                );
-            } else {
+            if (masonRequest.getResource().getName() == null) {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
+                return;
             }
+
+            req.setAttribute(MASON_REQUEST, masonRequest);
+
+            //Adding to request, otherwise the user has to write ${applicationScope.datasource}
+            req.setAttribute(DATA_SOURCE, req.getServletContext().getAttribute(DATA_SOURCE));
+            req.setAttribute(CONNECTION_PROVIDER, connectionProvider);
+
+            //Query map of stored queries in a file
+            Object queryMap = req.getServletContext().getAttribute(MASON_QUERY);
+            req.setAttribute(MASON_QUERY, queryMap);
+
+            //save method as attribute because jsp only accepts GET and POST
+            //https://stackoverflow.com/a/46489035
+            req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
+
+            req.getRequestDispatcher(jspResource.getJspPath()).forward(new HttpRequestWrapper(req), res);
+//            req.getRequestDispatcher(jspPath).forward(req, res);
 
         } catch (IOException | ServletException | JSONException ex) {
             if (ex.getClass().toString().contains("com.eclipsesource.json.ParseException")) {
                 writeError(res, 422, "Could not parse the body of the request according to the provided Content-Type.");
             } else if (ex.getCause() != null) {
-                String cause = ex.getCause().toString().split(": ")[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ");
+                String[] causeSplit = ex.getCause().toString().split(": ");
+                String cause = causeSplit.length > 1 ? causeSplit[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") : "";
                 writeError(res, 500, cause);
             } else if (ex.getMessage().contains("ELException")) {
                 writeError(res, 512, "Incorrect test condition in '" + resourceName + "' resource");
@@ -681,15 +668,17 @@ public class Router implements Filter {
         } catch (NullPointerException ex) {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
             //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
-            writeError(res, 404, "Resource doesn't exist." + ex.getMessage());
+            writeError(res, 404, MSG_RESOURCE_NOT_FOUND + ex.getMessage());
         }
     }
+    
+    
 
     /**
      * Error message to be returned
      *
-     * @param res     HTTP Response
-     * @param status  Http Status Code
+     * @param res HTTP Response
+     * @param status Http Status Code
      * @param message Message in Response
      * @throws IOException
      */
@@ -758,5 +747,36 @@ public class Router implements Filter {
         } catch (NullPointerException nx) {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
         }
+    } 
+
+    private boolean validContentType(HttpServletRequest req) {
+        String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
+        String method = req.getMethod().toLowerCase();
+
+        boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
+                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON) || contentType.contains(MULTIPART_FORM_DATA);
+
+        if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
+            return false;
+        }
+        return true;
+    }
+
+    private static class HttpRequestWrapper extends HttpServletRequestWrapper {
+
+        public HttpRequestWrapper(HttpServletRequest request) {
+            super(request);
+        }
+
+        @Override
+        public String getMethod() {
+            String method = super.getMethod();
+            if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
+                return "POST";
+            } else {
+                return method;
+            }
+        }
+
     }
 }

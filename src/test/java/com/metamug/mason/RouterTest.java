@@ -78,7 +78,7 @@ public class RouterTest {
 
     @Test
     public void testRestCall() {
-        when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
+        when(request.getServletPath()).thenReturn("/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
         String[] params = new String[]{"name"};
         when(request.getParameterNames()).thenReturn(Collections.enumeration(Arrays.asList(params)));
@@ -102,7 +102,7 @@ public class RouterTest {
     @Test
     public void testJsonBody() {
         when(request.getHeader(HEADER_CONTENT_TYPE)).thenReturn(APPLICATION_JSON);
-        when(request.getServletPath()).thenReturn("/backend/v1.9/resource");
+        when(request.getServletPath()).thenReturn("/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
 
         JSONObject jsonBody = new JSONObject();

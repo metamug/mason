@@ -511,26 +511,29 @@ import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.tag.ResourceTagHandler;
-import org.json.JSONObject;
-
-import javax.servlet.jsp.JspException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import javax.servlet.jsp.JspException;
+import org.json.JSONObject;
+import javax.sql.DataSource;
 
 /**
+ *
  * @author Kaisteel
  */
-public class AuthService {
+public class AuthService{
+
 
     private AuthDAO dao;
 
-    public AuthService(ConnectionProvider instance) {
+    public AuthService(DataSource instance) {
         this.dao = new AuthDAO(instance);
     }
 
     public AuthService(AuthDAO dao) {
         this.dao = dao;
     }
+
 
     public String validateBasic(String header, String roleName, String authQuery) throws JspException {
 
@@ -580,16 +583,5 @@ public class AuthService {
         }
     }
 
-    /**
-     * Create Bearer token with username and password. Uses JWT Scheme
-     *
-     * @param user
-     * @param pass
-     * @param authQuery
-     * @return
-     */
-    public String createBearer(String user, String pass, String authQuery) {
-        JSONObject payload = dao.getBearerDetails(user, pass, authQuery);
-        return new JWebToken(payload).toString();
-    }
+   
 }

@@ -504,60 +504,55 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.dao;
+package com.metamug.mason.entity.request;
 
-
-import java.sql.Connection;
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
 /**
  *
- * @author Kaisteel
+ * @author D3ep4k
  */
-public class AuthDAO {
+public class JsonBodyStrategy extends RequestBodyStrategy {
+    
+    private HttpServletRequest request;
 
-    private DataSource ds;
-    public static final String STATUS = "status";
-
-    public AuthDAO(DataSource ds) {
-        this.ds = ds;
+    /**
+     *
+     * @param request
+     */
+    public JsonBodyStrategy(HttpServletRequest request) {
+        super(request);
+        this.request = request;
     }
 
-    public JSONObject validateBasic(String userName, String password, String roleName, String authQuery) {
-        JSONObject status = new JSONObject();
-        status.put(STATUS, 0);
-        try (Connection con = ds.getConnection()) {
-            if (!authQuery.isEmpty()) {
-                try (PreparedStatement basicStmnt = con.prepareStatement(authQuery.replaceAll("\\$(\\w+(\\.\\w+){0,})", "? "))) {
-                    basicStmnt.setString(1, userName);
-                    basicStmnt.setString(2, password);
-                    try (ResultSet basicResult = basicStmnt.executeQuery()) {
-                        while (basicResult.next()) {
-                            status.put("user_id", basicResult.getString(1));
-                            status.put("role", basicResult.getString(2));
-                            if (basicResult.getString(2).equalsIgnoreCase(roleName)) {
-                                status.put(STATUS, 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                status.put(STATUS, -1);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthDAO.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+    @Override
+    public Object getBodyObject() throws IOException{
+
+    	JAXBContext jaxbContext;
+    	Object object = null;
+        try{
+
+            jaxbContext = JAXBContext.newInstance(clazz);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+             
+            //Set JSON type
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
+             
+            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
+
+        }catch (JAXBException ex) {
+           Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
         }
-        return status;
-    }
 
+        return object;
+    }
 }

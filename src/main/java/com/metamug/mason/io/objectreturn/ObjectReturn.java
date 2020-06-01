@@ -515,11 +515,12 @@ import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 
 /**
+ * Convert JAXB Object to JSON/XML depending on the header
  * @author anishhirlekar
  */
 public class ObjectReturn {
 
-    public static final String TYPE_JSON = "application/json";
+    public static final String TYPE_JSON = "application/json"; //@TODO redundant declared in request and response package
     public static final String TYPE_XML = "application/xml";
 
     /**

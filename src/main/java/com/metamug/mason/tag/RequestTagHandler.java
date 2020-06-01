@@ -630,8 +630,7 @@ public class RequestTagHandler extends RequestTag {
 
                 //cannnot use print writer since it we are already using outputstream
                 Response masonResponse = new ResponeBuilder(output).build(outputMap);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
-                
+                masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String)k, (String)v));
                 byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
@@ -640,15 +639,7 @@ public class RequestTagHandler extends RequestTag {
             } else {
                 //has file in response
                 Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader(k, v));
-               
-                //set response headers
-                if(headers != null) {
-                    headers.entrySet().forEach( entry -> {
-                        response.setHeader(entry.getKey(), entry.getValue());
-                    });
-                }        
-                
+                masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String)k, (String)v));
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
                     WritableByteChannel out = Channels.newChannel(outputStream);) {

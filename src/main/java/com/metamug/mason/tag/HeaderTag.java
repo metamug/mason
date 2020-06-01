@@ -510,16 +510,15 @@ package com.metamug.mason.tag;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
+import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
 
 /**
  * @author pc
  */
-public class HeaderTag extends BodyTagSupport {
-    private String name;
+public class HeaderTag extends NameValueTagHandler {
+    
     private String value;
-    protected RequestTag parent;
-
+    
     @Override
     public int doEndTag() throws JspException {
         parent = (RequestTag) getParent();
@@ -537,10 +536,6 @@ public class HeaderTag extends BodyTagSupport {
         //flush value to prevent possible reappearance in next instance of tag
         value = null;
         return EVAL_PAGE;
-    }
-
-    public void setName(String n) {
-        name = n;
     }
 
     public void setValue(Object v) {

@@ -569,8 +569,8 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
             if (null != res.getPayload()) {
                 masonOutput.put(var, res.getPayload());
             }
-            if (null != res.getHeaders()) {
-                res.getHeaders().forEach((k, v) -> response.setHeader(k, v));
+            if(null != res.getHeaders()){
+                res.getHeaders().forEach((k, v) -> response.setHeader((String)k, (String)v));
             }
         } else {
             masonOutput.put(var, value);
