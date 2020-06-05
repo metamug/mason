@@ -5,7 +5,6 @@
  */
 package com.metamug.mason;
 
-
 import org.json.JSONObject;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -27,7 +26,7 @@ import java.util.logging.Logger;
 
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
-import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
+import javax.ws.rs.core.MediaType;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -101,7 +100,7 @@ public class RouterTest {
 
     @Test
     public void testJsonBody() {
-        when(request.getHeader(HEADER_CONTENT_TYPE)).thenReturn(APPLICATION_JSON);
+        when(request.getHeader(HEADER_CONTENT_TYPE)).thenReturn(MediaType.APPLICATION_JSON);
         when(request.getServletPath()).thenReturn("/v1.9/resource");
         when(request.getMethod()).thenReturn("POST");
 

@@ -511,6 +511,7 @@ import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -521,8 +522,6 @@ import org.eclipse.persistence.jaxb.UnmarshallerProperties;
  * @author D3ep4k
  */
 public class JsonBodyStrategy extends RequestBodyStrategy {
-    
-    private HttpServletRequest request;
 
     /**
      *
@@ -530,27 +529,26 @@ public class JsonBodyStrategy extends RequestBodyStrategy {
      */
     public JsonBodyStrategy(HttpServletRequest request) {
         super(request);
-        this.request = request;
     }
 
     @Override
-    public Object getBodyObject() throws IOException{
+    public Object getBodyObject() throws IOException {
 
-    	JAXBContext jaxbContext;
-    	Object object = null;
-        try{
+        JAXBContext jaxbContext;
+        Object object = null;
+        try {
 
             jaxbContext = JAXBContext.newInstance(clazz);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-             
-            //Set JSON type
-            jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
-            jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
-             
-            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
 
-        }catch (JAXBException ex) {
-           Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
+            //Set JSON type
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, MediaType.APPLICATION_JSON);
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
+
+            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(this.httpRequest.getInputStream()));
+
+        } catch (JAXBException ex) {
+            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
         }
 
         return object;

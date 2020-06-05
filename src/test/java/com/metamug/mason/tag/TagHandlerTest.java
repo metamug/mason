@@ -544,10 +544,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.metamug.mason.Router.MASON_REQUEST;
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import static com.metamug.mason.tag.ResourceTagHandler.BEARER_;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
 import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
+import javax.ws.rs.core.MediaType;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -696,7 +696,7 @@ public class TagHandlerTest {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
 
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(request.getContentType()).thenReturn(MULTIPART_FORM_DATA);
+        when(request.getContentType()).thenReturn(MediaType.MULTIPART_FORM_DATA);
         when(masonRequest.getMethod()).thenReturn("POST");
 
         requestTag.setMethod("POST");

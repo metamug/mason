@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
  * @author anishhirlekar
  */
 public class HtmlStrategy extends ParamExtractStrategy {
-    public static final String APPLICATION_HTML = "application/html";
 
     /**
      * @param request

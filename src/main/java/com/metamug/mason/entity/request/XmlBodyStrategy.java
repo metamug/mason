@@ -15,15 +15,12 @@ import java.util.logging.Logger;
  */
 public class XmlBodyStrategy extends RequestBodyStrategy {
 
-    private HttpServletRequest request;
-
     /**
      *
      * @param request
      */
     public XmlBodyStrategy(HttpServletRequest request) {
         super(request);
-        this.request = request;
     }
 
     @Override
@@ -36,7 +33,7 @@ public class XmlBodyStrategy extends RequestBodyStrategy {
             jaxbContext = JAXBContext.newInstance(clazz);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
-            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
+            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(this.httpRequest.getInputStream()));
 
         }catch (JAXBException ex) {
             Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
