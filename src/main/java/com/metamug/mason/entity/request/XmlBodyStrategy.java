@@ -4,7 +4,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,7 +38,9 @@ public class XmlBodyStrategy extends RequestBodyStrategy {
             jaxbContext = JAXBContext.newInstance(clazz);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
-            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
+            //object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
+            InputStream xml = request.getInputStream();
+            object = jaxbUnmarshaller.unmarshal(new StreamSource(xml));
 
         }catch (JAXBException ex) {
             Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());

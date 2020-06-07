@@ -48,7 +48,7 @@ public class XmlBodyStrategyTest {
     }
 
     @Test
-    public void jsonBodyUnmarshal() throws IOException {
+    public void xmlBodyUnmarshal() throws IOException {
 
         RequestBodyStrategy masonRequest = new XmlBodyStrategy(request);
         //System.out.println(request.getInputStream());

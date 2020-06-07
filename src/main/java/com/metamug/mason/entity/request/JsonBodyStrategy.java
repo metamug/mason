@@ -507,6 +507,7 @@
 package com.metamug.mason.entity.request;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -514,6 +515,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
 /**
@@ -547,7 +550,9 @@ public class JsonBodyStrategy extends RequestBodyStrategy {
             jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
             jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
              
-            object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
+            //object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
+            InputStream json = request.getInputStream();
+            object = jaxbUnmarshaller.unmarshal(new StreamSource(json));
 
         }catch (JAXBException ex) {
            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
