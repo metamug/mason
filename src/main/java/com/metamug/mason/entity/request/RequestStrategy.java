@@ -522,7 +522,7 @@ public abstract class RequestStrategy {
     protected Request masonRequest;
     public static final String VERSION_REGEX = "^.*(v\\d+\\.\\d+).*$";
 
-    private HttpServletRequest httpRequest;
+    HttpServletRequest httpRequest;
 
     private JspResource jspResource;
 

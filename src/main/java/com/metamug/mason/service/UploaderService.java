@@ -531,8 +531,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.MediaType;
 
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 
 /**
  * @author Kaisteel
@@ -550,7 +550,7 @@ public class UploaderService {
 
     public boolean upload() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        if (request.getContentType() != null && request.getContentType().contains(MULTIPART_FORM_DATA)) {
+        if (request.getContentType() != null && request.getContentType().contains(MediaType.MULTIPART_FORM_DATA)) {
 
             try {
                 String listenerClass;

@@ -510,7 +510,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 
 /**
- * GET 
+ * GET
+ *
  * @author D3ep4k
  */
 public class FormStrategy extends ParamExtractStrategy {
@@ -521,7 +522,7 @@ public class FormStrategy extends ParamExtractStrategy {
         super(request);
         Enumeration<String> parameters = request.getParameterNames();
         while (parameters.hasMoreElements()) {
-            
+
             String paramName = parameters.nextElement();
             if (paramName.trim().equalsIgnoreCase("id")) {
                 masonRequest.setId(request.getParameter(paramName).trim());

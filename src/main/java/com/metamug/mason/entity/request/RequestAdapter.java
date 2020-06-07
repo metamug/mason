@@ -508,13 +508,10 @@ package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
-import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
-import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
-import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Convert HTTP Servlet Request Object to Mason Request
@@ -528,13 +525,13 @@ public class RequestAdapter {
         
         RequestStrategy strategy;
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
-                ? APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
+                ? MediaType.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
 
-        if (contentType.contains(APPLICATION_JSON)) {
+        if (contentType.contains(MediaType.APPLICATION_JSON)) {
             strategy = new JsonStrategy(request);
-        } else if (contentType.contains(MULTIPART_FORM_DATA)) {
+        } else if (contentType.contains(MediaType.MULTIPART_FORM_DATA)) {
             strategy = new MultipartFormStrategy(request);
-        } else if (contentType.contains(APPLICATION_HTML)) {
+        } else if (contentType.contains(MediaType.TEXT_HTML)) {
             strategy = new HtmlStrategy(request);
         } else {
             strategy = new FormStrategy(request); //works for GET request as well

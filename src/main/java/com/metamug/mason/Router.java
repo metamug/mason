@@ -508,15 +508,11 @@ package com.metamug.mason;
 
 import com.metamug.entity.Request;
 import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
-import static com.metamug.mason.entity.request.HtmlStrategy.APPLICATION_HTML;
-import static com.metamug.mason.entity.request.JsonStrategy.APPLICATION_JSON;
 import com.metamug.mason.entity.request.JspResource;
 import com.metamug.mason.entity.request.RequestAdapter;
-import static com.metamug.mason.entity.request.MultipartFormStrategy.MULTIPART_FORM_DATA;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
 import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -534,6 +530,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -560,7 +557,7 @@ public class Router implements Filter {
     public static final String CONNECTION_PROVIDER = "connectionProvider";
     public static final String MASON_REQUEST = "mtgReq";
     public static final String JSP_RESOURCE = "jspResource";
-    
+
     public Router() {
 
     }
@@ -618,7 +615,7 @@ public class Router implements Filter {
             return;
         }
 
-        res.setContentType(APPLICATION_JSON); //@TODO will response be always json 
+        res.setContentType(MediaType.APPLICATION_JSON); //@TODO will response be always json 
 
         //requesting a REST resource
         String resourceName = "";
@@ -671,8 +668,6 @@ public class Router implements Filter {
             writeError(res, 404, MSG_RESOURCE_NOT_FOUND + ex.getMessage());
         }
     }
-    
-    
 
     /**
      * Error message to be returned
@@ -747,14 +742,15 @@ public class Router implements Filter {
         } catch (NullPointerException nx) {
             //Logger.getLogger(Router.class.getName()).log(Level.SEVERE, QUERY_FILE_NAME + " file does not exist!", nx);
         }
-    } 
+    }
 
     private boolean validContentType(HttpServletRequest req) {
-        String contentType = req.getContentType() == null ? APPLICATION_HTML : req.getContentType().toLowerCase();
+        String contentType = req.getContentType() == null ? MediaType.TEXT_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod().toLowerCase();
 
-        boolean validContentType = contentType.contains(APPLICATION_HTML) || contentType.contains("application/xml")
-                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(APPLICATION_JSON) || contentType.contains(MULTIPART_FORM_DATA);
+        boolean validContentType = contentType.contains(MediaType.TEXT_HTML) || contentType.contains(MediaType.APPLICATION_XML)
+                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(MediaType.APPLICATION_JSON)
+                || contentType.contains(MediaType.MULTIPART_FORM_DATA);
 
         if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
             return false;

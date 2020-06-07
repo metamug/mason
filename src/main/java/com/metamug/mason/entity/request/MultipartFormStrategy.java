@@ -519,8 +519,6 @@ import java.util.Collection;
  */
 public class MultipartFormStrategy extends ParamExtractStrategy {
 
-    public static final String MULTIPART_FORM_DATA = "multipart/form-data";
-
     /**
      * @param request
      * @throws java.io.IOException
