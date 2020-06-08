@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class XmlBodyStrategy implements RequestBodyStrategy {
 
     Unmarshaller jaxbUnmarshaller;
-
+    
     public XmlBodyStrategy(Class clazz) throws JAXBException {
 
         JAXBContext jaxbContext = JAXBContext.newInstance(clazz);

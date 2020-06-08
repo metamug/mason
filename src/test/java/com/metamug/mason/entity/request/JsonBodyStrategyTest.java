@@ -54,7 +54,7 @@ public class JsonBodyStrategyTest {
         RequestBodyStrategy masonRequest = new JsonBodyStrategy(Customer.class);
         //System.out.println(request.getInputStream());
 
-        Object object = masonRequest.getBodyObject(request.getInputStream() );
+        Object object = masonRequest.getBodyObject(request.getInputStream());
 
         Customer customer = (Customer) object;
 

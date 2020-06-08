@@ -554,7 +554,7 @@ public class RequestTagHandler extends RequestTag {
     private boolean shouldEvaluate;
     private String className;
     private Request masonRequest;
-
+    public static final String JSP_REQUEST_SCOPE = "requestScope";
     protected ResourceTagHandler parent;
 
     /**
@@ -594,10 +594,13 @@ public class RequestTagHandler extends RequestTag {
     }
 
     private void addExtraParams() {
-        Map<String, Object> param = (Map<String, Object>) request.getAttribute("param");
-        param.put("pid", masonRequest.getPid());
-        param.put("foo", "bar");
-        param.put(item, masonRequest.getId());
+        //https://stackoverflow.com/a/19114947/1097600
+
+        //Map<String, Object> param = (Map<String, Object>) request.getAttribute(JSP_REQUEST_SCOPE);
+        request.setAttribute("foo", "bar");
+        if (StringUtils.isNotBlank(item)) {
+            request.setAttribute(item, masonRequest.getId());
+        }
     }
 
     @Override
@@ -607,32 +610,31 @@ public class RequestTagHandler extends RequestTag {
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
                 ? MediaType.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
 
-        addBody(contentType);
-
         parent = (ResourceTagHandler) getParent();
         //add http method of this request tag to parent's list
         parent.addChildMethod(method);
 
         masonRequest = (Request) request.getAttribute(MASON_REQUEST);
 
-        shouldEvaluate = ((masonRequest.getId() != null) == StringUtils.isNotBlank(item));
-        if (method.equalsIgnoreCase(masonRequest.getMethod())
-                && shouldEvaluate) {
+        addBody(contentType);
 
-            //initialize only when this request is executed.
-            //Holds var names to be printed in output
-            //to maintain the order of insertion
-            Map<String, Object> output = new HashMap<>();
-            pageContext.setAttribute(MASON_OUTPUT, output);
+        if (method.equalsIgnoreCase(request.getMethod())) {
+            shouldEvaluate = ((masonRequest.getId() != null) == StringUtils.isNotBlank(item));
+            if (shouldEvaluate) {
+                //initialize only when this request is executed.
+                //Holds var names to be printed in output
+                //to maintain the order of insertion
+                Map<String, Object> output = new HashMap<>();
+                pageContext.setAttribute(MASON_OUTPUT, output);
 
-            //@TODO Also check for multipart
-            if (method.equalsIgnoreCase(HttpMethod.POST) && contentType.equals(MediaType.MULTIPART_FORM_DATA)) {//upload file if incoming file
-                UploaderService uploader = new UploaderService(pageContext);
-                uploader.upload();
+                //@TODO Also check for multipart
+                if (method.equalsIgnoreCase(HttpMethod.POST) && contentType.equals(MediaType.MULTIPART_FORM_DATA)) {//upload file if incoming file
+                    UploaderService uploader = new UploaderService(pageContext);
+                    uploader.upload();
+                }
+
+                return EVAL_BODY_INCLUDE;
             }
-
-            return EVAL_BODY_INCLUDE;
-
         }
 
         return SKIP_BODY;

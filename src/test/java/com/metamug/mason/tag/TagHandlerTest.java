@@ -506,7 +506,6 @@
  */
 package com.metamug.mason.tag;
 
-
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
@@ -545,6 +544,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.metamug.mason.Router.MASON_REQUEST;
+import static com.metamug.mason.tag.RequestTagHandler.JSP_REQUEST_SCOPE;
 import static com.metamug.mason.tag.ResourceTagHandler.BEARER_;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
 import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
@@ -600,7 +600,6 @@ public class TagHandlerTest {
 
 //    @InjectMocks
 //    ParentTagHandler parentTag = new ParentTagHandler();
-
     @Mock
     private ConnectionProvider provider;
 
@@ -624,11 +623,9 @@ public class TagHandlerTest {
     @Before
     public void setup() {
 
-
         ldt = LocalDateTime.now().plusDays(90);
         // payload = new JSONObject("{\"sub\":\"1234\",\"aud\":[\"admin\"],"
         //         + "\"exp\":" + ldt.toEpochSecond(ZoneOffset.UTC) + "}");
-
 
         try {
             String sampleObj = "{ \"name\":\"John\", \"age\":30, \"car\":null }";
@@ -645,7 +642,7 @@ public class TagHandlerTest {
 
             when(context.getRequest()).thenReturn(request);
             when(context.getResponse()).thenReturn(response);
-            
+
             when(response.getOutputStream()).thenReturn(outputStream);
 
             when(context.getOut()).thenReturn(writer);
@@ -654,9 +651,9 @@ public class TagHandlerTest {
             when(request.getParameter("auth")).thenReturn("bearer");
             when(request.getParameter("userid")).thenReturn("1234");
             when(request.getParameter("password")).thenReturn("pass");
-            
-            when(request.getAttribute("param")).thenReturn(new HashMap<String, Object>());
-             
+
+            when(request.getAttribute(JSP_REQUEST_SCOPE)).thenReturn(new HashMap<String, Object>());
+
             //when(provider.getInstance()).thenReturn(provider);
             when(provider.getConnection()).thenReturn(connection);
             when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
@@ -703,7 +700,7 @@ public class TagHandlerTest {
 
         when(request.getHeader(HEADER_ACCEPT)).thenReturn(APPLICATION_XML);
         when(request.getHeader(HEADER_CONTENT_TYPE)).thenReturn(MediaType.MULTIPART_FORM_DATA);
-        when(masonRequest.getMethod()).thenReturn(HttpMethod.POST);
+        when(request.getMethod()).thenReturn(HttpMethod.POST);
 
         requestTag.setMethod(HttpMethod.POST);
         requestTag.setParent(resourceTag);
@@ -717,7 +714,7 @@ public class TagHandlerTest {
     public void fileDownload() throws JspException, IOException {
 
         File temp = File.createTempFile("test", ".txt");
-
+        
         // Delete temp file when program exits.
         temp.deleteOnExit();
 
@@ -732,7 +729,7 @@ public class TagHandlerTest {
 
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
         when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(masonRequest.getMethod()).thenReturn("GET");
+        when(request.getMethod()).thenReturn(HttpMethod.GET);
 
         requestTag.setMethod("GET");
         requestTag.setParent(resourceTag);
@@ -740,7 +737,7 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
         assertEquals(Tag.SKIP_PAGE, requestTag.doEndTag()); //skip everything after request matched.
 
-        verify(response).setHeader("Content-Type", FileOutput.OCTETSTREAM);
+        verify(response).setHeader(HEADER_CONTENT_TYPE, FileOutput.OCTETSTREAM);
         //verify(outputStream).write("aString".getBytes(StandardCharsets.UTF_8));
 
     }
@@ -751,11 +748,9 @@ public class TagHandlerTest {
     @Test
     public void requestTag() throws JspException {
 
-        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
 
-        when(masonRequest.getMethod()).thenReturn("GET");
-        when(masonRequest.getMethod()).thenReturn("GET");
+        when(request.getMethod()).thenReturn(HttpMethod.GET);
 
         requestTag.setMethod("GET");
         requestTag.setParent(resourceTag);
@@ -815,7 +810,6 @@ public class TagHandlerTest {
 //        parentTag.setValue("mother");
 //        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
 //    }
-
     @Test
     public void paramTag() throws JspException {
         //<Param name="limit" type="number" min="0" max="100"/>
@@ -871,6 +865,7 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }
+
     /*
     @Test
     public void executeTagRequestProcessable() throws JspException {
@@ -898,8 +893,6 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }*/
-
-
     @Test
     public void executeTagResultProcessable() throws JspException {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
