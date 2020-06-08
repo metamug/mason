@@ -15,38 +15,27 @@ import java.util.logging.Logger;
  *
  * @author richard937
  */
-public class XmlBodyStrategy extends RequestBodyStrategy {
+public class XmlBodyStrategy implements RequestBodyStrategy {
 
-    private HttpServletRequest request;
+    Unmarshaller jaxbUnmarshaller;
 
-    /**
-     *
-     * @param request
-     */
-    public XmlBodyStrategy(HttpServletRequest request) {
-        super(request);
-        this.request = request;
+    public XmlBodyStrategy(Class clazz) throws JAXBException {
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+        jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+
     }
 
     @Override
-    public Object getBodyObject() throws IOException {
+    public Object getBodyObject(InputStream stream){
 
-        JAXBContext jaxbContext;
-        Object object = null;
-        try{
-
-            jaxbContext = JAXBContext.newInstance(clazz);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-
-            //object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
-            InputStream xml = request.getInputStream();
-            object = jaxbUnmarshaller.unmarshal(new StreamSource(xml));
-
-        }catch (JAXBException ex) {
-            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
+        try {
+            return jaxbUnmarshaller.unmarshal(new StreamSource(stream));
+        } catch (JAXBException ex) {
+            Logger.getLogger(XmlBodyStrategy.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
 
-        return object;
     }
-}
 
+}

@@ -544,28 +544,30 @@ import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
 
 /**
  *
  * @author anishhirlekar
  */
 public class RequestTagHandler extends RequestTag {
-
+    
     private boolean item;
     private boolean evaluate;
     private String className;
     private Request masonRequest;
-
+    
     protected ResourceTagHandler parent;
-
-    private void requestBody() throws IOException, ClassNotFoundException {
+    
+    private void requestBody() throws IOException, ClassNotFoundException, JAXBException {
         //String path = request.getServletPath(); gives contextPath
         RequestBodyStrategy strategy = null;
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
                 ? MediaType.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
-
+        
+        Class clazz = Class.forName(className);
         if (contentType.contains(MediaType.APPLICATION_JSON)) {
-            strategy = new JsonBodyStrategy();
+            strategy = new JsonBodyStrategy(clazz);
         }
 
 //        else if (contentType.contains(MediaType.MULTIPART_FORM_DATA)) {
@@ -575,19 +577,20 @@ public class RequestTagHandler extends RequestTag {
 //        } else {
 //            strategy = new FormStrategy(request); //works for GET request as well
 //        }
-        Object body = strategy.getBodyObject(request.getInputStream(), Class.forName(className));
+        Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
+        request.setAttribute("rbody", body);
     }
-
+    
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-
+        
         parent = (ResourceTagHandler) getParent();
         //add http method of this request tag to parent's list
         parent.addChildMethod(method);
-
+        
         masonRequest = (Request) request.getAttribute(MASON_REQUEST);
-
+        
         if (method.equalsIgnoreCase(masonRequest.getMethod())) {
             evaluate = (masonRequest.getId() != null) == item; //evaluate
             if (evaluate) {
@@ -602,14 +605,14 @@ public class RequestTagHandler extends RequestTag {
                     UploaderService uploader = new UploaderService(pageContext);
                     uploader.upload();
                 }
-
+                
                 return EVAL_BODY_INCLUDE;
             }
         }
-
+        
         return SKIP_BODY;
     }
-
+    
     @Override
     public int doEndTag() throws JspException {
         if (evaluate) {
@@ -619,12 +622,12 @@ public class RequestTagHandler extends RequestTag {
             return EVAL_PAGE;
         }
     }
-
+    
     private void processOutput() {
         String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
-
+        
         boolean hasAttachment = false;
-
+        
         Map<String, Object> outputMap = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         //get response objects to be printed in output        
         for (Entry<String, Object> tag : outputMap.entrySet()) {
@@ -644,9 +647,9 @@ public class RequestTagHandler extends RequestTag {
 
         //write response
         try (OutputStream outputStream = response.getOutputStream()) {
-
+            
             if (!hasAttachment) {
-
+                
                 MasonOutput output = null;
                 List list = Arrays.asList(header.split("/"));
                 if (list.contains("xml")) { //Accept: application/xml, text/xml
@@ -664,7 +667,7 @@ public class RequestTagHandler extends RequestTag {
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
                 outputStream.flush();
-
+                
             } else {
                 //has file in response
                 Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
@@ -676,7 +679,7 @@ public class RequestTagHandler extends RequestTag {
                      * Don't set Content Length. Max buffer for output stream is
                      * 2KB and it is flushed
                      */
-
+                    
                     ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
                     while (in.read(buffer) != -1) {
                         buffer.flip();
@@ -685,17 +688,17 @@ public class RequestTagHandler extends RequestTag {
                     }
                 }
             }
-
+            
         } catch (IOException ex) {
             //@TODO write error response if there is an error in file read or something else
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public void setItem(boolean item) {
         this.item = item;
     }
-
+    
     public void setClassName(String className) {
         this.className = className;
     }

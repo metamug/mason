@@ -523,29 +523,13 @@ import org.eclipse.persistence.oxm.MediaType;
  *
  * @author D3ep4k
  */
-public class JsonBodyStrategy implements RequestBodyStrategy {
+public class JsonBodyStrategy extends XmlBodyStrategy {
 
-    @Override
-    public Object getBodyObject(InputStream stream, Class clazz) throws IOException {
+    public JsonBodyStrategy(Class clazz) throws JAXBException {
+        super(clazz);
+        //Set JSON type
+        jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, MediaType.APPLICATION_JSON);
+        jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
 
-        JAXBContext jaxbContext;
-        Object object = null;
-        try {
-
-            jaxbContext = JAXBContext.newInstance(clazz);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-
-            //Set JSON type
-            jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, MediaType.APPLICATION_JSON);
-            jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
-
-            //object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
-            object = jaxbUnmarshaller.unmarshal(new StreamSource(stream));
-
-        } catch (JAXBException ex) {
-            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
-        }
-
-        return object;
     }
 }

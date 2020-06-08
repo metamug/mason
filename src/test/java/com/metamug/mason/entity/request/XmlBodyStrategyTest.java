@@ -11,6 +11,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import javax.xml.bind.JAXBException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,14 +29,14 @@ public class XmlBodyStrategyTest {
         when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
         when(request.getMethod()).thenReturn("GET");
 
-        System.setProperty("javax.xml.bind.context.factory","org.eclipse.persistence.jaxb.JAXBContextFactory");
+        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        String xml =
-                "<customer>\n" +
-                        "    <name>John Doeyy</name>\n" +
-                        "    <roll>5003</roll>\n" +
-                        "    <id>8</id>\n" +
-                        "</customer>";
+        String xml
+                = "<customer>\n"
+                + "    <name>John Doeyy</name>\n"
+                + "    <roll>5003</roll>\n"
+                + "    <id>8</id>\n"
+                + "</customer>";
 
         Reader inputString = new StringReader(xml);
         BufferedReader reader = new BufferedReader(inputString);
@@ -48,12 +49,11 @@ public class XmlBodyStrategyTest {
     }
 
     @Test
-    public void xmlBodyUnmarshal() throws IOException {
+    public void xmlBodyUnmarshal() throws IOException, JAXBException {
 
-        RequestBodyStrategy masonRequest = new XmlBodyStrategy(request);
-        //System.out.println(request.getInputStream());
-        masonRequest.setClazz(Customer.class);
-        Object object = masonRequest.getBodyObject();
+        RequestBodyStrategy masonRequest = new XmlBodyStrategy(Customer.class);
+
+        Object object = masonRequest.getBodyObject(request.getInputStream());
 
         Customer customer = (Customer) object;
 
