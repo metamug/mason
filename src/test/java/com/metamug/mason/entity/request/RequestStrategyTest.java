@@ -696,7 +696,7 @@ public class RequestStrategyTest {
         reset(jspResource);
         when(jspResource.getVersion()).thenReturn(1.0f);
         when(jspResource.getResourceUri()).thenReturn(resourceUri);
-        return new ParamExtractStrategy(request);
+        return new ParamStrategy(request);
     }
 
     @Test

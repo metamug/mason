@@ -509,37 +509,19 @@ package com.metamug.mason.entity.request;
 import com.metamug.entity.Request;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-
+import java.io.InputStream;
 
 /**
  * Request body mapped to a class object. No parameter mapped needed here
+ *
  * @author D3ep4k
  */
-public abstract class RequestBodyStrategy extends RequestStrategy{
-
-	protected Class clazz;
-	
-    public RequestBodyStrategy(HttpServletRequest request) {
-    	super(request);
-    }
-
-    @Override
-    public Request getRequest() {
-    	try{
-        	masonRequest.setBody(getBodyObject());
-    	}catch(IOException ioe){
-    		//@TODO Handle io exception
-    	}
-       	return new ImmutableRequest(masonRequest);
-    }
-
-    public void setClazz(Class clazz){
-    	this.clazz = clazz;
-    }
+public interface RequestBodyStrategy extends RequestStrategy {
 
     /**
-    * Strategy method to implement and construct the request body depending on content type
-    */
-    protected abstract Object getBodyObject() throws IOException;
+     * Strategy method to implement and construct the request body depending on
+     * content type
+     */
+    public Object getBodyObject(InputStream stream, Class clazz) throws IOException;
 
 }

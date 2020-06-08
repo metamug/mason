@@ -514,7 +514,7 @@ import java.util.Enumeration;
  *
  * @author D3ep4k
  */
-public class FormStrategy extends ParamExtractStrategy {
+public class FormStrategy extends ParamStrategy {
 
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
 

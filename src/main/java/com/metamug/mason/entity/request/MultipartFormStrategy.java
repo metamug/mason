@@ -517,7 +517,7 @@ import java.util.Collection;
 /**
  * @author anishhirlekar
  */
-public class MultipartFormStrategy extends ParamExtractStrategy {
+public class MultipartFormStrategy extends ParamStrategy {
 
     /**
      * @param request
@@ -525,7 +525,7 @@ public class MultipartFormStrategy extends ParamExtractStrategy {
      * @throws javax.servlet.ServletException
      */
     public MultipartFormStrategy(HttpServletRequest request) throws IOException, ServletException {
-        super(request);
+        //@TODO what to do in case of a file
         Collection<Part> parts = request.getParts();
         for (Part part : parts) {
             String line;

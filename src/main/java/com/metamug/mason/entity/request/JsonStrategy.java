@@ -519,7 +519,7 @@ import java.util.logging.Logger;
 /**
  * @author D3ep4k
  */
-public class JsonStrategy extends ParamExtractStrategy {
+public class JsonStrategy extends ParamStrategy {
    
     /**
      * @param request

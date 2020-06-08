@@ -542,7 +542,8 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    public static final String JSP_EXTN = ".jsp";
+   
+    private static final String MTG_METHOD = "mtgMethod";
     public static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
 
@@ -621,9 +622,8 @@ public class Router implements Filter {
         String resourceName = "";
         try {
             //get queries
-            JspResource jspResource = new JspResource(req);
-            req.setAttribute(JSP_RESOURCE, jspResource);
-            Request masonRequest = RequestAdapter.create(req);
+            RequestAdapter adapter = new RequestAdapter(req);
+            Request masonRequest = adapter.getRequest();
             resourceName = masonRequest.getResource().getName();
 
             if (masonRequest.getResource().getName() == null) {
@@ -643,9 +643,9 @@ public class Router implements Filter {
 
             //save method as attribute because jsp only accepts GET and POST
             //https://stackoverflow.com/a/46489035
-            req.setAttribute("mtgMethod", req.getMethod()); //needed by ExceptionTagHandler
+            req.setAttribute(MTG_METHOD, req.getMethod()); //needed by ExceptionTagHandler
 
-            req.getRequestDispatcher(jspResource.getJspPath()).forward(new HttpRequestWrapper(req), res);
+            req.getRequestDispatcher(adapter.getFilePath()).forward(new HttpRequestWrapper(req), res);
 //            req.getRequestDispatcher(jspPath).forward(req, res);
 
         } catch (IOException | ServletException | JSONException ex) {

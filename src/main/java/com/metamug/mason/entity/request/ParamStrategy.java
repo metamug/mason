@@ -513,28 +513,18 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Request Strategy designed for parameters 
+ * Request Strategy designed for parameters
+ *
  * @author D3ep4k
  */
-public class ParamExtractStrategy extends RequestStrategy{
+public class ParamStrategy implements RequestStrategy {
 
     protected Map<String, String> params = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    String uriPath;
-    public ParamExtractStrategy(HttpServletRequest request) {
-    	super(request);
-    }
-
-    @Override
-    public Request getRequest() {
-    	masonRequest = super.getRequest();
-        masonRequest.setParams(params);
-        return new ImmutableRequest(masonRequest);
-    }
 
     /**
-     * Add Key Value pair to Mason Request Object
-     * Also add special identifiers 
-     * @param masonRequest 
+     * Add Key Value pair to Mason Request Object Also add special identifiers
+     *
+     * @param masonRequest
      * @param keyValue
      * @param params
      */

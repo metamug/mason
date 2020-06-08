@@ -508,7 +508,6 @@ package com.metamug.mason.entity.request;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
@@ -518,44 +517,33 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+import org.eclipse.persistence.oxm.MediaType;
 
 /**
  *
  * @author D3ep4k
  */
-public class JsonBodyStrategy extends RequestBodyStrategy {
-    
-    private HttpServletRequest request;
-
-    /**
-     *
-     * @param request
-     */
-    public JsonBodyStrategy(HttpServletRequest request) {
-        super(request);
-        this.request = request;
-    }
+public class JsonBodyStrategy implements RequestBodyStrategy {
 
     @Override
-    public Object getBodyObject() throws IOException{
+    public Object getBodyObject(InputStream stream, Class clazz) throws IOException {
 
-    	JAXBContext jaxbContext;
-    	Object object = null;
-        try{
+        JAXBContext jaxbContext;
+        Object object = null;
+        try {
 
             jaxbContext = JAXBContext.newInstance(clazz);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-             
-            //Set JSON type
-            jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
-            jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
-             
-            //object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
-            InputStream json = request.getInputStream();
-            object = jaxbUnmarshaller.unmarshal(new StreamSource(json));
 
-        }catch (JAXBException ex) {
-           Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
+            //Set JSON type
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, MediaType.APPLICATION_JSON);
+            jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
+
+            //object = jaxbUnmarshaller.unmarshal(new InputStreamReader(request.getInputStream()));
+            object = jaxbUnmarshaller.unmarshal(new StreamSource(stream));
+
+        } catch (JAXBException ex) {
+            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, "Json Body Strategy :{0}", ex.getMessage());
         }
 
         return object;

@@ -31,6 +31,7 @@ public class JspResource {
     private float version;
     private String resourceUri;
     private static final int VERSION_LENGTH = 3; // 1.3
+    private static final String JSP_EXTN = ".jsp";
 
     public String getResourceUri() {
         return resourceUri;
@@ -45,7 +46,7 @@ public class JspResource {
     }
 
     protected boolean resourceExists(String resourcePath) {
-        String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + Router.JSP_EXTN;
+        String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + JSP_EXTN;
         boolean exists = new File(request.getServletContext().getRealPath(jspPath)).exists();
         if (exists) {
             this.jspPath = jspPath; //set as instance variable

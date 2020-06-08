@@ -509,7 +509,15 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
+import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
 import static com.metamug.mason.Router.MASON_REQUEST;
+import com.metamug.mason.entity.request.FormStrategy;
+import com.metamug.mason.entity.request.HtmlStrategy;
+import com.metamug.mason.entity.request.JsonBodyStrategy;
+import com.metamug.mason.entity.request.JsonStrategy;
+import com.metamug.mason.entity.request.MultipartFormStrategy;
+import com.metamug.mason.entity.request.RequestBodyStrategy;
+import com.metamug.mason.entity.request.RequestStrategy;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.entity.response.DatasetOutput;
 import com.metamug.mason.entity.response.JSONOutput;
@@ -535,6 +543,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
+import javax.ws.rs.core.MediaType;
 
 /**
  *
@@ -544,19 +553,39 @@ public class RequestTagHandler extends RequestTag {
 
     private boolean item;
     private boolean evaluate;
-
+    private String className;
     private Request masonRequest;
-    
+
     protected ResourceTagHandler parent;
+
+    private void requestBody() throws IOException, ClassNotFoundException {
+        //String path = request.getServletPath(); gives contextPath
+        RequestBodyStrategy strategy = null;
+        String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
+                ? MediaType.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
+
+        if (contentType.contains(MediaType.APPLICATION_JSON)) {
+            strategy = new JsonBodyStrategy();
+        }
+
+//        else if (contentType.contains(MediaType.MULTIPART_FORM_DATA)) {
+//            strategy = new MultipartFormStrategy(request);
+//        } else if (contentType.contains(MediaType.TEXT_HTML)) {
+//            strategy = new HtmlStrategy(request);
+//        } else {
+//            strategy = new FormStrategy(request); //works for GET request as well
+//        }
+        Object body = strategy.getBodyObject(request.getInputStream(), Class.forName(className));
+    }
 
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-        
-        parent = (ResourceTagHandler)getParent();
+
+        parent = (ResourceTagHandler) getParent();
         //add http method of this request tag to parent's list
         parent.addChildMethod(method);
-        
+
         masonRequest = (Request) request.getAttribute(MASON_REQUEST);
 
         if (method.equalsIgnoreCase(masonRequest.getMethod())) {
@@ -605,14 +634,14 @@ public class RequestTagHandler extends RequestTag {
                 break;
             }
         }
-        
+
         //set response headers
-        if(headers != null) {
-            headers.entrySet().forEach( entry -> {
+        if (headers != null) {
+            headers.entrySet().forEach(entry -> {
                 response.setHeader(entry.getKey(), entry.getValue());
             });
         }
-        
+
         //write response
         try (OutputStream outputStream = response.getOutputStream()) {
 
@@ -630,7 +659,7 @@ public class RequestTagHandler extends RequestTag {
 
                 //cannnot use print writer since it we are already using outputstream
                 Response masonResponse = new ResponeBuilder(output).build(outputMap);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String)k, (String)v));
+                masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String) k, (String) v));
                 byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
@@ -639,10 +668,10 @@ public class RequestTagHandler extends RequestTag {
             } else {
                 //has file in response
                 Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
-                masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String)k, (String)v));
+                masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String) k, (String) v));
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
-                    WritableByteChannel out = Channels.newChannel(outputStream);) {
+                        WritableByteChannel out = Channels.newChannel(outputStream);) {
                     /**
                      * Don't set Content Length. Max buffer for output stream is
                      * 2KB and it is flushed
@@ -656,14 +685,18 @@ public class RequestTagHandler extends RequestTag {
                     }
                 }
             }
-            
+
         } catch (IOException ex) {
             //@TODO write error response if there is an error in file read or something else
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void setItem(boolean i) {
-        item = i;
+    public void setItem(boolean item) {
+        this.item = item;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 }

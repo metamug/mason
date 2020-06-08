@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 /**
  * @author anishhirlekar
  */
-public class HtmlStrategy extends ParamExtractStrategy {
+public class HtmlStrategy extends ParamStrategy {
 
     /**
      * @param request
