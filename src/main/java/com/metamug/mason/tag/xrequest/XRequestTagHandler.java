@@ -519,6 +519,7 @@ import com.metamug.mason.tag.ResourceTagHandler;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import java.util.Map;
+import javax.ws.rs.core.MediaType;
 
 /**
  * @author anishhirlekar
@@ -537,7 +538,7 @@ public class XRequestTagHandler extends RequestTag {
     public int doEndTag() throws JspException {
         //Accept header of mtg request
         String acceptHeader = request.getHeader(HEADER_ACCEPT) == null
-                ? MasonOutput.HEADER_JSON : request.getHeader(HEADER_ACCEPT);
+                ? MediaType.APPLICATION_JSON : request.getHeader(HEADER_ACCEPT);
         //Accept type of XRequest
         String xAcceptType = "json";
         for (Map.Entry<String, String> entry : headers.entrySet()) {

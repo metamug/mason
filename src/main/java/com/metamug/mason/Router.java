@@ -507,7 +507,6 @@
 package com.metamug.mason;
 
 import com.metamug.entity.Request;
-import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
 import com.metamug.mason.entity.request.JspResource;
 import com.metamug.mason.entity.request.RequestAdapter;
 import com.metamug.mason.service.ConnectionProvider;
@@ -530,6 +529,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -542,7 +542,6 @@ import org.json.JSONObject;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-   
     private static final String MTG_METHOD = "mtgMethod";
     public static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
@@ -623,6 +622,9 @@ public class Router implements Filter {
         try {
             //get queries
             RequestAdapter adapter = new RequestAdapter(req);
+            JspResource jspResource = new JspResource(req);
+            adapter.setJspResource(jspResource);
+
             Request masonRequest = adapter.getRequest();
             resourceName = masonRequest.getResource().getName();
 
@@ -645,7 +647,7 @@ public class Router implements Filter {
             //https://stackoverflow.com/a/46489035
             req.setAttribute(MTG_METHOD, req.getMethod()); //needed by ExceptionTagHandler
 
-            req.getRequestDispatcher(adapter.getFilePath()).forward(new HttpRequestWrapper(req), res);
+            req.getRequestDispatcher(jspResource.getJspPath()).forward(new HttpRequestWrapper(req), res);
 //            req.getRequestDispatcher(jspPath).forward(req, res);
 
         } catch (IOException | ServletException | JSONException ex) {
@@ -746,13 +748,13 @@ public class Router implements Filter {
 
     private boolean validContentType(HttpServletRequest req) {
         String contentType = req.getContentType() == null ? MediaType.TEXT_HTML : req.getContentType().toLowerCase();
-        String method = req.getMethod().toLowerCase();
+        String method = req.getMethod();
 
         boolean validContentType = contentType.contains(MediaType.TEXT_HTML) || contentType.contains(MediaType.APPLICATION_XML)
-                || contentType.contains(APPLICATION_FORM_URLENCODED) || contentType.contains(MediaType.APPLICATION_JSON)
+                || contentType.contains(MediaType.APPLICATION_FORM_URLENCODED) || contentType.contains(MediaType.APPLICATION_JSON)
                 || contentType.contains(MediaType.MULTIPART_FORM_DATA);
 
-        if (!"get".equals(method) && !"delete".equals(method) && !validContentType) {
+        if (!HttpMethod.GET.equals(method) && !HttpMethod.DELETE.equals(method) && !validContentType) {
             return false;
         }
         return true;

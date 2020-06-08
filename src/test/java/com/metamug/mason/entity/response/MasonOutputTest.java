@@ -19,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.xml.bind.JAXBException;
 import java.util.*;
+import javax.ws.rs.core.MediaType;
 import static org.junit.Assert.assertTrue;
 
 import static org.mockito.Mockito.when;
@@ -74,7 +75,7 @@ public class MasonOutputTest {
 
     @Test
     public void testJson() throws JAXBException {
-        String dataType = MasonOutput.HEADER_JSON;
+        String dataType = MediaType.APPLICATION_JSON;
         String outStr = getOutput(dataType);
         System.out.println("json: " + outStr);
         System.out.println("Length: " + outStr.length());
@@ -92,7 +93,7 @@ public class MasonOutputTest {
 
     @Test
     public void testXml() throws JAXBException {
-        String dataType = MasonOutput.HEADER_XML;
+        String dataType = MediaType.APPLICATION_XML;
         String outStr = getOutput(dataType);
         System.out.println("XML: " + outStr);
         System.out.println("Length: " + outStr.length());
@@ -104,13 +105,13 @@ public class MasonOutputTest {
         MasonOutput output = null;
 
         switch (dataType) {
-            case MasonOutput.HEADER_JSON:
+            case MediaType.APPLICATION_JSON:
                 output = new JSONOutput();
                 break;
             case MasonOutput.HEADER_DATASET:
                 output = new DatasetOutput();
                 break;
-            case MasonOutput.HEADER_XML:
+            case MediaType.APPLICATION_XML:
                 output = new XMLOutput();
                 break;
         }

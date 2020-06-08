@@ -509,6 +509,7 @@ package com.metamug.mason.entity.response;
 import com.metamug.entity.Response;
 import java.util.HashMap;
 import java.util.Map;
+import javax.ws.rs.core.MediaType;
 import org.json.JSONObject;
 import org.json.XML;
 
@@ -520,7 +521,7 @@ public class XMLOutput extends JSONOutput {
    
     @Override
     public String getContentType() {
-        return HEADER_XML;
+        return MediaType.APPLICATION_XML;
     }
 
 

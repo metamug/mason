@@ -673,6 +673,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Mock Request Path
+ *
  * @author deepak
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -698,7 +699,9 @@ public class RequestStrategyTest {
         reset(jspResource);
         when(jspResource.getVersion()).thenReturn(1.0f);
         when(jspResource.getResourceUri()).thenReturn(resourceUri);
-        return new RequestAdapter(request);
+        RequestAdapter adapter = new RequestAdapter(request);
+        adapter.setJspResource(jspResource);
+        return adapter;
     }
 
     @Test
@@ -740,7 +743,6 @@ public class RequestStrategyTest {
         assertEquals(null, masonRequest.getPid());
         assertEquals(null, masonRequest.getParent());
 
-        
         adapter = mockStrategy("/execute");
         when(jspResource.resourceExists("/execute")).thenReturn(true);
         masonRequest = adapter.getRequest();
@@ -757,7 +759,6 @@ public class RequestStrategyTest {
         assertEquals(null, masonRequest.getPid());
         assertEquals(null, masonRequest.getParent());
 
-        
         adapter = mockStrategy("/parent/21/execute/23");
         when(jspResource.resourceExists("/execute")).thenReturn(true);
         when(jspResource.resourceExists("/parent")).thenReturn(true);

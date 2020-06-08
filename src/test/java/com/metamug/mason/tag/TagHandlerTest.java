@@ -510,6 +510,7 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
+import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
 import com.metamug.mason.entity.auth.JWebToken;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.service.ConnectionProvider;
@@ -547,7 +548,9 @@ import static com.metamug.mason.Router.MASON_REQUEST;
 import static com.metamug.mason.tag.ResourceTagHandler.BEARER_;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
 import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -642,7 +645,7 @@ public class TagHandlerTest {
 
             when(context.getRequest()).thenReturn(request);
             when(context.getResponse()).thenReturn(response);
-
+            
             when(response.getOutputStream()).thenReturn(outputStream);
 
             when(context.getOut()).thenReturn(writer);
@@ -651,6 +654,9 @@ public class TagHandlerTest {
             when(request.getParameter("auth")).thenReturn("bearer");
             when(request.getParameter("userid")).thenReturn("1234");
             when(request.getParameter("password")).thenReturn("pass");
+            
+            when(request.getAttribute("param")).thenReturn(new HashMap<String, Object>());
+             
             //when(provider.getInstance()).thenReturn(provider);
             when(provider.getConnection()).thenReturn(connection);
             when(connection.prepareStatement(Matchers.anyString())).thenReturn(statement);
@@ -676,7 +682,7 @@ public class TagHandlerTest {
         }
     }
 
-    @Test(expected = JspException.class)
+    @Test
     public void fileUpload() throws JspException, IOException {
 
         File temp = File.createTempFile("test", ".txt");
@@ -695,11 +701,11 @@ public class TagHandlerTest {
 
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
 
-        when(request.getHeader(HEADER_ACCEPT)).thenReturn("application/xml");
-        when(request.getContentType()).thenReturn(MediaType.MULTIPART_FORM_DATA);
-        when(masonRequest.getMethod()).thenReturn("POST");
+        when(request.getHeader(HEADER_ACCEPT)).thenReturn(APPLICATION_XML);
+        when(request.getHeader(HEADER_CONTENT_TYPE)).thenReturn(MediaType.MULTIPART_FORM_DATA);
+        when(masonRequest.getMethod()).thenReturn(HttpMethod.POST);
 
-        requestTag.setMethod("POST");
+        requestTag.setMethod(HttpMethod.POST);
         requestTag.setParent(resourceTag);
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
@@ -729,7 +735,6 @@ public class TagHandlerTest {
         when(masonRequest.getMethod()).thenReturn("GET");
 
         requestTag.setMethod("GET");
-        requestTag.setItem(false);
         requestTag.setParent(resourceTag);
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());
@@ -750,9 +755,9 @@ public class TagHandlerTest {
         when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
 
         when(masonRequest.getMethod()).thenReturn("GET");
+        when(masonRequest.getMethod()).thenReturn("GET");
 
         requestTag.setMethod("GET");
-        requestTag.setItem(false);
         requestTag.setParent(resourceTag);
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, requestTag.doStartTag());

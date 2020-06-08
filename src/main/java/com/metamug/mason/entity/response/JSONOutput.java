@@ -521,6 +521,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ws.rs.core.MediaType;
 
 /**
  * JSONs Output Object
@@ -556,7 +557,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                     } else {
                         // for POJO
                         try {
-                            array.put(new JSONObject(ObjectReturn.convert(o, HEADER_JSON)));
+                            array.put(new JSONObject(ObjectReturn.convert(o, MediaType.APPLICATION_JSON)));
                         } catch (JAXBException ex) {
                             //@TODO Do something here
                             Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
@@ -568,7 +569,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                 //obj is POJO
                 try {
                     //try if object of JAXB class
-                    responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, HEADER_JSON)));
+                    responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, MediaType.APPLICATION_JSON)));
                 } catch (MarshalException mex) {
                     responseJson.put(key, obj);
                 } catch (JAXBException ex) {
@@ -620,7 +621,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
 
     @Override
     public String getContentType() {
-        return HEADER_JSON;
+        return MediaType.APPLICATION_JSON;
     }
 
     @Override

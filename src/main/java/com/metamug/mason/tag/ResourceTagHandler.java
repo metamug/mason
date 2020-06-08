@@ -511,7 +511,6 @@ import com.metamug.entity.Resource;
 import com.metamug.mason.Router;
 import static com.metamug.mason.Router.CONNECTION_PROVIDER;
 import static com.metamug.mason.Router.MASON_REQUEST;
-import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.AuthService;
@@ -522,6 +521,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -597,7 +597,7 @@ public class ResourceTagHandler extends RestTag {
     }
     
     private void print404() {
-        response.setContentType(HEADER_JSON);
+        response.setContentType(MediaType.APPLICATION_JSON);
         response.setStatus(STATUS_RESOURCE_NOT_FOUND);
         try {
             pageContext.getOut().print("{\"message\":\"" + MSG_RESOURCE_NOT_FOUND + "\",\"status\":"
@@ -609,7 +609,7 @@ public class ResourceTagHandler extends RestTag {
 
     private void print405() {
 //      String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
-        response.setContentType(HEADER_JSON);
+        response.setContentType(MediaType.APPLICATION_JSON);
         response.setStatus(STATUS_METHOD_NOT_ALLOWED);
         try {
 //          if (Arrays.asList(header.split("/")).contains("xml")) {

@@ -25,8 +25,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
-import static com.metamug.mason.entity.request.FormStrategy.APPLICATION_FORM_URLENCODED;
+
 import javax.ws.rs.core.MediaType;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 

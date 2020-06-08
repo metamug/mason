@@ -527,8 +527,10 @@ public class RequestAdapter {
 
     public RequestAdapter(HttpServletRequest request) throws IOException, ServletException {
         this.httpRequest = request;
-        jspResource = new JspResource(request);
+    }
 
+    public void setJspResource(JspResource jspResource) {
+        this.jspResource = jspResource;
     }
 
     public Request getRequest() {
@@ -696,12 +698,6 @@ public class RequestAdapter {
         return finalResponseElement;
     }
 
-    /**
-     * Get JSP file path for forwarding the request to
-     *
-     * @return
-     */
-    public String getFilePath() {
-        return jspResource.getJspPath();
-    }
+    
+   
 }

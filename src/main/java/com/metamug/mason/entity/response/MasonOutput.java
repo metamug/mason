@@ -521,9 +521,7 @@ import java.util.Map;
  */
 public abstract class MasonOutput<T> implements ResponseGenerator, ResponseFormatter {
 
-    public static final String HEADER_JSON = "application/json";
     public static final String HEADER_DATASET = "application/json+dataset";
-    public static final String HEADER_XML = "application/xml";
     protected Map<String, Object> outputMap;
 
     /**

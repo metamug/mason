@@ -511,18 +511,14 @@ import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
 import static com.metamug.mason.Router.MASON_REQUEST;
-import com.metamug.mason.entity.request.FormStrategy;
-import com.metamug.mason.entity.request.HtmlStrategy;
+
 import com.metamug.mason.entity.request.JsonBodyStrategy;
-import com.metamug.mason.entity.request.JsonStrategy;
-import com.metamug.mason.entity.request.MultipartFormStrategy;
 import com.metamug.mason.entity.request.RequestBodyStrategy;
-import com.metamug.mason.entity.request.RequestStrategy;
+import com.metamug.mason.entity.request.XmlBodyStrategy;
 import com.metamug.mason.entity.response.FileOutput;
 import com.metamug.mason.entity.response.DatasetOutput;
 import com.metamug.mason.entity.response.JSONOutput;
 import com.metamug.mason.entity.response.MasonOutput;
-import static com.metamug.mason.entity.response.MasonOutput.HEADER_JSON;
 import com.metamug.mason.entity.response.ResponeBuilder;
 import com.metamug.mason.entity.response.XMLOutput;
 import com.metamug.mason.service.UploaderService;
@@ -543,91 +539,120 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author anishhirlekar
  */
 public class RequestTagHandler extends RequestTag {
-    
-    private boolean item;
-    private boolean evaluate;
+
+    private String item;
+    private boolean shouldEvaluate;
     private String className;
     private Request masonRequest;
-    
+
     protected ResourceTagHandler parent;
-    
-    private void requestBody() throws IOException, ClassNotFoundException, JAXBException {
-        //String path = request.getServletPath(); gives contextPath
-        RequestBodyStrategy strategy = null;
-        String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
-                ? MediaType.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
-        
-        Class clazz = Class.forName(className);
-        if (contentType.contains(MediaType.APPLICATION_JSON)) {
-            strategy = new JsonBodyStrategy(clazz);
+
+    /**
+     * Set Request Body based on Content-Type Header
+     *
+     * @param contentType
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws JAXBException
+     */
+    private void addBody(String contentType) throws JspException {
+
+        try {
+            addExtraParams();
+
+            RequestBodyStrategy strategy = null;
+
+            if (contentType.contains(MediaType.APPLICATION_JSON)) {
+                strategy = new JsonBodyStrategy(Class.forName(className));
+            } else if (contentType.contains(MediaType.APPLICATION_XML)) {
+                strategy = new XmlBodyStrategy(Class.forName(className));
+            } else {
+                return; //do not set the request body
+            }
+
+            Class clazz = Class.forName(className);
+            Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
+            request.setAttribute("rbody", body); //Object is handled using JavaBeans in JSP
+        } catch (ClassNotFoundException ex) {
+            //@TODO throw as JSP exception
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            throw new JspException("Unable to find the specified class");
+        } catch (IOException | JAXBException ex) {
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//        else if (contentType.contains(MediaType.MULTIPART_FORM_DATA)) {
-//            strategy = new MultipartFormStrategy(request);
-//        } else if (contentType.contains(MediaType.TEXT_HTML)) {
-//            strategy = new HtmlStrategy(request);
-//        } else {
-//            strategy = new FormStrategy(request); //works for GET request as well
-//        }
-        Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
-        request.setAttribute("rbody", body);
     }
-    
+
+    private void addExtraParams() {
+        Map<String, Object> param = (Map<String, Object>) request.getAttribute("param");
+        param.put("pid", masonRequest.getPid());
+        param.put("foo", "bar");
+        param.put(item, masonRequest.getId());
+    }
+
     @Override
     public int doStartTag() throws JspException {
         super.doStartTag();
-        
+
+        String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
+                ? MediaType.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
+
+        addBody(contentType);
+
         parent = (ResourceTagHandler) getParent();
         //add http method of this request tag to parent's list
         parent.addChildMethod(method);
-        
-        masonRequest = (Request) request.getAttribute(MASON_REQUEST);
-        
-        if (method.equalsIgnoreCase(masonRequest.getMethod())) {
-            evaluate = (masonRequest.getId() != null) == item; //evaluate
-            if (evaluate) {
-                //initialize only when this request is executed.
-                //Holds var names to be printed in output
-                //to maintain the order of insertion
-                Map<String, Object> output = new HashMap<>();
-                pageContext.setAttribute(MASON_OUTPUT, output);
 
-                //@TODO Also check for multipart
-                if (method.equalsIgnoreCase("POST")) {//upload file if incoming file
-                    UploaderService uploader = new UploaderService(pageContext);
-                    uploader.upload();
-                }
-                
-                return EVAL_BODY_INCLUDE;
+        masonRequest = (Request) request.getAttribute(MASON_REQUEST);
+
+        shouldEvaluate = ((masonRequest.getId() != null) == StringUtils.isNotBlank(item));
+        if (method.equalsIgnoreCase(masonRequest.getMethod())
+                && shouldEvaluate) {
+
+            //initialize only when this request is executed.
+            //Holds var names to be printed in output
+            //to maintain the order of insertion
+            Map<String, Object> output = new HashMap<>();
+            pageContext.setAttribute(MASON_OUTPUT, output);
+
+            //@TODO Also check for multipart
+            if (method.equalsIgnoreCase(HttpMethod.POST) && contentType.equals(MediaType.MULTIPART_FORM_DATA)) {//upload file if incoming file
+                UploaderService uploader = new UploaderService(pageContext);
+                uploader.upload();
             }
+
+            return EVAL_BODY_INCLUDE;
+
         }
-        
+
         return SKIP_BODY;
     }
-    
+
     @Override
     public int doEndTag() throws JspException {
-        if (evaluate) {
+        if (shouldEvaluate) {
             processOutput();
             return SKIP_PAGE;
         } else {
             return EVAL_PAGE;
         }
     }
-    
+
     private void processOutput() {
-        String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
-        
+        String header = request.getHeader(HEADER_ACCEPT) == null ? MediaType.APPLICATION_XML : request.getHeader(HEADER_ACCEPT);
+
         boolean hasAttachment = false;
-        
+
         Map<String, Object> outputMap = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
         //get response objects to be printed in output        
         for (Entry<String, Object> tag : outputMap.entrySet()) {
@@ -647,9 +672,9 @@ public class RequestTagHandler extends RequestTag {
 
         //write response
         try (OutputStream outputStream = response.getOutputStream()) {
-            
+
             if (!hasAttachment) {
-                
+
                 MasonOutput output = null;
                 List list = Arrays.asList(header.split("/"));
                 if (list.contains("xml")) { //Accept: application/xml, text/xml
@@ -667,7 +692,7 @@ public class RequestTagHandler extends RequestTag {
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
                 outputStream.flush();
-                
+
             } else {
                 //has file in response
                 Response masonResponse = new ResponeBuilder(FileOutput.class).build(outputMap);
@@ -679,7 +704,7 @@ public class RequestTagHandler extends RequestTag {
                      * Don't set Content Length. Max buffer for output stream is
                      * 2KB and it is flushed
                      */
-                    
+
                     ByteBuffer buffer = ByteBuffer.allocate(2048); //2KB buffer 
                     while (in.read(buffer) != -1) {
                         buffer.flip();
@@ -688,17 +713,17 @@ public class RequestTagHandler extends RequestTag {
                     }
                 }
             }
-            
+
         } catch (IOException ex) {
             //@TODO write error response if there is an error in file read or something else
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void setItem(boolean item) {
+
+    public void setItem(String item) {
         this.item = item;
     }
-    
+
     public void setClassName(String className) {
         this.className = className;
     }
