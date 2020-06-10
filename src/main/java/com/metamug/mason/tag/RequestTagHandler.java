@@ -589,6 +589,7 @@ public class RequestTagHandler extends RequestTag {
             throw new JspException("Unable to find the specified class");
         } catch (IOException | JAXBException ex) {
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            throw new JspException("Status: 200 \n Could not parse the body of the request according to the provided Content-Type.");
         }
 
     }
