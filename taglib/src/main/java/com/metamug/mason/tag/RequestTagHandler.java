@@ -590,6 +590,7 @@ public class RequestTagHandler extends RequestTag {
         } catch (IOException | JAXBException ex) {
             //@TODO throw 422 here
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            throw new JspException("Status: 422 \n Could not parse the body of the request according to the provided Content-Type.");
         }
 
     }
