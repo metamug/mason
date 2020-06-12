@@ -1,0 +1,4 @@
+/target/
+/.idea
+/tomcat.8080/
+/tomcat.8080/work
