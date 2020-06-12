@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <welcome-file-list>
+        <welcome-file>index</welcome-file>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+    <filter>
+        <filter-name>Router</filter-name>
+        <filter-class>com.metamug.mason.Router</filter-class>
+        <init-param>
+            <param-name>datasource</param-name>
+            <param-value>jdbc/mason</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>Router</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/resources/error/404error.jsp</location>
+	</error-page>
+    <!--<resource-ref>-->
+        <!--<description>DB Connection</description>-->
+        <!--<res-ref-name>jdbc/mason</res-ref-name>-->
+        <!--<res-type>javax.sql.DataSource</res-type>-->
+        <!--<res-auth>Container</res-auth>-->
+    <!--</resource-ref>-->
+</web-app>
