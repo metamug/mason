@@ -1,32 +1,33 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package com.example;
 
 import com.example.entity.Customer;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
+import com.metamug.entity.Result;
 import com.metamug.exec.RequestProcessable;
-
-import javax.sql.DataSource;
 import java.util.Map;
+import javax.sql.DataSource;
 
 /**
  *
- * @author anishhirlekar
+ * @author pc
  */
-public class RequestHandler implements RequestProcessable {
+public class MovieExecuteExample implements RequestProcessable {
 
     @Override
     public Response process(Request request, DataSource ds, Map<String, Object> args) throws Exception {
 
-        Customer customer = new Customer();
-        customer.setName("John Doeyy.");
-        customer.setId(new Integer((String)args.get("id")));
-        customer.setRoll(555);
-        customer.setContact("+1 943 322 4292", "john.doe@gmail.com");
+        Result result = (Result) args.get("movieInfo");
 
         Response response = new Response();
 
         // set your model object as payload here
-        response.setPayload(customer);
+        response.setPayload(result.getRowCount());
         return response;
     }
 
