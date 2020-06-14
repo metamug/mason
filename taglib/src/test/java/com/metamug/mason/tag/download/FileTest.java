@@ -99,7 +99,6 @@ public class FileTest {
         executeTag.setVar("fileDownload");
         executeTag.setOutput(true);
         executeTag.setClassName("com.metamug.mason.tag.download.FileDownloadPlugin");
-        executeTag.setParam(masonRequest);
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
         

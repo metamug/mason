@@ -7,7 +7,7 @@
     <name>server</name>
     <url>http://metamug.net</url>
     <properties>
-        <tomcat.version>9.0.36</tomcat.version>
+        <tomcat.version>9.0.31</tomcat.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>

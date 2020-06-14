@@ -1,11 +1,9 @@
-<jsp:directive.page pageEncoding="UTF-8" trimDirectiveWhitespaces="true"/>
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
-<%@taglib uri="http://xml.metamug.net/jsp/jstl/mason" prefix="m" %>
+<jsp:directive.include file="../fragments/mason-init.jspf"/>
 
 <m:resource>
-    <m:request method="POST">
-        <m:execute className="com.example.RequestHandler" var="getCustomer"
-                   param="${mtgReq}" output="true"/>
-    </m:request>
+    <m:request method="GET">
+        <m:execute className="com.example.RequestHandler" var="getCustomer" output="true">
+            <m:arg name="id" value="618" />
+        </m:execute>
+    </m:request>        
 </m:resource>
