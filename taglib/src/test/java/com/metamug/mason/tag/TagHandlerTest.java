@@ -893,19 +893,7 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }*/
-    @Test
-    public void executeTagResultProcessable() throws JspException {
-        when(context.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE)).thenReturn(resultMap);
-
-        executeTag.setVar("executeOutput");
-        executeTag.setOutput(true);
-        executeTag.setClassName("com.metamug.mason.processables.ResultExample");
-
-        executeTag.setParam(resultImpl);
-
-        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
-    }
+   
 
     @Test
     public void xrequestTag() throws JspException {
