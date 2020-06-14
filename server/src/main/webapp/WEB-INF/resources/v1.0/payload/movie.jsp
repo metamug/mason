@@ -6,18 +6,18 @@
 
 <m:resource>
 
+        <m:request method='POST' className="com.example.entity.Movies">
+            <c:forEach items="${rbody.films}" var="film" varStatus="loop">
+                <sql:query var="result" dataSource="${datasource}">
+                    select ? as "date", ? as "name", ? as "rating"
 
-
-    <m:request method='POST' className="com.example.entity.Movie">
-        <sql:query var="result" dataSource="${datasource}">
-            select ? as "date", ? as "name", ? as "rating"
-
-            <sql:param value="${rbody.releaseDate}"/>
-            <sql:param value="${rbody.name}"/>
-            <sql:param value="${rbody.rating}"/>
-        </sql:query>
-        <c:set target="${output}" property="postResult" value="${result}"/>
-    </m:request>
+                        <sql:param value="${film.releaseDate}"/>
+                        <sql:param value="${film.name}"/>
+                        <sql:param value="${film.rating}"/>
+                </sql:query>
+                <c:set target="${output}" property="postResult_${loop.index}" value="${result}"/>
+            </c:forEach>
+        </m:request>
 
     <m:request method='PUT' item="true">
         <sql:update var="result" dataSource="${datasource}">
