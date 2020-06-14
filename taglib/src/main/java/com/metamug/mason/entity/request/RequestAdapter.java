@@ -663,7 +663,6 @@ public class RequestAdapter {
         resourceUri += "/";
         int sizeOfresourceUri = resourceUri.length();
 
-        List<String> ourListElements = new ArrayList<>(sizeOfresourceUri);
         List<String> finalResponseElement = new ArrayList<>(sizeOfresourceUri);
 
         int positionOfEachElement = 1;
@@ -672,7 +671,6 @@ public class RequestAdapter {
             if (resourceUri.charAt(index) == '/') {
                 tokensValue = resourceUri.substring(positionOfEachElement, index);
                 positionOfEachElement = index + 1;
-                ourListElements.add(tokensValue);
                 listInputAtPast = listInputAtFuture + tokensValue;
                 listInputAtAlways = listInputAtPresent + listInputAtPast;
 
