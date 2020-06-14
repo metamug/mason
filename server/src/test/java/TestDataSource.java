@@ -1,4 +1,3 @@
-package launch;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -10,7 +9,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class TestDataSource {
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+
+    public static void connectdb(String[] args) throws SQLException, ClassNotFoundException {
         HikariConfig hikariConfig = new HikariConfig();
         Class.forName("com.mysql.cj.jdbc.Driver");
 
@@ -32,8 +32,9 @@ public class TestDataSource {
             Connection connection = ds.getConnection();
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("select * from movie");
-            while (rs.next())
+            while (rs.next()) {
                 System.out.println(rs.getString(1) + "  " + rs.getString(2) + "  " + rs.getString(3));
+            }
             connection.close();
         } catch (Exception e) {
             System.out.println(e);

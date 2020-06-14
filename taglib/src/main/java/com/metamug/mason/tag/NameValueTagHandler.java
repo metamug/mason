@@ -514,14 +514,14 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 
 /**
  * Can be used for a tag with String,Object Key Value Format
+ *
  * @author anishhirlekar
  */
 public class NameValueTagHandler extends BodyTagSupport {
-    
+
     //@TODO can use <c:param name="Id" value="736"/> tag instead
-    
     protected String name;
-    private Object value;
+    protected Object value;
     protected RequestTag parent;
 
     @Override
@@ -529,7 +529,7 @@ public class NameValueTagHandler extends BodyTagSupport {
 
         parent = (RequestTag) getParent();
         if (parent == null) {
-            throw new JspTagException("Header Tag doesnt have a valid parent");
+            throw new JspTagException("The tag does not have a valid parent");
         }
 
         if (value == null) {

@@ -1,7 +1,6 @@
 *.settings
 *.classpath
 *.project
-target/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -20,3 +19,6 @@ nb-configuration.xml
 mason.iml
 .idea/**/workspace.xml
 .idea/**/libraries
+server/tomcat:7000/
+taglib/target/
+server/target/

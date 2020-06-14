@@ -508,19 +508,13 @@ package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
-import com.metamug.entity.Result;
 import com.metamug.exec.RequestProcessable;
-import com.metamug.exec.ResultProcessable;
+import static com.metamug.mason.Router.MASON_REQUEST;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
-//import com.metamug.mason.service.ConnectionProvider;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.TreeMap;
+import com.metamug.mason.service.ConnectionProvider;
 import javax.servlet.jsp.JspException;
 import static javax.servlet.jsp.tagext.Tag.EVAL_PAGE;
-import javax.sql.DataSource;
-import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 
 /**
  *
@@ -529,12 +523,10 @@ import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 public class ExecuteTagHandler extends RequestTag {
 
     private String className;
-    private Object param; //input for execution sql result(ResultProcessable) or http request(RequestProcessable)
     private String var;
-//    private DataSource ds;
 
     private boolean output; //default value
-    private String onerror;
+    private String onerror; //error message in case of error
 
     @Override
     public int doEndTag() throws JspException {
@@ -543,44 +535,22 @@ public class ExecuteTagHandler extends RequestTag {
         try {
             Class cls = Class.forName(className);
             Object newInstance = cls.newInstance();
-            ResultProcessable resProcessable;
             RequestProcessable reqProcessable;
             
-            if (ResultProcessable.class.isAssignableFrom(cls)) {
-                resProcessable = (ResultProcessable) newInstance;
-                if (param instanceof ResultImpl) {
-                    ResultImpl ri = (ResultImpl) param;
-                    //@TODO remove cast
-                    Result sqlResult = new Result(ri.getRows(), ri.getColumnNames(), ri.getRowCount());
-                    
-                    result = resProcessable.process(sqlResult);
-                }
-            } else if (RequestProcessable.class.isAssignableFrom(cls)) {
-                
-                reqProcessable = (RequestProcessable) newInstance;
-                if (param instanceof Request) {
-                    Request masonReq = (Request) param;
-                    
-                    Map<String, String> requestParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    masonReq.getParams().entrySet().forEach(entry -> {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        requestParameters.put(key, value);
-                    });
-                    Enumeration<String> headerNames = request.getHeaderNames();
-                    Map<String, String> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                    while (headerNames.hasMoreElements()) {
-                        String header = headerNames.nextElement();
-                        requestHeaders.put(header, request.getHeader(header));
-                    }                    
-//                    ds = ConnectionProvider.getMasonDatasource();
-                    //no bus
-                    result = reqProcessable.process(masonReq, null, parameters); //@TODO add actual args and resource
-                }
-            } else {
+            //Refer to queryTocode sample for handling sql result https://github.com/metamug/mason-sample/blob/master/WEB-INF/resources/v1.0/querytocode.jsp
+            
+            if (!RequestProcessable.class.isAssignableFrom(cls)) {
                 throw new JspException("", new MasonException(MasonError.CLASS_NOT_IMPLEMENTED,
                         "Class " + cls + " isn't processable"));
             }
+
+            reqProcessable = (RequestProcessable) newInstance;
+
+            Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
+
+            //no bus
+            result = reqProcessable.process(masonReq, ConnectionProvider.getMasonDatasource(), parameters);
+            //@TODO add actual args and resource
 
             // if Response object is returned, put payload in bus and mason output
             addToBus(var, result);
@@ -606,10 +576,6 @@ public class ExecuteTagHandler extends RequestTag {
 
     public void setOnerror(String onError) {
         this.onerror = onError;
-    }
-
-    public void setParam(Object param) {
-        this.param = param;
     }
 
     public void setVar(String var) {

@@ -240,8 +240,8 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>4.0.1</version>
         </dependency>   <!-- https://stackoverflow.com/a/47303941/1097600 -->    
-        <!-- Only for ResultImpl -->
-        <dependency>
+        <!-- Only for ResultImpl. Needed for output -->
+        <dependency> 
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <version>1.2</version>

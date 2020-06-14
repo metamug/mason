@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movies>
+    <movie>
+        <releaseDate>2020-03-31</releaseDate>
+        <name>Parasite</name>
+        <rating>5.0</rating>
+    </movie>
+    <movie>
+        <releaseDate>2020-01-30</releaseDate>
+        <name>Joker</name>
+        <rating>4.9</rating>
+    </movie>
+</movies>

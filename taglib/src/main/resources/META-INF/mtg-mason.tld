@@ -159,12 +159,6 @@
             <type>java.lang.String</type>
         </attribute>
         <attribute>
-            <name>param</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
-        <attribute>
             <name>output</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
@@ -185,7 +179,7 @@
     </tag>
     <tag>
         <name>arg</name> <!-- For Execute Tag -->
-        <tag-class>com.metamug.mason.tag.NameValueTagHandler</tag-class>
+        <tag-class>com.metamug.mason.tag.ArgTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
