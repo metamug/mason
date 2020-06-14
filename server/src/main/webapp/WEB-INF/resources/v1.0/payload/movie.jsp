@@ -13,7 +13,7 @@
 
                 <sql:param value="${film.releaseDate}"/>
                 <sql:param value="${film.name}"/>
-                <sql:param value="${film.rating}"/>
+                <sql:param value="${film.rating}"/> 
             </sql:query>
             <c:set target="${output}" property="postResult_${loop.index}" value="${result}"/>
         </c:forEach>
