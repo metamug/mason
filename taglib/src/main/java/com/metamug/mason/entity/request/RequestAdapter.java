@@ -512,6 +512,8 @@ import com.metamug.mason.MasonRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -522,180 +524,188 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class RequestAdapter {
 
-    private HttpServletRequest httpRequest;
-    private JspResource jspResource;
+	private HttpServletRequest httpRequest;
+	private JspResource jspResource;
 
-    public RequestAdapter(HttpServletRequest request) throws IOException, ServletException {
-        this.httpRequest = request;
-    }
+	public RequestAdapter(HttpServletRequest request) throws IOException, ServletException {
+		this.httpRequest = request;
+	}
 
-    public void setJspResource(JspResource jspResource) {
-        this.jspResource = jspResource;
-    }
+	public void setJspResource(JspResource jspResource) {
+		this.jspResource = jspResource;
+	}
 
-    public Request getRequest() {
-        Request masonRequest = buildRequest();
-        masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
-        return new ImmutableRequest(masonRequest);
-    }
+	public Request getRequest() {
+		Request masonRequest = buildRequest();
+		masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
+		return new ImmutableRequest(masonRequest);
+	}
 
-    /**
-     * Extract Request information
-     */
-    private Request buildRequest() {
+	/**
+	 * Extract Request information
+	 */
+	private Request buildRequest() {
 
-        // using function of input extraction
-        List<String> ourListElements = inputUriExtraction(jspResource.getResourceUri());
+		// using function of input extraction
+		List<String> ourListElements = inputUriExtraction(jspResource.getResourceUri());
 
-        // using function to find the output uri
-        List<String> finalResponseElement = resultUriExtraction(jspResource.getResourceUri());
+		// using function to find the output uri
+		List<String> finalResponseElement = resultUriExtraction(jspResource.getResourceUri());
 
-        Request request = new MasonRequest();
-        request.setUri(jspResource.getResourceUri());
-        // checking uri is valid or not
-        if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {
-            request.setUri(null);
-        }
-        int position = finalResponseElement.size() - 1;
-        // check for id at the last position as resource id
-        if (finalResponseElement.get(position).equals("I")) {
-            request.setId(ourListElements.get(position));
-            position--; // last element identified as resource id
-        }
-        int count = 0;
-        String resourceName = null;
-        // finding resource name
-        for (int index = position; index >= 0; index--) {
-            if (finalResponseElement.get(index).equals("R")) {
-                resourceName = ourListElements.get(index);
-                count = count + 1;
-                position = index;
-                break;
-            }
-        }
+		Request request = new MasonRequest();
+		request.setUri(jspResource.getResourceUri());
+		// checking uri is valid or not
+		if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {
+			request.setUri(null);
+		}
+		int position = finalResponseElement.size() - 1;
+		// check for id at the last position as resource id
+		if (finalResponseElement.get(position).equals("I")) {
+			request.setId(ourListElements.get(position));
+			position--; // last element identified as resource id
+		}
+		int stackIterator = finalResponseElement.size() - 1;
+		Stack<String> stack = new Stack<String>();
+		for (String element : finalResponseElement) {
+			stack.push(element);
+		}
+		String resourceName = null;
+		// finding resource name
+		while (!stack.empty()) {
+			if (stack.peek().equals("R")) {
+				resourceName = ourListElements.get(stackIterator);
+				stack.pop();
+				break;
+			} else {
+				stackIterator = stackIterator - 1;
+				stack.pop();
+			}
+		}
+		position = stackIterator;
+		stackIterator = stackIterator - 1;
+		// check if only one R exist then giving error
+		if (finalResponseElement.size() > 1) {
+			for (int index = 0; index < finalResponseElement.size() - 1; index++) {
+				if (finalResponseElement.get(index).equals("I") && finalResponseElement.get(index + 1).equals("I")) {
+					resourceName = null;
+					request.setId(null);
+					break;
+				}
+			}
+		}
 
-        // check if only one R exist then giving error
-        if (finalResponseElement.size() > 1) {
-            for (int index = 0; index < finalResponseElement.size() - 1; index++) {
-                if (finalResponseElement.get(index).equals("I") && finalResponseElement.get(index + 1).equals("I")) {
-                    resourceName = null;
-                    request.setId(null);
-                    break;
-                }
-            }
-        }
+		Resource resource = new Resource(resourceName, jspResource.getVersion());
+		request.setResource(resource);
 
-        Resource resource = new Resource(resourceName, jspResource.getVersion());
-        request.setResource(resource);
+		// finding parent id
+		for (int index = position; index >= 0; index--) {
+			if (finalResponseElement.get(index).equals("I")) {
+				request.setPid(ourListElements.get(index));
+				break;
+			}
+		}
 
-        // finding parent id
-        for (int index = position; index >= 0; index--) {
-            if (finalResponseElement.get(index).equals("I")) {
-                request.setPid(ourListElements.get(index));
-                break;
-            }
-        }
+		// finding parent name
+		Resource parentResource = null; // @TODO set parentName to correc value
+		while (!stack.empty()) {
+			if (stack.peek().equals("R")) {
+				parentResource = new Resource((ourListElements.get(stackIterator)), resource.getVersion());
+				stack.pop();
+				break;
+			} else {
+				stackIterator = stackIterator - 1;
+				stack.pop();
+			}
+		}
+		request.setParent(parentResource);
+		return request;
+	}
 
-        // finding parent name
-        Resource parentResource = null; // @TODO set parentName to correc value
-        for (int index = position - 1; index >= 0; index--) {
-            if (finalResponseElement.get(index).equals("R")) {
-                parentResource = new Resource((ourListElements.get(index)), resource.getVersion());
-                break;
-            }
-        }
-        request.setParent(parentResource);
-        return request;
-    }
+	/**
+	 * *
+	 *
+	 * @auther BISWAS05 This method is used to extract the resource uri as a list.
+	 *         Using this output we can easily define our parent id resource
+	 *         id,parent name,resource name and also we can find the uri is valid or
+	 *         not using this.
+	 * @return ourListElements This returns the extracted list or reource uri.
+	 */
+	private List<String> inputUriExtraction(String resourceUri) {
+		String tokensValue;
+		resourceUri += "/";
+		int sizeOfresourceUri = resourceUri.length();
 
-    /**
-     * *
-     *
-     * @auther BISWAS05 This method is used to extract the resource uri as a
-     * list. Using this output we can easily define our parent id resource
-     * id,parent name,resource name and also we can find the uri is valid or not
-     * using this.
-     * @return ourListElements This returns the extracted list or reource uri.
-     */
-    private List<String> inputUriExtraction(String resourceUri) {
-        String tokensValue;
-        resourceUri += "/";
-        int sizeOfresourceUri = resourceUri.length();
+		List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
 
-        List<String> ourListElements = new ArrayList<String>(sizeOfresourceUri);
+		int positionOfEachElement = 1;
 
-        int positionOfEachElement = 1;
+		for (int index = 1; index < sizeOfresourceUri; index++) {
 
-        for (int index = 1; index < sizeOfresourceUri; index++) {
+			if (resourceUri.charAt(index) == '/') {
 
-            if (resourceUri.charAt(index) == '/') {
+				tokensValue = resourceUri.substring(positionOfEachElement, index);
 
-                tokensValue = resourceUri.substring(positionOfEachElement, index);
+				positionOfEachElement = index + 1;
 
-                positionOfEachElement = index + 1;
+				ourListElements.add(tokensValue);
 
-                ourListElements.add(tokensValue);
+			}
+		}
+		return ourListElements;
+	}
 
-            }
-        }
-        return ourListElements;
-    }
+	/**
+	 * *
+	 *
+	 * @auther BISWAS05 This method is used to extract the resource uri as a the
+	 *         final responce as output.. Here we will get the output according to
+	 *         the input and the formula. This will look like R/G/I/R/I.
+	 * @return finalResponseElement This returns the extracted list as the output.
+	 */
+	private List<String> resultUriExtraction(String resourceUri) {
 
-    /**
-     * *
-     *
-     * @auther BISWAS05 This method is used to extract the resource uri as a the
-     * final responce as output.. Here we will get the output according to the
-     * input and the formula. This will look like R/G/I/R/I.
-     * @return finalResponseElement This returns the extracted list as the
-     * output.
-     */
-    private List<String> resultUriExtraction(String resourceUri) {
+		String tokensValue;
+		String listInputAtPresent;
+		String listInputAtPast;
+		String listInputAtAlways;
+		String listInputAtFuture = "/";
+		listInputAtPresent = "";
+		listInputAtAlways = "";
+		listInputAtPast = "";
+		resourceUri += "/";
+		int sizeOfresourceUri = resourceUri.length();
 
-        String tokensValue;
-        String listInputAtPresent;
-        String listInputAtPast;
-        String listInputAtAlways;
-        String listInputAtFuture = "/";
-        listInputAtPresent = "";
-        listInputAtAlways = "";
-        listInputAtPast = "";
-        resourceUri += "/";
-        int sizeOfresourceUri = resourceUri.length();
+		List<String> finalResponseElement = new ArrayList<>(sizeOfresourceUri);
 
-        List<String> ourListElements = new ArrayList<>(sizeOfresourceUri);
-        List<String> finalResponseElement = new ArrayList<>(sizeOfresourceUri);
+		int positionOfEachElement = 1;
+		String prevToken = " ", currentToken = " ";
+		for (int index = 1; index < sizeOfresourceUri; index++) {
+			if (resourceUri.charAt(index) == '/') {
+				tokensValue = resourceUri.substring(positionOfEachElement, index);
+				positionOfEachElement = index + 1;
+				listInputAtPast = listInputAtFuture + tokensValue;
+				listInputAtAlways = listInputAtPresent + listInputAtPast;
 
-        int positionOfEachElement = 1;
-        String prevToken = " ", currentToken = " ";
-        for (int index = 1; index < sizeOfresourceUri; index++) {
-            if (resourceUri.charAt(index) == '/') {
-                tokensValue = resourceUri.substring(positionOfEachElement, index);
-                positionOfEachElement = index + 1;
-                ourListElements.add(tokensValue);
-                listInputAtPast = listInputAtFuture + tokensValue;
-                listInputAtAlways = listInputAtPresent + listInputAtPast;
+				if (!jspResource.resourceExists(listInputAtAlways)) {
+					if (prevToken.equals(" ")) {
+						currentToken = "G";
+						listInputAtPresent = listInputAtAlways;
+					} else if (prevToken.equals("G")) {
+						currentToken = "G";
+						listInputAtPresent = listInputAtAlways;
+					} else if (prevToken.equals("R")) {
+						currentToken = "I";
+					}
 
-                if (!jspResource.resourceExists(listInputAtAlways)) {
-                    if (prevToken.equals(" ")) {
-                        currentToken = "G";
-                        listInputAtPresent = listInputAtAlways;
-                    } else if (prevToken.equals("G")) {
-                        currentToken = "G";
-                        listInputAtPresent = listInputAtAlways;
-                    } else if (prevToken.equals("R")) {
-                        currentToken = "I";
-                    }
+				} else {
+					currentToken = "R";
+				}
+				prevToken = currentToken;
 
-                } else {
-                    currentToken = "R";
-                }
-                prevToken = currentToken;
-
-                finalResponseElement.add(prevToken);
-            }
-        }
-        return finalResponseElement;
-    }
+				finalResponseElement.add(prevToken);
+			}
+		}
+		return finalResponseElement;
+	}
 
 }
