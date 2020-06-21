@@ -527,7 +527,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
@@ -535,7 +534,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Rest Controller. Handles all the incoming requests
+ * Rest Controller. Handles all the incoming requests Uses Multipart config for
+ * mutlipart/formdata to work https://stackoverflow.com/a/27938893/1097600
  *
  * @author Kaisteel
  */
@@ -550,9 +550,7 @@ public class Router implements Filter {
     public static final String QUERY_FILE_NAME = "query.properties";
     public static final String MASON_QUERY = "masonQuery"; //to hold queries from properties file
     public static final String DATA_SOURCE = "datasource";
-    public static final String MTG_AUTH_BASIC = "MTG_AUTH_BASIC";
-    public static final String MTG_AUTH_BEARER = "MTG_AUTH_BEARER";
-
+   
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
     public static final String MASON_REQUEST = "mtgReq";
@@ -723,12 +721,12 @@ public class Router implements Filter {
         } else {
             config.getServletContext().setAttribute(DATA_SOURCE, "jdbc/mason");
         }
-
-        if (config.getInitParameter(MTG_AUTH_BASIC) != null) {
-            config.getServletContext().setAttribute(MTG_AUTH_BASIC, config.getInitParameter(MTG_AUTH_BASIC));
-        }
-        if (config.getInitParameter(MTG_AUTH_BEARER) != null) {
-            config.getServletContext().setAttribute(MTG_AUTH_BEARER, config.getInitParameter(MTG_AUTH_BEARER));
+        
+        
+        // Add all init params to context
+        if (config.getInitParameterNames().hasMoreElements()) {
+            String param = config.getInitParameterNames().nextElement();
+            config.getServletContext().setAttribute(param, config.getInitParameter(param));
         }
 
         InputStream queryFileInputStream = Router.class.getClassLoader().getResourceAsStream(QUERY_FILE_NAME);

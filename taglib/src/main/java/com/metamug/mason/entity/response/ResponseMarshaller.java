@@ -504,7 +504,7 @@
  *
  * That's all there is to it!
  */
-package com.metamug.mason.io.objectreturn;
+package com.metamug.mason.entity.response;
 
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
@@ -518,7 +518,7 @@ import java.io.StringWriter;
  * Convert JAXB Object to JSON/XML depending on the header
  * @author anishhirlekar
  */
-public class ObjectReturn {
+public class ResponseMarshaller {
 
     public static final String TYPE_JSON = "application/json"; //@TODO redundant declared in request and response package
     public static final String TYPE_XML = "application/xml";

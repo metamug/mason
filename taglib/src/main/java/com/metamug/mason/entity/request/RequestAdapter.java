@@ -536,7 +536,6 @@ public class RequestAdapter {
 
     public Request getRequest() {
         Request masonRequest = buildRequest();
-        masonRequest.setMethod(this.httpRequest.getMethod().toLowerCase());
         return new ImmutableRequest(masonRequest);
     }
 

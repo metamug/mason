@@ -508,7 +508,6 @@ package com.metamug.mason.entity.response;
 
 import com.metamug.entity.Response;
 import com.metamug.mason.io.mpath.MPathUtil;
-import com.metamug.mason.io.objectreturn.ObjectReturn;
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -557,7 +556,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                     } else {
                         // for POJO
                         try {
-                            array.put(new JSONObject(ObjectReturn.convert(o, MediaType.APPLICATION_JSON)));
+                            array.put(new JSONObject(ResponseMarshaller.convert(o, MediaType.APPLICATION_JSON)));
                         } catch (JAXBException ex) {
                             //@TODO Do something here
                             Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
@@ -569,7 +568,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                 //obj is POJO
                 try {
                     //try if object of JAXB class
-                    responseJson.put(key, new JSONObject(ObjectReturn.convert(obj, MediaType.APPLICATION_JSON)));
+                    responseJson.put(key, new JSONObject(ResponseMarshaller.convert(obj, MediaType.APPLICATION_JSON)));
                 } catch (MarshalException mex) {
                     responseJson.put(key, obj);
                 } catch (JAXBException ex) {

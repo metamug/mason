@@ -54,4 +54,9 @@ public class MasonRequest extends Request {
         return params;
     }
 
+    @Override
+    public String getMethod() {
+        return this.request.getMethod().toLowerCase();
+    }
+
 }

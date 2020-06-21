@@ -677,7 +677,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * @author deepak
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RequestStrategyTest {
+public class RequestAdapterTest {
 
     @Mock
     private HttpServletRequest request;
@@ -703,6 +703,14 @@ public class RequestStrategyTest {
         adapter.setJspResource(jspResource);
         return adapter;
     }
+
+//    @Test
+//    public void testMasonRequest() throws IOException, ServletException {
+//        RequestAdapter adapter = mockStrategy("/info/crm/people/customer/12");
+//        when(request.getParameter("foo")).thenReturn("bar");
+//        Request masonRequest = adapter.getRequest();
+//        assertEquals("bar", masonRequest.getParameter("foo"));
+//    }
 
     @Test
     public void uriTest() throws IOException, ServletException {
