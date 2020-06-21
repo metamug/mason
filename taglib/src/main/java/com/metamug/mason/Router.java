@@ -615,7 +615,7 @@ public class Router implements Filter {
             return;
         }
 
-        res.setContentType(MediaType.APPLICATION_JSON); //@TODO will response be always json 
+        res.setContentType(MediaType.APPLICATION_JSON); //@TODO Will response be always json?
 
         //requesting a REST resource
         String resourceName = "";
@@ -628,7 +628,7 @@ public class Router implements Filter {
             Request masonRequest = adapter.getRequest();
             resourceName = masonRequest.getResource().getName();
 
-            if (masonRequest.getResource().getName() == null) {
+            if (resourceName == null) {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
                 return;
             }
@@ -657,7 +657,7 @@ public class Router implements Filter {
             } else if (ex.getCause() != null) {
                 String[] causeSplit = ex.getCause().toString().split(": ");
                 String cause = causeSplit.length > 1 ? causeSplit[1].replaceAll("(\\s|\\n|\\r|\\n\\r)+", " ") : "";
-                writeError(res, 500, cause);
+                writeError(res, 500, cause); //@TODO display better error than JSPException
             } else if (ex.getMessage().contains("ELException")) {
                 writeError(res, 512, "Incorrect test condition in '" + resourceName + "' resource");
             } else {

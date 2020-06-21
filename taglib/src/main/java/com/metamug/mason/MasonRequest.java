@@ -17,44 +17,37 @@ package com.metamug.mason;
 
 import com.metamug.entity.Request;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
- * Wrapper for HttpServletRequest
+ * Extend the implementation specific to mason for Request Object
  *
  * @author pc
  */
-public class HttpRequestWrapper extends HttpServletRequestWrapper {
+public class MasonRequest extends Request {
 
-    private Request request;
-    
+    private HttpServletRequest request;
 
-    public HttpRequestWrapper(HttpServletRequest request) {
+    public MasonRequest(Request request) {
         super(request);
     }
 
-    public void setRequest(Request request) {
-        this.request = request;
+    public MasonRequest() {
+
     }
 
-    @Override
-    public String getMethod() {
-        String method = super.getMethod();
-        if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) { //since JSP doesn't support DELETE and PUT
-            return "POST";
-        } else {
-            return method;
-        }
+    public void setServletRequest(HttpServletRequest req) {
+        this.request = req;
     }
-    
+
     /**
-     * Modify getParameter to get extra parameters
-     * @param name
-     * @return 
+     * Use ${mtgReq.param.value} Do not need to convert parameters to a new map
+     *
+     * @param param
+     * @return
      */
     @Override
     public String getParameter(String name) {
-        return super.getParameter(name);
+        return request.getParameter(name);
     }
 
 }

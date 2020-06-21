@@ -508,7 +508,7 @@ package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
-import static com.metamug.mason.Router.JSP_RESOURCE;
+import com.metamug.mason.MasonRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -550,7 +550,7 @@ public class RequestAdapter {
         // using function to find the output uri
         List<String> finalResponseElement = resultUriExtraction(jspResource.getResourceUri());
 
-        Request request = new Request();
+        Request request = new MasonRequest();
         request.setUri(jspResource.getResourceUri());
         // checking uri is valid or not
         if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {
@@ -698,6 +698,4 @@ public class RequestAdapter {
         return finalResponseElement;
     }
 
-    
-   
 }

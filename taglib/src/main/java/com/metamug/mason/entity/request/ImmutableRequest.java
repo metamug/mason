@@ -508,6 +508,7 @@ package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
+import com.metamug.mason.MasonRequest;
 
 import java.util.Map;
 
@@ -516,7 +517,7 @@ import java.util.Map;
  *
  * @author user
  */
-public final class ImmutableRequest extends Request {
+public final class ImmutableRequest extends MasonRequest {
 
     public ImmutableRequest(Request mtgReq) {
         super(mtgReq);
@@ -540,11 +541,6 @@ public final class ImmutableRequest extends Request {
 
     @Override
     public void setMethod(String method) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setParams(Map<String, String> params) {
         throw new UnsupportedOperationException();
     }
 

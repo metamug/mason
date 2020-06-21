@@ -555,56 +555,8 @@ public class RequestTagHandler extends RequestTag {
     private String className;
     private Request masonRequest;
     public static final String JSP_REQUEST_SCOPE = "requestScope";
+    public static final String REQUEST_BODY_PARAM_NAME = "mbody";
     protected ResourceTagHandler parent;
-
-    /**
-     * Set Request Body based on Content-Type Header
-     *
-     * @param contentType
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws JAXBException
-     */
-    private void addBody(String contentType) throws JspException {
-
-        try {
-            addExtraParams();
-
-            RequestBodyStrategy strategy = null;
-
-            if (contentType.contains(MediaType.APPLICATION_JSON)) {
-                strategy = new JsonBodyStrategy(Class.forName(className));
-            } else if (contentType.contains(MediaType.APPLICATION_XML)) {
-                strategy = new XmlBodyStrategy(Class.forName(className));
-            } else {
-                return; //do not set the request body
-            }
-
-            Class clazz = Class.forName(className);
-            Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
-            
-            request.setAttribute("rbody", body); //Object is handled using JavaBeans in JSP
-        } catch (ClassNotFoundException ex) {
-            //@TODO throw as JSP exception
-            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-            throw new JspException("Unable to find the specified class");
-        } catch (IOException | JAXBException ex) {
-            //@TODO throw 422 here
-            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
-            throw new JspException("Status: 422 \n Could not parse the body of the request according to the provided Content-Type.");
-        }
-
-    }
-
-    private void addExtraParams() {
-        //https://stackoverflow.com/a/19114947/1097600
-         
-        //Map<String, Object> param = (Map<String, Object>) pageContext.getAttribute(JSP_REQUEST_SCOPE);
-        request.setAttribute("foo", "bar");
-        if (StringUtils.isNotBlank(item)) {
-            request.setAttribute(item, masonRequest.getId());
-        }
-    }
 
     @Override
     public int doStartTag() throws JspException {
@@ -641,6 +593,56 @@ public class RequestTagHandler extends RequestTag {
         }
 
         return SKIP_BODY;
+    }
+
+    /**
+     * Set Request Body based on Content-Type Header
+     *
+     * @param contentType
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws JAXBException
+     */
+    private void addBody(String contentType) throws JspException {
+
+        try {
+            addExtraParams();
+
+            RequestBodyStrategy strategy = null;
+
+            if (contentType.contains(MediaType.APPLICATION_JSON)) {
+                strategy = new JsonBodyStrategy(Class.forName(className));
+            } else if (contentType.contains(MediaType.APPLICATION_XML)) {
+                strategy = new XmlBodyStrategy(Class.forName(className));
+            } else {
+                return; //do not set the request body
+            }
+
+            Class clazz = Class.forName(className);
+            Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
+            masonRequest.setBody(body);
+
+            //request.setAttribute(REQUEST_BODY_PARAM_NAME, body); //Object is handled using JavaBeans in JSP
+        } catch (ClassNotFoundException ex) {
+            //@TODO throw as JSP exception
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            throw new JspException("Unable to find the specified class");
+        } catch (IOException | JAXBException ex) {
+            //@TODO throw 422 here
+            Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
+            throw new JspException("Status: 422 \n Could not parse the body of the request according to the provided Content-Type.");
+        }
+
+    }
+
+    private void addExtraParams() {
+        //https://stackoverflow.com/a/19114947/1097600
+
+        //Map<String, Object> param = (Map<String, Object>) pageContext.getAttribute(JSP_REQUEST_SCOPE);
+        request.setAttribute("foo", "bar");
+        if (StringUtils.isNotBlank(item)) {
+            request.setAttribute(item, masonRequest.getId());
+        }
     }
 
     @Override
