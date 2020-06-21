@@ -13,41 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.metamug.mason;
+package com.metamug.mason.entity.request;
 
-import com.metamug.entity.Request;
+import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Extend the implementation specific to mason for Request Object
  *
  * @author pc
  */
-public class MasonRequest extends Request {
+public class RequestParamMap extends HashMap<String, String> {
 
-    private HttpServletRequest request;
+    private final HttpServletRequest request;
 
-    public MasonRequest(Request request) {
-        super(request);
+    public RequestParamMap(HttpServletRequest request) {
+        this.request = request;
     }
 
-    public MasonRequest() {
-
-    }
-
-    public void setServletRequest(HttpServletRequest req) {
-        this.request = req;
-    }
-
-    /**
-     * Use ${mtgReq.param.value} Do not need to convert parameters to a new map
-     *
-     * @param param
-     * @return
-     */
     @Override
-    public String getParameter(String name) {
-        return request.getParameter(name);
+    public String get(Object key) {
+        return request.getParameter((String) key);
     }
 
 }

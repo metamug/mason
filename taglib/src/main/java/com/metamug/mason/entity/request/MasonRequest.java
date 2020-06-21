@@ -13,48 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.metamug.mason;
+package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
- * Wrapper for HttpServletRequest
+ * Extend the implementation specific to mason for Request Object
  *
  * @author pc
  */
-public class HttpRequestWrapper extends HttpServletRequestWrapper {
+public class MasonRequest extends Request {
 
-    private Request masonRequest;
+    private HttpServletRequest request;
+    private RequestParamMap params; //hiding superclass field
 
-    public HttpRequestWrapper(HttpServletRequest request) {
+    public MasonRequest(Request request) {
         super(request);
     }
 
-    public void setMasonRequest(Request request) {
-        this.masonRequest = request;
-    }
-
-    @Override
-    public String getMethod() {
-        String method = super.getMethod();
-        if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) { //since JSP doesn't support DELETE and PUT
-            return "POST";
-        } else {
-            return method;
-        }
+    public MasonRequest(HttpServletRequest req) {
+        this.request = req;
+        this.params = new RequestParamMap(req);
     }
 
     /**
-     * Modify getParameter to get extra parameters
+     * Use ${mtgReq.param.value} Do not need to convert parameters to a new map
      *
-     * @param name
+     * @param param
      * @return
      */
     @Override
     public String getParameter(String name) {
-        return super.getParameter(name);
+        return request.getParameter(name);
+    }
+
+    @Override
+    public Map<String, String> getParams() {
+        return params;
     }
 
 }

@@ -508,7 +508,6 @@ package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
-import com.metamug.mason.MasonRequest;
 
 import java.util.Map;
 
