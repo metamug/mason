@@ -540,8 +540,10 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     /**
      * This method is called after the JSP engine finished processing the tag.
      *
-     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP page, otherwise return SKIP_PAGE. This method is automatically generated. Do not modify this method. Instead, modify the
-     * methods that this method calls.
+     * @return EVAL_PAGE if the JSP engine should continue evaluating the JSP
+     * page, otherwise return SKIP_PAGE. This method is automatically generated.
+     * Do not modify this method. Instead, modify the methods that this method
+     * calls.
      * @throws javax.servlet.jsp.JspException
      */
     @Override
@@ -558,12 +560,14 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
 
             if (exception.getCause() != null) {
                 String cause = exception.getCause().toString();
-                if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException") || cause.contains("MysqlDataTruncation") || cause.contains("SQLException") || cause.contains("PSQLException")) {
+                if (cause.contains("MySQLSyntaxErrorException") || cause.contains("MySQLIntegrityConstraintViolationException")
+                        || cause.contains("MysqlDataTruncation")
+                        || cause.contains("SQLException") || cause.contains("PSQLException")) {
                     logError(errorResponse, request, exception);
                 } else if (cause.contains("NumberFormatException") || cause.contains("ParseException")) {
                     errorResponse.setMessage("Unable to parse input");
                     errorResponse.setStatus(422);
-                    Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
+
                 } else if (cause.contains(MasonException.class.getName())) {
                     MasonException mtgCause = (MasonException) exception.getCause();
                     errorResponse = createErrorResponse(errorResponse, mtgCause);
@@ -575,7 +579,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 if (exception.getCause() != null && exception.getCause().toString().contains(MasonException.class.getName())) {
                     msg = exception.getCause().getMessage();
                 }
-                dbLogError((InternalServerErrorResponse) errorResponse, request, msg, new StringBuilder());
+                //dbLogError((InternalServerErrorResponse) errorResponse, request, msg, new StringBuilder());
+                //@TODO make db logging configurable. 
             }
             //set response
             response.setStatus(errorResponse.getStatus());
@@ -589,6 +594,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 JSONObject jsonObject = new JSONObject(errorResponse);
                 out.println(jsonObject.toString());
             }
+
+            Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
         } catch (IOException ex) {
             Logger.getLogger(ExceptionTagHandler.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }

@@ -582,6 +582,7 @@ public class RequestTagHandler extends RequestTag {
 
             Class clazz = Class.forName(className);
             Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
+            
             request.setAttribute("rbody", body); //Object is handled using JavaBeans in JSP
         } catch (ClassNotFoundException ex) {
             //@TODO throw as JSP exception
@@ -597,8 +598,8 @@ public class RequestTagHandler extends RequestTag {
 
     private void addExtraParams() {
         //https://stackoverflow.com/a/19114947/1097600
-
-        //Map<String, Object> param = (Map<String, Object>) request.getAttribute(JSP_REQUEST_SCOPE);
+         
+        //Map<String, Object> param = (Map<String, Object>) pageContext.getAttribute(JSP_REQUEST_SCOPE);
         request.setAttribute("foo", "bar");
         if (StringUtils.isNotBlank(item)) {
             request.setAttribute(item, masonRequest.getId());

@@ -647,7 +647,8 @@ public class Router implements Filter {
             //https://stackoverflow.com/a/46489035
             req.setAttribute(MTG_METHOD, req.getMethod()); //needed by ExceptionTagHandler
 
-            req.getRequestDispatcher(jspResource.getJspPath()).forward(new HttpRequestWrapper(req), res);
+            HttpRequestWrapper requestWrapper = new HttpRequestWrapper(req);
+            req.getRequestDispatcher(jspResource.getJspPath()).forward(requestWrapper, res);
 //            req.getRequestDispatcher(jspPath).forward(req, res);
 
         } catch (IOException | ServletException | JSONException ex) {
@@ -760,21 +761,4 @@ public class Router implements Filter {
         return true;
     }
 
-    private static class HttpRequestWrapper extends HttpServletRequestWrapper {
-
-        public HttpRequestWrapper(HttpServletRequest request) {
-            super(request);
-        }
-
-        @Override
-        public String getMethod() {
-            String method = super.getMethod();
-            if (method.equalsIgnoreCase("delete") || method.equalsIgnoreCase("put")) {
-                return "POST";
-            } else {
-                return method;
-            }
-        }
-
-    }
 }
