@@ -542,6 +542,7 @@ import javax.servlet.jsp.PageContext;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
+import net.minidev.json.JSONValue;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -571,11 +572,11 @@ public class RequestTagHandler extends RequestTag {
 
         masonRequest = (Request) request.getAttribute(MASON_REQUEST);
 
-        addBody(contentType);
-
         if (method.equalsIgnoreCase(request.getMethod())) {
             shouldEvaluate = ((masonRequest.getId() != null) == StringUtils.isNotBlank(item));
             if (shouldEvaluate) {
+                addBody(contentType);
+
                 //initialize only when this request is executed.
                 //Holds var names to be printed in output
                 //to maintain the order of insertion
@@ -610,17 +611,23 @@ public class RequestTagHandler extends RequestTag {
 
             RequestBodyStrategy strategy = null;
 
-            if (contentType.contains(MediaType.APPLICATION_JSON)) {
-                strategy = new JsonBodyStrategy(Class.forName(className));
-            } else if (contentType.contains(MediaType.APPLICATION_XML)) {
-                strategy = new XmlBodyStrategy(Class.forName(className));
-            } else {
-                return; //do not set the request body
-            }
+            if (className != null) {
+                Class clazz = Class.forName(className);
+                if (contentType.contains(MediaType.APPLICATION_JSON)) {
+                    strategy = new JsonBodyStrategy(clazz);
+                } else if (contentType.contains(MediaType.APPLICATION_XML)) {
+                    strategy = new XmlBodyStrategy(clazz);
+                } else {
+                    return; //do not set the request body
+                }
 
-            Class clazz = Class.forName(className);
-            Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
-            masonRequest.setBody(body);
+                Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
+                masonRequest.setBody(body);
+            } else {
+                if (contentType.contains(MediaType.APPLICATION_JSON)) {
+                    masonRequest.setBody(JSONValue.parse(request.getInputStream())); // https://stackoverflow.com/a/12807303/1097600
+                }
+            }
 
             //request.setAttribute(REQUEST_BODY_PARAM_NAME, body); //Object is handled using JavaBeans in JSP
         } catch (ClassNotFoundException ex) {

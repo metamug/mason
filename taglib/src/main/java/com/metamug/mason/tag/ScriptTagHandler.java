@@ -15,6 +15,7 @@ import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
+import java.io.File;
 
 import javax.servlet.jsp.JspException;
 import java.net.URL;
@@ -29,7 +30,6 @@ import java.util.logging.Logger;
 public class ScriptTagHandler extends RestTag {
 
     private String file, var;
-    private static final String SCRIPT_VARIABLE_PREFIX = "_$";
 
     public void setFile(String file) {
         this.file = file;
@@ -56,17 +56,18 @@ public class ScriptTagHandler extends RestTag {
                     new URL[]{ScriptTagHandler.class.getClassLoader().getResource("..")
                     });
             Binding binding = new Binding();
-            
+
             for (Map.Entry<String, String[]> requestVariable : request.getParameterMap().entrySet()) {
-                binding.setVariable("_$" + requestVariable.getKey(), requestVariable.getValue()[0]);
+                binding.setVariable(SCRIPT_VARIABLE_PREFIX + requestVariable.getKey(), requestVariable.getValue()[0]);
             }
 
             Map contextMap = new ContextMap(pageContext);
             binding.setVariable(SCRIPT_VARIABLE_PREFIX, contextMap);
             Map<String, Object> object = new LinkedHashMap<>();
 
-            binding.setVariable("response", object); //for the output
+            binding.setVariable(RESPONSE_VARIABLE, object); //for the output
 
+            //String scriptPath = request.getServletContext().getRealPath(SCRIPT_ROOT + file);
             engine.run(SCRIPT_ROOT + file, binding);
             //output to bus
             addToBus(var, object);
@@ -77,6 +78,8 @@ public class ScriptTagHandler extends RestTag {
         }
     }
 
+    private static final String RESPONSE_VARIABLE = "response";
+    private static final String SCRIPT_VARIABLE_PREFIX = "_$";
     private static final String SCRIPT_ROOT = "scripts/";
 
 }

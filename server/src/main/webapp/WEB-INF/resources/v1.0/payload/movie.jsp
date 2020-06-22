@@ -19,4 +19,9 @@
         </c:forEach>
     </m:request>
 
+    <m:request method='POST' item="bo" className="com.example.entity.Movies">
+        <c:set target="${output}" property="postResult" value="${mtgReq.body}"/>
+
+    </m:request>
+
 </m:resource>

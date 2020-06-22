@@ -40,9 +40,16 @@ public class JspResource {
     public JspResource(HttpServletRequest request) {
         this.request = request;
         String resourcePath = this.request.getServletPath();
-        this.version = Float.parseFloat(resourcePath.substring(2, 2 + VERSION_LENGTH));
+        int versionIndex = 2; // /v
+        try {
+            this.version = Float.parseFloat(resourcePath.substring(versionIndex, versionIndex + VERSION_LENGTH));
+        } catch (NumberFormatException e) {
+            //has extra context
+            versionIndex = resourcePath.indexOf("/", resourcePath.indexOf("/") + 1) + 2; // /rest/v
+            this.version = Float.parseFloat(resourcePath.substring(versionIndex, versionIndex + VERSION_LENGTH));
+        }
         // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
-        resourceUri = resourcePath.substring(5); // after /v1.0
+        resourceUri = resourcePath.substring(versionIndex + VERSION_LENGTH); // after /v1.0
     }
 
     protected boolean resourceExists(String resourcePath) {
