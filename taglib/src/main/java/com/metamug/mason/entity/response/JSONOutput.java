@@ -506,8 +506,10 @@
  */
 package com.metamug.mason.entity.response;
 
+import com.github.wnameless.json.flattener.JsonFlattener;
+import com.github.wnameless.json.unflattener.JsonUnflattener;
 import com.metamug.entity.Response;
-import com.metamug.mason.io.mpath.MPathUtil;
+
 import org.apache.taglibs.standard.tag.common.sql.ResultImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -521,6 +523,7 @@ import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
+import org.json.JSONException;
 
 /**
  * JSONs Output Object
@@ -529,6 +532,8 @@ public class JSONOutput extends MasonOutput<JSONObject> {
 
     @Override
     protected JSONObject getContent() {
+        
+        
         JSONObject responseJson = new JSONObject();
         outputMap.entrySet().forEach(entry -> {
             Object obj = entry.getValue();
@@ -537,11 +542,8 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                 responseJson.put(key, new JSONObject());
             } else if (obj instanceof ResultImpl) {
                 responseJson.put(key, getJson((ResultImpl) obj));
-            } else if (obj instanceof JSONObject) {
-                responseJson.put(key, obj);
-            } else if (obj instanceof JSONArray) {
-                responseJson.put(key, obj);
-            } else if (obj instanceof String) {
+            } else if (obj instanceof JSONObject || obj instanceof JSONArray
+                    || obj instanceof String || obj instanceof net.minidev.json.JSONArray || obj instanceof net.minidev.json.JSONObject) { //@TODO efficiently check instanceof
                 responseJson.put(key, obj);
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
@@ -572,13 +574,19 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                 } catch (MarshalException mex) {
                     responseJson.put(key, obj);
                 } catch (JAXBException ex) {
+                    Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, obj.getClass().getName());
                     Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
         return responseJson;
     }
-
+    
+    /**
+     * Convert JSON To string
+     * @param response
+     * @return 
+     */
     @Override
     public String format(Response response) {
         JSONObject responseJson = (JSONObject) response.getPayload();
@@ -589,6 +597,41 @@ public class JSONOutput extends MasonOutput<JSONObject> {
         return resultSetToJson(impl);
     }
 
+    /**
+     * This method takes an input json and appends the input value to the json
+     * according to the given mPath
+     *
+     * @param initialJsonObject JSONObject in which the new value will be added.
+     * @param mPath the input m-path notation
+     * @param value the value of the mPath key
+     * @return unflattened json object
+     */
+    public static JSONObject appendJsonFromMPath(JSONObject initialJsonObject, String mPath, Object value) {
+        JSONArray jsonArray;
+        JSONObject jsonObject;
+        String flatString = JsonFlattener.flatten(initialJsonObject.toString());
+        JSONObject flatJson = new JSONObject(flatString);
+        try {
+            jsonArray = new JSONArray(String.valueOf(value));
+            flatJson.accumulate(mPath, jsonArray);
+        } catch (JSONException ex) {
+            try {
+                jsonObject = new JSONObject(String.valueOf(value));
+                flatJson.accumulate(mPath, jsonObject);
+            } catch (JSONException ex1) {
+                flatJson.accumulate(mPath, value);
+            }
+        }
+        String unFlatJson = new JsonUnflattener(flatJson.toString()).unflatten();
+        return new JSONObject(unFlatJson);
+    }
+
+    /**
+     * Convert ResultImpl to JSON
+     *
+     * @param resultImpl JSP ResultImpl Object from SQL Tag
+     * @return JSONArray from org.json
+     */
     private JSONArray resultSetToJson(ResultImpl resultImpl) {
         SortedMap[] rows = resultImpl.getRows();
         String[] columnNames = resultImpl.getColumnNames();
@@ -597,7 +640,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
             JSONObject rowJson = new JSONObject();
             for (int i = 0; i < columnNames.length; i++) {
                 String columnName = columnNames[i].isEmpty() || columnNames[i].equalsIgnoreCase("null") ? "col" + i : columnNames[i];
-                rowJson = MPathUtil.appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
+                rowJson = appendJsonFromMPath(rowJson, columnName, (row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL);
                 /*if (entry.getKey().startsWith("p")) {
                     params.put(columnName, String.valueOf((row.get(columnName) != null) ? row.get(columnName) : JSONObject.NULL));
                 }*/

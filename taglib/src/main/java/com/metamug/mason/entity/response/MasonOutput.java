@@ -572,5 +572,6 @@ public abstract class MasonOutput<T> implements ResponseGenerator, ResponseForma
 
     }
 
+    @Override
     abstract public String format(Response masonResponse);
 }

@@ -653,6 +653,7 @@ public class RequestTagHandler extends RequestTag {
     @Override
     public int doEndTag() throws JspException {
         if (shouldEvaluate) {
+
             processOutput();
             return SKIP_PAGE;
         } else {
@@ -700,7 +701,7 @@ public class RequestTagHandler extends RequestTag {
                 //cannnot use print writer since it we are already using outputstream
                 Response masonResponse = new ResponeBuilder(output).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String) k, (String) v));
-                byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8);
+                byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8); //custom formatting before output
                 response.setContentLength(bytes.length);
                 outputStream.write(bytes);
                 outputStream.flush();

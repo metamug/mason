@@ -4,7 +4,6 @@
     <m:request method="GET">
 
         <sql:query var="result" dataSource="${datasource}">
-
             SELECT * FROM movie
         </sql:query>
 
