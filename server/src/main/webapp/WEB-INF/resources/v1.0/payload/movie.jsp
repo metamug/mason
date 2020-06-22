@@ -19,8 +19,12 @@
         </c:forEach>
     </m:request>
 
-    <m:request method='POST' item="bo" >
-        <c:set target="${output}" property="postResult" value="${mtgReq.body[1].name}"/>
+    <m:request method='POST' item="item" >
+        <c:set target="${output}" property="postResult0" value="${item}"/>
+        <c:set target="${output}" property="postResult1" value="${mtgReq.id}"/>
+        <c:set target="${output}" property="postResult2" value="${mtgReq.body}"/>
+        <c:set target="${output}" property="postResult3" value="${mtgReq.body[1]}"/>
+        <c:set target="${output}" property="postResult4" value="${mtgReq.body[1].name}"/>
     </m:request>
 
 </m:resource>

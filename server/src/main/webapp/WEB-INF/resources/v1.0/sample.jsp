@@ -11,4 +11,10 @@
         <c:set target="${output}" property="c" value="abb"/>
     </m:request>
 
+    <m:request method='POST' item="item" >
+        <c:set target="${output}" property="item" value="${item}"/>
+        <c:set target="${output}" property="mtgReq.id" value="${mtgReq.id}"/>        
+        <c:set target="${output}" property="postResult4" value="${mtgReq.params['test']}"/>
+    </m:request>
+
 </m:resource>
