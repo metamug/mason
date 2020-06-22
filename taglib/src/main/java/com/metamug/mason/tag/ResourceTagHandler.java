@@ -508,9 +508,9 @@ package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
-import com.metamug.mason.Router;
 import static com.metamug.mason.Router.CONNECTION_PROVIDER;
 import static com.metamug.mason.Router.MASON_REQUEST;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.AuthService;
@@ -573,7 +573,7 @@ public class ResourceTagHandler extends RestTag {
             processAuth();
         }
 
-        masonRequest = (Request) request.getAttribute(MASON_REQUEST);
+        masonRequest = (MasonRequest) request.getAttribute(MASON_REQUEST);
         Resource parent = masonRequest.getParent();
         if (parent != null && !parent.getName().equalsIgnoreCase(this.parentName)) {
             throw new JspException("Parent resource not found", new MasonException(MasonError.PARENT_RESOURCE_MISSING));

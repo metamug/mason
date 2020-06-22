@@ -11,7 +11,7 @@
               driverClassName="com.mysql.cj.jdbc.Driver"
               factory="com.zaxxer.hikari.HikariJNDIFactory"
               idleTimeout="120000"
-              jdbcUrl="jdbc:mysql://server.metamug.net:3306/movieDB?useOldAliasMetadataBehavior=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=CONVERT_TO_NULL&amp;characterSetResults=UTF-8&amp;allowMultiQueries=true&amp;connectTimeout=120000"
+              jdbcUrl="jdbc:mysql://192.168.0.102:3306/movieDB?useOldAliasMetadataBehavior=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=CONVERT_TO_NULL&amp;characterSetResults=UTF-8&amp;allowMultiQueries=true&amp;connectTimeout=120000"
               maxLifetime="1800000"
               maximumPoolSize="2"
               minimumIdle="1"

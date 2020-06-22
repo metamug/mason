@@ -535,14 +535,14 @@ public class RequestAdapter {
     }
 
     public Request getRequest() {
-        Request masonRequest = buildRequest();
-        return new ImmutableRequest(masonRequest);
+        MasonRequest masonRequest = buildRequest();
+        return masonRequest; //@TODO convert to immutable
     }
 
     /**
      * Extract Request information
      */
-    private Request buildRequest() {
+    private MasonRequest buildRequest() {
 
         // using function of input extraction
         List<String> ourListElements = inputUriExtraction(jspResource.getResourceUri());
@@ -550,7 +550,7 @@ public class RequestAdapter {
         // using function to find the output uri
         List<String> finalResponseElement = resultUriExtraction(jspResource.getResourceUri());
 
-        Request request = new MasonRequest(httpRequest);
+        MasonRequest request = new MasonRequest(httpRequest);
         request.setUri(jspResource.getResourceUri());
         // checking uri is valid or not
         if (finalResponseElement.get(finalResponseElement.size() - 1).equals("G")) {

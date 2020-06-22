@@ -553,6 +553,12 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
     public void doFinally() {
     }
 
+    /**
+     * Add tag variable to MPath. Accessible via MPath
+     *
+     * @param var Name of the variable
+     * @param result Output of the variable
+     */
     protected void addToBus(String var, Object result) {
         if (result instanceof Response) {
             pageContext.setAttribute(var, ((Response) result).getPayload());
@@ -561,6 +567,12 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
         }
     }
 
+    /**
+     * Add tag variable to the output map
+     *
+     * @param var Variable name of the tag
+     * @param value value of the tag result
+     */
     protected void addToOutput(String var, Object value) {
         Map<String, Object> masonOutput = (Map<String, Object>) pageContext.getAttribute(MASON_OUTPUT, PageContext.PAGE_SCOPE);
 
@@ -569,8 +581,8 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
             if (null != res.getPayload()) {
                 masonOutput.put(var, res.getPayload());
             }
-            if(null != res.getHeaders()){
-                res.getHeaders().forEach((k, v) -> response.setHeader((String)k, (String)v));
+            if (null != res.getHeaders()) {
+                res.getHeaders().forEach((k, v) -> response.setHeader((String) k, (String) v));
             }
         } else {
             masonOutput.put(var, value);

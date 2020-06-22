@@ -637,9 +637,7 @@ public class RequestTagHandler extends RequestTag {
 
     private void addExtraParams() {
         //https://stackoverflow.com/a/19114947/1097600
-
         //Map<String, Object> param = (Map<String, Object>) pageContext.getAttribute(JSP_REQUEST_SCOPE);
-        request.setAttribute("foo", "bar");
         if (StringUtils.isNotBlank(item)) {
             request.setAttribute(item, masonRequest.getId());
         }

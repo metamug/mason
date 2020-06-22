@@ -7,7 +7,7 @@
 <m:resource>
 
     <m:request method='POST' className="com.example.entity.Movies">
-        <c:forEach items="${rbody.films}" var="film" varStatus="loop">
+        <c:forEach items="${mtgReq.body.films}" var="film" varStatus="loop">
             <sql:query var="result" dataSource="${datasource}">
                 select ? as "date", ? as "name", ? as "rating"
 

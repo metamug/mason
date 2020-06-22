@@ -518,7 +518,7 @@ import java.util.Map;
  */
 public final class ImmutableRequest extends MasonRequest {
 
-    public ImmutableRequest(Request mtgReq) {
+    public ImmutableRequest(MasonRequest mtgReq) {
         super(mtgReq);
         super.setResource(mtgReq.getResource()); //remove it later
     }

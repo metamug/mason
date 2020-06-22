@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 public class MasonRequest extends Request {
 
     private HttpServletRequest request;
-    private RequestParamMap params; //hiding superclass field
+    protected RequestParamMap params; //hiding superclass field
 
     public MasonRequest(Request request) {
         super(request);
@@ -53,6 +53,8 @@ public class MasonRequest extends Request {
     public Map<String, String> getParams() {
         return params;
     }
+    
+    
 
     @Override
     public String getMethod() {

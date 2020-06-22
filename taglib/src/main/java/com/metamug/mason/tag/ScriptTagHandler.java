@@ -6,7 +6,9 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
+import static com.metamug.mason.Router.MASON_REQUEST;
 import com.metamug.mason.entity.ContextMap;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import groovy.lang.Binding;
@@ -27,6 +29,7 @@ import java.util.logging.Logger;
 public class ScriptTagHandler extends RestTag {
 
     private String file, var;
+    private static final String SCRIPT_VARIABLE_PREFIX = "_$";
 
     public void setFile(String file) {
         this.file = file;
@@ -49,16 +52,17 @@ public class ScriptTagHandler extends RestTag {
     public void runScript() throws JspException {
         try {
             //file:/C:/tomcat9/webapps/mason-sample/WEB-INF/classes//WEB_INF/scripts/test.groovy
-            GroovyScriptEngine engine = new GroovyScriptEngine(new URL[]{ScriptTagHandler.class.getClassLoader().getResource("..")});
+            GroovyScriptEngine engine = new GroovyScriptEngine(
+                    new URL[]{ScriptTagHandler.class.getClassLoader().getResource("..")
+                    });
             Binding binding = new Binding();
-
-            Request masonReq = (Request) request.getAttribute("mtgReq");
-            for (Map.Entry<String, String> requestVariable : masonReq.getParams().entrySet()) {
-                binding.setVariable("_$" + requestVariable.getKey(), requestVariable.getValue());
+            
+            for (Map.Entry<String, String[]> requestVariable : request.getParameterMap().entrySet()) {
+                binding.setVariable("_$" + requestVariable.getKey(), requestVariable.getValue()[0]);
             }
 
             Map contextMap = new ContextMap(pageContext);
-            binding.setVariable("_$", contextMap);
+            binding.setVariable(SCRIPT_VARIABLE_PREFIX, contextMap);
             Map<String, Object> object = new LinkedHashMap<>();
 
             binding.setVariable("response", object); //for the output

@@ -544,6 +544,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.metamug.mason.Router.MASON_REQUEST;
+import com.metamug.mason.entity.request.MasonRequest;
 import static com.metamug.mason.tag.RequestTagHandler.JSP_REQUEST_SCOPE;
 import static com.metamug.mason.tag.ResourceTagHandler.BEARER_;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
@@ -567,7 +568,7 @@ public class TagHandlerTest {
     private HttpServletResponse response;
 
     @Mock
-    private Request masonRequest;
+    private MasonRequest masonRequest;
 
     @Mock
     private PageContext context;
