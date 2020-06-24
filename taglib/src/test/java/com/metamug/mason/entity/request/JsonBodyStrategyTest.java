@@ -27,13 +27,11 @@ public class JsonBodyStrategyTest {
         when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
         when(request.getMethod()).thenReturn("GET");
 
-        String json = "{\n"
-                + "\t\"customer\": {\n"
-                + "      \"name\": \"John Doeyy\",\n"
-                + "      \"roll\": 555,\n"
-                + "      \"id\": 8\n"
-                + "    }\n"
-                + "}";
+        String json = "{\n" +
+                "    \"name\": \"John Doeyy\",\n" +
+                "    \"roll\": 444,\n" +
+                "    \"id\": 3\n" +
+                "  }";
 
         Reader inputString = new StringReader(json);
         BufferedReader reader = new BufferedReader(inputString);

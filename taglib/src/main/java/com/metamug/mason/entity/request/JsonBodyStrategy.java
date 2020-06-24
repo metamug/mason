@@ -525,7 +525,7 @@ public class JsonBodyStrategy implements RequestBodyStrategy {
             return mapper.readValue( stream, clazz);
 //            return jaxbUnmarshaller.unmarshal(new StreamSource(stream));
         } catch (IOException ex) {
-            Logger.getLogger(XmlBodyStrategy.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
