@@ -519,7 +519,7 @@ import java.util.logging.Logger;
 public class JsonBodyStrategy implements RequestBodyStrategy {
 
     @Override
-    public Object getBodyObject(InputStream stream, Class clazz) throws IOException {
+    public Object getBodyObject(InputStream stream, Class clazz) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.readValue( stream, clazz);
