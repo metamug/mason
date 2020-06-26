@@ -506,8 +506,8 @@
  */
 package com.metamug.mason.entity.response;
 
-import org.eclipse.persistence.jaxb.JAXBContextFactory;
-import org.eclipse.persistence.jaxb.MarshallerProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -529,20 +529,26 @@ public class ResponseMarshaller {
      * @return Json object or XML converted form of the returnObject as String
      * @throws javax.xml.bind.JAXBException
      */
-    public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
+    public static String convert(Object returnObject, String acceptHeader) throws JAXBException, JsonProcessingException {
 
         if (returnObject instanceof String) {
             return (String) returnObject;
         }
 
-        StringWriter marshalledResult = new StringWriter();
-        JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
+        //StringWriter marshalledResult = new StringWriter();
+        String marshalledResult = null;
 
-        Marshaller marshaller = jc.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, acceptHeader);
-        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-        marshaller.marshal(returnObject, marshalledResult);
-        return marshalledResult.toString();
+        ObjectMapper mapper = new ObjectMapper();
+        marshalledResult = mapper.writeValueAsString(returnObject);
+        //marshalledResult = mapper.writeValueAsString(new Class[]{returnObject.getClass()});
+        //JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
+
+        //Marshaller marshaller = jc.createMarshaller();
+        //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        //marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, acceptHeader);
+        //marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+        //marshaller.marshal(returnObject, marshalledResult);
+
+        return marshalledResult;
     }
 }

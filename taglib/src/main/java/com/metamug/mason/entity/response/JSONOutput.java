@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.entity.response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import com.metamug.entity.Response;
@@ -559,7 +560,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                         // for POJO
                         try {
                             array.put(new JSONObject(ResponseMarshaller.convert(o, MediaType.APPLICATION_JSON)));
-                        } catch (JAXBException ex) {
+                        } catch (JAXBException | JsonProcessingException ex) {
                             //@TODO Do something here
                             Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -573,7 +574,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                     responseJson.put(key, new JSONObject(ResponseMarshaller.convert(obj, MediaType.APPLICATION_JSON)));
                 } catch (MarshalException mex) {
                     responseJson.put(key, obj);
-                } catch (JAXBException ex) {
+                } catch (JAXBException | JsonProcessingException ex) {
                     Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, obj.getClass().getName());
                     Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
                 }
