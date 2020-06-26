@@ -541,7 +541,7 @@ public class XRequestHeaderTest {
         JSONObject body = (JSONObject) response.getPayload();
 
         String contentTypeHeader = body.getJSONObject("headers")
-                .getString("Content-Type");
+                .getString("content-type");
         Assert.assertEquals("application/json; charset=utf-8", contentTypeHeader);
     }
 
