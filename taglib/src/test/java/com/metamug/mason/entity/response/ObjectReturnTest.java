@@ -1,6 +1,6 @@
 package com.metamug.mason.entity.response;
 
-import com.metamug.mason.entity.response.ResponseMarshaller;
+import com.metamug.mason.entity.response.ObjectMarshaller;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,7 +45,7 @@ public class ObjectReturnTest {
     @Test
     public void ObjectToJsonTest() {
         try {
-            String resultJson = ResponseMarshaller.convert(customer1, ResponseMarshaller.TYPE_JSON);
+            String resultJson = ObjectMarshaller.convert(customer1, ObjectMarshaller.TYPE_JSON);
             //System.out.println(resultJson);
             JSONObject jsonObject = new JSONObject(resultJson);
             Assert.assertNotNull(jsonObject);
@@ -57,7 +57,7 @@ public class ObjectReturnTest {
     @Test
     public void ObjectToXmlTest() {
         try {
-            String resultXml = ResponseMarshaller.convert(customer1, ResponseMarshaller.TYPE_XML);
+            String resultXml = ObjectMarshaller.convert(customer1, ObjectMarshaller.TYPE_XML);
             //    System.out.println(resultXml);
             Assert.assertNotNull(resultXml);
         } catch (JAXBException ex) {
@@ -68,7 +68,7 @@ public class ObjectReturnTest {
     @Test
     public void StringTest() {
         try {
-            String result = ResponseMarshaller.convert("Response String", "Ignored header");
+            String result = ObjectMarshaller.convert("Response String", "Ignored header");
             //  System.out.println(result);
             Assert.assertNotNull(result);
         } catch (JAXBException ex) {
@@ -81,7 +81,7 @@ public class ObjectReturnTest {
     @Test
     public void ObjectListToJsonTest() {
         try {
-            String result = ResponseMarshaller.convert(list, ResponseMarshaller.TYPE_JSON);
+            String result = ObjectMarshaller.convert(list, ObjectMarshaller.TYPE_JSON);
             //System.out.println(result);
             JSONArray jsonArray = new JSONArray(result);
             Assert.assertNotNull(jsonArray);
@@ -94,7 +94,7 @@ public class ObjectReturnTest {
     @Test
     public void ObjectListToXml() {
         try {
-            String result = ResponseMarshaller.convert(list, ResponseMarshaller.TYPE_XML);
+            String result = ObjectMarshaller.convert(list, ObjectMarshaller.TYPE_XML);
             //System.out.println(result);
             Assert.assertNotNull(result);
         } catch (JAXBException ex) {

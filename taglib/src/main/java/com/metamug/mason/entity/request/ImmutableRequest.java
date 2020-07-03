@@ -539,11 +539,6 @@ public final class ImmutableRequest extends MasonRequest {
     }
 
     @Override
-    public void setMethod(String method) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void setStatusCode(int statusCode) {
         throw new UnsupportedOperationException();
     }

@@ -518,7 +518,7 @@ import java.io.StringWriter;
  * Convert JAXB Object to JSON/XML depending on the header
  * @author anishhirlekar
  */
-public class ResponseMarshaller {
+public class ObjectMarshaller {
 
     public static final String TYPE_JSON = "application/json"; //@TODO redundant declared in request and response package
     public static final String TYPE_XML = "application/xml";
