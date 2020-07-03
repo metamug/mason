@@ -24,9 +24,9 @@ public class XmlBodyStrategyTest {
     public void setUp() throws IOException {
 
         request = mock(HttpServletRequest.class);
-        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getMethod()).thenReturn("GET");
+//        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+//        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
+//        when(request.getMethod()).thenReturn("GET");
 
         String xml
                 = "<customer>\n"
@@ -35,9 +35,9 @@ public class XmlBodyStrategyTest {
                 + "    <id>8</id>\n"
                 + "</customer>";
 
-        Reader inputString = new StringReader(xml);
-        BufferedReader reader = new BufferedReader(inputString);
-        when(request.getReader()).thenReturn(reader);
+//        Reader inputString = new StringReader(xml);
+//        BufferedReader reader = new BufferedReader(inputString);
+//        when(request.getReader()).thenReturn(reader);
 
         ByteArrayInputStream bytestream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
         ServletInputStream stream = getServletInputStream(bytestream);

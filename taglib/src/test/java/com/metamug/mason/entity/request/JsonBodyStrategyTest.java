@@ -23,9 +23,9 @@ public class JsonBodyStrategyTest {
     public void setUp() throws IOException {
 
         request = mock(HttpServletRequest.class);
-        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getMethod()).thenReturn("GET");
+//        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+//        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
+//        when(request.getMethod()).thenReturn("GET");
 
         String json = "{\n" +
                 "    \"name\": \"John Doeyy\",\n" +
@@ -33,9 +33,9 @@ public class JsonBodyStrategyTest {
                 "    \"id\": 3\n" +
                 "  }";
 
-        Reader inputString = new StringReader(json);
-        BufferedReader reader = new BufferedReader(inputString);
-        when(request.getReader()).thenReturn(reader);
+        //Reader inputString = new StringReader(json);
+        //BufferedReader reader = new BufferedReader(inputString);
+        //when(request.getReader()).thenReturn(reader);
 
         ByteArrayInputStream bytestream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         ServletInputStream stream = getServletInputStream(bytestream);

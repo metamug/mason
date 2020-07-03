@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.entity.response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import com.metamug.entity.Response;
@@ -532,8 +533,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
 
     @Override
     protected JSONObject getContent() {
-        
-        
+
         JSONObject responseJson = new JSONObject();
         outputMap.entrySet().forEach(entry -> {
             Object obj = entry.getValue();
@@ -562,6 +562,8 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                         } catch (JAXBException ex) {
                             //@TODO Do something here
                             Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (JsonProcessingException ex) {
+                            Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }
@@ -573,7 +575,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
                     responseJson.put(key, new JSONObject(ObjectMarshaller.convert(obj, MediaType.APPLICATION_JSON)));
                 } catch (MarshalException mex) {
                     responseJson.put(key, obj);
-                } catch (JAXBException ex) {
+                } catch (JAXBException | JsonProcessingException ex) {
                     Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, obj.getClass().getName());
                     Logger.getLogger(JSONOutput.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -581,11 +583,12 @@ public class JSONOutput extends MasonOutput<JSONObject> {
         });
         return responseJson;
     }
-    
+
     /**
      * Convert JSON To string
+     *
      * @param response
-     * @return 
+     * @return
      */
     @Override
     public String format(Response response) {

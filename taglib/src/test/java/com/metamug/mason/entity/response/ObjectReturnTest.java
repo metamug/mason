@@ -1,6 +1,6 @@
 package com.metamug.mason.entity.response;
 
-import com.metamug.mason.entity.response.ObjectMarshaller;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +49,7 @@ public class ObjectReturnTest {
             //System.out.println(resultJson);
             JSONObject jsonObject = new JSONObject(resultJson);
             Assert.assertNotNull(jsonObject);
-        } catch (JSONException | JAXBException e) {
+        } catch (JSONException | JAXBException | JsonProcessingException e) {
             Assert.fail(e.toString());
         }
     }
@@ -60,7 +60,7 @@ public class ObjectReturnTest {
             String resultXml = ObjectMarshaller.convert(customer1, ObjectMarshaller.TYPE_XML);
             //    System.out.println(resultXml);
             Assert.assertNotNull(resultXml);
-        } catch (JAXBException ex) {
+        } catch (JAXBException | JsonProcessingException ex) {
             Assert.fail(ex.toString());
         }
     }
@@ -71,7 +71,7 @@ public class ObjectReturnTest {
             String result = ObjectMarshaller.convert("Response String", "Ignored header");
             //  System.out.println(result);
             Assert.assertNotNull(result);
-        } catch (JAXBException ex) {
+        } catch (JAXBException | JsonProcessingException ex) {
             Assert.fail(ex.toString());
         }
     }
@@ -85,7 +85,7 @@ public class ObjectReturnTest {
             //System.out.println(result);
             JSONArray jsonArray = new JSONArray(result);
             Assert.assertNotNull(jsonArray);
-        } catch (JSONException | JAXBException e) {
+        } catch (JSONException | JAXBException | JsonProcessingException e) {
             Assert.fail(e.toString());
         }
     }
@@ -97,7 +97,7 @@ public class ObjectReturnTest {
             String result = ObjectMarshaller.convert(list, ObjectMarshaller.TYPE_XML);
             //System.out.println(result);
             Assert.assertNotNull(result);
-        } catch (JAXBException ex) {
+        } catch (JAXBException | JsonProcessingException ex) {
             Assert.fail(ex.toString());
         }
     }
