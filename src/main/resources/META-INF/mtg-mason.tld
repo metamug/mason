@@ -1,46 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <taglib version="2.1" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd">
-    <tlib-version>1.0</tlib-version>
+    <tlib-version>3.4</tlib-version>
     <short-name>mtg-mason</short-name>
+    <description>REST API JSP Tag library.</description>
     <uri>http://xml.metamug.net/jsp/jstl/mason</uri>
     <tag>
         <name>resource</name>
+        <description>Rest API resource tag for wrapping request tag</description>
         <tag-class>com.metamug.mason.tag.ResourceTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>auth</name>
+            <description>Auth value for authenticated resource</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>parentName</name>
+            <description>Parent name for resource nesting</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
     </tag>
     <tag>
         <name>request</name>
+        <description>For handling incoming requests with different HTTP methods</description>
         <tag-class>com.metamug.mason.tag.RequestTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>method</name>
+            <description>Http Method of incoming request</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>item</name>
+            <description>Marks the request has item request. Item requests are resource requests with item identifier in the url e.g. /movie/23 </description>
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
         </attribute>
     </tag>
     <tag>
         <name>exception</name>
+        <description>Used for handling JSP exceptions on the error page. As defined by errorPage attribute of tag directive </description>
         <tag-class>com.metamug.mason.tag.ExceptionTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>value</name>
+            <description>Error object to handle the exception.</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
@@ -48,16 +57,19 @@
     </tag>
     <tag>
         <name>header</name>
+        <description>Additional response header to be sent along with the response payload.</description>
         <tag-class>com.metamug.mason.tag.HeaderTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
+            <description>Name of the response header.</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>value</name>
+            <description>Value of the response header.</description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
