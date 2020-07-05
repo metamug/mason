@@ -77,79 +77,97 @@
     </tag>
     <tag>
         <name>param</name>
+        <description>
+            Define incoming request parameters. It helps in documenting and validating request parameters.
+            For more information, visit https://metamug.com/docs/request-parameters.
+        </description>
         <tag-class>com.metamug.mason.tag.ParamTagHandler</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>name</name>
+            <description>Name of the request parameter.</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>type</name>
+            <description>Type of the request parameter. Accepted types are text, date, datetime, email, number, time and url.</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>isRequired</name>
+            <description>In case of true, if incoming request does not contain this parameter 412 error will be thrown.</description>
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
         </attribute>
         <attribute>
             <name>max</name>
+            <description>Maximum value of the parameter. Works only with type number.</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Double</type>
         </attribute>
         <attribute>
             <name>min</name>
+            <description>Minimum value of the parameter. Works only with type number.</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Double</type>
         </attribute>
         <attribute>
             <name>maxLen</name>
+            <description>Maximum length of the parameter string.</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Integer</type>
         </attribute>
         <attribute>
             <name>minLen</name>
+            <description>Minimum length of the parameter string.</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Integer</type>
         </attribute>
         <attribute>
             <name>pattern</name>
+            <description>Minimum length of the parameter string.</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>exists</name>
+            <description>For future use case to perform extended validation.</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>value</name>
+            <description>The default value of the parameter, in case it is not sent.</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>defaultValue</name>
+            <description>The default value of the parameter, in case it is not sent.</description>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
     </tag>
     <tag>
         <name>script</name>
+        <description>Execute a groovy script</description>
         <tag-class>com.metamug.mason.tag.ScriptTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>file</name>
+            <description>Name of the groovy script file. e.g. foo.groovy </description>
             <required>true</required>
             <elexprvalue>true</elexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>var</name>
+            <description>Variable name of the script element</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
@@ -157,34 +175,40 @@
     </tag>
     <tag>
         <name>execute</name>
+        <description>Execute a Java RequestProcessable Class. </description>
         <tag-class>com.metamug.mason.tag.ExecuteTagHandler</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>className</name>
+            <description>Fully qualified class name. The class must extend RequestProcessable interface from https://github.com/metamug/mtg-api </description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>param</name>
+            <description>Pass ${mtgReq} for RequestProcessable to work. This attribute will be removed in future releases</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
         </attribute>
         <attribute>
             <name>output</name>
+            <description>Send the output of this execution to response</description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
         </attribute>
         <attribute>
             <name>onerror</name>
+            <description>Error message to show in case of exception</description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>var</name>
+            <description>Variable name of the execute element</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
@@ -192,16 +216,19 @@
     </tag>
     <tag>
         <name>arg</name>
+        <description>Argument for the Execute tag. To pass configuration to the code being executed</description>
         <tag-class>com.metamug.mason.tag.xrequest.ParamTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>name</name>
+            <description>Name of the argument</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>value</name>
+            <description>Value of the argument</description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
@@ -209,6 +236,7 @@
     </tag>
     <tag>
         <name>xparam</name>
+        <description>Parameters to be sent in the request. Can be sent with GET as well. </description>
         <tag-class>com.metamug.mason.tag.xrequest.ParamTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
@@ -226,51 +254,60 @@
     </tag>
     <tag>
         <name>xbody</name>
+        <description>Represents the request body of an external api call. </description>
         <tag-class>com.metamug.mason.tag.xrequest.BodyTagHandler</tag-class>
         <body-content>JSP</body-content>
     </tag>
     <tag>
         <name>xrequest</name>
+        <description>XRequest allows the developer to make an HTTP request to external (3rd party) APIs. The tag can be placed anywhere inside the request tag.</description>
         <tag-class>com.metamug.mason.tag.xrequest.XRequestTagHandler</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>var</name>
+            <description>Variable name of the external request element</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>url</name>
+            <description>Represents the url endpoint to which the HTTP request is to be made.</description>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>param</name>
+            <description>Parameters to be sent in the request. Can be sent with GET as well. </description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
         </attribute>
         <attribute>
             <name>method</name>
+            <description>The HTTP method (GET/POST/PUT/DELETE) for the external API call. </description>
             <required>true</required>
             <rtexprvalue>false</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
             <name>output</name>
+            description>Send the output of this execution to response</description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
         </attribute>
         <attribute>
             <name>outputHeaders</name>
+            <description>Add api response headers to output.</description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
         </attribute>
         <attribute>
             <name>className</name>
+            <description>Name of post processable class to handle the API response.</description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
@@ -278,11 +315,13 @@
     </tag>
     <tag>
         <name>download</name>
+        <description>This tag was previously used for downloading files. It is now deprecated. Instead perform file download with execute tag. </description>
         <tag-class>com.metamug.mason.tag.DownloadEventTagHandler</tag-class>
         <body-content>JSP</body-content>
     </tag>
     <function>
         <name>jsonPath</name>
+        <description>This tag is deprecated in favour of JSP EL with POJO. This was previously used to access JSON content</description>
         <function-class>com.metamug.mason.function.Extract</function-class>
         <function-signature>java.lang.String jsonPath(java.lang.String,java.lang.Object)</function-signature>
     </function>
