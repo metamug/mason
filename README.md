@@ -34,6 +34,10 @@ Use JSP tags for editing database queries and request handling. To hot deploy RE
 Sample Project
 - https://github.com/metamug/mason-sample
 
+### Taglib Documentation
+
+https://metamug.github.io/mason/
+
 ### Mason Resources
 
 Mason turns your Plain Old JSPs (with neat tag libraries) into REST Resources. Mason doesn't encourage [using scriptlets in Resource JSPs](http://balusc.omnifaces.org/2010/07/how-to-avoid-java-code-in-jsp-files.html).
