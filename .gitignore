@@ -1,6 +1,7 @@
 *.settings
 *.classpath
 *.project
+*.idea
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -14,5 +15,4 @@ nbactions.xml
 nb-configuration.xml
 # Exclude maven wrapper
 !/.mvn/wrapper/maven-wrapper.jar
-
 /nbproject/
