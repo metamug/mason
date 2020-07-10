@@ -293,7 +293,7 @@
         </attribute>
         <attribute>
             <name>output</name>
-            description>Send the output of this execution to response</description>
+            <description>Send the output of this execution to response</description>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
