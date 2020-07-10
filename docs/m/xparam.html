@@ -1,7 +1,7 @@
 <html xmlns:javaee="http://java.sun.com/xml/ns/javaee" xmlns:fo="http://www.w3.org/1999/XSL/Format">
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>param
+<title>xparam
           (Mason Taglib)
         </title>
 <meta name="keywords" content="$title">
@@ -10,7 +10,7 @@
 <script>
             function asd()
             {
-            parent.document.title="param (Mason Taglib)";
+            parent.document.title="xparam (Mason Taglib)";
             }
           </script>
 <body bgcolor="white" onload="asd();">
@@ -28,7 +28,7 @@
 <tr>
 <td BGCOLOR="white" CLASS="NavBarCell2"><font SIZE="-2"></font></td><td BGCOLOR="white" CLASS="NavBarCell2"><font SIZE="-2">
                 &nbsp;<a HREF="../index.html" TARGET="_top"><b>FRAMES</b></a>&nbsp;
-                &nbsp;<a href="param.html" target="_top"><b>NO FRAMES</b></a>&nbsp;
+                &nbsp;<a href="xparam.html" target="_top"><b>NO FRAMES</b></a>&nbsp;
                 <script></script>
 <noscript>
 <a HREF="../alltags-noframe.html" TARGET=""><b>All Tags</b></a>
@@ -38,10 +38,10 @@
 </table>
 <hr>
 <h2>
-<font size="-1">mtg-mason</font>
+<font size="-1">m</font>
 <br>
-            Tag param</h2>
-<hr>Define incoming request parameters. It helps in documenting and validating request parameters. For more information, visit https://metamug.com/docs/request-parameters.<br>
+            Tag xparam</h2>
+<hr>Parameters to be sent in the request. Can be sent with GET as well.<br>
 <p></p>
 <hr>
 <table border="1" cellpadding="3" cellspacing="0" width="100%">
@@ -49,13 +49,13 @@
 <td colspan="2"><font size="+2"><b>Tag Information</b></font></td>
 </tr>
 <tr>
-<td>Tag Class</td><td>com.metamug.mason.tag.ParamTagHandler</td>
+<td>Tag Class</td><td>com.metamug.mason.tag.xrequest.ParamTagHandler</td>
 </tr>
 <tr>
 <td>TagExtraInfo Class</td><td><i>None</i></td>
 </tr>
 <tr>
-<td>Body Content</td><td>empty</td>
+<td>Body Content</td><td>JSP</td>
 </tr>
 <tr>
 <td>Display Name</td><td><i>None</i></td>
@@ -71,37 +71,10 @@
 <td><b>Name</b></td><td><b>Required</b></td><td><b>Request-time</b></td><td><b>Type</b></td><td><b>Description</b></td>
 </tr>
 <tr valign="top">
-<td>name</td><td>true</td><td>true</td><td><code>java.lang.String</code></td><td>Name of the request parameter.</td>
+<td>name</td><td>true</td><td>true</td><td><code>java.lang.String</code></td><td><i>No Description</i></td>
 </tr>
 <tr valign="top">
-<td>type</td><td>true</td><td>true</td><td><code>java.lang.String</code></td><td>Type of the request parameter. Accepted types are text, date, datetime, email, number, time and url.</td>
-</tr>
-<tr valign="top">
-<td>isRequired</td><td>false</td><td>true</td><td><code>boolean</code></td><td>In case of true, if incoming request does not contain this parameter 412 error will be thrown.</td>
-</tr>
-<tr valign="top">
-<td>max</td><td>false</td><td>true</td><td><code>java.lang.Double</code></td><td>Maximum value of the parameter. Works only with type number.</td>
-</tr>
-<tr valign="top">
-<td>min</td><td>false</td><td>true</td><td><code>java.lang.Double</code></td><td>Minimum value of the parameter. Works only with type number.</td>
-</tr>
-<tr valign="top">
-<td>maxLen</td><td>false</td><td>true</td><td><code>java.lang.Integer</code></td><td>Maximum length of the parameter string.</td>
-</tr>
-<tr valign="top">
-<td>minLen</td><td>false</td><td>true</td><td><code>java.lang.Integer</code></td><td>Minimum length of the parameter string.</td>
-</tr>
-<tr valign="top">
-<td>pattern</td><td>false</td><td>true</td><td><code>java.lang.String</code></td><td>Minimum length of the parameter string.</td>
-</tr>
-<tr valign="top">
-<td>exists</td><td>false</td><td>true</td><td><code>java.lang.String</code></td><td>For future use case to perform extended validation.</td>
-</tr>
-<tr valign="top">
-<td>value</td><td>true</td><td>true</td><td><code>java.lang.String</code></td><td>The default value of the parameter, in case it is not sent.</td>
-</tr>
-<tr valign="top">
-<td>defaultValue</td><td>false</td><td>true</td><td><code>java.lang.String</code></td><td>The default value of the parameter, in case it is not sent.</td>
+<td>value</td><td>false</td><td>true</td><td><code>java.lang.Object</code></td><td><i>No Description</i></td>
 </tr>
 </table>
 <br>
@@ -128,7 +101,7 @@
 <tr>
 <td BGCOLOR="white" CLASS="NavBarCell2"><font SIZE="-2"></font></td><td BGCOLOR="white" CLASS="NavBarCell2"><font SIZE="-2">
                 &nbsp;<a HREF="../index.html" TARGET="_top"><b>FRAMES</b></a>&nbsp;
-                &nbsp;<a href="param.html" target="_top"><b>NO FRAMES</b></a>&nbsp;
+                &nbsp;<a href="xparam.html" target="_top"><b>NO FRAMES</b></a>&nbsp;
                 <script></script>
 <noscript>
 <a HREF="../alltags-noframe.html" TARGET=""><b>All Tags</b></a>

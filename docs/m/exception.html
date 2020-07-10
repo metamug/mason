@@ -1,7 +1,7 @@
 <html xmlns:javaee="http://java.sun.com/xml/ns/javaee" xmlns:fo="http://www.w3.org/1999/XSL/Format">
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>header
+<title>exception
           (Mason Taglib)
         </title>
 <meta name="keywords" content="$title">
@@ -10,7 +10,7 @@
 <script>
             function asd()
             {
-            parent.document.title="header (Mason Taglib)";
+            parent.document.title="exception (Mason Taglib)";
             }
           </script>
 <body bgcolor="white" onload="asd();">
@@ -28,7 +28,7 @@
 <tr>
 <td BGCOLOR="white" CLASS="NavBarCell2"><font SIZE="-2"></font></td><td BGCOLOR="white" CLASS="NavBarCell2"><font SIZE="-2">
                 &nbsp;<a HREF="../index.html" TARGET="_top"><b>FRAMES</b></a>&nbsp;
-                &nbsp;<a href="header.html" target="_top"><b>NO FRAMES</b></a>&nbsp;
+                &nbsp;<a href="exception.html" target="_top"><b>NO FRAMES</b></a>&nbsp;
                 <script></script>
 <noscript>
 <a HREF="../alltags-noframe.html" TARGET=""><b>All Tags</b></a>
@@ -38,10 +38,10 @@
 </table>
 <hr>
 <h2>
-<font size="-1">mtg-mason</font>
+<font size="-1">m</font>
 <br>
-            Tag header</h2>
-<hr>Additional response header to be sent along with the response payload.<br>
+            Tag exception</h2>
+<hr>Used for handling JSP exceptions on the error page. As defined by errorPage attribute of tag directive<br>
 <p></p>
 <hr>
 <table border="1" cellpadding="3" cellspacing="0" width="100%">
@@ -49,7 +49,7 @@
 <td colspan="2"><font size="+2"><b>Tag Information</b></font></td>
 </tr>
 <tr>
-<td>Tag Class</td><td>com.metamug.mason.tag.HeaderTag</td>
+<td>Tag Class</td><td>com.metamug.mason.tag.ExceptionTagHandler</td>
 </tr>
 <tr>
 <td>TagExtraInfo Class</td><td><i>None</i></td>
@@ -71,10 +71,7 @@
 <td><b>Name</b></td><td><b>Required</b></td><td><b>Request-time</b></td><td><b>Type</b></td><td><b>Description</b></td>
 </tr>
 <tr valign="top">
-<td>name</td><td>true</td><td>true</td><td><code>java.lang.String</code></td><td>Name of the response header.</td>
-</tr>
-<tr valign="top">
-<td>value</td><td>false</td><td>true</td><td><code>java.lang.String</code></td><td>Value of the response header.</td>
+<td>value</td><td>true</td><td>true</td><td><code>java.lang.Object</code></td><td>Error object to handle the exception.</td>
 </tr>
 </table>
 <br>
@@ -101,7 +98,7 @@
 <tr>
 <td BGCOLOR="white" CLASS="NavBarCell2"><font SIZE="-2"></font></td><td BGCOLOR="white" CLASS="NavBarCell2"><font SIZE="-2">
                 &nbsp;<a HREF="../index.html" TARGET="_top"><b>FRAMES</b></a>&nbsp;
-                &nbsp;<a href="header.html" target="_top"><b>NO FRAMES</b></a>&nbsp;
+                &nbsp;<a href="exception.html" target="_top"><b>NO FRAMES</b></a>&nbsp;
                 <script></script>
 <noscript>
 <a HREF="../alltags-noframe.html" TARGET=""><b>All Tags</b></a>
