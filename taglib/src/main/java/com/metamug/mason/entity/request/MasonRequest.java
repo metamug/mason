@@ -18,6 +18,7 @@ package com.metamug.mason.entity.request;
 import com.metamug.entity.Request;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Extend the implementation specific to mason for Request Object
@@ -35,20 +36,27 @@ public class MasonRequest extends Request {
 
     public MasonRequest(HttpServletRequest req) {
         this.request = req;
-        this.params = new RequestParamMap(req);
+        if(this.request.getContentType().startsWith(MediaType.MULTIPART_FORM_DATA)) {
+        	this.params = new RequestParamMap(req);
+        }else {
+        	this.params = new MultipartFormStrategy(req);
+        }
     }
 
     /**
-     * Use ${mtgReq.param.value} Do not need to convert parameters to a new map
-     *
-     * @param param
-     * @return
+     * Return the value from HttpServletRequest Object
      */
     @Override
     public String getParameter(String name) {
         return request.getParameter(name);
     }
 
+    /**
+     * Use ${mtgReq.param["value"]} Do not need to convert parameters to a new map
+     *
+     * @param param
+     * @return
+     */
     @Override
     public Map<String, String> getParams() {
         return params;

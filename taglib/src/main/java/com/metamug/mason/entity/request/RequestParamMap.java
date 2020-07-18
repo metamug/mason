@@ -19,12 +19,12 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
+ * HashMap Wrapper to make request parameters accessible with ${mtgReq.params["name"]}
  * @author pc
  */
 public class RequestParamMap extends HashMap<String, String> {
 
-    private final HttpServletRequest request;
+    protected final HttpServletRequest request;
 
     public RequestParamMap(HttpServletRequest request) {
         this.request = request;
