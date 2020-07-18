@@ -42,7 +42,7 @@ public class Main {
                 additionWebInfClasses.getAbsolutePath(), "/"));
         ctx.setResources(resources);
 
-
+         
         tomcat.enableNaming();
         ctx.setDefaultWebXml(new File("/WEB-INF/web.xml").getAbsolutePath());
         Connector connector = tomcat.getConnector();

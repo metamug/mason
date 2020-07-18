@@ -30,7 +30,7 @@
         <c:set target="${output}" property="postResult" value="${result}"/>
     </m:request>
 
-    <m:request method="POST">
+    <m:request method="POST" item="jsonRequest">
         <m:xrequest var="result" url="http://localhost:8080/rest/v1.0/movie" output="true" method="POST" >
             <m:header name="Content-Type" value="application/json"/>
             <m:xbody>
