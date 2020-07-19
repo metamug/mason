@@ -539,10 +539,10 @@ public class XRequestHeaderTest {
         XResponse xr = xRequestService.get("https://postman-echo.com/get?foo1=bar1&foo2=bar2", headers, params);
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject body = (JSONObject) response.getPayload();
-
-        String contentTypeHeader = body.getJSONObject("headers")
-                .getString("Content-Type");
-        Assert.assertEquals("application/json; charset=utf-8", contentTypeHeader);
+        System.out.println(body.toString());
+        String host = body.getJSONObject("headers")
+                .getString("host");
+        Assert.assertEquals("postman-echo.com", host);
     }
 
 }

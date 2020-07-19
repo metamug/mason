@@ -11,7 +11,6 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import javax.xml.bind.JAXBException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,11 +24,9 @@ public class XmlBodyStrategyTest {
     public void setUp() throws IOException {
 
         request = mock(HttpServletRequest.class);
-        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getMethod()).thenReturn("GET");
-
-        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+//        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+//        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
+//        when(request.getMethod()).thenReturn("GET");
 
         String xml
                 = "<customer>\n"
@@ -38,9 +35,9 @@ public class XmlBodyStrategyTest {
                 + "    <id>8</id>\n"
                 + "</customer>";
 
-        Reader inputString = new StringReader(xml);
-        BufferedReader reader = new BufferedReader(inputString);
-        when(request.getReader()).thenReturn(reader);
+//        Reader inputString = new StringReader(xml);
+//        BufferedReader reader = new BufferedReader(inputString);
+//        when(request.getReader()).thenReturn(reader);
 
         ByteArrayInputStream bytestream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
         ServletInputStream stream = getServletInputStream(bytestream);
@@ -49,17 +46,17 @@ public class XmlBodyStrategyTest {
     }
 
     @Test
-    public void xmlBodyUnmarshal() throws IOException, JAXBException {
+    public void xmlBodyUnmarshal() throws IOException{
 
-        RequestBodyStrategy masonRequest = new XmlBodyStrategy(Customer.class);
+        RequestBodyStrategy masonRequest = new XmlBodyStrategy();
 
-        Object object = masonRequest.getBodyObject(request.getInputStream());
+        Object object = masonRequest.getBodyObject(request.getInputStream(), Customer.class);
 
         Customer customer = (Customer) object;
 
         String name = customer.getName();
         System.out.println(customer);
-        System.out.println(customer.getName());
+        System.out.println(name);
         Assert.assertEquals("John Doeyy", name);
     }
 

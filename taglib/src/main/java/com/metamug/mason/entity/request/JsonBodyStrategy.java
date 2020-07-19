@@ -506,22 +506,27 @@
  */
 package com.metamug.mason.entity.request;
 
-import javax.xml.bind.JAXBException;
-
-import org.eclipse.persistence.jaxb.UnmarshallerProperties;
-import org.eclipse.persistence.oxm.MediaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author D3ep4k
  */
-public class JsonBodyStrategy extends XmlBodyStrategy {
+public class JsonBodyStrategy implements RequestBodyStrategy {
 
-    public JsonBodyStrategy(Class clazz) throws JAXBException {
-        super(clazz);
-        //Set JSON type
-        jaxbUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, MediaType.APPLICATION_JSON);
-        jaxbUnmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true);
-
+    @Override
+    public Object getBodyObject(InputStream stream, Class clazz) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue( stream, clazz);
+//            return jaxbUnmarshaller.unmarshal(new StreamSource(stream));
+        } catch (IOException ex) {
+            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

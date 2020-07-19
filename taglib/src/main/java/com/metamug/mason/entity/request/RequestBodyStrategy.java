@@ -522,6 +522,6 @@ public interface RequestBodyStrategy extends RequestStrategy {
      * Strategy method to implement and construct the request body depending on
      * content type
      */
-    public Object getBodyObject(InputStream stream) throws IOException;
+    public Object getBodyObject(InputStream stream, Class clazz) throws IOException;
 
 }

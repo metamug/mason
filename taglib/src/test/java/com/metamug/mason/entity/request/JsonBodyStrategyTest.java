@@ -11,7 +11,6 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import javax.xml.bind.JAXBException;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -24,23 +23,19 @@ public class JsonBodyStrategyTest {
     public void setUp() throws IOException {
 
         request = mock(HttpServletRequest.class);
-        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
-        when(request.getMethod()).thenReturn("GET");
+//        when(request.getPathInfo()).thenReturn("/v1.0/info/crm/people/customer/12");
+//        when(request.getServletPath()).thenReturn("/v1.0/info/crm/people/customer/12");
+//        when(request.getMethod()).thenReturn("GET");
 
-        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        String json = "{\n" +
+                "    \"name\": \"John Doeyy\",\n" +
+                "    \"roll\": 444,\n" +
+                "    \"id\": 3\n" +
+                "  }";
 
-        String json = "{\n"
-                + "\t\"customer\": {\n"
-                + "      \"name\": \"John Doeyy.\",\n"
-                + "      \"roll\": 555,\n"
-                + "      \"id\": 8\n"
-                + "    }\n"
-                + "}";
-
-        Reader inputString = new StringReader(json);
-        BufferedReader reader = new BufferedReader(inputString);
-        when(request.getReader()).thenReturn(reader);
+        //Reader inputString = new StringReader(json);
+        //BufferedReader reader = new BufferedReader(inputString);
+        //when(request.getReader()).thenReturn(reader);
 
         ByteArrayInputStream bytestream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         ServletInputStream stream = getServletInputStream(bytestream);
@@ -49,19 +44,19 @@ public class JsonBodyStrategyTest {
     }
 
     @Test
-    public void jsonBodyUnmarshal() throws IOException, JAXBException {
+    public void jsonBodyUnmarshal() throws IOException {
 
-        RequestBodyStrategy masonRequest = new JsonBodyStrategy(Customer.class);
+        RequestBodyStrategy masonRequest = new JsonBodyStrategy();
         //System.out.println(request.getInputStream());
 
-        Object object = masonRequest.getBodyObject(request.getInputStream());
+        Object object = masonRequest.getBodyObject(request.getInputStream(), Customer.class);
 
         Customer customer = (Customer) object;
 
         String name = customer.getName();
         System.out.println(customer);
         System.out.println(name);
-        Assert.assertEquals("John Doeyy.", name);
+        Assert.assertEquals("John Doeyy", name);
     }
 
     private ServletInputStream getServletInputStream(ByteArrayInputStream bytestream) {

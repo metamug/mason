@@ -91,7 +91,7 @@
 
 
     <build>
-        <finalName>mason-microservice</finalName>
+        <finalName>mason-standalone</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

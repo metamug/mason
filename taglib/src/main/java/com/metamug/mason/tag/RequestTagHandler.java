@@ -614,14 +614,14 @@ public class RequestTagHandler extends RequestTag {
             if (className != null) {
                 Class clazz = Class.forName(className);
                 if (contentType.contains(MediaType.APPLICATION_JSON)) {
-                    strategy = new JsonBodyStrategy(clazz);
+                    strategy = new JsonBodyStrategy();
                 } else if (contentType.contains(MediaType.APPLICATION_XML)) {
-                    strategy = new XmlBodyStrategy(clazz);
+                    strategy = new XmlBodyStrategy();
                 } else {
                     return; //do not set the request body
                 }
 
-                Object body = clazz.cast(strategy.getBodyObject(request.getInputStream()));
+                Object body = clazz.cast(strategy.getBodyObject(request.getInputStream(), clazz));
                 masonRequest.setBody(body);
             } else {
                 if (contentType.contains(MediaType.APPLICATION_JSON)) {
@@ -634,7 +634,7 @@ public class RequestTagHandler extends RequestTag {
             //@TODO throw as JSP exception
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
             throw new JspException("Unable to find the specified class");
-        } catch (IOException | JAXBException ex) {
+        } catch (IOException ex) {
             //@TODO throw 422 here
             Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, ex);
             throw new JspException("Status: 422 \n Could not parse the body of the request according to the provided Content-Type.");

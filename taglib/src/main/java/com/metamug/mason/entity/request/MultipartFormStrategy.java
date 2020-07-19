@@ -517,25 +517,37 @@ import java.util.Collection;
 /**
  * @author anishhirlekar
  */
-public class MultipartFormStrategy extends ParamStrategy {
+public class MultipartFormStrategy extends RequestParamMap {
 
     /**
      * @param request
      * @throws java.io.IOException
      * @throws javax.servlet.ServletException
      */
-    public MultipartFormStrategy(HttpServletRequest request) throws IOException, ServletException {
-        //@TODO what to do in case of a file
-        Collection<Part> parts = request.getParts();
-        for (Part part : parts) {
-            String line;
-            StringBuilder data = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
-                while ((line = br.readLine()) != null) {
-                    data.append(line);
-                }
+    public MultipartFormStrategy(HttpServletRequest request){
+    	super(request);
+    }
+    
+    @Override
+    public String get(Object key) {
+    	try {
+			Part part = request.getPart((String)key);
+			return getPartValue(part);
+		} catch (IOException | ServletException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+    }
+    
+    private String getPartValue(Part part) throws IOException {
+    	String line;
+        StringBuilder data = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
+            while ((line = br.readLine()) != null) {
+                data.append(line);
             }
-            params.put(part.getName(), data.toString());
         }
+        return data.toString();
     }
 }
