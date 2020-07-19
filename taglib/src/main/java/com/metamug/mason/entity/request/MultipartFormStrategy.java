@@ -524,21 +524,8 @@ public class MultipartFormStrategy extends RequestParamMap {
      * @throws java.io.IOException
      * @throws javax.servlet.ServletException
      */
-    public MultipartFormStrategy(HttpServletRequest request) throws IOException, ServletException {
+    public MultipartFormStrategy(HttpServletRequest request){
     	super(request);
-//    	
-//        //@TODO what to do in case of a file
-//        Collection<Part> parts = request.getParts();
-//        for (Part part : parts) {
-//            String line;
-//            StringBuilder data = new StringBuilder();
-//            try (BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
-//                while ((line = br.readLine()) != null) {
-//                    data.append(line);
-//                }
-//            }
-//            put(part.getName(), data.toString());
-//        }
     }
     
     @Override
