@@ -1,6 +1,6 @@
-*.settings
-*.classpath
-*.project
+.settings
+.classpath
+.project
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -22,3 +22,4 @@ mason.iml
 server/tomcat:7000/
 taglib/target/
 server/target/
+tomcat:8080/

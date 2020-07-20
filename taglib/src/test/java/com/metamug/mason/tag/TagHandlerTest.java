@@ -507,7 +507,6 @@
 package com.metamug.mason.tag;
 
 import com.metamug.entity.Attachment;
-import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
 import com.metamug.mason.entity.auth.JWebToken;
@@ -545,7 +544,6 @@ import java.util.logging.Logger;
 
 import static com.metamug.mason.Router.MASON_REQUEST;
 import com.metamug.mason.entity.request.MasonRequest;
-import static com.metamug.mason.tag.RequestTagHandler.JSP_REQUEST_SCOPE;
 import static com.metamug.mason.tag.ResourceTagHandler.BEARER_;
 import static com.metamug.mason.tag.RestTag.HEADER_ACCEPT;
 import static com.metamug.mason.tag.RestTag.MASON_OUTPUT;
@@ -653,7 +651,7 @@ public class TagHandlerTest {
             when(request.getParameter("userid")).thenReturn("1234");
             when(request.getParameter("password")).thenReturn("pass");
 
-            when(request.getAttribute(JSP_REQUEST_SCOPE)).thenReturn(new HashMap<String, Object>());
+            //when(request.getAttribute(JSP_REQUEST_SCOPE)).thenReturn(new HashMap<String, Object>());
 
             //when(provider.getInstance()).thenReturn(provider);
             when(provider.getConnection()).thenReturn(connection);

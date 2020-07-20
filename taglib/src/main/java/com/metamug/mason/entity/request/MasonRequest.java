@@ -28,7 +28,7 @@ import javax.ws.rs.core.MediaType;
 public class MasonRequest extends Request {
 
     private HttpServletRequest request;
-    protected RequestParamMap params; //hiding superclass field
+    //protected RequestParamMap params; //hiding superclass field
 
     public MasonRequest(Request request) {
         super(request);
@@ -55,7 +55,6 @@ public class MasonRequest extends Request {
     /**
      * Use ${mtgReq.param["value"]} Do not need to convert parameters to a new map
      *
-     * @param param
      * @return
      */
     @Override

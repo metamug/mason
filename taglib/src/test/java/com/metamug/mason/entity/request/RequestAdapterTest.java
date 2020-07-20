@@ -668,6 +668,8 @@ import com.metamug.entity.Request;
 import com.metamug.mason.Router;
 import java.io.IOException;
 import javax.servlet.ServletException;
+import javax.ws.rs.core.MediaType;
+
 import static org.mockito.Mockito.reset;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -691,6 +693,9 @@ public class RequestAdapterTest {
         request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
         jspResource = mock(JspResource.class);
+
+        when(this.request.getContentType()).thenReturn(MediaType.MULTIPART_FORM_DATA); //multipart comes with extra info
+
 
     }
 
