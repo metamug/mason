@@ -18,7 +18,7 @@ public class XmlBodyStrategy implements RequestBodyStrategy {
         try {
             JAXBContext jc = JAXBContext.newInstance(clazz);
             Unmarshaller unmarshaller = jc.createUnmarshaller();
-            return unmarshaller.unmarshal(new StreamSource(stream));
+            return unmarshaller.unmarshal(new StreamSource(stream), clazz).getValue();
         } catch (JAXBException ex) {
             Logger.getLogger(XmlBodyStrategy.class.getName()).log(Level.SEVERE, null, ex);
         }

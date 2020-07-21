@@ -54,14 +54,14 @@ public class JsonBodyStrategyTest {
 
         //System.out.println(request.getInputStream());
 
-//        Object object = masonRequest.getBodyObject(request.getInputStream(), Customer.class);
-//
-//        Customer customer = (Customer) object;
-//
-//        String name = customer.getName();
-//        System.out.println(customer);
-//        System.out.println(name);
-//        Assert.assertEquals("John Doeyy", name);
+        Object object = masonRequest.getBodyObject(request.getInputStream(), Customer.class);
+
+        Customer customer = (Customer) object;
+
+        String name = customer.getName();
+        System.out.println(customer.getRoll());
+        System.out.println(name);
+        Assert.assertEquals("John Doeyy", name);
     }
 
     private ServletInputStream getServletInputStream(ByteArrayInputStream bytestream) {

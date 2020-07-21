@@ -2,7 +2,7 @@ package com.metamug.mason.entity.request;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "customer")
+@XmlRootElement
 public class Customer {
     private int id;
     private int roll;
