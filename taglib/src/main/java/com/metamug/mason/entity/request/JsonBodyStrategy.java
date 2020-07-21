@@ -506,13 +506,14 @@
  */
 package com.metamug.mason.entity.request;
 
+import org.eclipse.persistence.jaxb.JAXBContextFactory;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
 /**
  * @author D3ep4k
@@ -523,10 +524,15 @@ public class JsonBodyStrategy implements RequestBodyStrategy {
     public Object getBodyObject(InputStream stream, Class clazz) {
 //        ObjectMapper mapper = new ObjectMapper();
         try {
-            Map<String, Object> properties = new HashMap<String, Object>(1);
-            properties.put("eclipselink.media-type", "application/json");
-            JAXBContext jc = JAXBContext.newInstance(new Class[]{clazz}, properties);
+//            Map properties = new HashMap<>();
+//            properties.put("eclipselink.media-type", "application/json");
+
+            final JAXBContext jaxbContext =
+                    JAXBContextFactory.createContext(new Class<?>[]{clazz}, Collections.emptyMap());
+            JAXBContext jc = jaxbContext.newInstance(clazz);
             Unmarshaller unmarshaller = jc.createUnmarshaller();
+            unmarshaller.setProperty("eclipselink.media-type", "application/json");
+            //https://stackoverflow.com/q/20962053/1097600
             return unmarshaller.unmarshal(new StreamSource(stream));
         } catch (JAXBException e) {
             e.printStackTrace();
