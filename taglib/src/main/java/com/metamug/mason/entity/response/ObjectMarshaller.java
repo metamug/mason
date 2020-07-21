@@ -506,8 +506,8 @@
  */
 package com.metamug.mason.entity.response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.persistence.jaxb.JAXBContextFactory;
+import org.eclipse.persistence.jaxb.MarshallerProperties;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -516,12 +516,10 @@ import java.io.StringWriter;
 
 /**
  * Convert JAXB Object to JSON/XML depending on the header
+ *
  * @author anishhirlekar
  */
 public class ObjectMarshaller {
-
-    public static final String TYPE_JSON = "application/json"; //@TODO redundant declared in request and response package
-    public static final String TYPE_XML = "application/xml";
 
     /**
      * @param returnObject The object to be converted. if object is of type String, the object will be returned as it is and acceptHeader will be ignored
@@ -529,26 +527,25 @@ public class ObjectMarshaller {
      * @return Json object or XML converted form of the returnObject as String
      * @throws javax.xml.bind.JAXBException
      */
-    public static String convert(Object returnObject, String acceptHeader) throws JAXBException, JsonProcessingException {
+    public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
 
         if (returnObject instanceof String) {
             return (String) returnObject;
         }
 
-        //StringWriter marshalledResult = new StringWriter();
-        String marshalledResult = null;
+        StringWriter marshalledResult = new StringWriter();
 
-        ObjectMapper mapper = new ObjectMapper();
-        marshalledResult = mapper.writeValueAsString(returnObject);
-        //marshalledResult = mapper.writeValueAsString(new Class[]{returnObject.getClass()});
-        //JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
+//        ObjectMapper mapper = new ObjectMapper();
+//        marshalledResult = mapper.writeValueAsString(returnObject);
+//        marshalledResult = mapper.writeValueAsString(new Class[]{returnObject.getClass()});
+        JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
 
-        //Marshaller marshaller = jc.createMarshaller();
-        //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        //marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, acceptHeader);
-        //marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-        //marshaller.marshal(returnObject, marshalledResult);
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, acceptHeader);
+        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+        marshaller.marshal(returnObject, marshalledResult);
 
-        return marshalledResult;
+        return marshalledResult.toString();
     }
 }
