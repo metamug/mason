@@ -509,21 +509,22 @@ package com.metamug.mason.tag;
 import com.metamug.entity.Attachment;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
-import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
-import static com.metamug.mason.Router.MASON_REQUEST;
-
 import com.metamug.mason.entity.request.JsonBodyStrategy;
 import com.metamug.mason.entity.request.RequestBodyStrategy;
 import com.metamug.mason.entity.request.XmlBodyStrategy;
-import com.metamug.mason.entity.response.FileOutput;
-import com.metamug.mason.entity.response.DatasetOutput;
-import com.metamug.mason.entity.response.JSONOutput;
-import com.metamug.mason.entity.response.MasonOutput;
-import com.metamug.mason.entity.response.ResponeBuilder;
-import com.metamug.mason.entity.response.XMLOutput;
+import com.metamug.mason.entity.response.*;
 import com.metamug.mason.service.UploaderService;
+import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONValue;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -537,16 +538,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-import net.minidev.json.JSONValue;
-import org.apache.commons.lang3.StringUtils;
+
+import static com.metamug.mason.Router.HEADER_CONTENT_TYPE;
+import static com.metamug.mason.Router.MASON_REQUEST;
 
 /**
- *
  * @author anishhirlekar
  */
 public class RequestTagHandler extends RequestTag {
@@ -625,7 +621,7 @@ public class RequestTagHandler extends RequestTag {
                 masonRequest.setBody(body);
             } else {
                 if (contentType.contains(MediaType.APPLICATION_JSON)) {
-                    masonRequest.setBody(JSONValue.parse(request.getInputStream())); // https://stackoverflow.com/a/12807303/1097600
+                    masonRequest.setBody(JSONValue.parse(new InputStreamReader(request.getInputStream()))); // https://stackoverflow.com/a/12807303/1097600
                 }
             }
 
@@ -712,7 +708,7 @@ public class RequestTagHandler extends RequestTag {
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String) k, (String) v));
                 InputStream inputStream = ((Attachment) masonResponse.getPayload()).getStream();
                 try (ReadableByteChannel in = Channels.newChannel(inputStream);
-                        WritableByteChannel out = Channels.newChannel(outputStream);) {
+                     WritableByteChannel out = Channels.newChannel(outputStream);) {
                     /**
                      * Don't set Content Length. Max buffer for output stream is
                      * 2KB and it is flushed

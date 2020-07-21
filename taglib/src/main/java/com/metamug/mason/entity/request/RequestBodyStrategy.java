@@ -506,8 +506,6 @@
  */
 package com.metamug.mason.entity.request;
 
-import com.metamug.entity.Request;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 

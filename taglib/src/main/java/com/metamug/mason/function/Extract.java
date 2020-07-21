@@ -508,23 +508,18 @@ That's all there is to it!
  */
 package com.metamug.mason.function;
 
-import com.jayway.jsonpath.JsonPath;
-import org.json.JSONObject;
-
-import java.util.Map;
-
-
 /**
  * @author anishhirlekar
  */
 public class Extract {
 
     public static String jsonPath(String jsonPath, Object target) {
-        Object output = JsonPath.parse(target.toString()).read(jsonPath);
-        if (output instanceof Map) {
-            return new JSONObject((Map) output).toString();
-        }
-
+        Object output = null;
+//        output = JsonPath.parse(target.toString()).read(jsonPath);
+//        if (output instanceof Map) {
+//            return new JSONObject((Map) output).toString();
+//        }
+//
         return output.toString();
     }
 

@@ -543,7 +543,7 @@ public class JSONOutput extends MasonOutput<JSONObject> {
             } else if (obj instanceof ResultImpl) {
                 responseJson.put(key, getJson((ResultImpl) obj));
             } else if (obj instanceof JSONObject || obj instanceof JSONArray
-                    || obj instanceof String || obj instanceof net.minidev.json.JSONArray || obj instanceof net.minidev.json.JSONObject) { //@TODO efficiently check instanceof
+                    || obj instanceof String) { //@TODO efficiently check instanceof
                 responseJson.put(key, obj);
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
