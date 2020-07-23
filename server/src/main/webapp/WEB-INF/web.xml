@@ -20,6 +20,7 @@
 		<error-code>404</error-code>
 		<location>/WEB-INF/resources/error/404error.jsp</location>
 	</error-page>
+
     <!--<resource-ref>-->
         <!--<description>DB Connection</description>-->
         <!--<res-ref-name>jdbc/mason</res-ref-name>-->

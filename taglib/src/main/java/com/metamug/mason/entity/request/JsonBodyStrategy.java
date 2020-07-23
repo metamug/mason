@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.entity.request;
 
+import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.eclipse.persistence.jaxb.JAXBContextProperties;
 
 import javax.xml.bind.JAXBContext;
@@ -529,8 +530,9 @@ public class JsonBodyStrategy implements RequestBodyStrategy {
             properties.put(JAXBContextProperties.MEDIA_TYPE, "application/json");
             properties.put(JAXBContextProperties.JSON_INCLUDE_ROOT, false);
             properties.put(JAXBContextProperties.JSON_ATTRIBUTE_PREFIX, "@");
-            JAXBContext jc = JAXBContext.newInstance(new Class[]{clazz}, properties);
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            final JAXBContext jaxbContext =
+                    JAXBContextFactory.createContext(new Class<?>[]{clazz}, properties);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             //https://stackoverflow.com/q/20962053/1097600
             return unmarshaller.unmarshal(new StreamSource(stream), clazz).getValue();
         } catch (JAXBException e) {

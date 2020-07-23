@@ -532,7 +532,7 @@ public class ConnectionProvider {
             Context envContext = (Context) initialContext.lookup("java:/comp/env");
             return (DataSource) envContext.lookup(masonDatasource);
         } catch (NamingException ex) {
-            //Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ConnectionProvider.class.getName()).log(Level.SEVERE, null, ex.getCause());
         }
         return null;
     }

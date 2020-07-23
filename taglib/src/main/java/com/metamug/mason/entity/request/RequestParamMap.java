@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class RequestParamMap extends HashMap<String, String> {
 
-    protected final HttpServletRequest request;
+    protected HttpServletRequest request;
 
     public RequestParamMap(HttpServletRequest request) {
         this.request = request;
