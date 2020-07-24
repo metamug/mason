@@ -37,7 +37,7 @@ public class MasonRequest extends Request {
     public MasonRequest(HttpServletRequest req) {
         this.request = req;
         String contentType = this.request.getContentType();
-        if(!contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
+        if(contentType == null || !contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
         	this.params = new RequestParamMap(req);
         }else {
         	this.params = new MultipartFormStrategy(req);

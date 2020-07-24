@@ -22,4 +22,4 @@ mason.iml
 server/tomcat:7000/
 taglib/target/
 server/target/
-tomcat:8080/
+server/tomcat:8080/
