@@ -55,11 +55,11 @@
     </m:request>
 
 
-    <m:request method='DELETE' item="true">
+    <m:request method='DELETE' item="item">
         <sql:update var="result" dataSource="${datasource}">
             DELETE FROM movie WHERE id=?
 
-            <sql:param value="${mtgReq.id}"/>
+            <sql:param value="${item}"/>
         </sql:update>
         <c:set target="${output}" property="deleteResult" value="${result}"/>
     </m:request>

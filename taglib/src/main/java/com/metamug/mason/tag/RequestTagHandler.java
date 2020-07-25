@@ -562,7 +562,12 @@ public class RequestTagHandler extends RequestTag {
         String contentType = request.getHeader(HEADER_CONTENT_TYPE) == null
                 ? MediaType.APPLICATION_FORM_URLENCODED : request.getHeader(HEADER_CONTENT_TYPE);
 
-        parent = (ResourceTagHandler) getParent();
+        try {
+            parent = (ResourceTagHandler) getParent();
+        }catch (ClassCastException cce){
+            //Logger.getLogger(RequestTagHandler.class.getName()).log(Level.SEVERE, null, cce);
+            throw new JspException("m:request Tag can only be wrapped around a m:resource tag.");
+        }
         //add http method of this request tag to parent's list
         parent.addChildMethod(method);
 
