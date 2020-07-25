@@ -511,6 +511,7 @@ package com.metamug.mason.service.xrequest;
 import com.metamug.entity.Response;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.service.XRequestService;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -540,9 +541,17 @@ public class XRequestHeaderTest {
         Response response = xr.getResponse(ACCEPT_JSON, ACCEPT_JSON);
         JSONObject json = (JSONObject) response.getPayload();
         System.out.println(json.toString());
-        String host = json.getJSONObject("headers")
-                .getString("Content-Type");
-        Assert.assertEquals("application/json; charset=utf-8", host);
+
+        String contentType = null;
+        try {
+            contentType = json.getJSONObject("headers")
+                    .getString("Content-Type");
+        } catch (JSONException e) {
+            contentType = json.getJSONObject("headers")
+                    .getString("content-type");
+        }
+
+        Assert.assertEquals("application/json; charset=utf-8", contentType);
     }
 
 }
