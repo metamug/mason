@@ -513,6 +513,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author anishhirlekar
@@ -534,8 +536,7 @@ public class MultipartFormStrategy extends RequestParamMap {
 			Part part = request.getPart((String)key);
 			return getPartValue(part);
 		} catch (IOException | ServletException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, null, e);
 			return null;
 		}
     }

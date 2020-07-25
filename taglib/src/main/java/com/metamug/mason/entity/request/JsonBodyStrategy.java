@@ -516,6 +516,8 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author D3ep4k
@@ -526,7 +528,7 @@ public class JsonBodyStrategy implements RequestBodyStrategy {
     public Object getBodyObject(InputStream stream, Class clazz) {
         try {
 
-            Map<String, Object> properties = new HashMap<String, Object>(2);
+            Map<String, Object> properties = new HashMap<>();
             properties.put(JAXBContextProperties.MEDIA_TYPE, "application/json");
             properties.put(JAXBContextProperties.JSON_INCLUDE_ROOT, false);
             properties.put(JAXBContextProperties.JSON_ATTRIBUTE_PREFIX, "@");
@@ -536,7 +538,7 @@ public class JsonBodyStrategy implements RequestBodyStrategy {
             //https://stackoverflow.com/q/20962053/1097600
             return unmarshaller.unmarshal(new StreamSource(stream), clazz).getValue();
         } catch (JAXBException e) {
-            e.printStackTrace();
+            Logger.getLogger(JsonBodyStrategy.class.getName()).log(Level.SEVERE, null, e);
         }
         return null;
     }

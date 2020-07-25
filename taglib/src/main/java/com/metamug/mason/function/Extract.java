@@ -514,7 +514,7 @@ package com.metamug.mason.function;
 public class Extract {
 
     public static String jsonPath(String jsonPath, Object target) {
-        Object output = null;
+        Object output = new Object();
 //        output = JsonPath.parse(target.toString()).read(jsonPath);
 //        if (output instanceof Map) {
 //            return new JSONObject((Map) output).toString();
