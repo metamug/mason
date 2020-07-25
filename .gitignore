@@ -21,5 +21,6 @@ mason.iml
 .idea/**/libraries
 server/tomcat:7000/
 taglib/target/
-server/target/
-server/tomcat:8080/
+/server/target/
+/server/tomcat.8080/
+
