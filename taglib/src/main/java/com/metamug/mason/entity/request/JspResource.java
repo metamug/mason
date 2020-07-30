@@ -56,6 +56,7 @@ public class JspResource {
         }
         // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
         resourceUri = resourcePath.substring(versionIndex + VERSION_LENGTH); // after /v1.0
+        Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "Resource URI: " + versionIndex);
     }
 
     protected boolean resourceExists(String resourcePath) {
