@@ -44,7 +44,7 @@ public class JspResource {
         this.request = request;
         String resourcePath = this.request.getServletPath();
 
-        Logger.getLogger(JspResource.class.getName()).log(Level.INFO, "JSP Resource Path" + resourcePath);
+        Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "JSP Resource Path: " + resourcePath);
 
         int versionIndex = 2; // /v
         try {
