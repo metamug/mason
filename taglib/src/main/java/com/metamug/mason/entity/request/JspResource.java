@@ -44,8 +44,6 @@ public class JspResource {
         this.request = request;
         String resourcePath = this.request.getServletPath();
 
-        Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "JSP Resource Path: " + resourcePath);
-
         int versionIndex = 2; // /v
         try {
             this.version = Float.parseFloat(resourcePath.substring(versionIndex, versionIndex + VERSION_LENGTH));
@@ -56,13 +54,14 @@ public class JspResource {
         }
         // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
         resourceUri = resourcePath.substring(versionIndex + VERSION_LENGTH); // after /v1.0
-        Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "Resource URI: " + versionIndex);
+        Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "Resource URI: " + resourceUri);
     }
 
     protected boolean resourceExists(String resourcePath) {
         String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + JSP_EXTN;
         boolean exists = new File(request.getServletContext().getRealPath(jspPath)).exists();
         if (exists) {
+            Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "JSP Resource Location: " + jspPath);
             this.jspPath = jspPath; //set as instance variable
         }
         return exists;
