@@ -13,6 +13,7 @@
             <sql:param value="${mtgReq.params['user']}"/>
             <sql:param value="${mtgReq.params['pass']}"/>
        </sql:query>
+       <%-- c:set target="${output}" property="authQuery" value="${authQuery}" / --%>
        <m:execute className="com.metamug.mason.plugin.TokenGenerator" var="token" output="true">
          <m:arg name="aud" value="${authQuery.rows[0].aud}" />
          <m:arg name="sub" value="${authQuery.rows[0].sub}" />
