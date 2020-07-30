@@ -676,7 +676,7 @@ public class Router implements Filter {
      * @throws IOException
      */
     private void writeError(HttpServletResponse res, int status, String message) throws IOException {
-
+        Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "Error: " + message);
         try (PrintWriter writer = res.getWriter()) {
             res.setContentType("application/json;charset=UTF-8");
             res.setCharacterEncoding("UTF-8");
