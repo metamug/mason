@@ -19,8 +19,6 @@ import com.metamug.mason.Router;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Represents the requested jsp file
@@ -54,14 +52,13 @@ public class JspResource {
         }
         // https://stackoverflow.com/questions/12972914/wildcard-path-for-servlet
         resourceUri = resourcePath.substring(versionIndex + VERSION_LENGTH); // after /v1.0
-        Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "Resource URI: " + resourceUri);
     }
 
     protected boolean resourceExists(String resourcePath) {
         String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + JSP_EXTN;
         boolean exists = new File(request.getServletContext().getRealPath(jspPath)).exists();
         if (exists) {
-            Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "JSP Resource Location: " + jspPath);
+            //Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "JSP Resource Location: " + jspPath);
             this.jspPath = jspPath; //set as instance variable
         }
         return exists;
