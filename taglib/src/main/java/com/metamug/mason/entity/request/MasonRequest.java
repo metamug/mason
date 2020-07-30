@@ -16,9 +16,10 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.entity.Request;
-import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
+import java.util.Map;
 
 /**
  * Extend the implementation specific to mason for Request Object
@@ -37,6 +38,7 @@ public class MasonRequest extends Request {
     public MasonRequest(HttpServletRequest req) {
         this.request = req;
         String contentType = this.request.getContentType();
+        this.setMethod(request.getMethod()); //@TODO undeprecate setMethod. Also cannot return request.getMethod() since JSP doesn't support PUT,DELETE
         if(contentType == null || !contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
         	this.params = new RequestParamMap(req);
         }else {
@@ -60,13 +62,6 @@ public class MasonRequest extends Request {
     @Override
     public Map<String, String> getParams() {
         return params;
-    }
-    
-    
-
-    @Override
-    public String getMethod() {
-        return this.request.getMethod().toLowerCase();
     }
 
 }

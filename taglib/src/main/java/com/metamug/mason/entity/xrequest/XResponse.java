@@ -586,7 +586,7 @@ public class XResponse {
                 JSONArray bodyArray = new JSONArray(body);
                 obj.put("body", bodyArray);
             } catch (JSONException jx1) {
-                obj.put("body", "Could not parse json response.");
+                obj.put("body", "Could Not Parse JSON Response.");
             }
         }
         return new Response(obj);

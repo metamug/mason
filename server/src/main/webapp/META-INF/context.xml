@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context cookies="false"
-         path="/mason-sample"
+         path="/rest"
          privileged="true"
-         reloadable="true">
+         reloadable="true" allowCasualMultipartParsing="true">
 
     <Resource auth="Container"
               closeMethod="close"

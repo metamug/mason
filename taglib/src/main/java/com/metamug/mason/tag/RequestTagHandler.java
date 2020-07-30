@@ -573,7 +573,7 @@ public class RequestTagHandler extends RequestTag {
 
         masonRequest = (Request) request.getAttribute(MASON_REQUEST);
 
-        if (method.equalsIgnoreCase(request.getMethod())) {
+        if (method.equalsIgnoreCase(masonRequest.getMethod())) { //request.getMethod() will always be POST for PUT,DELETE
             shouldEvaluate = ((masonRequest.getId() != null) == StringUtils.isNotBlank(item));
             if (shouldEvaluate) {
                 addBody(contentType);
@@ -663,7 +663,8 @@ public class RequestTagHandler extends RequestTag {
     }
 
     private void processOutput() {
-        String header = request.getHeader(HEADER_ACCEPT) == null ? MediaType.APPLICATION_XML : request.getHeader(HEADER_ACCEPT);
+
+
 
         boolean hasAttachment = false;
 
@@ -690,6 +691,7 @@ public class RequestTagHandler extends RequestTag {
             if (!hasAttachment) {
 
                 MasonOutput output = null;
+                String header = request.getHeader(HEADER_ACCEPT) == null ? MediaType.APPLICATION_JSON : request.getHeader(HEADER_ACCEPT);
                 List list = Arrays.asList(header.split("/"));
                 if (list.contains("xml")) { //Accept: application/xml, text/xml
                     output = new XMLOutput();
@@ -699,7 +701,7 @@ public class RequestTagHandler extends RequestTag {
                     output = new JSONOutput();
                 }
 
-                //cannnot use print writer since it we are already using outputstream
+                //cannot use print writer, since we are already using outputstream
                 Response masonResponse = new ResponeBuilder(output).build(outputMap);
                 masonResponse.getHeaders().forEach((k, v) -> response.setHeader((String) k, (String) v));
                 byte[] bytes = output.format(masonResponse).getBytes(StandardCharsets.UTF_8); //custom formatting before output

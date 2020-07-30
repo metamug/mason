@@ -18,16 +18,15 @@
         <c:set target="${output}" property="getReq2"  value="${result}"/>
     </m:request>
 
-
     <m:request method='POST'>
-        <sql:update var="result" dataSource="${datasource}">
-            INSERT INTO movie (releaseDate,name,rating) values (?,?,?)
+         <sql:update var="result" dataSource="${datasource}">
+                INSERT INTO movie (releaseDate,name,rating) values (?,?,?)
 
-            <sql:param value="${mtgReq.params['releaseDate']}"/>
-            <sql:param value="${mtgReq.params['name']}"/>
-            <sql:param value="${mtgReq.params['rating']}"/>
-        </sql:update>
-        <c:set target="${output}" property="postResult" value="${result}"/>
+                <sql:param value="${mtgReq.params['releaseDate']}"/>
+                <sql:param value="${mtgReq.params['name']}"/>
+                <sql:param value="${mtgReq.params['rating']}"/>
+            </sql:update>
+         <c:set target="${output}" property="postResult" value="result"/>
     </m:request>
 
     <m:request method="POST" item="jsonRequest">
@@ -58,7 +57,6 @@
     <m:request method='DELETE' item="item">
         <sql:update var="result" dataSource="${datasource}">
             DELETE FROM movie WHERE id=?
-
             <sql:param value="${item}"/>
         </sql:update>
         <c:set target="${output}" property="deleteResult" value="${result}"/>
