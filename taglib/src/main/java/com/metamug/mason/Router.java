@@ -621,7 +621,7 @@ public class Router implements Filter {
             Request masonRequest = adapter.getRequest();
             resourceName = masonRequest.getResource().getName();
 
-            Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "Resource Name: " + resourceName);
+
             if (resourceName == null) {
                 writeError(res, 404, MSG_RESOURCE_NOT_FOUND);
                 return;

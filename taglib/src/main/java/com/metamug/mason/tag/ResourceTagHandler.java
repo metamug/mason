@@ -508,21 +508,23 @@ package com.metamug.mason.tag;
 
 import com.metamug.entity.Request;
 import com.metamug.entity.Resource;
-import static com.metamug.mason.Router.CONNECTION_PROVIDER;
-import static com.metamug.mason.Router.MASON_REQUEST;
 import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import com.metamug.mason.service.AuthService;
 import com.metamug.mason.service.ConnectionProvider;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.servlet.jsp.JspException;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.jsp.JspException;
-import javax.ws.rs.core.MediaType;
-import org.apache.commons.lang3.StringUtils;
+
+import static com.metamug.mason.Router.CONNECTION_PROVIDER;
+import static com.metamug.mason.Router.MASON_REQUEST;
 
 /**
  *
@@ -537,9 +539,9 @@ public class ResourceTagHandler extends RestTag {
     private transient AuthService authService;
 
     public static final int STATUS_METHOD_NOT_ALLOWED = 405;
-    public static final String MSG_METHOD_NOT_ALLOWED = "Method not allowed";
+    public static final String MSG_METHOD_NOT_ALLOWED = "Method Not Allowed";
     public static final int STATUS_RESOURCE_NOT_FOUND = 404;
-    public static final String MSG_RESOURCE_NOT_FOUND = "Resource not found";
+    public static final String MSG_RESOURCE_NOT_FOUND = "Resource Not Found";
     public static final String MTG_AUTH_BASIC = "MTG_AUTH_BASIC";
 
     public static final String ACCESS_DENIED = "Access Denied due to unauthorization";
