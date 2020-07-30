@@ -15,8 +15,6 @@
  */
 package com.metamug.mason.entity.request;
 
-import com.metamug.mason.Router;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 
@@ -55,7 +53,7 @@ public class JspResource {
     }
 
     protected boolean resourceExists(String resourcePath) {
-        String jspPath = Router.RESOURCES_FOLDER + "v" + version + resourcePath + JSP_EXTN;
+        String jspPath = RESOURCES_FOLDER + "v" + version + resourcePath + JSP_EXTN;
         boolean exists = new File(request.getServletContext().getRealPath(jspPath)).exists();
         if (exists) {
             //Logger.getLogger(JspResource.class.getName()).log(Level.WARNING, "JSP Resource Location: " + jspPath);
@@ -76,4 +74,6 @@ public class JspResource {
     public float getVersion() {
         return this.version;
     }
+
+    private static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
 }

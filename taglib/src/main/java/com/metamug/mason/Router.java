@@ -539,8 +539,6 @@ import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class Router implements Filter {
 
-    private static final String MTG_METHOD = "mtgMethod";
-    public static final String RESOURCES_FOLDER = "/WEB-INF/resources/";
     private String encoding;
 
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -551,7 +549,7 @@ public class Router implements Filter {
     private ConnectionProvider connectionProvider;
     public static final String CONNECTION_PROVIDER = "connectionProvider";
     public static final String MASON_REQUEST = "mtgReq";
-    public static final String JSP_RESOURCE = "jspResource";
+
 
     public Router() {
 
@@ -641,7 +639,7 @@ public class Router implements Filter {
 
             //save method as attribute because jsp only accepts GET and POST
             //https://stackoverflow.com/a/46489035
-            req.setAttribute(MTG_METHOD, req.getMethod()); //needed by ExceptionTagHandler
+
 
             HttpRequestWrapper requestWrapper = new HttpRequestWrapper(req);
             req.getRequestDispatcher(jspResource.getJspPath()).forward(requestWrapper, res);

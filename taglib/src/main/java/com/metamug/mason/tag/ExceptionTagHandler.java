@@ -506,6 +506,7 @@
  */
 package com.metamug.mason.tag;
 
+import com.metamug.entity.Request;
 import com.metamug.mason.entity.response.ClientErrorResponse;
 import com.metamug.mason.entity.response.ErrorResponse;
 import com.metamug.mason.entity.response.InternalServerErrorResponse;
@@ -528,6 +529,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.metamug.mason.Router.MASON_REQUEST;
 
 /**
  * @author Kaisteel
@@ -721,7 +724,9 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     }
 
     private void dbLogError(InternalServerErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
-        String method = (String) request.getAttribute("mtgMethod");
+
+        Request masonRequest = (Request) request.getAttribute(MASON_REQUEST);
+        String method = masonRequest.getMethod();
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
         try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,trace,"
                 + " resource) VALUES(?,?,?,?,?)")) {

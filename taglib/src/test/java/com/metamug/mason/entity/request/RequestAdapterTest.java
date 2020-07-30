@@ -655,23 +655,20 @@ That's all there is to it!
  */
 package com.metamug.mason.entity.request;
 
-import javax.servlet.http.HttpServletRequest;
-import static org.junit.Assert.assertEquals;
+import com.metamug.entity.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import com.metamug.entity.Request;
-import com.metamug.mason.Router;
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.ws.rs.core.MediaType;
-
-import static org.mockito.Mockito.reset;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * Mock Request Path
@@ -700,7 +697,6 @@ public class RequestAdapterTest {
     }
 
     private RequestAdapter mockStrategy(String resourceUri) throws IOException, ServletException {
-        when(request.getAttribute(Router.JSP_RESOURCE)).thenReturn(jspResource); //since this is removed after each strategy call.
         reset(jspResource);
         when(jspResource.getVersion()).thenReturn(1.0f);
         when(jspResource.getResourceUri()).thenReturn(resourceUri);
