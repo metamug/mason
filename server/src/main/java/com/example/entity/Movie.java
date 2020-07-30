@@ -5,8 +5,9 @@
  */
 package com.example.entity;
 
-import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Date;
 
 /**
  *
@@ -15,6 +16,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Movie {
     private String name;
+
+    @XmlJavaTypeAdapter(value = DateAdapter.class, type = Date.class)
     private Date releaseDate;
     private float rating;
 

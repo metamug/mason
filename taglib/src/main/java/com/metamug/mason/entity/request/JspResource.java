@@ -16,8 +16,11 @@
 package com.metamug.mason.entity.request;
 
 import com.metamug.mason.Router;
-import java.io.File;
+
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents the requested jsp file
@@ -40,6 +43,9 @@ public class JspResource {
     public JspResource(HttpServletRequest request) {
         this.request = request;
         String resourcePath = this.request.getServletPath();
+
+        Logger.getLogger(JspResource.class.getName()).log(Level.INFO, "JSP Resource Path" + resourcePath);
+
         int versionIndex = 2; // /v
         try {
             this.version = Float.parseFloat(resourcePath.substring(versionIndex, versionIndex + VERSION_LENGTH));

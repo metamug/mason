@@ -511,27 +511,24 @@ import com.metamug.mason.entity.request.JspResource;
 import com.metamug.mason.entity.request.RequestAdapter;
 import com.metamug.mason.service.ConnectionProvider;
 import com.metamug.mason.service.QueryManagerService;
-import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.naming.NamingException;
+import javax.servlet.*;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.NamingException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.MediaType;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import static com.metamug.mason.tag.ResourceTagHandler.MSG_RESOURCE_NOT_FOUND;
 
 /**
  * Rest Controller. Handles all the incoming requests Uses Multipart config for
@@ -665,7 +662,8 @@ public class Router implements Filter {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (NullPointerException ex) {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, "Router " + resourceName + ":{0}", ex.getMessage());
-            //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch if for that.
+            //The 404error.jsp works fine when a non-existing resource is called. But requesting a dispatcher for non-existing resource it returns Null
+            // during test executiong and a call to forward() on such a dispatcher creates NPE and the RouterTest fails. This catch is for that.
             writeError(res, 404, MSG_RESOURCE_NOT_FOUND + ex.getMessage());
         }
     }
@@ -745,6 +743,11 @@ public class Router implements Filter {
         }
     }
 
+    /**
+     * Check if the incoming request contains a valid Content-Type
+     * @param req
+     * @return true if valid contenty type
+     */
     private boolean validContentType(HttpServletRequest req) {
         String contentType = req.getContentType() == null ? MediaType.TEXT_HTML : req.getContentType().toLowerCase();
         String method = req.getMethod();
