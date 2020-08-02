@@ -611,6 +611,9 @@ public class ResourceTagHandler extends RestTag {
         }
     }
 
+
+
+
     private void print405() {
 //      String header = request.getHeader(HEADER_ACCEPT) == null ? HEADER_JSON : request.getHeader(HEADER_ACCEPT);
         response.setContentType(MediaType.APPLICATION_JSON);
