@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.metamug</groupId>
     <artifactId>mason</artifactId>
+    <version>4.7</version>
 
-    <version>4.4-${BUILD_NUMBER}</version>
     <packaging>jar</packaging>
     <name>com.metamug:mason</name>
     <description>JSP REST API Library</description>
