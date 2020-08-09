@@ -11,12 +11,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/movie",
+					"raw": "http://localhost:8082/rest/v1.0/movie",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -32,12 +32,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/movie/19",
+					"raw": "http://localhost:8082/rest/v1.0/movie/19",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -54,12 +54,12 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/movie/19",
+					"raw": "http://localhost:8082/rest/v1.0/movie/19",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -91,12 +91,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/jwt/token",
+					"raw": "http://localhost:8082/rest/v1.0/jwt/token",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -133,12 +133,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/movie",
+					"raw": "http://localhost:8082/rest/v1.0/movie",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -158,12 +158,12 @@
 					"formdata": []
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/payload/movie?releaseDate=2020-04-05 02:07:47.0&name=Lincon&rating=4.5",
+					"raw": "http://localhost:8082/rest/v1.0/payload/movie?releaseDate=2020-04-05 02:07:47.0&name=Lincon&rating=4.5",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -203,11 +203,11 @@
 					"raw": "{\r\n    \"releaseDate\": \"2004-04-05\",\r\n    \"name\": \"Oceans 16\",\r\n    \"rating\": \"5.0\"\r\n}\r\n"
 				},
 				"url": {
-					"raw": "localhost:8080/rest/v1.0/movie",
+					"raw": "localhost:8082/rest/v1.0/movie",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -232,12 +232,12 @@
 					"raw": "{\r\n\t\"movie\": [\r\n\t\t\t\t{\r\n\t\t\t\t    \"releaseDate\": \"2004-04-05\",\r\n\t\t\t\t    \"name\": \"Lincon\",\r\n\t\t\t\t    \"rating\": \"4.1\"\r\n\t\t\t\t},\r\n\t\t\t\t{\r\n\t\t\t\t    \"releaseDate\": \"2004-04-05\",\r\n\t\t\t\t    \"name\": \"Lincon\",\r\n\t\t\t\t    \"rating\": \"4.5\"\r\n\t\t\t\t}\r\n\t\t]\r\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/payload/movie",
+					"raw": "http://localhost:8082/rest/v1.0/payload/movie",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -263,12 +263,12 @@
 					"raw": "<movie>\r\n\t\t<releaseDate>2011-03-31</releaseDate>\r\n\t\t<name>No Mans Land</name>\r\n\t\t<rating>5.0</rating>\r\n</movie>"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/payload/xml/movie",
+					"raw": "http://localhost:8082/rest/v1.0/payload/xml/movie",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
@@ -295,12 +295,12 @@
 					"raw": "<movies>\r\n\t<movie>\r\n\t\t<releaseDate>2020-03-31</releaseDate>\r\n\t\t<name>Parasite</name>\r\n\t\t<rating>5.0</rating>\r\n\t</movie>\r\n\t<movie>\r\n\t\t<releaseDate>2019-03-31</releaseDate>\r\n\t\t<name>Origin</name>\r\n\t\t<rating>4.5</rating>\r\n\t</movie>\r\n</movies>\r\n"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/v1.0/payload/movie",
+					"raw": "http://localhost:8082/rest/v1.0/payload/movie",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8082",
 					"path": [
 						"rest",
 						"v1.0",
