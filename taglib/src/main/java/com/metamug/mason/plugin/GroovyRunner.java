@@ -503,6 +503,7 @@ package com.metamug.mason.plugin;
 import com.metamug.entity.Request;
 import com.metamug.entity.Response;
 import com.metamug.exec.RequestProcessable;
+import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 import groovy.lang.Binding;
@@ -512,6 +513,7 @@ import groovy.util.ScriptException;
 
 import javax.servlet.jsp.JspException;
 import javax.sql.DataSource;
+import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -533,10 +535,11 @@ public class GroovyRunner implements RequestProcessable {
         String argFile = (String) args.get("file");
         Map<String, Object> object = new LinkedHashMap<>();
         try {
-            //file:/C:/tomcat9/webapps/mason-sample/WEB-INF/classes//WEB_INF/scripts/test.groovy
-            GroovyScriptEngine engine = new GroovyScriptEngine(
-                    new URL[]{GroovyRunner.class.getClassLoader().getResource("..")
-                    });
+            MasonRequest masonRequest = (MasonRequest) request;
+            File scriptFolder = new File(masonRequest.getRealPath(SCRIPT_ROOT));
+            URL[] urls = new URL[]{scriptFolder.toURI().toURL()};
+            GroovyScriptEngine engine = new GroovyScriptEngine(urls, this.getClass().getClassLoader());
+
             Binding binding = new Binding();
 
             for (Map.Entry<String, String> requestVariable : request.getParams().entrySet()) {
@@ -549,7 +552,7 @@ public class GroovyRunner implements RequestProcessable {
             binding.setVariable(RESPONSE_VARIABLE, object); //for the output
 
             //String scriptPath = request.getServletContext().getRealPath(SCRIPT_ROOT + file);
-            engine.run(SCRIPT_ROOT + argFile, binding);
+            engine.run(argFile, binding);
 
 
         } catch (SecurityException | ResourceException | ScriptException | IllegalArgumentException ex) {
@@ -561,6 +564,6 @@ public class GroovyRunner implements RequestProcessable {
 
     private static final String RESPONSE_VARIABLE = "response";
     private static final String SCRIPT_VARIABLE_PREFIX = "_$";
-    private static final String SCRIPT_ROOT = "scripts/";
+    private static final String SCRIPT_ROOT = "/WEB-INF/scripts/";
 
 }

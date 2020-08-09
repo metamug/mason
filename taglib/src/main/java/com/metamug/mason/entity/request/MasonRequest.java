@@ -64,4 +64,8 @@ public class MasonRequest extends Request {
         return params;
     }
 
+    public String getRealPath(String path){
+        return request.getServletContext().getRealPath(path);
+    }
+
 }
