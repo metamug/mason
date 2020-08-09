@@ -591,13 +591,11 @@ public class TagHandlerTest {
     @InjectMocks
     ExecuteTagHandler executeTag = new ExecuteTagHandler();
 
-    @InjectMocks
-    ScriptTagHandler scriptTag = new ScriptTagHandler();
 
     @InjectMocks
     ParamTagHandler paramTag = new ParamTagHandler();
 
-//    @InjectMocks
+    //    @InjectMocks
 //    ParentTagHandler parentTag = new ParentTagHandler();
     @Mock
     private ConnectionProvider provider;
@@ -713,7 +711,7 @@ public class TagHandlerTest {
     public void fileDownload() throws JspException, IOException {
 
         File temp = File.createTempFile("test", ".txt");
-        
+
         // Delete temp file when program exits.
         temp.deleteOnExit();
 
@@ -794,21 +792,14 @@ public class TagHandlerTest {
         assertEquals(Tag.SKIP_PAGE, resourceTag.doEndTag()); //should be last call of the page
     }
 
-    @Test(expected = JspException.class)
-    public void scriptTag() throws JspException {
-        scriptTag.setVar("executeOutput");
-
-        scriptTag.setFile("test.groovy"); //should be from test package
-        assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
-        assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
-    }
-
 //    @Test
 //    public void parentTag() throws JspException {
 //        when(masonRequest.getParent()).thenReturn("mother");
 //        parentTag.setValue("mother");
 //        assertEquals(Tag.EVAL_PAGE, parentTag.doEndTag());
 //    }
+
+
     @Test
     public void paramTag() throws JspException {
         //<Param name="limit" type="number" min="0" max="100"/>
@@ -892,7 +883,7 @@ public class TagHandlerTest {
         assertEquals(Tag.EVAL_BODY_INCLUDE, executeTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, executeTag.doEndTag());
     }*/
-   
+
 
     @Test
     public void xrequestTag() throws JspException {
