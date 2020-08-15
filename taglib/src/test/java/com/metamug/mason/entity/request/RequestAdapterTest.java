@@ -760,6 +760,14 @@ public class RequestAdapterTest {
         assertEquals(null, masonRequest.getPid());
         assertEquals(null, masonRequest.getParent());
 
+        adapter = mockStrategy("/execute/");
+        when(jspResource.resourceExists("/execute")).thenReturn(true);
+        masonRequest = adapter.getRequest();
+        assertEquals("execute", masonRequest.getResource().getName());
+        assertEquals(null, masonRequest.getId());
+        assertEquals(null, masonRequest.getPid());
+        assertEquals(null, masonRequest.getParent());
+
         adapter = mockStrategy("/execute/23");
         when(jspResource.resourceExists("/execute")).thenReturn(true);
         masonRequest = adapter.getRequest();
