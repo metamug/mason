@@ -725,7 +725,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     }
 
     private void dbLogError(InternalServerErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
-
+        System.out.println("dbLogError");
         Request masonRequest = (Request) request.getAttribute(MASON_REQUEST);
         String method = masonRequest.getMethod();
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
