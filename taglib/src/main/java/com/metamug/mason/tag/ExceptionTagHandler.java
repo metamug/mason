@@ -551,6 +551,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
      */
     @Override
     public int doEndTag() throws JspException {
+        System.out.println("Exception: End Tag");
         Exception exception = (Exception) value;
         ds = ConnectionProvider.getMasonDatasource();
         JspWriter out = pageContext.getOut();
