@@ -10,6 +10,7 @@ import java.util.Set;
 /**
  * Immutable Map to encapsulate pageContext
  */
+@Deprecated
 final public class ContextMap implements Map<String, Object> {
 
     private PageContext context;

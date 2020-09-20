@@ -2,7 +2,9 @@
 
 <m:resource>
     <m:request method="GET">
-        <m:script file="test.groovy" var="res" />
+        <m:execute className="com.metamug.mason.plugin.GroovyRunner" var="res" >
+            <m:arg name="file" value="test.groovy" />
+        </m:execute>
         <c:set target="${output}" property="response" value="${res}"/>
     </m:request>
 </m:resource>
