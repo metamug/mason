@@ -515,6 +515,9 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.simple.JSONValue;
 
 /**
  * @author user
@@ -561,7 +564,17 @@ public class RestTag extends BodyTagSupport implements TryCatchFinally {
      */
     protected void addToBus(String var, Object result) {
         if (result instanceof Response) {
-            pageContext.setAttribute(var, ((Response) result).getPayload());
+            Object payload = ((Response) result).getPayload();
+            //if payload is instance of org.json.JSONObject/JSONArray
+            //convert to org.json.simple.JSONObject/JSONArray so it is accessible in EL
+            if(payload instanceof JSONObject){
+                String jsonString = ((JSONObject)payload).toString();
+                payload = (org.json.simple.JSONObject)JSONValue.parse(jsonString);
+            }else if(payload instanceof JSONArray){
+                String jsonString = ((JSONArray)payload).toString();
+                payload = (org.json.simple.JSONArray)JSONValue.parse(jsonString);       
+            }
+            pageContext.setAttribute(var, payload);
         } else {
             pageContext.setAttribute(var, result);
         }

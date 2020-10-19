@@ -508,7 +508,6 @@ package com.metamug.mason.tag.xrequest;
 
 import com.metamug.entity.Response;
 import com.metamug.exec.ResponseProcessable;
-import com.metamug.mason.entity.response.MasonOutput;
 import com.metamug.mason.entity.xrequest.XResponse;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
