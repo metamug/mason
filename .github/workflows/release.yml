@@ -22,11 +22,11 @@ jobs:
         run: |
             cat <(echo -e "${{ secrets.GPG_KEY }}") | gpg --batch --import
             gpg --list-secret-keys --keyid-format LONG    
-      - name: Publish MTG API on Maven Central
-        run: mvn -f sdk/pom.xml --batch-mode deploy -P release -Dgpg.passphrase=$MAVEN_PASSWORD
-        env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}    
+#       - name: Publish MTG API on Maven Central
+#         run: mvn -f sdk/pom.xml --batch-mode deploy -P release -Dgpg.passphrase=$MAVEN_PASSWORD
+#         env:
+#           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+#           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}    
       - name: Publish Mason on Maven Central    
         run: mvn -f taglib/pom.xml --batch-mode deploy -P release -Dgpg.passphrase=$MAVEN_PASSWORD
         env:
