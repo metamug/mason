@@ -20,16 +20,15 @@ jobs:
           
       - name: Configure GPG Key For Signing
         run: |
-            echo -n "$GPG_SIGNING_KEY" | gpg --import
-        env:
-            GPG_SIGNING_KEY: ${{ secrets.GPG_KEY }}    
+            cat <(echo -e "${{ secrets.GPG_KEY }}") | gpg --batch --import
+            gpg --list-secret-keys --keyid-format LONG    
       - name: Publish MTG API on Maven Central
-        run: mvn -f sdk/pom.xml --batch-mode deploy -P release
+        run: mvn -f sdk/pom.xml --batch-mode deploy -P release -Dgpg.passphrase=$MAVEN_PASSWORD
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}    
       - name: Publish Mason on Maven Central    
-        run: mvn -f taglib/pom.xml --batch-mode deploy -P release
+        run: mvn -f taglib/pom.xml --batch-mode deploy -P release -Dgpg.passphrase=$MAVEN_PASSWORD
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
