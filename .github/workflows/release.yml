@@ -22,7 +22,7 @@ jobs:
         run: |
             echo -n "$GPG_SIGNING_KEY" | gpg --import
         env:
-            GPG_SIGNING_KEY: ${{ secrets.OSSRH_TOKEN }}    
+            GPG_SIGNING_KEY: ${{ secrets.GPG_KEY }}    
       - name: Publish MTG API on Maven Central
         run: mvn -f sdk/pom.xml --batch-mode deploy -P release
         env:
