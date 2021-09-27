@@ -18,7 +18,7 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           
-      - name: Configure GPG Key
+      - name: Configure GPG Key For Signing
         run: |
             echo -n "$GPG_SIGNING_KEY" | gpg --import
         env:
