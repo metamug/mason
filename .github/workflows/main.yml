@@ -30,15 +30,14 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           
-      # SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       # Runs a single command using the runners shell
-      - name: Run a one-line script
+      - name: Build Mason Project
         run: mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=metamug_mason -Dsonar.organization=metamug -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-         mvn clean test jacoco:report coveralls:report
-         bash <(curl -s https://codecov.io/bash)
+      #- name: Run a multi-line script
+      #  run: |
+      #   mvn clean test jacoco:report coveralls:report
+      #   bash <(curl -s https://codecov.io/bash)
