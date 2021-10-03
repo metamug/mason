@@ -31,7 +31,7 @@ jobs:
           distribution: 'adopt'
           
       # Runs a single command using the runners shell
-      - name: Build Mason Project
+      # - name: Build Mason Project
       #  run: mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=metamug_mason -Dsonar.organization=metamug -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io
       #  env:
       #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
