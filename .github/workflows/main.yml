@@ -38,6 +38,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       # Send Coverage Report
       - name: Coveralls
-        run: mvn clean test jacoco:report coveralls:report -DrepoToken=$REPO_TOKEN 
+        run: mvn clean test -f taglib/pom.xml jacoco:report coveralls:report -DrepoToken=$REPO_TOKEN 
         env:
           REPO_TOKEN: ${{secrets.REPO_TOKEN}}
