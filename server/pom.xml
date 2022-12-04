@@ -5,7 +5,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>server</name>
-    <url>http://metamug.net</url>
+    <url>http://metamug.com/download/</url>
     <properties>
         <tomcat.version>9.0.43</tomcat.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

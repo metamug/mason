@@ -4,23 +4,23 @@
          privileged="true"
          reloadable="true" allowCasualMultipartParsing="true">
 
-    <Resource auth="Container"
-              closeMethod="close"
-              connectionTimeout="300000"
-              dataSource.implicitCachingEnabled="true"
-              driverClassName="com.mysql.cj.jdbc.Driver"
-              factory="com.zaxxer.hikari.HikariJNDIFactory"
-              idleTimeout="120000"
-              jdbcUrl="jdbc:mysql://server.metamug.net:3306/movieDB?useOldAliasMetadataBehavior=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=CONVERT_TO_NULL&amp;characterSetResults=UTF-8&amp;allowMultiQueries=true&amp;connectTimeout=120000"
-              maxLifetime="1800000"
-              maximumPoolSize="2"
-              minimumIdle="1"
-              name="jdbc/mason"
-              username="moviebuff"
-              password="password"
-              poolName="masonSamplePool"
-              type="javax.sql.DataSource"
-    />
+<!--    <Resource auth="Container"-->
+<!--              closeMethod="close"-->
+<!--              connectionTimeout="300000"-->
+<!--              dataSource.implicitCachingEnabled="true"-->
+<!--              driverClassName="com.mysql.cj.jdbc.Driver"-->
+<!--              factory="com.zaxxer.hikari.HikariJNDIFactory"-->
+<!--              idleTimeout="120000"-->
+<!--              jdbcUrl="jdbc:mysql://server.metamug.net:3306/movieDB?useOldAliasMetadataBehavior=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=CONVERT_TO_NULL&amp;characterSetResults=UTF-8&amp;allowMultiQueries=true&amp;connectTimeout=120000"-->
+<!--              maxLifetime="1800000"-->
+<!--              maximumPoolSize="2"-->
+<!--              minimumIdle="1"-->
+<!--              name="jdbc/mason"-->
+<!--              username="moviebuff"-->
+<!--              password="password"-->
+<!--              poolName="masonSamplePool"-->
+<!--              type="javax.sql.DataSource"-->
+<!--    />-->
     <JarScanner scanManifest="false"/>
     <WatchedResource>/WEB-INF/lib/</WatchedResource>
 </Context>
