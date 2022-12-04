@@ -101,7 +101,7 @@ After that you can find *mtg-mason-1.0.jar* inside the target folder. You can us
 
 All requests made to the jsp resources are routed through this filter.
 
-6. Configure your data source in `{webAppDir}/META-INF/context.xml` file.
+6.Configure your data source in [`{webAppDir}/META-INF/context.xml`](server/src/main/webapp/META-INF) file.
 
 You can take a look at the [sample webapp](https://github.com/metamug/mason-sample).
 
@@ -125,7 +125,7 @@ https://metamug.com/docs/api-request
 ### Scripting Support
 
 Mason supports [groovy](http://groovy-lang.org/) for writing scripts. 
-You need to keep the scripts in `{webAppDir}/WEB-INF/scripts`
+You need to keep the scripts in [`{webAppDir}/WEB-INF/scripts`](server/src/main/webapp/WEB-INF/scripts)
 
 **Example Script**
 
