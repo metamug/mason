@@ -550,6 +550,7 @@ public class RequestTagHandler extends RequestTag {
     private String item;
     private boolean shouldEvaluate;
     private String className;
+    private Integer status;
     private Request masonRequest;
     public static final String JSP_REQUEST_SCOPE = "requestScope";
     public static final String REQUEST_BODY_PARAM_NAME = "mbody";
@@ -685,6 +686,11 @@ public class RequestTagHandler extends RequestTag {
             });
         }
 
+        //declared status of the request, e.g. <Request method="POST" status="201">
+        if (status != null) {
+            response.setStatus(status);
+        }
+
         //write response
         try (OutputStream outputStream = response.getOutputStream()) {
 
@@ -738,6 +744,10 @@ public class RequestTagHandler extends RequestTag {
 
     public void setItem(String item) {
         this.item = item;
+    }
+
+    public void setStatus(String status) {
+        this.status = StringUtils.isBlank(status) ? null : Integer.valueOf(status.trim());
     }
 
     public void setClassName(String className) {
