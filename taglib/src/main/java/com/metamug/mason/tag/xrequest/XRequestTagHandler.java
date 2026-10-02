@@ -597,6 +597,12 @@ public class XRequestTagHandler extends RequestTag {
         return EVAL_PAGE;
     }
 
+    @Override
+    public void doFinally() {
+        super.doFinally();
+        requestBody = null; // pooled handler: do not send the previous request's body
+    }
+
     public void setVar(String var) {
         this.var = var;
     }
