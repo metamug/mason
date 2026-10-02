@@ -550,8 +550,8 @@ public class ExecuteTagHandler extends RequestTag {
 
             // results of the steps before this one (SQL, XRequest, Execute, Script), by their id.
             // Runners that want them read args.get("__steps"); others ignore it.
-            Map<String, Object> runnerArgs = new java.util.HashMap<>(parameters);
-            Map<String, Object> steps = new java.util.LinkedHashMap<>();
+            java.util.Map<String, Object> runnerArgs = new java.util.HashMap<>(parameters);
+            java.util.Map<String, Object> steps = new java.util.LinkedHashMap<>();
             java.util.Enumeration<String> names = pageContext.getAttributeNamesInScope(javax.servlet.jsp.PageContext.PAGE_SCOPE);
             while (names.hasMoreElements()) {
                 String name = names.nextElement();
