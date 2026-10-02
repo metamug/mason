@@ -46,7 +46,10 @@ public class RequestParamMap extends HashMap<String, String> {
      * Values put into the map (extra parameters) are included.
      */
     private Map<String, String> view() {
-        Map<String, String> all = new LinkedHashMap<>(super.size() == 0 ? new HashMap<String, String>() : new HashMap<>(this));
+        Map<String, String> all = new LinkedHashMap<>();
+        for (Map.Entry<String, String> e : super.entrySet()) {
+            all.put(e.getKey(), e.getValue());
+        }
         for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
             all.put(e.getKey(), e.getValue() != null && e.getValue().length > 0 ? e.getValue()[0] : null);
         }
