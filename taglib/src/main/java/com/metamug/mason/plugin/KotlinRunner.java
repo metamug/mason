@@ -44,6 +44,8 @@ import java.util.regex.Pattern;
  * <li><code>params</code>: Map&lt;String, String&gt; request parameters</li>
  * <li><code>request</code>: the Mason request (<code>request.id</code>, <code>request.body</code>, <code>request.method</code>)</li>
  * <li><code>response</code>: MutableMap&lt;String, Any?&gt;, whatever is put here is the output of the step</li>
+ * <li><code>steps</code>: Map&lt;String, Any?&gt; results of the steps before this one by id (SQL results as a list of row maps,
+ * XRequest as its response map, Script/Execute as the response map)</li>
  * <li><code>ds</code>: javax.sql.DataSource of the app</li>
  * </ul>
  *
@@ -63,6 +65,7 @@ public class KotlinRunner implements RequestProcessable {
             = "@Suppress(\"UNCHECKED_CAST\") val params: Map<String, String> = bindings[\"__params\"] as Map<String, String>; "
             + "@Suppress(\"UNCHECKED_CAST\") val response: MutableMap<String, Any?> = bindings[\"__response\"] as MutableMap<String, Any?>; "
             + "val request: com.metamug.mason.entity.request.MasonRequest = bindings[\"__request\"] as com.metamug.mason.entity.request.MasonRequest; "
+            + "@Suppress(\"UNCHECKED_CAST\") val steps: Map<String, Any?> = bindings[\"__steps\"] as Map<String, Any?>; "
             + "val ds: javax.sql.DataSource = bindings[\"__ds\"] as javax.sql.DataSource";
 
     private static final Map<String, CachedScript> CACHE = new ConcurrentHashMap<>();
@@ -85,6 +88,7 @@ public class KotlinRunner implements RequestProcessable {
             bindings.put("__response", output);
             bindings.put("__request", masonRequest);
             bindings.put("__ds", ds);
+            bindings.put("__steps", steps(args.get("__steps")));
             compiled.eval(bindings);
         } catch (ScriptException ex) {
             // compile and runtime errors carry file line numbers (the prelude does not shift them)
@@ -93,6 +97,28 @@ public class KotlinRunner implements RequestProcessable {
             throw new JspException("", new MasonException(MasonError.SCRIPT_ERROR, message));
         }
         return new Response<Object>(output);
+    }
+
+    /**
+     * Results of the steps before this script by step id. SQL query results are converted to a plain
+     * List of column-name to value maps; XRequest/Script results are already maps and lists.
+     */
+    private static Map<String, Object> steps(Object raw) {
+        Map<String, Object> steps = new LinkedHashMap<>();
+        if (raw instanceof Map) {
+            for (Map.Entry<?, ?> e : ((Map<?, ?>) raw).entrySet()) {
+                Object value = e.getValue();
+                if (value instanceof javax.servlet.jsp.jstl.sql.Result) {
+                    List<Map<String, Object>> rows = new ArrayList<>();
+                    for (Object row : ((javax.servlet.jsp.jstl.sql.Result) value).getRows()) {
+                        rows.add(new LinkedHashMap<String, Object>((Map<String, Object>) row));
+                    }
+                    value = rows;
+                }
+                steps.put(String.valueOf(e.getKey()), value);
+            }
+        }
+        return steps;
     }
 
     /**
