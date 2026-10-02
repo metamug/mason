@@ -545,6 +545,9 @@ public class JSONOutput extends MasonOutput<JSONObject> {
             } else if (obj instanceof JSONObject || obj instanceof JSONArray
                     || obj instanceof String) { //@TODO efficiently check instanceof
                 responseJson.put(key, obj);
+            } else if (obj instanceof java.util.Map) {
+                // e.g. the response map of a script: no JAXB round trip needed
+                responseJson.put(key, new JSONObject((java.util.Map) obj));
             } else if (obj instanceof List) {
                 JSONArray array = new JSONArray();
                 List<Object> list = (List) obj;

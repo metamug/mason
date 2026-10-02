@@ -527,6 +527,20 @@ public class ObjectMarshaller {
      * @return Json object or XML converted form of the returnObject as String
      * @throws javax.xml.bind.JAXBException
      */
+    /**
+     * Creating a JAXBContext is expensive (tens of milliseconds): do it once per class.
+     */
+    private static final java.util.Map<Class, JAXBContext> CONTEXTS = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static JAXBContext contextFor(Class clazz) throws JAXBException {
+        JAXBContext jc = CONTEXTS.get(clazz);
+        if (jc == null) {
+            jc = JAXBContextFactory.createContext(new Class[]{clazz}, null);
+            CONTEXTS.put(clazz, jc);
+        }
+        return jc;
+    }
+
     public static String convert(Object returnObject, String acceptHeader) throws JAXBException {
 
         if (returnObject instanceof String) {
@@ -538,7 +552,7 @@ public class ObjectMarshaller {
 //        ObjectMapper mapper = new ObjectMapper();
 //        marshalledResult = mapper.writeValueAsString(returnObject);
 //        marshalledResult = mapper.writeValueAsString(new Class[]{returnObject.getClass()});
-        JAXBContext jc = JAXBContextFactory.createContext(new Class[]{returnObject.getClass()}, null);
+        JAXBContext jc = contextFor(returnObject.getClass());
 
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
