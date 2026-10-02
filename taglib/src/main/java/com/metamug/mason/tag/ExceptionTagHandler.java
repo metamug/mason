@@ -539,6 +539,8 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
 
     private Object value;
     private DataSource ds;
+    /** set when the current error was already written to error_log, so it is not logged twice */
+    private boolean dbLogged;
 
     /**
      * This method is called after the JSP engine finished processing the tag.
@@ -552,6 +554,7 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
     @Override
     public int doEndTag() throws JspException {
         System.out.println("Exception: End Tag");
+        dbLogged = false;
         Exception exception = (Exception) value;
         ds = ConnectionProvider.getMasonDatasource();
         JspWriter out = pageContext.getOut();
@@ -583,8 +586,16 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
                 if (exception.getCause() != null && exception.getCause().toString().contains(MasonException.class.getName())) {
                     msg = exception.getCause().getMessage();
                 }
-                //dbLogError((InternalServerErrorResponse) errorResponse, request, msg, new StringBuilder());
-                //@TODO make db logging configurable. 
+                // every internal error is recorded in error_log (SQL errors already were), so it can be looked up
+                // by the errorId returned to the client, e.g. from the Console error screen or API
+                if (!dbLogged) {
+                    StringBuilder trace = new StringBuilder();
+                    for (StackTraceElement element : exception.getStackTrace()) {
+                        trace.append(element).append("\n");
+                    }
+                    dbLogError((InternalServerErrorResponse) errorResponse, request,
+                            msg == null ? exception.toString() : msg.replaceAll("(\\s|\\n|\\r|\\n\\r)+", " "), trace);
+                }
             }
             //set response
             response.setStatus(errorResponse.getStatus());
@@ -726,9 +737,13 @@ public class ExceptionTagHandler extends BodyTagSupport implements TryCatchFinal
 
     private void dbLogError(InternalServerErrorResponse response, HttpServletRequest request, String exceptionMessage, StringBuilder errorTraceBuilder) {
         System.out.println("dbLogError");
+        dbLogged = true;
         Request masonRequest = (Request) request.getAttribute(MASON_REQUEST);
-        String method = masonRequest.getMethod();
+        String method = masonRequest != null ? masonRequest.getMethod() : request.getMethod();
         String resourceURI = (String) request.getAttribute("javax.servlet.forward.request_uri");
+        if (resourceURI == null) {
+            resourceURI = request.getRequestURI();
+        }
         try (Connection con = ds.getConnection(); PreparedStatement stmnt = con.prepareStatement("INSERT INTO error_log (error_id,request_method,message,trace,"
                 + " resource) VALUES(?,?,?,?,?)")) {
             stmnt.setString(1, String.valueOf(response.getErrorId()));
