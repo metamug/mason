@@ -548,8 +548,19 @@ public class ExecuteTagHandler extends RequestTag {
 
             Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
 
-            //no bus
-            result = reqProcessable.process(masonReq, ConnectionProvider.getMasonDatasource(), parameters);
+            // results of the steps before this one (SQL, XRequest, Execute, Script), by their id.
+            // Runners that want them read args.get("__steps"); others ignore it.
+            Map<String, Object> runnerArgs = new java.util.HashMap<>(parameters);
+            Map<String, Object> steps = new java.util.LinkedHashMap<>();
+            java.util.Enumeration<String> names = pageContext.getAttributeNamesInScope(javax.servlet.jsp.PageContext.PAGE_SCOPE);
+            while (names.hasMoreElements()) {
+                String name = names.nextElement();
+                if (!name.startsWith("javax.") && !name.startsWith("org.apache.") && !name.equals(MASON_OUTPUT)) {
+                    steps.put(name, pageContext.getAttribute(name));
+                }
+            }
+            runnerArgs.put("__steps", steps);
+            result = reqProcessable.process(masonReq, ConnectionProvider.getMasonDatasource(), runnerArgs);
             //@TODO add actual args and resource
 
             // if Response object is returned, put payload in bus and mason output
