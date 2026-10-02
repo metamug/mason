@@ -548,8 +548,19 @@ public class ExecuteTagHandler extends RequestTag {
 
             Request masonReq = (Request) request.getAttribute(MASON_REQUEST);
 
-            //no bus
-            result = reqProcessable.process(masonReq, ConnectionProvider.getMasonDatasource(), parameters);
+            // results of the steps before this one (SQL, XRequest, Execute, Script), by their id.
+            // Runners that want them read args.get("__steps"); others ignore it.
+            java.util.Map<String, Object> runnerArgs = new java.util.HashMap<>(parameters);
+            java.util.Map<String, Object> steps = new java.util.LinkedHashMap<>();
+            java.util.Enumeration<String> names = pageContext.getAttributeNamesInScope(javax.servlet.jsp.PageContext.PAGE_SCOPE);
+            while (names.hasMoreElements()) {
+                String name = names.nextElement();
+                if (!name.startsWith("javax.") && !name.startsWith("org.apache.") && !name.equals(MASON_OUTPUT)) {
+                    steps.put(name, pageContext.getAttribute(name));
+                }
+            }
+            runnerArgs.put("__steps", steps);
+            result = reqProcessable.process(masonReq, ConnectionProvider.getMasonDatasource(), runnerArgs);
             //@TODO add actual args and resource
 
             // if Response object is returned, put payload in bus and mason output
@@ -560,10 +571,16 @@ public class ExecuteTagHandler extends RequestTag {
             }
 
         } catch (Exception ex) {
+            // script runners signal errors as JspException("", cause); report the cause, not the empty wrapper
+            Exception root = ex;
+            if (ex instanceof JspException && (ex.getMessage() == null || ex.getMessage().isEmpty())
+                    && ex.getCause() instanceof Exception) {
+                root = (Exception) ex.getCause();
+            }
             if (onerror == null) {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
+                throw new JspException("", new MasonException(MasonError.CODE_ERROR, root, root.getMessage()));
             } else {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, onerror));
+                throw new JspException("", new MasonException(MasonError.CODE_ERROR, root, onerror));
             }
         }
 
