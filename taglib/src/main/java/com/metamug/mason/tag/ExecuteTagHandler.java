@@ -560,10 +560,16 @@ public class ExecuteTagHandler extends RequestTag {
             }
 
         } catch (Exception ex) {
+            // script runners signal errors as JspException("", cause); report the cause, not the empty wrapper
+            Exception root = ex;
+            if (ex instanceof JspException && (ex.getMessage() == null || ex.getMessage().isEmpty())
+                    && ex.getCause() instanceof Exception) {
+                root = (Exception) ex.getCause();
+            }
             if (onerror == null) {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, ex.getMessage()));
+                throw new JspException("", new MasonException(MasonError.CODE_ERROR, root, root.getMessage()));
             } else {
-                throw new JspException("", new MasonException(MasonError.CODE_ERROR, ex, onerror));
+                throw new JspException("", new MasonException(MasonError.CODE_ERROR, root, onerror));
             }
         }
 
