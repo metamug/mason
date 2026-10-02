@@ -7,7 +7,6 @@ import com.metamug.mason.entity.request.MasonRequest;
 import com.metamug.mason.exception.MasonError;
 import com.metamug.mason.exception.MasonException;
 
-import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
@@ -16,6 +15,8 @@ import javax.script.ScriptException;
 import javax.servlet.jsp.JspException;
 import javax.sql.DataSource;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -49,24 +50,24 @@ import java.util.regex.Pattern;
  * <li><code>ds</code>: javax.sql.DataSource of the app</li>
  * </ul>
  *
- * Compiled scripts are cached until the file changes, so only the first call pays the compile cost.
+ * Performance: a script is wrapped into a Kotlin function literal and evaluated <em>once per file version</em>; every request
+ * then just invokes that function object. (Evaluating the compiled script on every request through JSR-223 costs about
+ * 28 ms because of the engine's REPL machinery.) The body therefore runs as the body of a lambda: no top-level
+ * classes/objects (local ones are fine), and no <code>return</code>.
  */
 public class KotlinRunner implements RequestProcessable {
 
     private static final String SCRIPT_ROOT = "/WEB-INF/scripts/";
     private static final String ENGINE_EXTENSION = "kts";
+    private static final String FUNCTION_INTERFACE = "kotlin.jvm.functions.Function5";
 
     /**
-     * The typed names are declared on a single line so that line numbers in compile errors
-     * match the script file. The bindings use private names because the engine also exposes every
-     * binding as an untyped top level variable, which would clash with the typed declarations.
+     * Opening of the function literal. It is put on the first line together with the imports, so the script body
+     * starts on line 2 of the compiled source; {@link #userLines(String)} maps error positions back to the file.
      */
-    private static final String PRELUDE_DECLARATIONS
-            = "@Suppress(\"UNCHECKED_CAST\") val params: Map<String, String> = bindings[\"__params\"] as Map<String, String>; "
-            + "@Suppress(\"UNCHECKED_CAST\") val response: MutableMap<String, Any?> = bindings[\"__response\"] as MutableMap<String, Any?>; "
-            + "val request: com.metamug.mason.entity.request.MasonRequest = bindings[\"__request\"] as com.metamug.mason.entity.request.MasonRequest; "
-            + "@Suppress(\"UNCHECKED_CAST\") val steps: Map<String, Any?> = bindings[\"__steps\"] as Map<String, Any?>; "
-            + "val ds: javax.sql.DataSource = bindings[\"__ds\"] as javax.sql.DataSource";
+    private static final String FUNCTION_HEAD
+            = "val __r2fn: (Map<String, String>, com.metamug.mason.entity.request.MasonRequest, MutableMap<String, Any?>, "
+            + "Map<String, Any?>, javax.sql.DataSource) -> Unit = { params, request, response, steps, ds ->";
 
     private static final Map<String, CachedScript> CACHE = new ConcurrentHashMap<>();
 
@@ -82,21 +83,21 @@ public class KotlinRunner implements RequestProcessable {
         Map<String, Object> output = new LinkedHashMap<>();
         try {
             CachedScript cached = compiled(script);
-            CompiledScript compiled = cached.compiled;
-            Bindings bindings = cached.engine.createBindings();
-            bindings.put("__params", request.getParams());
-            bindings.put("__response", output);
-            bindings.put("__request", masonRequest);
-            bindings.put("__ds", ds);
-            bindings.put("__steps", steps(args.get("__steps")));
-            compiled.eval(bindings);
+            cached.invoke.invoke(cached.function, request.getParams(), masonRequest, output, steps(args.get("__steps")), ds);
         } catch (ScriptException ex) {
-            // compile and runtime errors carry file line numbers (the prelude does not shift them)
-            String message = file + ": " + userLines(ex.getMessage());
-            Logger.getLogger(KotlinRunner.class.getName()).log(Level.SEVERE, message);
-            throw new JspException("", new MasonException(MasonError.SCRIPT_ERROR, message));
+            // compile errors carry line numbers; the function head does not shift them (see userLines)
+            throw scriptError(file, userLines(ex.getMessage()));
+        } catch (InvocationTargetException ex) {
+            // the script itself threw
+            throw scriptError(file, runtimeMessage(ex.getCause() != null ? ex.getCause() : ex));
         }
         return new Response<Object>(output);
+    }
+
+    private static JspException scriptError(String file, String detail) {
+        String message = file + ": " + detail;
+        Logger.getLogger(KotlinRunner.class.getName()).log(Level.SEVERE, message);
+        return new JspException("", new MasonException(MasonError.SCRIPT_ERROR, message));
     }
 
     /**
@@ -151,16 +152,22 @@ public class KotlinRunner implements RequestProcessable {
             ScriptEngine kotlin = newEngine();
             String source = new String(Files.readAllBytes(script.toPath()), StandardCharsets.UTF_8);
             CompiledScript compiled = ((Compilable) kotlin).compile(wrap(source));
-            CachedScript created = new CachedScript(modified, kotlin, compiled);
+            // evaluating the wrapped source yields the function object (its last expression)
+            Object function = compiled.eval(kotlin.createBindings());
+            if (function == null) {
+                throw new ScriptException("script did not produce a function");
+            }
+            Class<?> iface = Class.forName(FUNCTION_INTERFACE, true, function.getClass().getClassLoader());
+            Method invoke = iface.getMethod("invoke", Object.class, Object.class, Object.class, Object.class, Object.class);
+            CachedScript created = new CachedScript(modified, function, invoke);
             CACHE.put(key, created);
             return created;
         }
     }
 
     /**
-     * Moves the script's import lines to the first line (imports must precede declarations) and adds the
-     * typed declarations on that same line. The script body therefore starts on line 2 of the compiled
-     * source; {@link #userLines(String)} maps error positions back to the script file.
+     * Moves the script's import lines to the first line (imports must precede declarations), opens the function
+     * literal on that same line and closes it after the body. The body starts on line 2 of the compiled source.
      */
     static String wrap(String source) {
         List<String> imports = new ArrayList<>();
@@ -181,12 +188,12 @@ public class KotlinRunner implements RequestProcessable {
         for (String imp : imports) {
             first.append(imp).append("; ");
         }
-        return first + PRELUDE_DECLARATIONS + "\n" + body;
+        return first + FUNCTION_HEAD + "\n" + body + "\n}\n__r2fn";
     }
 
     /**
-     * Compile errors read "(ScriptingHostXXXX_Line_0.kts:LINE:COL)" where LINE counts the prelude line.
-     * Rewrites them to "(file:LINE:COL)" with LINE relative to the script file.
+     * Compile errors read "(ScriptingHostXXXX_Line_0.kts:LINE:COL)" where LINE counts the first (head) line.
+     * Rewrites them to "(line LINE:COL)" with LINE relative to the script file.
      */
     static String userLines(String message) {
         if (message == null) {
@@ -202,16 +209,30 @@ public class KotlinRunner implements RequestProcessable {
         return out.toString();
     }
 
+    /**
+     * Message for an exception thrown by the script while running: the exception and the script line it came from.
+     */
+    static String runtimeMessage(Throwable t) {
+        String where = "";
+        for (StackTraceElement e : t.getStackTrace()) {
+            if (e.getFileName() != null && e.getFileName().endsWith(".kts")) {
+                where = " (line " + Math.max(1, e.getLineNumber() - 1) + ")";
+                break;
+            }
+        }
+        return "runtime error: " + t + where;
+    }
+
     private static final class CachedScript {
 
         final long modified;
-        final ScriptEngine engine;
-        final CompiledScript compiled;
+        final Object function;
+        final Method invoke;
 
-        CachedScript(long modified, ScriptEngine engine, CompiledScript compiled) {
+        CachedScript(long modified, Object function, Method invoke) {
             this.modified = modified;
-            this.engine = engine;
-            this.compiled = compiled;
+            this.function = function;
+            this.invoke = invoke;
         }
     }
 }
