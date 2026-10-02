@@ -15,7 +15,11 @@
  */
 package com.metamug.mason.entity.request;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -33,6 +37,50 @@ public class RequestParamMap extends HashMap<String, String> {
     @Override
     public String get(Object key) {
         return request.getParameter((String) key);
+    }
+
+    /**
+     * get() reads straight from the servlet request, so the map itself stays empty. Everything that enumerates
+     * the map (entrySet, keySet, size, ...) therefore has to be answered from the request as well, otherwise code
+     * that iterates the parameters (e.g. the Groovy runner binding one variable per parameter) sees nothing.
+     * Values put into the map (extra parameters) are included.
+     */
+    private Map<String, String> view() {
+        Map<String, String> all = new LinkedHashMap<>(super.size() == 0 ? new HashMap<String, String>() : new HashMap<>(this));
+        for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
+            all.put(e.getKey(), e.getValue() != null && e.getValue().length > 0 ? e.getValue()[0] : null);
+        }
+        return all;
+    }
+
+    @Override
+    public Set<Map.Entry<String, String>> entrySet() {
+        return view().entrySet();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return view().keySet();
+    }
+
+    @Override
+    public Collection<String> values() {
+        return view().values();
+    }
+
+    @Override
+    public int size() {
+        return view().size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return view().isEmpty();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return request.getParameter((String) key) != null || super.containsKey(key);
     }
 
 }
