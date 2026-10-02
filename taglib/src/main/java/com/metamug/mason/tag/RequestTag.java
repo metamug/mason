@@ -541,4 +541,16 @@ public class RequestTag extends RestTag {
     public void addParameter(String name, Object value) {
         parameters.put(name, value);
     }
+
+    /**
+     * Tag handlers are pooled and reused by the JSP engine. The headers and parameters collected from the
+     * child tags (Header, Param, Arg) of one use must not leak into the next use of the same handler, e.g. the
+     * Content-Type of a POST XRequest ending up on a later GET XRequest.
+     */
+    @Override
+    public void doFinally() {
+        super.doFinally();
+        headers = new HashMap<>();
+        parameters = new HashMap<>();
+    }
 }
